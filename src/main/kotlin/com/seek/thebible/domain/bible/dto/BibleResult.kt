@@ -82,30 +82,58 @@ data class ChapterResult(
 }
 
 
-data class VerseView(
-    val chapter: ChapterDetailResult,
-    val totalChapterCount: Int
+data class VerseViewResult(
+    val book: Book,
+    val hasPrev: Boolean,
+    val hasNext: Boolean,
+    val isFirst: Boolean,
+    val isLast: Boolean?,
 ) {
+    data class Book(
+        val bookId: Long,
+        val bookName: String,
+        val totalChapterCount: Int,
+        val chapter: ChapterDetailResult,
+    )
+
     companion object {
-        fun of(chapter: BibleChapter, totalChapterCount: Int) =
-            VerseView(
-                chapter = chapter.let(ChapterDetailResult::from),
-                totalChapterCount = totalChapterCount
+        fun of(
+            books: List<BibleBook>,
+            currentBook: BibleBook,
+            totalChapterCount: Int,
+            chapter: BibleChapter,
+        ): VerseViewResult {
+            val isFirst = currentBook.bookOrder == 1 && chapter.chapterNumber == 1
+            val isLast = currentBook.bookOrder == books.last().bookOrder && chapter.chapterNumber == totalChapterCount
+            val hasPrev = !isFirst
+            val hasNext = !isLast
+            return VerseViewResult(
+                book = Book(
+                    bookId = currentBook.id!!,
+                    bookName = currentBook.name,
+                    totalChapterCount = totalChapterCount,
+                    chapter = ChapterDetailResult.from(chapter),
+                ),
+                hasPrev = hasPrev,
+                hasNext = hasNext,
+                isFirst = isFirst,
+                isLast = isLast
             )
+        }
     }
 }
 
 data class ChapterDetailResult(
     val chapterId: Long,
     val chapterNumber: Int,
-    val verses: List<VerseResult>
+    val verses: List<VerseResult>,
 ) {
     companion object {
-        fun from(chapter: BibleChapter) = with(chapter) {
-            ChapterDetailResult(
-                chapterId = id!!,
-                chapterNumber = chapterNumber,
-                verses = verses.map(VerseResult::from)
+        fun from(chapter: BibleChapter): ChapterDetailResult {
+            return ChapterDetailResult(
+                chapterId = chapter.id!!,
+                chapterNumber = chapter.chapterNumber,
+                verses = chapter.verses.map(VerseResult::from),
             )
         }
     }

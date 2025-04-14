@@ -1,6 +1,7 @@
 package com.seek.thebible.presentation.bible
 
 import com.seek.thebible.application.bible.BibleFacade
+import com.seek.thebible.domain.DirectionType
 import com.seek.thebible.presentation.bible.dto.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -52,9 +53,21 @@ class BibleController(
         @PathVariable bookId: Long,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<VerseViewResponse> {
-        val result = bibleFacade.getVerseView(bookId, chapterNumber)
+        val result = bibleFacade.getVerseView(translationId, bookId, chapterNumber)
         val response = VerseViewResponse.from(result)
         return ResponseEntity.ok().body(response)
+    }
+
+    @GetMapping("/translations/{translationId}/books/{bookId}/chapters/{chapterNumber}/navigate")
+    fun navigateChapter(
+        @PathVariable translationId: Long,
+        @PathVariable bookId: Long,
+        @PathVariable chapterNumber: Int,
+        @RequestParam direction: DirectionType // "prev" or "next"
+    ): ResponseEntity<VerseViewResponse> {
+        val result = bibleFacade.navigate(translationId, bookId, chapterNumber, direction)
+        val response = VerseViewResponse.from(result)
+        return ResponseEntity.ok(response)
     }
 
     /**

@@ -1,61 +1,6 @@
 package com.seek.thebible.presentation.bible.dto
 
-import com.seek.thebible.domain.bible.dto.*
-import com.seek.thebible.domain.bible.model.BibleTestamentType
-import com.seek.thebible.domain.bible.model.BibleTranslationType
-
-data class TranslationResponse(
-    val translationId: Long,
-    val translationType: BibleTranslationType,
-    val translationName: String
-) {
-    companion object {
-        fun from(result: TranslationResult) =
-            TranslationResponse(
-                translationId = result.translationId,
-                translationType = result.translationType,
-                translationName = result.translationName
-            )
-    }
-}
-
-data class BookResponse(
-    val bookId: Long,
-    val bookName: String,
-    val abbreviation: String,
-    val testamentType: BibleTestamentType,
-    val chapterCount: Int,
-) {
-    companion object {
-        fun from(result: BookResult) =
-            BookResponse(
-                bookId = result.bookId,
-                bookName = result.bookName,
-                abbreviation = result.abbreviation,
-                testamentType = result.testamentType,
-                chapterCount = result.chapterCount
-            )
-    }
-}
-
-data class ChapterViewResponse(
-    val book: BookDetailResult
-) {
-    companion object {
-        fun from(result: ChapterView) =
-            ChapterViewResponse(book = result.book)
-    }
-}
-
-data class VerseViewResponse(
-    val chapter: ChapterDetailResult,
-    val totalChapterCount: Int
-) {
-    companion object {
-        fun from(result: VerseView) =
-            VerseViewResponse(chapter = result.chapter, totalChapterCount = result.totalChapterCount)
-    }
-}
+import com.seek.thebible.domain.bible.dto.SearchVerseResult
 
 data class SearchVerseResponse(
     val verseId: Long,

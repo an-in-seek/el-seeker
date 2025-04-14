@@ -18,5 +18,8 @@ class BibleTranslation(
     val name: String, // 번역본 이름 (예: 개역개정, NIV)
 
     @Column(nullable = false)
-    val translationOrder: Int
+    val translationOrder: Int,
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "translationId")
+    val books: MutableList<BibleBook> = mutableListOf()
 )
