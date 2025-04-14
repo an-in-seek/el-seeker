@@ -23,7 +23,8 @@ data class BookResponse(
     val bookId: Long,
     val bookName: String,
     val abbreviation: String,
-    val testamentType: BibleTestamentType
+    val testamentType: BibleTestamentType,
+    val chapterCount: Int,
 ) {
     companion object {
         fun from(result: BookResult) =
@@ -31,7 +32,8 @@ data class BookResponse(
                 bookId = result.bookId,
                 bookName = result.bookName,
                 abbreviation = result.abbreviation,
-                testamentType = result.testamentType
+                testamentType = result.testamentType,
+                chapterCount = result.chapterCount
             )
     }
 }

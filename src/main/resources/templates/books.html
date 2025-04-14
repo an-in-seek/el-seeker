@@ -60,6 +60,7 @@
 
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderBooks(books) {
+            sessionStorage.setItem("bookList", JSON.stringify(books));
             translationTitle.textContent = `${translationName}`;
             bookList.innerHTML = "";
             books.forEach(book => {
