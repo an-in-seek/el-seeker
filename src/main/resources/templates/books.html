@@ -13,13 +13,6 @@
 <div class="container content-wrapper">
   <h1 class="mt-2" id="translationTitle"></h1>
   <table class="table table-striped table-hover">
-    <thead>
-    <tr>
-      <th>책 이름</th>
-      <th>약어</th>
-      <th>구약/신약</th>
-    </tr>
-    </thead>
     <tbody id="bookList"></tbody>
   </table>
 </div>
@@ -69,7 +62,6 @@
                 row.dataset.bookId = book.bookId;
                 row.innerHTML = `
                     <td>${book.bookName}</td>
-                    <td>${book.abbreviation}</td>
                     <td>${book.testamentType}</td>
                 `;
                 row.addEventListener("click", () => {
