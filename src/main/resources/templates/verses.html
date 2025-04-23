@@ -75,13 +75,14 @@
             if (!verseEl) {
                 return;
             }
-
             const verseNum = verseEl.getAttribute("data-verse");
             if (e.target.classList.contains("memo-save-btn")) {
                 saveMemo(verseNum);
+            } else if (e.target.classList.contains("memo-delete-btn")) {
+                deleteMemo(verseNum)
             } else {
                 toggleMemo(verseNum);
-                applyVerseHighlight(verseEl);
+                applyVerseHighlight(verseNum);
             }
         });
 
@@ -136,12 +137,13 @@
             <tr>
               <td>${v}</td>
               <td>
-                <div class="${verseClass}" data-verse="${v}">${verse.text}</div>
+                <div class="${verseClass}" id="verse-text-${v}" data-verse="${v}">${verse.text}</div>
                 <div class="memo-container d-none mt-3" id="memo-${v}">
                   <div class="form-group">
                     <textarea class="form-control mb-2" rows="3" placeholder="메모를 입력하세요..." id="memo-input-${v}"></textarea>
                     <div class="text-end">
                       <button class="btn btn-sm btn-primary memo-save-btn" data-verse="${v}">💾 저장</button>
+                      <button class="btn btn-sm btn-danger memo-delete-btn" data-verse="${v}">🗑️ 삭제</button>
                     </div>
                   </div>
                 </div>
@@ -167,13 +169,15 @@
             }
         }
 
-        function applyVerseHighlight(verseEl) {
-            document.querySelectorAll(".verse-text.active").forEach(el => {
-                if (el !== verseEl) {
+        function applyVerseHighlight(verseNum) {
+            document.querySelectorAll(".verse-text").forEach(el => {
+                const isTarget = el.id === `verse-text-${verseNum}`;
+                if (isTarget) {
+                    el.classList.toggle("active");
+                } else {
                     el.classList.remove("active");
                 }
             });
-            verseEl.classList.toggle("active");
         }
 
         function saveMemo(verseNum) {
@@ -183,17 +187,22 @@
                 return;
             }
             const value = textarea?.value.trim();
-            const key = buildMemoKey(verseNum);
-            const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
-            if (value) {
-                localStorage.setItem(key, value);
-                showAlert(`${verseNum}절 메모 저장됨`, "success");
-                verseTextEl?.classList.add("verse-has-memo");
-            } else {
-                localStorage.removeItem(key);
-                showAlert(`${verseNum}절 메모 삭제됨`, "info");
-                verseTextEl?.classList.remove("verse-has-memo");
+            if (!value) {
+                return;
             }
+            const key = buildMemoKey(verseNum);
+            localStorage.setItem(key, value);
+            const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+            verseTextEl?.classList.add("verse-has-memo");
+        }
+
+        function deleteMemo(verseNum) {
+            const key = buildMemoKey(verseNum);
+            localStorage.removeItem(key);
+            const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+            verseTextEl?.classList.remove("verse-has-memo");
+            toggleMemo(verseNum);
+            applyVerseHighlight(verseNum);
         }
 
         function buildMemoKey(verseNum) {
