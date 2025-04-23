@@ -81,6 +81,7 @@
                 saveMemo(verseNum);
             } else {
                 toggleMemo(verseNum);
+                applyVerseHighlight(verseEl);
             }
         });
 
@@ -160,6 +161,15 @@
                 const key = buildMemoKey(verseNum);
                 textarea.value = localStorage.getItem(key) || "";
             }
+        }
+
+        function applyVerseHighlight(verseEl) {
+            document.querySelectorAll(".verse-text.active").forEach(el => {
+                if (el !== verseEl) {
+                    el.classList.remove("active");
+                }
+            });
+            verseEl.classList.toggle("active");
         }
 
         function saveMemo(verseNum) {
