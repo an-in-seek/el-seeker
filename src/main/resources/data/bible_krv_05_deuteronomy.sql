@@ -1,4 +1,4 @@
--- 📌 신명기 1장~36장(Chapter) 삽입
+-- 📌 신명기 1장~34장(Chapter) 삽입
 INSERT INTO bible_chapter (id, book_id, chapter_number)
 VALUES (154, 5, 1),
        (155, 5, 2),
