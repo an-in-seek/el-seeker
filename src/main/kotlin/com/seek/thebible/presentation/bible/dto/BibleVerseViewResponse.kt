@@ -2,7 +2,7 @@ package com.seek.thebible.presentation.bible.dto
 
 import com.seek.thebible.domain.bible.dto.VerseViewResult
 
-data class VerseViewResponse(
+data class BibleVerseViewResponse(
     val book: VerseViewResult.Book,
     val hasPrev: Boolean,
     val hasNext: Boolean,
@@ -10,7 +10,7 @@ data class VerseViewResponse(
     val isLast: Boolean?,
 ) {
     companion object {
-        fun from(result: VerseViewResult) = VerseViewResponse(
+        fun from(result: VerseViewResult) = BibleVerseViewResponse(
             book = result.book,
             hasPrev = result.hasPrev,
             hasNext = result.hasNext,

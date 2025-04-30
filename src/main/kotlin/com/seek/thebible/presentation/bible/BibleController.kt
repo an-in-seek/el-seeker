@@ -16,8 +16,8 @@ class BibleController(
      * 📌 번역본(Translation) 리스트 조회
      */
     @GetMapping("/translations")
-    fun getTranslations(): ResponseEntity<List<TranslationResponse>> {
-        val response = bibleFacade.getTranslations().map(TranslationResponse::from)
+    fun getTranslations(): ResponseEntity<List<BibleTranslationResponse>> {
+        val response = bibleFacade.getTranslations().map(BibleTranslationResponse::from)
         return ResponseEntity.ok().body(response)
     }
 
@@ -27,8 +27,8 @@ class BibleController(
     @GetMapping("/translations/{translationId}/books")
     fun getBooks(
         @PathVariable translationId: Long
-    ): ResponseEntity<List<BookResponse>> {
-        val response = bibleFacade.getBooks(translationId).map(BookResponse::from)
+    ): ResponseEntity<List<BibleBookResponse>> {
+        val response = bibleFacade.getBooks(translationId).map(BibleBookResponse::from)
         return ResponseEntity.ok().body(response)
     }
 
@@ -39,8 +39,8 @@ class BibleController(
     fun getChapters(
         @PathVariable translationId: Long,
         @PathVariable bookId: Long
-    ): ResponseEntity<ChapterViewResponse> {
-        val response = bibleFacade.getChapterView(bookId).let(ChapterViewResponse::from)
+    ): ResponseEntity<BibleChapterViewResponse> {
+        val response = bibleFacade.getChapterView(bookId).let(BibleChapterViewResponse::from)
         return ResponseEntity.ok().body(response)
     }
 
@@ -52,9 +52,9 @@ class BibleController(
         @PathVariable translationId: Long,
         @PathVariable bookId: Long,
         @PathVariable chapterNumber: Int
-    ): ResponseEntity<VerseViewResponse> {
+    ): ResponseEntity<BibleVerseViewResponse> {
         val result = bibleFacade.getVerseView(translationId, bookId, chapterNumber)
-        val response = VerseViewResponse.from(result)
+        val response = BibleVerseViewResponse.from(result)
         return ResponseEntity.ok().body(response)
     }
 
@@ -64,18 +64,21 @@ class BibleController(
         @PathVariable bookId: Long,
         @PathVariable chapterNumber: Int,
         @RequestParam direction: DirectionType // "prev" or "next"
-    ): ResponseEntity<VerseViewResponse> {
+    ): ResponseEntity<BibleVerseViewResponse> {
         val result = bibleFacade.navigate(translationId, bookId, chapterNumber, direction)
-        val response = VerseViewResponse.from(result)
+        val response = BibleVerseViewResponse.from(result)
         return ResponseEntity.ok(response)
     }
 
     /**
      * 📌 성경 구절 검색 (키워드 포함)
      */
-    @GetMapping("/search")
-    fun searchBible(@RequestParam keyword: String): ResponseEntity<List<SearchVerseResponse>> {
-        val response = bibleFacade.searchBibleVerses(keyword).map(SearchVerseResponse::from)
+    @GetMapping("/translations/{translationId}/search")
+    fun searchBible(
+        @PathVariable translationId: Long,
+        @RequestParam keyword: String
+    ): ResponseEntity<List<BibleSearchResponse>> {
+        val response = bibleFacade.searchBibleVerses(translationId, keyword).map(BibleSearchResponse::from)
         return ResponseEntity.ok(response)
     }
 }

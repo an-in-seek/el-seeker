@@ -154,9 +154,3 @@ data class VerseResult(
         }
     }
 }
-
-data class SearchVerseResult(
-    val verseId: Long,
-    val verseNumber: Int,
-    val text: String
-)

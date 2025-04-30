@@ -1,7 +1,7 @@
 package com.seek.thebible.presentation.bible
 
 import com.seek.thebible.application.bible.BibleFacade
-import com.seek.thebible.presentation.bible.dto.TranslationResponse
+import com.seek.thebible.presentation.bible.dto.BibleTranslationResponse
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,7 +15,7 @@ class BibleWebController(
 
     @GetMapping("/translations")
     fun showTranslations(model: Model): String {
-        val translations = bibleFacade.getTranslations().map(TranslationResponse::from)
+        val translations = bibleFacade.getTranslations().map(BibleTranslationResponse::from)
         model.addAttribute("translations", translations)
         return "translations"
     }

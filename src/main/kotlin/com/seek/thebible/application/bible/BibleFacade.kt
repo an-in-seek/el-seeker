@@ -24,12 +24,9 @@ class BibleFacade(
     fun navigate(translationId: Long, bookId: Long, chapterNumber: Int, direction: DirectionType): VerseViewResult =
         bibleReader.navigateChapter(translationId, bookId, chapterNumber, direction)
 
-    fun searchBibleVerses(keyword: String): List<SearchVerseResult> =
-        bibleReader.searchBibleVerses(keyword).map { verse ->
-            SearchVerseResult(
-                verseId = verse.id!!,
-                verseNumber = verse.verseNumber,
-                text = verse.text
-            )
-        }
+    fun searchBibleVerses(
+        translationId: Long,
+        keyword: String
+    ): List<BibleSearchResult> =
+        bibleReader.searchBibleVerses(translationId, keyword);
 }

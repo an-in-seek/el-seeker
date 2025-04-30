@@ -3,12 +3,8 @@ package com.seek.thebible.domain.bible.service
 import com.seek.thebible.domain.BibleServiceException
 import com.seek.thebible.domain.DirectionType
 import com.seek.thebible.domain.ErrorType
-import com.seek.thebible.domain.bible.dto.BookResult
-import com.seek.thebible.domain.bible.dto.ChapterView
-import com.seek.thebible.domain.bible.dto.TranslationResult
-import com.seek.thebible.domain.bible.dto.VerseViewResult
+import com.seek.thebible.domain.bible.dto.*
 import com.seek.thebible.domain.bible.model.BibleTranslationType
-import com.seek.thebible.domain.bible.model.BibleVerse
 import com.seek.thebible.infrastructure.persistence.bible.BibleBookRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleChapterRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleTranslationRepository
@@ -111,10 +107,13 @@ class BibleReader(
         )
     }
 
-    fun searchBibleVerses(keyword: String): List<BibleVerse> {
+    fun searchBibleVerses(
+        translationId: Long,
+        keyword: String
+    ): List<BibleSearchResult> {
         if (keyword.isBlank()) throw BibleServiceException(ErrorType.INVALID_PARAMETER, "keyword is blank")
         return try {
-            bibleVerseRepository.findByTextContaining(keyword)
+            bibleVerseRepository.searchByTranslationAndText(translationId, keyword)
         } catch (e: Exception) {
             throw BibleServiceException(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
         }
