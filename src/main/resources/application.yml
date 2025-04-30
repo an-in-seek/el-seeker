@@ -36,6 +36,7 @@ spring:
         - classpath:data/bible_krv_04_numbers.sql
         - classpath:data/bible_krv_05_deuteronomy.sql
         - classpath:data/bible_krv_06_joshua.sql
+        - classpath:data/bible_krv_07_judges.sql
 
 springdoc:
   api-docs:
