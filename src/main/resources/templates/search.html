@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v1" rel="stylesheet">
+  <link href="/css/common.css?v2" rel="stylesheet">
 </head>
 <body>
 <div class="container content-wrapper">
@@ -36,7 +36,7 @@
             resultCount.textContent = "검색 중...";
             resultBody.innerHTML = "";
             try {
-                const response = await fetch(`/api/bibles/translations/${translationId}/verses/search?keyword=${encodeURIComponent(keyword)}`);
+                const response = await fetch(`/api/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(keyword)}`);
                 if (!response.ok) {
                     throw new Error("검색 실패");
                 }
