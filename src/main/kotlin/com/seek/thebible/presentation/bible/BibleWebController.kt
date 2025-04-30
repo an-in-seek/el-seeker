@@ -34,4 +34,9 @@ class BibleWebController(
     fun showVerses(): String {
         return "verses"
     }
+
+    @GetMapping("/search")
+    fun showSearch(): String {
+        return "search"
+    }
 }
