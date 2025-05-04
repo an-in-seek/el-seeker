@@ -150,3 +150,10 @@
 .chapter-tile:hover {
   background-color: #e2e6ea;
 }
+
+.highlighted-verse {
+  background-color: #fff59d; /* 연한 노란색: 형광펜 느낌 */
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
