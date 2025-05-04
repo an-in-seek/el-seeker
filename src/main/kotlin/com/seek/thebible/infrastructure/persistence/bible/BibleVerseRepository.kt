@@ -12,7 +12,15 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
 
     @Query(
         """
-        SELECT new com.seek.thebible.presentation.api.response.BibleSearchResponse(b.name, c.chapterNumber, v.verseNumber, v.text) 
+        SELECT new com.seek.thebible.presentation.api.response.BibleSearchResponse(
+                    b.id,
+                    b.name,
+                    c.id,
+                    c.chapterNumber,
+                    v.id,
+                    v.verseNumber, 
+                    v.text
+                ) 
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
