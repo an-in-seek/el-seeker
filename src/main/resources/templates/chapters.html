@@ -67,9 +67,9 @@
             bookTitle.textContent = `${translationName} > ${bookName}`;
             chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
-                const tile = document.createElement("button"); // ✅ div → button
+                const tile = document.createElement("button");
+                tile.type = "button";
                 tile.className = "chapter-tile";
-                tile.type = "button"; // ✅ 명시적으로 type 설정
                 tile.textContent = chapter.chapterNumber;
                 tile.addEventListener("click", () => {
                     ChapterStore.saveNumber(chapter.chapterNumber);

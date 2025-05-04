@@ -57,11 +57,9 @@
             translationTitle.textContent = `${translationName}`;
             bookList.innerHTML = "";
             books.forEach(book => {
-                const col = document.createElement("div");
-                col.className = "col";
                 const button = document.createElement("button");
                 button.type = "button";
-                button.className = "book-tile w-100";
+                button.className = "book-tile";
                 button.textContent = book.bookName;
                 button.dataset.bookId = book.bookId;
                 button.dataset.bookName = book.bookName;
@@ -72,8 +70,7 @@
                     });
                     window.location.href = "/web/bibles/chapters";
                 });
-                col.appendChild(button);
-                bookList.appendChild(col);
+                bookList.appendChild(button);
             });
             BookStore.saveListForTranslation(translationId, books);
         }
