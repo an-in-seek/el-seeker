@@ -11,7 +11,7 @@
 <div class="container content-wrapper">
   <h1 id="searchTitle" class="mt-2"></h1>
   <div class="input-group my-3">
-    <input type="text" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요">
+    <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요">
     <button id="searchBtn" class="btn btn-outline-primary">🔍</button>
   </div>
   <table class="table table-striped">
@@ -41,7 +41,7 @@
             window.location.href = "/web/bibles/translations";
             return;
         }
-        
+
         const searchTitle = document.getElementById("searchTitle");
         const keywordInput = document.getElementById("keywordInput");
         const searchBtn = document.getElementById("searchBtn");
