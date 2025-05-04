@@ -1,7 +1,7 @@
 package com.seek.thebible.infrastructure.persistence.bible
 
-import com.seek.thebible.domain.bible.dto.BibleSearchResult
 import com.seek.thebible.domain.bible.model.BibleVerse
+import com.seek.thebible.presentation.bible.response.BibleSearchResponse
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -12,7 +12,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
 
     @Query(
         """
-        SELECT new com.seek.thebible.domain.bible.dto.BibleSearchResult(b.name, c.chapterNumber, v.verseNumber, v.text) 
+        SELECT new com.seek.thebible.presentation.bible.response.BibleSearchResponse(b.name, c.chapterNumber, v.verseNumber, v.text) 
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
@@ -23,6 +23,6 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
     fun searchByTranslationAndText(
         @Param("translationId") translationId: Long,
         @Param("keyword") keyword: String
-    ): List<BibleSearchResult>
+    ): List<BibleSearchResponse>
 
 }

@@ -3,15 +3,20 @@ package com.seek.thebible.domain.bible.service
 import com.seek.thebible.domain.BibleServiceException
 import com.seek.thebible.domain.DirectionType
 import com.seek.thebible.domain.ErrorType
-import com.seek.thebible.domain.bible.dto.*
 import com.seek.thebible.domain.bible.model.BibleTranslationType
+import com.seek.thebible.domain.bible.result.BibleResult
 import com.seek.thebible.infrastructure.persistence.bible.BibleBookRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleChapterRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleTranslationRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleVerseRepository
-import org.springframework.stereotype.Service
+import com.seek.thebible.presentation.bible.response.BibleApiResponse
+import com.seek.thebible.presentation.bible.response.BibleSearchResponse
+import com.seek.thebible.presentation.bible.response.BibleViewResponse
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
-@Service
+@Component
+@Transactional(readOnly = true)
 class BibleReader(
     private val bibleTranslationRepository: BibleTranslationRepository,
     private val bibleBookRepository: BibleBookRepository,
@@ -19,20 +24,20 @@ class BibleReader(
     private val bibleVerseRepository: BibleVerseRepository
 ) {
 
-    fun getTranslations(): List<TranslationResult> =
+    fun getTranslations(): List<BibleResult.Translation> =
         bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(
             setOf(BibleTranslationType.KRV, BibleTranslationType.KJV)
-        ).map(TranslationResult::from)
+        ).map(BibleResult.Translation::from)
 
-    fun getBooks(translationId: Long): List<BookResult> =
-        bibleBookRepository.findByTranslationId(translationId).map(BookResult::from)
+    fun getBooks(translationId: Long): List<BibleResult.Book> =
+        bibleBookRepository.findByTranslationId(translationId).map(BibleResult.Book::from)
 
-    fun getChapterView(bookId: Long): ChapterView =
+    fun getChapterView(bookId: Long): BibleViewResponse.Chapter =
         bibleBookRepository.findByIdWithChapters(bookId)
-            ?.let(ChapterView::from)
+            ?.let(BibleViewResponse.Chapter::from)
             ?: throw BibleServiceException(ErrorType.BOOK_NOT_FOUND, "bookId=$bookId")
 
-    fun getVerseView(translationId: Long, bookId: Long, chapterNumber: Int): VerseViewResult {
+    fun getVerseView(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw BibleServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
@@ -45,7 +50,7 @@ class BibleReader(
 
         val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
 
-        return VerseViewResult.of(
+        return BibleApiResponse.Verse.of(
             books = books,
             currentBook = book,
             totalChapterCount = totalChapterCount,
@@ -58,7 +63,7 @@ class BibleReader(
         bookId: Long,
         chapterNumber: Int,
         direction: DirectionType
-    ): VerseViewResult {
+    ): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw BibleServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
@@ -99,7 +104,7 @@ class BibleReader(
 
         val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)
 
-        return VerseViewResult.of(
+        return BibleApiResponse.Verse.of(
             books = books,
             currentBook = targetBook,
             totalChapterCount = totalChapterCount,
@@ -110,7 +115,7 @@ class BibleReader(
     fun searchBibleVerses(
         translationId: Long,
         keyword: String
-    ): List<BibleSearchResult> {
+    ): List<BibleSearchResponse> {
         if (keyword.isBlank()) throw BibleServiceException(ErrorType.INVALID_PARAMETER, "keyword is blank")
         return try {
             bibleVerseRepository.searchByTranslationAndText(translationId, keyword)

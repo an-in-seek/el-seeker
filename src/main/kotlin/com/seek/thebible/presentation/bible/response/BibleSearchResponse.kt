@@ -1,6 +1,6 @@
-package com.seek.thebible.domain.bible.dto
+package com.seek.thebible.presentation.bible.response
 
-data class BibleSearchResult(
+data class BibleSearchResponse(
     val bookName: String,
     val chapterNumber: Int,
     val verseNumber: Int,
