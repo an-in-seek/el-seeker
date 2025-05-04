@@ -9,9 +9,9 @@ import com.seek.thebible.infrastructure.persistence.bible.BibleBookRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleChapterRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleTranslationRepository
 import com.seek.thebible.infrastructure.persistence.bible.BibleVerseRepository
-import com.seek.thebible.presentation.bible.response.BibleApiResponse
-import com.seek.thebible.presentation.bible.response.BibleSearchResponse
-import com.seek.thebible.presentation.bible.response.BibleViewResponse
+import com.seek.thebible.presentation.api.BibleApiResponse
+import com.seek.thebible.presentation.api.response.BibleSearchResponse
+import com.seek.thebible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

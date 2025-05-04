@@ -1,4 +1,4 @@
-package com.seek.thebible.presentation.bible.response
+package com.seek.thebible.presentation.api.response
 
 data class BibleSearchResponse(
     val bookName: String,

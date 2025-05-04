@@ -1,4 +1,4 @@
-package com.seek.thebible.presentation.bible.response
+package com.seek.thebible.presentation.web.response
 
 import com.seek.thebible.domain.bible.model.BibleBook
 import com.seek.thebible.domain.bible.model.BibleTranslationType

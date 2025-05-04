@@ -1,7 +1,7 @@
-package com.seek.thebible.presentation.bible
+package com.seek.thebible.presentation.web
 
 import com.seek.thebible.application.bible.BibleFacade
-import com.seek.thebible.presentation.bible.response.BibleViewResponse
+import com.seek.thebible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping

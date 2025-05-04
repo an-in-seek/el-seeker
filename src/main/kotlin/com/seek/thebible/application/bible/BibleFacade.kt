@@ -3,9 +3,9 @@ package com.seek.thebible.application.bible
 import com.seek.thebible.domain.DirectionType
 import com.seek.thebible.domain.bible.result.BibleResult
 import com.seek.thebible.domain.bible.service.BibleReader
-import com.seek.thebible.presentation.bible.response.BibleApiResponse
-import com.seek.thebible.presentation.bible.response.BibleSearchResponse
-import com.seek.thebible.presentation.bible.response.BibleViewResponse
+import com.seek.thebible.presentation.api.BibleApiResponse
+import com.seek.thebible.presentation.api.response.BibleSearchResponse
+import com.seek.thebible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Service
 
 @Service

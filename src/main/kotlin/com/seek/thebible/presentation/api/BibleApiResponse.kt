@@ -1,4 +1,4 @@
-package com.seek.thebible.presentation.bible.response
+package com.seek.thebible.presentation.api
 
 import com.seek.thebible.domain.bible.model.BibleBook
 import com.seek.thebible.domain.bible.model.BibleChapter
@@ -82,5 +82,5 @@ object BibleApiResponse {
             }
         }
     }
-    
+
 }

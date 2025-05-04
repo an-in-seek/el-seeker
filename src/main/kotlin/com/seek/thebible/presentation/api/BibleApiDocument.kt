@@ -1,9 +1,8 @@
-package com.seek.thebible.presentation.bible
+package com.seek.thebible.presentation.api
 
 import com.seek.thebible.domain.DirectionType
-import com.seek.thebible.presentation.bible.response.BibleApiResponse
-import com.seek.thebible.presentation.bible.response.BibleSearchResponse
-import com.seek.thebible.presentation.bible.response.BibleViewResponse
+import com.seek.thebible.presentation.api.response.BibleSearchResponse
+import com.seek.thebible.presentation.web.response.BibleViewResponse
 import org.springframework.http.ResponseEntity
 
 interface BibleApiDocument {
