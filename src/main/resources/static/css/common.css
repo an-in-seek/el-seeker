@@ -157,3 +157,10 @@
   border-radius: 4px;
   padding: 2px 4px;
 }
+
+.highlight-keyword {
+  background-color: #fff59d; /* 연한 형광 노랑 */
+  font-weight: bold;
+  border-radius: 2px;
+  padding: 0 2px;
+}

@@ -79,6 +79,13 @@
                 resultCount.textContent = `"${keyword}"에 대한 결과 ${data.length}건`;
                 data.forEach(item => {
                     const row = document.createElement("tr");
+
+                    // 정규식으로 키워드 부분을 강조 처리
+                    const highlightedText = item.text.replace(
+                        new RegExp(`(${keyword})`, 'gi'), // 대소문자 구분 없이 일치
+                        '<span class="highlight-keyword">$1</span>'
+                    );
+
                     row.innerHTML = `
                       <td class="verse-link" style="cursor:pointer"
                           data-book-id="${item.bookId}"
@@ -87,7 +94,7 @@
                           data-chapter-number="${item.chapterNumber}"
                           data-verse-id="${item.verseId}"
                           data-verse-number="${item.verseNumber}">
-                          ${item.text} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
+                          ${highlightedText} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
                       </td>
                     `;
                     searchResultBody.appendChild(row);
