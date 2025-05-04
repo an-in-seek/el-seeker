@@ -30,13 +30,13 @@ interface BibleApiDocument {
     /**
      * 📌 특정 장(Chapter)에 해당하는 절(Verse) 리스트 조회
      */
-    fun getVerses(
+    fun getChapterVerses(
         translationId: Long,
         bookId: Long,
         chapterNumber: Int
     ): ResponseEntity<BibleApiResponse.Verse>
 
-    fun navigateChapter(
+    fun getAdjacentChapterVerses(
         translationId: Long,
         bookId: Long,
         chapterNumber: Int,

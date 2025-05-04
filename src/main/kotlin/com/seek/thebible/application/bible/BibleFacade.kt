@@ -22,11 +22,11 @@ class BibleFacade(
     fun getChapterView(bookId: Long): BibleViewResponse.Chapter =
         bibleReader.getChapterView(bookId)
 
-    fun getVerseView(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse =
-        bibleReader.getVerseView(translationId, bookId, chapterNumber)
+    fun getChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse =
+        bibleReader.getChapterVerses(translationId, bookId, chapterNumber)
 
-    fun navigate(translationId: Long, bookId: Long, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verse =
-        bibleReader.navigateChapter(translationId, bookId, chapterNumber, direction)
+    fun getAdjacentChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verse =
+        bibleReader.getAdjacentChapterVerses(translationId, bookId, chapterNumber, direction)
 
     fun searchBibleVerses(translationId: Long, keyword: String): List<BibleSearchResponse> =
         bibleReader.searchBibleVerses(translationId, keyword);

@@ -37,23 +37,23 @@ class BibleApiController(
     }
 
     @GetMapping("/translations/{translationId}/books/{bookId}/chapters/{chapterNumber}/verses")
-    override fun getVerses(
+    override fun getChapterVerses(
         @PathVariable translationId: Long,
         @PathVariable bookId: Long,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<BibleApiResponse.Verse> {
-        val response = bibleFacade.getVerseView(translationId, bookId, chapterNumber)
+        val response = bibleFacade.getChapterVerses(translationId, bookId, chapterNumber)
         return ResponseEntity.ok().body(response)
     }
 
     @GetMapping("/translations/{translationId}/books/{bookId}/chapters/{chapterNumber}/navigate")
-    override fun navigateChapter(
+    override fun getAdjacentChapterVerses(
         @PathVariable translationId: Long,
         @PathVariable bookId: Long,
         @PathVariable chapterNumber: Int,
         @RequestParam direction: DirectionType // "prev" or "next"
     ): ResponseEntity<BibleApiResponse.Verse> {
-        val response = bibleFacade.navigate(translationId, bookId, chapterNumber, direction)
+        val response = bibleFacade.getAdjacentChapterVerses(translationId, bookId, chapterNumber, direction)
         return ResponseEntity.ok(response)
     }
 

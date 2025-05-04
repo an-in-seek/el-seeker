@@ -37,7 +37,7 @@ class BibleReader(
             ?.let(BibleViewResponse.Chapter::from)
             ?: throw BibleServiceException(ErrorType.BOOK_NOT_FOUND, "bookId=$bookId")
 
-    fun getVerseView(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse {
+    fun getChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw BibleServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
@@ -58,7 +58,7 @@ class BibleReader(
         )
     }
 
-    fun navigateChapter(
+    fun getAdjacentChapterVerses(
         translationId: Long,
         bookId: Long,
         chapterNumber: Int,
