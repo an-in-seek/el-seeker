@@ -6,19 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v2" rel="stylesheet">
-  <style>
-    #bookList tr {
-      height: 50px;
-      vertical-align: middle;
-    }
-
-    #bookList tr td {
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
-      font-size: 1rem;
-    }
-  </style>
+  <link href="/css/common.css?v3" rel="stylesheet">
 </head>
 <body>
 
@@ -27,9 +15,7 @@
     <h1 class="mt-2" id="translationTitle"></h1>
     <a href="/web/bibles/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
   </div>
-  <table class="table table-striped table-hover">
-    <tbody id="bookList"></tbody>
-  </table>
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-2" id="bookList"></div>
 </div>
 
 <div class="fixed-bottom-nav">
@@ -71,18 +57,23 @@
             translationTitle.textContent = `${translationName}`;
             bookList.innerHTML = "";
             books.forEach(book => {
-                const row = document.createElement("tr");
-                row.classList.add("clickable-row");
-                row.dataset.bookId = book.bookId;
-                row.innerHTML = `<td>${book.bookName}</td>`;
-                row.addEventListener("click", () => {
+                const col = document.createElement("div");
+                col.className = "col";
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "book-tile w-100";
+                button.textContent = book.bookName;
+                button.dataset.bookId = book.bookId;
+                button.dataset.bookName = book.bookName;
+                button.addEventListener("click", () => {
                     BookStore.save({
                         id: book.bookId,
                         name: book.bookName
                     });
-                    window.location.href = "/web/bibles/chapters"; // ✅ 장 목록 화면 URL 변경
+                    window.location.href = "/web/bibles/chapters";
                 });
-                bookList.appendChild(row);
+                col.appendChild(button);
+                bookList.appendChild(col);
             });
             BookStore.saveListForTranslation(translationId, books);
         }

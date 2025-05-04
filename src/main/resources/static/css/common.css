@@ -130,6 +130,22 @@
   opacity: 0.7;
 }
 
+.book-tile {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 16px 0;
+  text-align: center;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+
+.book-tile:hover {
+  background-color: #e2e6ea;
+}
+
 .chapter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -145,6 +161,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-size: 1rem;
 }
 
 .chapter-tile:hover {

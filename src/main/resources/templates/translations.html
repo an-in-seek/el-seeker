@@ -6,17 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v2" rel="stylesheet">
+  <link href="/css/common.css?v3" rel="stylesheet">
   <style>
-    #translationList tr {
-      height: 50px;
-      vertical-align: middle;
-    }
-
-    #translationList tr td {
+    .list-group-item {
       padding-top: 0.75rem;
       padding-bottom: 0.75rem;
-      font-size: 1rem;
     }
   </style>
 </head>
@@ -26,30 +20,26 @@
   <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
     <h1 class="mt-2">성경 번역본</h1>
   </div>
-  <table class="table table-striped table-hover">
-    <tbody id="translationList">
-    <tr class="clickable-row"
-        th:data-translation-id="${translation.translationId}"
-        th:data-translation-name="${translation.translationName}"
-        th:each="translation : ${translations}">
-      <td th:text="${translation.translationType}"></td>
-      <td th:text="${translation.translationName}"></td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="list-group" id="translationList">
+    <button type="button"
+            class="list-group-item list-group-item-action text-start"
+            th:each="translation : ${translations}"
+            th:data-translation-id="${translation.translationId}"
+            th:data-translation-name="${translation.translationName}">
+      <div class="fw-semibold" th:text="${translation.translationName}">개역개정</div>
+      <div class="small text-muted" th:text="${translation.translationType}">개역</div>
+    </button>
+  </div>
 </div>
 
 <script src="/js/storage-util.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll(".clickable-row").forEach(row => {
-            row.addEventListener("click", function () {
-                const translationId = this.getAttribute("data-translation-id");
-                const translationName = this.getAttribute("data-translation-name");
-                TranslationStore.save({
-                    id: translationId,
-                    name: translationName
-                });
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("#translationList button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-translation-id");
+                const name = btn.getAttribute("data-translation-name");
+                TranslationStore.save({id, name});
                 window.location.href = "/web/bibles/books";
             });
         });
