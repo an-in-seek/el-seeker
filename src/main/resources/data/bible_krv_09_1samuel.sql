@@ -1,4 +1,4 @@
--- 📌 사무엘상 1장~24장(Chapter) 삽입
+-- 📌 사무엘상 1장~31장(Chapter) 삽입
 INSERT INTO bible_chapter (id, book_id, chapter_number)
 VALUES (237, 9, 1),
        (238, 9, 2),
