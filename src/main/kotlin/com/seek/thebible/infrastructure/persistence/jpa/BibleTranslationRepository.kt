@@ -1,4 +1,4 @@
-package com.seek.thebible.infrastructure.persistence.bible
+package com.seek.thebible.infrastructure.persistence.jpa
 
 import com.seek.thebible.domain.bible.model.BibleTranslation
 import com.seek.thebible.domain.bible.model.BibleTranslationType

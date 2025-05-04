@@ -1,14 +1,14 @@
 package com.seek.thebible.domain.bible.service
 
-import com.seek.thebible.domain.BibleServiceException
-import com.seek.thebible.domain.DirectionType
 import com.seek.thebible.domain.ErrorType
+import com.seek.thebible.domain.ServiceException
+import com.seek.thebible.domain.bible.DirectionType
 import com.seek.thebible.domain.bible.model.BibleTranslationType
 import com.seek.thebible.domain.bible.result.BibleResult
-import com.seek.thebible.infrastructure.persistence.bible.BibleBookRepository
-import com.seek.thebible.infrastructure.persistence.bible.BibleChapterRepository
-import com.seek.thebible.infrastructure.persistence.bible.BibleTranslationRepository
-import com.seek.thebible.infrastructure.persistence.bible.BibleVerseRepository
+import com.seek.thebible.infrastructure.persistence.jpa.BibleBookRepository
+import com.seek.thebible.infrastructure.persistence.jpa.BibleChapterRepository
+import com.seek.thebible.infrastructure.persistence.jpa.BibleTranslationRepository
+import com.seek.thebible.infrastructure.persistence.jpa.BibleVerseRepository
 import com.seek.thebible.presentation.api.BibleApiResponse
 import com.seek.thebible.presentation.api.response.BibleSearchResponse
 import com.seek.thebible.presentation.web.response.BibleViewResponse
@@ -35,18 +35,18 @@ class BibleReader(
     fun getChapterView(bookId: Long): BibleViewResponse.Chapter =
         bibleBookRepository.findByIdWithChapters(bookId)
             ?.let(BibleViewResponse.Chapter::from)
-            ?: throw BibleServiceException(ErrorType.BOOK_NOT_FOUND, "bookId=$bookId")
+            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND, "bookId=$bookId")
 
     fun getChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
-            ?: throw BibleServiceException(ErrorType.TRANSLATION_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
         val books = translation.books
         val book = books.firstOrNull { it.id == bookId }
-            ?: throw BibleServiceException(ErrorType.BOOK_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
 
         val chapter = bibleChapterRepository.findByBookIdAndChapterNumberWithVerses(bookId, chapterNumber)
-            ?: throw BibleServiceException(ErrorType.CHAPTER_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
 
@@ -65,12 +65,12 @@ class BibleReader(
         direction: DirectionType
     ): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
-            ?: throw BibleServiceException(ErrorType.TRANSLATION_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
         val books = translation.books.sortedBy { it.bookOrder }
         val currentBookIndex = books.indexOfFirst { it.id == bookId }
         val currentBook = books.getOrNull(currentBookIndex)
-            ?: throw BibleServiceException(ErrorType.BOOK_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
 
         val currentChapterCount = currentBook.chapters.size
 
@@ -93,14 +93,14 @@ class BibleReader(
                 } else if (currentBookIndex > 0) {
                     targetBook = books[currentBookIndex - 1]
                     targetChapterNumber = targetBook.chapters.maxOfOrNull { it.chapterNumber }
-                        ?: throw BibleServiceException(ErrorType.CHAPTER_NOT_FOUND)
+                        ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
                 }
             }
         }
 
         val targetBookId = targetBook.id ?: throw IllegalStateException("Book has no ID")
         val chapter = bibleChapterRepository.findByBookIdAndChapterNumberWithVerses(targetBookId, targetChapterNumber)
-            ?: throw BibleServiceException(ErrorType.CHAPTER_NOT_FOUND)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)
 
@@ -116,11 +116,11 @@ class BibleReader(
         translationId: Long,
         keyword: String
     ): List<BibleSearchResponse> {
-        if (keyword.isBlank()) throw BibleServiceException(ErrorType.INVALID_PARAMETER, "keyword is blank")
+        if (keyword.isBlank()) throw ServiceException(ErrorType.INVALID_PARAMETER, "keyword is blank")
         return try {
             bibleVerseRepository.searchByTranslationAndText(translationId, keyword)
         } catch (e: Exception) {
-            throw BibleServiceException(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
+            throw ServiceException(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
         }
     }
 }

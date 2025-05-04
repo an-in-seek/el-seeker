@@ -1,4 +1,4 @@
-package com.seek.thebible.infrastructure.persistence.bible
+package com.seek.thebible.infrastructure.persistence.jpa
 
 import com.seek.thebible.domain.bible.model.BibleChapter
 import org.springframework.data.jpa.repository.JpaRepository
