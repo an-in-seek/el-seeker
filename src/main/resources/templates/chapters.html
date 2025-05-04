@@ -31,14 +31,20 @@
   </div>
 </div>
 
+<script src="/js/storage-util.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
-        const translationId = localStorage.getItem("translationId");
-        const translationName = localStorage.getItem("translationName");
-        const bookId = localStorage.getItem("bookId");
-        const bookName = localStorage.getItem("bookName");
-        if (!translationId || !translationName || !bookId || !bookName) {
+        const translationId = TranslationStore.getId();
+        const translationName = TranslationStore.getName();
+        if (!translationId || !translationName) {
             window.location.href = "/web/bibles/translations";
+            return;
+        }
+
+        const bookId = BookStore.getId();
+        const bookName = BookStore.getName();
+        if (!bookId || !bookName) {
+            window.location.href = "/web/bibles/books";
             return;
         }
 
@@ -48,13 +54,12 @@
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
-            const storedData = sessionStorage.getItem(`bible_book_${bookId}`);
-            if (storedData) {
-                const data = JSON.parse(storedData);
-                renderChapters(data);
-                return true; // sessionStorage에서 데이터가 있었음
+            const bookData = BookStore.getDetail(bookId);
+            if (bookData) {
+                renderChapters(bookData);
+                return true;
             }
-            return false; // sessionStorage에 데이터 없음
+            return false;
         }
 
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
@@ -66,12 +71,12 @@
                 tile.classList.add("chapter-tile");
                 tile.textContent = chapter.chapterNumber;
                 tile.addEventListener("click", () => {
-                    localStorage.setItem("chapterNumber", chapter.chapterNumber);
+                    ChapterStore.saveNumber(chapter.chapterNumber);
                     window.location.href = "/web/bibles/verses";
                 });
                 chapterList.appendChild(tile);
             });
-            sessionStorage.setItem(`bible_book_${bookId}`, JSON.stringify(data));
+            BookStore.saveDetail(bookId, data);
             bookSelectLink.href = `/web/bibles/books`;
         }
 

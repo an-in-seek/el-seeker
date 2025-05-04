@@ -32,11 +32,17 @@
   </div>
 </div>
 
+<script src="/js/storage-util.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        const translationId = TranslationStore.getId();
+        const translationName = TranslationStore.getName();
+        if (!translationId || !translationName) {
+            window.location.href = "/web/bibles/translations";
+            return;
+        }
+        
         const searchTitle = document.getElementById("searchTitle");
-        const translationId = localStorage.getItem("translationId");
-        const translationName = localStorage.getItem("translationName");
         const keywordInput = document.getElementById("keywordInput");
         const searchBtn = document.getElementById("searchBtn");
         const resultCount = document.getElementById("resultCount");
@@ -74,7 +80,15 @@
                 data.forEach(item => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                      <td>${item.text} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})</td>
+                      <td class="verse-link" style="cursor:pointer"
+                          data-book-id="${item.bookId}"
+                          data-book-name="${item.bookName}"
+                          data-chapter-id="${item.chapterId}"
+                          data-chapter-number="${item.chapterNumber}"
+                          data-verse-id="${item.verseId}"
+                          data-verse-number="${item.verseNumber}">
+                          ${item.text} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
+                      </td>
                     `;
                     searchResultBody.appendChild(row);
                 });
@@ -82,6 +96,20 @@
                 resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 console.error(e);
             }
+        });
+
+        searchResultBody.addEventListener("click", e => {
+            const td = e.target.closest(".verse-link");
+            if (!td) {
+                return;
+            }
+            BookStore.save({
+                id: parseInt(td.dataset.bookId),
+                name: td.dataset.bookName,
+            });
+            ChapterStore.saveNumber(td.dataset.chapterNumber);
+            VerseStore.saveNumber(td.dataset.verseNumber);
+            window.location.href = "/web/bibles/verses";
         });
 
         backBtn.addEventListener("click", (e) => {

@@ -31,10 +31,11 @@
   </div>
 </div>
 
+<script src="/js/storage-util.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
-        const translationId = localStorage.getItem("translationId");
-        const translationName = localStorage.getItem("translationName");
+        const translationId = TranslationStore.getId();
+        const translationName = TranslationStore.getName();
         if (!translationId || !translationName) {
             window.location.href = "/web/bibles/translations";
             return;
@@ -45,18 +46,16 @@
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
-            const storedData = sessionStorage.getItem(`bible_translation_${translationId}`);
-            if (storedData) {
-                const books = JSON.parse(storedData);
+            const books = BookStore.getListForTranslation(translationId);
+            if (books) {
                 renderBooks(books);
-                return true; // sessionStorage에서 데이터가 있었음
+                return true;
             }
-            return false; // sessionStorage에 데이터 없음
+            return false;
         }
 
-        // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
+        // 📌 화면 업데이트 함수
         function renderBooks(books) {
-            sessionStorage.setItem("bookList", JSON.stringify(books));
             translationTitle.textContent = `${translationName}`;
             bookList.innerHTML = "";
             books.forEach(book => {
@@ -68,15 +67,15 @@
                     <td>${book.testamentType}</td>
                 `;
                 row.addEventListener("click", () => {
-                    localStorage.setItem("bookId", book.bookId);
-                    localStorage.setItem("bookName", book.bookName);
+                    BookStore.save({
+                        id: book.bookId,
+                        name: book.bookName
+                    });
                     window.location.href = "/web/bibles/chapters"; // ✅ 장 목록 화면 URL 변경
                 });
                 bookList.appendChild(row);
             });
-
-            // sessionStorage에 데이터 저장 (캐싱)
-            sessionStorage.setItem(`bible_translation_${translationId}`, JSON.stringify(books));
+            BookStore.saveListForTranslation(translationId, books);
         }
 
         // 📌 API에서 데이터 가져오기 (sessionStorage에 없을 경우)

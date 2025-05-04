@@ -55,13 +55,28 @@
   </div>
 </div>
 
+<script src="/js/storage-util.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const translationId = localStorage.getItem("translationId");
-        const translationName = localStorage.getItem("translationName");
-        let bookId = parseInt(localStorage.getItem("bookId"));
-        let bookName = localStorage.getItem("bookName");
-        let chapterNumber = parseInt(localStorage.getItem("chapterNumber"));
+        const translationId = TranslationStore.getId();
+        const translationName = TranslationStore.getName();
+        if (!translationId || !translationName) {
+            window.location.href = "/web/bibles/translations";
+            return;
+        }
+
+        let bookId = BookStore.getId();
+        let bookName = BookStore.getName();
+        if (!bookId || !bookName) {
+            window.location.href = "/web/bibles/books";
+            return;
+        }
+
+        let chapterNumber = ChapterStore.getNumber();
+        if (!chapterNumber) {
+            window.location.href = "/web/bibles/chapters";
+            return;
+        }
 
         const DOM = {
             prevBtn: document.getElementById("prevChapterBtn"),
@@ -105,15 +120,15 @@
                     throw new Error("데이터 로딩 실패");
                 }
                 const data = await response.json();
-
                 bookId = data.book.bookId;
                 bookName = data.book.bookName;
                 chapterNumber = data.book.chapter.chapterNumber;
 
-                localStorage.setItem("bookId", bookId);
-                localStorage.setItem("bookName", bookName);
-                localStorage.setItem("chapterNumber", chapterNumber);
-
+                BookStore.save({
+                    id: bookId,
+                    name: bookName
+                });
+                ChapterStore.saveNumber(chapterNumber);
                 renderChapter(data);
             } catch (e) {
                 showAlert("장 정보를 불러오지 못했습니다.", "danger");
@@ -128,7 +143,21 @@
             DOM.chapterLink.href = "/web/bibles/chapters";
             DOM.prevBtn.disabled = data.isFirst;
             DOM.nextBtn.disabled = data.isLast;
-            window.scrollTo({top: 0, behavior: "smooth"});
+            const verseNumber = VerseStore.consumeVerseNumber();
+            if (verseNumber) {
+                setTimeout(() => {
+                    const targetVerse = document.querySelector(`.verse-text[data-verse="${verseNumber}"]`);
+                    if (targetVerse) {
+                        targetVerse.classList.add("highlighted-verse");
+                        targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
+                        setTimeout(() => {
+                            targetVerse.classList.remove("highlighted-verse");
+                        }, 5000);
+                    }
+                }, 100);
+            } else {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            }
         }
 
         function renderVerseRow(verse) {

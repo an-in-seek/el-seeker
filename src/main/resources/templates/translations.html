@@ -27,14 +27,17 @@
   </table>
 </div>
 
+<script src="/js/storage-util.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".clickable-row").forEach(row => {
             row.addEventListener("click", function () {
                 const translationId = this.getAttribute("data-translation-id");
                 const translationName = this.getAttribute("data-translation-name");
-                localStorage.setItem("translationId", translationId);
-                localStorage.setItem("translationName", translationName);
+                TranslationStore.save({
+                    id: translationId,
+                    name: translationName
+                });
                 window.location.href = "/web/bibles/books";
             });
         });
