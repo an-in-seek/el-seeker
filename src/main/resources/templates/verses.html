@@ -226,6 +226,8 @@
             localStorage.setItem(key, value);
             const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
             verseTextEl?.classList.add("verse-has-memo");
+            toggleMemo(verseNum);
+            applyVerseHighlight(verseNum);
         }
 
         function deleteMemo(verseNum) {
