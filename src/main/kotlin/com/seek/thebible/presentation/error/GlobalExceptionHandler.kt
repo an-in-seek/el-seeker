@@ -1,6 +1,6 @@
 package com.seek.thebible.presentation.error
 
-import com.seek.thebible.domain.BibleServiceException
+import com.seek.thebible.domain.ServiceException
 import mu.KotlinLogging
 import org.springframework.boot.logging.LogLevel
 import org.springframework.http.ResponseEntity
@@ -12,8 +12,8 @@ class GlobalExceptionHandler {
 
     private val logger = KotlinLogging.logger {}
 
-    @ExceptionHandler(BibleServiceException::class)
-    fun handleBibleServiceException(ex: BibleServiceException): ResponseEntity<ErrorResponse> {
+    @ExceptionHandler(ServiceException::class)
+    fun handleBibleServiceException(ex: ServiceException): ResponseEntity<ErrorResponse> {
         val errorType = ex.errorType
         // 로그 레벨에 따라 다르게 로깅 가능
         when (errorType.logLevel) {

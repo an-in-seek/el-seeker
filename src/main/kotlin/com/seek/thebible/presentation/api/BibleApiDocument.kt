@@ -1,6 +1,6 @@
 package com.seek.thebible.presentation.api
 
-import com.seek.thebible.domain.DirectionType
+import com.seek.thebible.domain.bible.DirectionType
 import com.seek.thebible.presentation.api.response.BibleSearchResponse
 import com.seek.thebible.presentation.web.response.BibleViewResponse
 import org.springframework.http.ResponseEntity

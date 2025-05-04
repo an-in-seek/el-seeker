@@ -1,4 +1,4 @@
-package com.seek.thebible.domain
+package com.seek.thebible.domain.bible
 
 enum class DirectionType {
     PREV, NEXT;

@@ -1,6 +1,6 @@
 package com.seek.thebible.application.bible
 
-import com.seek.thebible.domain.DirectionType
+import com.seek.thebible.domain.bible.DirectionType
 import com.seek.thebible.domain.bible.result.BibleResult
 import com.seek.thebible.domain.bible.service.BibleReader
 import com.seek.thebible.presentation.api.BibleApiResponse

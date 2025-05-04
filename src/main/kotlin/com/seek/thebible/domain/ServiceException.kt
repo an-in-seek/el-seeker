@@ -1,6 +1,6 @@
 package com.seek.thebible.domain
 
-class BibleServiceException(
+class ServiceException(
     val errorType: ErrorType,
     vararg val data: Any
 ) : RuntimeException() {
