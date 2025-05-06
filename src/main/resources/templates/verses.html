@@ -117,6 +117,11 @@
             chapterLink: document.getElementById("chapterSelectLink")
         };
 
+        DOM.translationTypeLabel.textContent = translationType;
+        DOM.bookLabel.textContent = bookName;
+        DOM.chapterLabel.textContent = chapterNumber;
+        DOM.chapterButtonLabel.textContent = `${bookName} ${chapterNumber}`;
+
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
         DOM.nextBtn.addEventListener("click", () => loadChapter("NEXT"));
         DOM.verseTable.addEventListener("click", e => {
