@@ -6,29 +6,32 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v4" rel="stylesheet">
+  <link href="/css/common.css?v5" rel="stylesheet">
 </head>
 <body>
 
-<div class="container content-wrapper">
-  <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-    <h1 class="mt-2" id="bookTitle"></h1>
-    <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
-  </div>
-  <div id="chapterList" class="chapter-grid"></div>
-</div>
-
-<!-- 하단 네비게이션 -->
-<div class="fixed-bottom-nav">
-  <div class="nav-container">
-    <a id="bookSelectLink"
-       class="btn btn-lg btn-primary"
-       href="#"
-       aria-label="책 선택">
+<div class="container content-wrapper pt-3">
+  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
+    <!-- 책 선택 -->
+    <a href="/web/bible/book"
+       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
+       role="button"
+       aria-label="책 선택"
+       title="책 선택 페이지로 이동">
       <span aria-hidden="true">📖</span>
-      <span class="ms-2">책 선택</span>
+      <span class="ms-2" id="bookLabel"></span>
+    </a>
+    <!-- 검색 -->
+    <a href="/web/bible/search"
+       class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+       role="button"
+       aria-label="본문 검색"
+       title="본문 검색">
+      🔍
     </a>
   </div>
+
+  <div id="chapterList" class="chapter-grid"></div>
 </div>
 
 <script src="/js/storage-util.js?v1"></script>
@@ -47,10 +50,9 @@
             window.location.href = "/web/bible/book";
             return;
         }
+        document.getElementById("bookLabel").textContent = bookName;
 
-        const bookTitle = document.getElementById("bookTitle");
         const chapterList = document.getElementById("chapterList");
-        const bookSelectLink = document.getElementById("bookSelectLink");
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
@@ -64,7 +66,6 @@
 
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderChapters(data) {
-            bookTitle.textContent = `${translationType} > ${bookName}`;
             chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");
@@ -78,7 +79,6 @@
                 chapterList.appendChild(tile);
             });
             BookStore.saveDetail(bookId, data);
-            bookSelectLink.href = `/web/bible/book`;
         }
 
         // 📌 API에서 데이터 가져오기 (sessionStorage에 없을 경우)

@@ -6,18 +6,33 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v4" rel="stylesheet">
+  <link href="/css/common.css?v5" rel="stylesheet">
 </head>
 <body>
 
-<div class="container content-wrapper">
-  <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-    <a href="/web/bible/translation" class="btn btn-outline-dark d-inline-flex align-items-center" aria-label="번역본 선택">
+<div class="container content-wrapper pt-3">
+  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
+
+    <!-- 번역본 선택 -->
+    <a href="/web/bible/translation"
+       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book')"
+       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
+       role="button"
+       aria-label="번역본 선택"
+       title="번역본 선택 페이지로 이동">
       <span id="translationTypeLabel"></span>
-      <span aria-hidden="true" class="ms-1">🔽</span>
     </a>
-    <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
+
+    <!-- 검색 -->
+    <a href="/web/bible/search"
+       class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+       role="button"
+       aria-label="본문 검색"
+       title="본문 검색">
+      🔍
+    </a>
   </div>
+
   <div id="bookList" class="book-grid"></div>
 </div>
 

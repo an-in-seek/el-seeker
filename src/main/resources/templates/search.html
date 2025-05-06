@@ -5,13 +5,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v4" rel="stylesheet">
+  <link href="/css/common.css?v5" rel="stylesheet">
 </head>
 <body>
 
-<div class="container content-wrapper">
-  <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-    <h1 id="searchTitle" class="mt-2"></h1>
+<div class="container content-wrapper pt-3">
+  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
+    <a href="/web/bible/translation"
+       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/search')"
+       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
+       role="button"
+       aria-label="번역본 선택"
+       title="번역본 선택 페이지로 이동">
+      <span id="translationTypeLabel"></span>
+    </a>
   </div>
   <div class="input-group my-3">
     <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요">
@@ -45,14 +52,14 @@
             return;
         }
 
-        const searchTitle = document.getElementById("searchTitle");
+        const translationTypeLabel = document.getElementById("translationTypeLabel");
         const keywordInput = document.getElementById("keywordInput");
         const searchBtn = document.getElementById("searchBtn");
         const resultCount = document.getElementById("resultCount");
         const searchResultBody = document.getElementById("searchResultBody");
         const backBtn = document.getElementById("backBtn");
 
-        searchTitle.textContent = `${translationType} > 검색`;
+        translationTypeLabel.textContent = translationType;
 
         keywordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {

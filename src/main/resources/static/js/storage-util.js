@@ -5,6 +5,7 @@ const STORAGE_KEYS = Object.freeze({
     TRANSLATION_ID: "translationId",
     TRANSLATION_NAME: "translationName",
     TRANSLATION_TYPE: "translationType",
+    TRANSLATION_RETURN_PATH: "translationReturnPath",
     BOOK_ID: "bookId",
     BOOK_NAME: "bookName",
     BOOK_DATA_PREFIX: "bible_book_",
@@ -69,6 +70,12 @@ const TranslationStore = {
     getType() {
         return LocalStore.get(STORAGE_KEYS.TRANSLATION_TYPE);
     },
+    saveTranslationReturnPath(path) {
+        SessionStore.set(STORAGE_KEYS.TRANSLATION_RETURN_PATH, path);
+    },
+    consumeTranslationReturnPath() {
+        return SessionStore.consume(STORAGE_KEYS.TRANSLATION_RETURN_PATH) || "/web/bible/book";
+    }
 }
 
 // 책 관련

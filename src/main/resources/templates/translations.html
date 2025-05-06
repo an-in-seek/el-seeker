@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v4" rel="stylesheet">
+  <link href="/css/common.css?v5" rel="stylesheet">
   <style>
     .list-group-item {
       padding-top: 0.75rem;
@@ -16,10 +16,7 @@
 </head>
 <body>
 
-<div class="container content-wrapper">
-  <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-    <h1 class="mt-2">성경 번역본</h1>
-  </div>
+<div class="container content-wrapper mt-3">
   <div class="list-group" id="translationList">
     <button type="button"
             class="list-group-item list-group-item-action text-start"
@@ -36,13 +33,14 @@
 <script src="/js/storage-util.js?v1"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        const returnPath = TranslationStore.consumeTranslationReturnPath();
         document.querySelectorAll("#translationList button").forEach(btn => {
             btn.addEventListener("click", () => {
                 const id = btn.getAttribute("data-translation-id");
                 const name = btn.getAttribute("data-translation-name");
                 const type = btn.getAttribute("data-translation-type");
                 TranslationStore.save({id, name, type});
-                window.location.href = "/web/bible/book";
+                window.location.href = returnPath;
             });
         });
     });
