@@ -7,6 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/common.css?v5" rel="stylesheet">
+  <style>
+    .btn-fixed-width {
+      min-width: 90px;
+      max-width: 90px;
+      flex: 0 0 90px;
+    }
+  </style>
 </head>
 <body>
 
@@ -15,7 +22,7 @@
     <!-- 번역본 선택 -->
     <a href="/web/bible/translation"
        onclick="TranslationStore.saveTranslationReturnPath('/web/bible/verse')"
-       class="btn btn-outline-secondary dropdown-toggle text-truncate"
+       class="btn btn-outline-secondary dropdown-toggle text-truncate btn-fixed-width"
        role="button"
        aria-label="번역본 선택"
        title="번역본 선택 페이지로 이동">
@@ -29,7 +36,7 @@
 
     <!-- 검색 -->
     <a href="/web/bible/search"
-       class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+       class="btn btn-outline-secondary d-flex align-items-center justify-content-center btn-fixed-width"
        role="button"
        aria-label="본문 검색"
        title="본문 검색">
