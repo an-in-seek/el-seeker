@@ -35,8 +35,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const translationId = TranslationStore.getId();
-        const translationName = TranslationStore.getName();
-        if (!translationId || !translationName) {
+        const translationType = TranslationStore.getType();
+        if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
         }
@@ -64,7 +64,7 @@
 
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderChapters(data) {
-            bookTitle.textContent = `${translationName} > ${bookName}`;
+            bookTitle.textContent = `${translationType} > ${bookName}`;
             chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");

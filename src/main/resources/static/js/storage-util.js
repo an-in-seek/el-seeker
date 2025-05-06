@@ -4,6 +4,7 @@
 const STORAGE_KEYS = Object.freeze({
     TRANSLATION_ID: "translationId",
     TRANSLATION_NAME: "translationName",
+    TRANSLATION_TYPE: "translationType",
     BOOK_ID: "bookId",
     BOOK_NAME: "bookName",
     BOOK_DATA_PREFIX: "bible_book_",
@@ -54,15 +55,19 @@ const SessionStore = {
 
 // 번역본 관련
 const TranslationStore = {
-    save({id, name}) {
+    save({id, name, type}) {
         LocalStore.set(STORAGE_KEYS.TRANSLATION_ID, id);
         LocalStore.set(STORAGE_KEYS.TRANSLATION_NAME, name);
+        LocalStore.set(STORAGE_KEYS.TRANSLATION_TYPE, type);
     },
     getId() {
         return parseInt(LocalStore.get(STORAGE_KEYS.TRANSLATION_ID));
     },
     getName() {
         return LocalStore.get(STORAGE_KEYS.TRANSLATION_NAME);
+    },
+    getType() {
+        return LocalStore.get(STORAGE_KEYS.TRANSLATION_TYPE);
     },
 }
 

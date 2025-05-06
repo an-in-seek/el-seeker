@@ -25,9 +25,10 @@
             class="list-group-item list-group-item-action text-start"
             th:each="translation : ${translations}"
             th:data-translation-id="${translation.translationId}"
-            th:data-translation-name="${translation.translationName}">
-      <div class="fw-semibold" th:text="${translation.translationName}">개역개정</div>
-      <div class="small text-muted" th:text="${translation.translationType}">개역</div>
+            th:data-translation-name="${translation.translationName}"
+            th:data-translation-type="${translation.translationType}">
+      <div class="fw-semibold" th:text="${translation.translationName}"></div>
+      <div class="small text-muted" th:text="${translation.translationType}"></div>
     </button>
   </div>
 </div>
@@ -39,7 +40,8 @@
             btn.addEventListener("click", () => {
                 const id = btn.getAttribute("data-translation-id");
                 const name = btn.getAttribute("data-translation-name");
-                TranslationStore.save({id, name});
+                const type = btn.getAttribute("data-translation-type");
+                TranslationStore.save({id, name, type});
                 window.location.href = "/web/bible/book";
             });
         });
