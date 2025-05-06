@@ -8,29 +8,29 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 
 @Controller
-@RequestMapping("/web/bibles")
+@RequestMapping("/web/bible")
 class BibleWebController(
     private val bibleFacade: BibleFacade
 ) {
 
-    @GetMapping("/translations")
+    @GetMapping("/translation")
     fun showTranslations(model: Model): String {
         val translations = bibleFacade.getTranslations().map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
         return "translations"
     }
 
-    @GetMapping("/books")
+    @GetMapping("/book")
     fun showBooks(): String {
         return "books"
     }
 
-    @GetMapping("/chapters")
+    @GetMapping("/chapter")
     fun showChapters(): String {
         return "chapters"
     }
 
-    @GetMapping("/verses")
+    @GetMapping("/verse")
     fun showVerses(): String {
         return "verses"
     }

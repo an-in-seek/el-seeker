@@ -13,7 +13,7 @@
 <div class="container content-wrapper">
   <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
     <h1 class="mt-2" id="bookTitle"></h1>
-    <a href="/web/bibles/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
+    <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
   </div>
   <div id="chapterList" class="chapter-grid"></div>
 </div>
@@ -37,14 +37,14 @@
         const translationId = TranslationStore.getId();
         const translationName = TranslationStore.getName();
         if (!translationId || !translationName) {
-            window.location.href = "/web/bibles/translations";
+            window.location.href = "/web/bible/translation";
             return;
         }
 
         const bookId = BookStore.getId();
         const bookName = BookStore.getName();
         if (!bookId || !bookName) {
-            window.location.href = "/web/bibles/books";
+            window.location.href = "/web/bible/book";
             return;
         }
 
@@ -73,12 +73,12 @@
                 tile.textContent = chapter.chapterNumber;
                 tile.addEventListener("click", () => {
                     ChapterStore.saveNumber(chapter.chapterNumber);
-                    window.location.href = "/web/bibles/verses";
+                    window.location.href = "/web/bible/verse";
                 });
                 chapterList.appendChild(tile);
             });
             BookStore.saveDetail(bookId, data);
-            bookSelectLink.href = `/web/bibles/books`;
+            bookSelectLink.href = `/web/bible/book`;
         }
 
         // 📌 API에서 데이터 가져오기 (sessionStorage에 없을 경우)

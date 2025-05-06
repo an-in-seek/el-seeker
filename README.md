@@ -99,23 +99,23 @@ GET /bibles/search?keyword=Jesus
 ### 📌 추가된 웹 UI 기능
 
 - **번역본 목록**  
-  → `/web/bibles/translations`  
+  → `/web/bible/translation`  
   → 성경 번역본 리스트 조회
 
 - **책 목록**  
-  → `/web/bibles/translations/{translationId}/books`  
+  → `/web/bible/translation/{translationId}/books`  
   → 선택한 번역본의 책 목록 조회
 
 - **장 목록**  
-  → `/web/bibles/translations/{translationId}/books/{bookId}/chapters`  
+  → `/web/bible/translation/{translationId}/books/{bookId}/chapters`  
   → 선택한 책의 장 목록 조회
 
 - **절 목록**  
-  → `/web/bibles/translations/{translationId}/books/{bookId}/chapters/{chapterId}/verses`  
+  → `/web/bible/translation/{translationId}/books/{bookId}/chapters/{chapterId}/verses`  
   → 선택한 장의 절 목록 조회
 
 - **성경 구절 검색**  
-  → `/web/bibles/search`  
+  → `/web/bible/search`  
   → 키워드가 포함된 성경 구절 검색
 
 ### 📌 적용 기술

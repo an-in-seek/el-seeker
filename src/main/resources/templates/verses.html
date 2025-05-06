@@ -13,7 +13,7 @@
 <div class="container content-wrapper">
   <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
     <h1 id="chapterTitle" class="mt-2">장 제목</h1>
-    <a href="/web/bibles/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
+    <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
   </div>
   <table class="table table-striped">
     <tbody id="verseTableBody"></tbody>
@@ -61,20 +61,20 @@
         const translationId = TranslationStore.getId();
         const translationName = TranslationStore.getName();
         if (!translationId || !translationName) {
-            window.location.href = "/web/bibles/translations";
+            window.location.href = "/web/bible/translation";
             return;
         }
 
         let bookId = BookStore.getId();
         let bookName = BookStore.getName();
         if (!bookId || !bookName) {
-            window.location.href = "/web/bibles/books";
+            window.location.href = "/web/bible/book";
             return;
         }
 
         let chapterNumber = ChapterStore.getNumber();
         if (!chapterNumber) {
-            window.location.href = "/web/bibles/chapters";
+            window.location.href = "/web/bible/chapter";
             return;
         }
 
@@ -140,7 +140,7 @@
             const chapter = data.book.chapter;
             DOM.title.textContent = `${translationName} > ${bookName} > ${chapter.chapterNumber}`;
             DOM.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
-            DOM.chapterLink.href = "/web/bibles/chapters";
+            DOM.chapterLink.href = "/web/bible/chapter";
             DOM.prevBtn.disabled = data.isFirst;
             DOM.nextBtn.disabled = data.isLast;
             const verseNumber = VerseStore.consumeVerseNumber();

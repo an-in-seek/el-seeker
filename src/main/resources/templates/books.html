@@ -13,7 +13,7 @@
 <div class="container content-wrapper">
   <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
     <h1 class="mt-2" id="translationTitle"></h1>
-    <a href="/web/bibles/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
+    <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
   </div>
   <div id="bookList" class="book-grid"></div>
 </div>
@@ -21,7 +21,7 @@
 <div class="fixed-bottom-nav">
   <div class="nav-container">
     <a class="btn btn-lg btn-primary"
-       href="/web/bibles/translations"
+       href="/web/bible/translation"
        aria-label="번역본 선택">
       <span aria-hidden="true">📖</span>
       <span class="ms-2">번역본 선택</span>
@@ -35,7 +35,7 @@
         const translationId = TranslationStore.getId();
         const translationName = TranslationStore.getName();
         if (!translationId || !translationName) {
-            window.location.href = "/web/bibles/translations";
+            window.location.href = "/web/bible/translation";
             return;
         }
 
@@ -68,7 +68,7 @@
                         id: book.bookId,
                         name: book.bookName
                     });
-                    window.location.href = "/web/bibles/chapters";
+                    window.location.href = "/web/bible/chapter";
                 });
                 bookList.appendChild(button);
             });
