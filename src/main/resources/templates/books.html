@@ -6,30 +6,22 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v3" rel="stylesheet">
+  <link href="/css/common.css?v4" rel="stylesheet">
 </head>
 <body>
 
 <div class="container content-wrapper">
   <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
-    <h1 class="mt-2" id="translationTitle"></h1>
+    <a href="/web/bible/translation" class="btn btn-outline-dark d-inline-flex align-items-center" aria-label="번역본 선택">
+      <span id="translationTypeLabel"></span>
+      <span aria-hidden="true" class="ms-1">🔽</span>
+    </a>
     <a href="/web/bible/search" class="btn btn-outline-secondary" aria-label="검색">🔍</a>
   </div>
   <div id="bookList" class="book-grid"></div>
 </div>
 
-<div class="fixed-bottom-nav">
-  <div class="nav-container">
-    <a class="btn btn-lg btn-primary"
-       href="/web/bible/translation"
-       aria-label="번역본 선택">
-      <span aria-hidden="true">📖</span>
-      <span class="ms-2">번역본 선택</span>
-    </a>
-  </div>
-</div>
-
-<script src="/js/storage-util.js"></script>
+<script src="/js/storage-util.js?v1"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const translationId = TranslationStore.getId();
@@ -38,9 +30,7 @@
             window.location.href = "/web/bible/translation";
             return;
         }
-
-        const translationTitle = document.getElementById("translationTitle");
-        const bookList = document.getElementById("bookList");
+        document.getElementById("translationTypeLabel").textContent = translationType;
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
@@ -54,7 +44,7 @@
 
         // 📌 화면 업데이트 함수
         function renderBooks(books) {
-            translationTitle.textContent = `${translationType}`;
+            const bookList = document.getElementById("bookList");
             bookList.innerHTML = "";
             books.forEach(book => {
                 const button = document.createElement("button");
