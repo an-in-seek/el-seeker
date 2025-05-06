@@ -39,8 +39,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const translationId = TranslationStore.getId();
-        const translationName = TranslationStore.getName();
-        if (!translationId || !translationName) {
+        const translationType = TranslationStore.getType();
+        if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
         }
@@ -52,7 +52,7 @@
         const searchResultBody = document.getElementById("searchResultBody");
         const backBtn = document.getElementById("backBtn");
 
-        searchTitle.textContent = `${translationName} > 검색`;
+        searchTitle.textContent = `${translationType} > 검색`;
 
         keywordInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
