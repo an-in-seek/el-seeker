@@ -7,13 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/common.css?v5" rel="stylesheet">
-  <style>
-    .btn-fixed-width {
-      min-width: 90px;
-      max-width: 90px;
-      flex: 0 0 90px;
-    }
-  </style>
 </head>
 <body>
 
@@ -22,7 +15,7 @@
     <!-- 번역본 선택 -->
     <a href="/web/bible/translation"
        onclick="TranslationStore.saveTranslationReturnPath('/web/bible/verse')"
-       class="btn btn-outline-secondary dropdown-toggle text-truncate btn-fixed-width"
+       class="btn btn-outline-secondary dropdown-toggle text-truncate top-nav-translation-button"
        role="button"
        aria-label="번역본 선택"
        title="번역본 선택 페이지로 이동">
@@ -36,7 +29,7 @@
 
     <!-- 검색 -->
     <a href="/web/bible/search"
-       class="btn btn-outline-secondary d-flex align-items-center justify-content-center btn-fixed-width"
+       class="btn btn-outline-secondary d-flex align-items-center justify-content-center top-nav-search-button"
        role="button"
        aria-label="본문 검색"
        title="본문 검색">
@@ -59,16 +52,16 @@
             aria-label="이전 장으로 이동">
       <!-- 이모지는 스크린리더에서 읽히지 않도록 aria-hidden 사용 -->
       <span aria-hidden="true">⬅</span>
-      <span class="d-none d-md-inline ms-2">이전 장</span>
+      <span class="d-none d-md-inline ms-2">이전</span>
     </button>
 
     <!-- 장 선택 (페이지 이동) -->
     <a id="chapterSelectLink"
-       class="btn btn-lg btn-primary"
        href="#"
+       class="btn btn-lg btn-primary"
        aria-label="장 선택">
       <span aria-hidden="true">📖</span>
-      <span id="chapterButtonLabel" class="ms-2"></span>
+      <span id="chapterSelectLinkLabel" class="ms-2"></span>
     </a>
 
     <!-- 다음 장 버튼 -->
@@ -77,7 +70,7 @@
             type="button"
             disabled
             aria-label="다음 장으로 이동">
-      <span class="d-none d-md-inline me-2">다음 장</span>
+      <span class="d-none d-md-inline me-2">다음</span>
       <span aria-hidden="true">➡</span>
     </button>
   </div>
@@ -107,21 +100,22 @@
         }
 
         const DOM = {
-            prevBtn: document.getElementById("prevChapterBtn"),
-            nextBtn: document.getElementById("nextChapterBtn"),
             translationTypeLabel: document.getElementById("translationTypeLabel"),
             bookLabel: document.getElementById("bookLabel"),
             chapterLabel: document.getElementById("chapterLabel"),
-            chapterButtonLabel: document.getElementById("chapterButtonLabel"),
             verseTable: document.getElementById("verseTableBody"),
-            chapterLink: document.getElementById("chapterSelectLink")
+            prevBtn: document.getElementById("prevChapterBtn"),
+            chapterSelectLink: document.getElementById("chapterSelectLink"),
+            chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
+            nextBtn: document.getElementById("nextChapterBtn"),
         };
 
         DOM.translationTypeLabel.textContent = translationType;
         DOM.bookLabel.textContent = bookName;
         DOM.chapterLabel.textContent = chapterNumber;
-        DOM.chapterButtonLabel.textContent = `${bookName} ${chapterNumber}`;
+        DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapterNumber}`;
 
+        DOM.chapterSelectLink.href = "/web/bible/chapter";
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
         DOM.nextBtn.addEventListener("click", () => loadChapter("NEXT"));
         DOM.verseTable.addEventListener("click", e => {
@@ -177,9 +171,8 @@
             DOM.translationTypeLabel.textContent = translationType;
             DOM.bookLabel.textContent = bookName;
             DOM.chapterLabel.textContent = chapter.chapterNumber;
-            DOM.chapterButtonLabel.textContent = `${bookName} ${chapter.chapterNumber}`;
+            DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapter.chapterNumber}`;
             DOM.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
-            DOM.chapterLink.href = "/web/bible/chapter";
             DOM.prevBtn.disabled = data.isFirst;
             DOM.nextBtn.disabled = data.isLast;
             const verseNumber = VerseStore.consumeVerseNumber();

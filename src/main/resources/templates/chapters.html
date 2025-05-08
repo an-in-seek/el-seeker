@@ -12,18 +12,22 @@
 
 <div class="container content-wrapper pt-3">
   <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
-    <!-- 책 선택 -->
-    <a href="/web/bible/book"
-       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
+    <!-- 번역본 -->
+    <a class="btn btn-outline-secondary text-truncate top-nav-translation-button"
        role="button"
-       aria-label="책 선택"
-       title="책 선택 페이지로 이동">
-      <span aria-hidden="true">📖</span>
-      <span class="ms-2" id="bookLabel"></span>
+       aria-label="번역본 선택"
+       title="번역본 선택 페이지로 이동">
+      <span id="translationTypeLabel"></span>
     </a>
+
+    <!-- 현재책 표시 -->
+    <div class="text-body-secondary flex-fill text-truncate text-center" style="font-size: 1.25rem;">
+      <strong id="bookLabel"></strong>
+    </div>
+
     <!-- 검색 -->
     <a href="/web/bible/search"
-       class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+       class="top-nav-search-button btn btn-outline-secondary d-flex align-items-center justify-content-center"
        role="button"
        aria-label="본문 검색"
        title="본문 검색">
@@ -32,6 +36,38 @@
   </div>
 
   <div id="chapterList" class="chapter-grid"></div>
+</div>
+
+<!-- 하단 네비게이션 -->
+<div class="fixed-bottom-nav">
+  <div class="nav-container">
+    <!-- 이전 책 버튼 -->
+    <button id="prevBookBtn"
+            class="btn btn-lg btn-outline-primary prev-next"
+            type="button"
+            aria-label="이전 책으로 이동">
+      <span aria-hidden="true">⬅</span>
+      <span class="d-none d-md-inline ms-2">이전</span>
+    </button>
+
+    <!-- 책 선택 (링크) -->
+    <a id="bookSelectLink"
+       href="#"
+       class="btn btn-lg btn-primary"
+       aria-label="책 선택">
+      <span aria-hidden="true">📖</span>
+      <span id="bookSelectLinkLabel" class="ms-2"></span>
+    </a>
+
+    <!-- 다음 책 버튼 -->
+    <button id="nextBookBtn"
+            class="btn btn-lg btn-outline-primary prev-next"
+            type="button"
+            aria-label="다음 책으로 이동">
+      <span class="d-none d-md-inline me-2">다음</span>
+      <span aria-hidden="true">➡</span>
+    </button>
+  </div>
 </div>
 
 <script src="/js/storage-util.js?v1"></script>
@@ -50,9 +86,45 @@
             window.location.href = "/web/bible/book";
             return;
         }
-        document.getElementById("bookLabel").textContent = bookName;
 
-        const chapterList = document.getElementById("chapterList");
+        const DOM = {
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            bookLabel: document.getElementById("bookLabel"),
+            chapterList: document.getElementById("chapterList"),
+            prevBtn: document.getElementById("prevBookBtn"),
+            bookSelectLink: document.getElementById("bookSelectLink"),
+            bookSelectLinkLabel: document.getElementById("bookSelectLinkLabel"),
+            nextBtn: document.getElementById("nextBookBtn"),
+        }
+
+        DOM.translationTypeLabel.textContent = translationType;
+        DOM.bookLabel.textContent = bookName;
+        DOM.bookSelectLinkLabel.textContent = bookName;
+        DOM.bookSelectLink.href = "/web/bible/book";
+
+        const books = BookStore.getListForTranslation(translationId);
+        if (!books || books.length === 0) {
+            return;
+        }
+        const currentIndex = books.findIndex(book => book.bookId === bookId);
+        DOM.prevBtn.disabled = currentIndex <= 0;
+        DOM.nextBtn.disabled = currentIndex >= books.length - 1;
+
+        DOM.prevBtn.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                const prevBook = books[currentIndex - 1];
+                BookStore.save({id: prevBook.bookId, name: prevBook.bookName});
+                window.location.reload();
+            }
+        });
+
+        DOM.nextBtn.addEventListener("click", () => {
+            if (currentIndex < books.length - 1) {
+                const nextBook = books[currentIndex + 1];
+                BookStore.save({id: nextBook.bookId, name: nextBook.bookName});
+                window.location.reload();
+            }
+        });
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
@@ -66,7 +138,8 @@
 
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderChapters(data) {
-            chapterList.innerHTML = "";
+            DOM.bookSelectLinkLabel.textContent = data.book.bookName;
+            DOM.chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");
                 tile.type = "button";
@@ -76,9 +149,10 @@
                     ChapterStore.saveNumber(chapter.chapterNumber);
                     window.location.href = "/web/bible/verse";
                 });
-                chapterList.appendChild(tile);
+                DOM.chapterList.appendChild(tile);
             });
             BookStore.saveDetail(bookId, data);
+            window.scrollTo({top: 0, behavior: "smooth"});
         }
 
         // 📌 API에서 데이터 가져오기 (sessionStorage에 없을 경우)
