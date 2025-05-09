@@ -24,7 +24,7 @@ interface BibleApiDocument {
      */
     fun getChapters(
         translationId: Long,
-        bookId: Long
+        bookOrder: Int
     ): ResponseEntity<BibleViewResponse.Chapter>
 
     /**
@@ -32,13 +32,13 @@ interface BibleApiDocument {
      */
     fun getChapterVerses(
         translationId: Long,
-        bookId: Long,
+        bookOrder: Int,
         chapterNumber: Int
     ): ResponseEntity<BibleApiResponse.Verse>
 
     fun getAdjacentChapterVerses(
         translationId: Long,
-        bookId: Long,
+        bookOrder: Int,
         chapterNumber: Int,
         direction: DirectionType // "prev" or "next"
     ): ResponseEntity<BibleApiResponse.Verse>

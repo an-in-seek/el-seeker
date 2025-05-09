@@ -32,20 +32,24 @@ class BibleReader(
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleBookRepository.findByTranslationId(translationId).map(BibleResult.Book::from)
 
-    fun getChapterView(bookId: Long): BibleViewResponse.Chapter =
-        bibleBookRepository.findByIdWithChapters(bookId)
+    fun getChapterView(translationId: Long, bookOrder: Int): BibleViewResponse.Chapter =
+        bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
             ?.let(BibleViewResponse.Chapter::from)
-            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND, "bookId=$bookId")
+            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
 
-    fun getChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse {
+    fun getChapterVerses(
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int
+    ): BibleApiResponse.Verse {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
-        val books = translation.books
-        val book = books.firstOrNull { it.id == bookId }
-            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+        val books = translation.books.sortedBy { it.bookOrder }
+        val book = books.firstOrNull { it.bookOrder == bookOrder } ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+        val bookId = book.id!!
 
-        val chapter = bibleChapterRepository.findByBookIdAndChapterNumberWithVerses(bookId, chapterNumber)
+        val chapter = bibleChapterRepository.findByBookAndChapter(bookId, chapterNumber)
             ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
@@ -60,7 +64,7 @@ class BibleReader(
 
     fun getAdjacentChapterVerses(
         translationId: Long,
-        bookId: Long,
+        bookOrder: Int,
         chapterNumber: Int,
         direction: DirectionType
     ): BibleApiResponse.Verse {
@@ -68,9 +72,8 @@ class BibleReader(
             ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
         val books = translation.books.sortedBy { it.bookOrder }
-        val currentBookIndex = books.indexOfFirst { it.id == bookId }
-        val currentBook = books.getOrNull(currentBookIndex)
-            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+        val currentBookIndex = books.indexOfFirst { it.bookOrder == bookOrder }
+        val currentBook = books.getOrNull(currentBookIndex) ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
 
         val currentChapterCount = currentBook.chapters.size
 
@@ -99,7 +102,7 @@ class BibleReader(
         }
 
         val targetBookId = targetBook.id ?: throw IllegalStateException("Book has no ID")
-        val chapter = bibleChapterRepository.findByBookIdAndChapterNumberWithVerses(targetBookId, targetChapterNumber)
+        val chapter = bibleChapterRepository.findByBookAndChapter(targetBookId, targetChapterNumber)
             ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)

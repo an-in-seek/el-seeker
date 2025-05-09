@@ -27,33 +27,33 @@ class BibleApiController(
         return ResponseEntity.ok().body(response)
     }
 
-    @GetMapping("/translations/{translationId}/books/{bookId}/chapters")
+    @GetMapping("/translations/{translationId}/books/{bookOrder}/chapters")
     override fun getChapters(
         @PathVariable translationId: Long,
-        @PathVariable bookId: Long
+        @PathVariable bookOrder: Int
     ): ResponseEntity<BibleViewResponse.Chapter> {
-        val response = bibleFacade.getChapterView(bookId)
+        val response = bibleFacade.getChapterView(translationId, bookOrder)
         return ResponseEntity.ok().body(response)
     }
 
-    @GetMapping("/translations/{translationId}/books/{bookId}/chapters/{chapterNumber}/verses")
+    @GetMapping("/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses")
     override fun getChapterVerses(
         @PathVariable translationId: Long,
-        @PathVariable bookId: Long,
+        @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<BibleApiResponse.Verse> {
-        val response = bibleFacade.getChapterVerses(translationId, bookId, chapterNumber)
+        val response = bibleFacade.getChapterVerses(translationId, bookOrder, chapterNumber)
         return ResponseEntity.ok().body(response)
     }
 
-    @GetMapping("/translations/{translationId}/books/{bookId}/chapters/{chapterNumber}/navigate")
+    @GetMapping("/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/navigate")
     override fun getAdjacentChapterVerses(
         @PathVariable translationId: Long,
-        @PathVariable bookId: Long,
+        @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int,
         @RequestParam direction: DirectionType // "prev" or "next"
     ): ResponseEntity<BibleApiResponse.Verse> {
-        val response = bibleFacade.getAdjacentChapterVerses(translationId, bookId, chapterNumber, direction)
+        val response = bibleFacade.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
         return ResponseEntity.ok(response)
     }
 

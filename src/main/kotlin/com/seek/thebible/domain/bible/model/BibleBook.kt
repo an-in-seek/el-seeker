@@ -6,7 +6,15 @@ import jakarta.persistence.*
  * 성경 책 (창세기, 마태복음 등)
  */
 @Entity
-@Table(name = "bible_book")
+@Table(
+    name = "bible_book",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "UK_translation_book_order",
+            columnNames = ["translation_id", "book_order"]
+        )
+    ]
+)
 class BibleBook(
 
     @Id
@@ -16,7 +24,7 @@ class BibleBook(
     @JoinColumn(name = "translation_id", nullable = false)
     val translationId: Long,
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "book_order", nullable = false)
     val bookOrder: Int,
 
     @Column(nullable = false)

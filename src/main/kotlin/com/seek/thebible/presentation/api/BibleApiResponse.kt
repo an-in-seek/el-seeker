@@ -53,6 +53,7 @@ object BibleApiResponse {
     ) {
         data class Book(
             val bookId: Long,
+            val bookOrder: Int,
             val bookName: String,
             val totalChapterCount: Int,
             val chapter: BibleResult.ChapterDetail,
@@ -72,6 +73,7 @@ object BibleApiResponse {
                 return Verse(
                     book = Book(
                         bookId = currentBook.id!!,
+                        bookOrder = currentBook.bookOrder,
                         bookName = currentBook.name,
                         totalChapterCount = totalChapterCount,
                         chapter = BibleResult.ChapterDetail.from(chapter),

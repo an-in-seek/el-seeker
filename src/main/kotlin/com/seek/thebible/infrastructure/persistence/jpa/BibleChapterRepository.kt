@@ -20,5 +20,5 @@ interface BibleChapterRepository : JpaRepository<BibleChapter, Long> {
             AND c.chapterNumber = :chapterNumber
         """
     )
-    fun findByBookIdAndChapterNumberWithVerses(bookId: Long, chapterNumber: Int): BibleChapter?
+    fun findByBookAndChapter(bookId: Long, chapterNumber: Int): BibleChapter?
 }

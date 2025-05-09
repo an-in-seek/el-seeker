@@ -14,6 +14,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         """
         SELECT new com.seek.thebible.presentation.api.response.BibleSearchResponse(
                     b.id,
+                    b.bookOrder,
                     b.name,
                     c.id,
                     c.chapterNumber,

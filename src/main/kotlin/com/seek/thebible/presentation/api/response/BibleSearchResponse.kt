@@ -2,6 +2,7 @@ package com.seek.thebible.presentation.api.response
 
 data class BibleSearchResponse(
     val bookId: Long,
+    val bookOrder: Int,
     val bookName: String,
     val chapterId: Long,
     val chapterNumber: Int,

@@ -19,14 +19,14 @@ class BibleFacade(
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleReader.getBooks(translationId)
 
-    fun getChapterView(bookId: Long): BibleViewResponse.Chapter =
-        bibleReader.getChapterView(bookId)
+    fun getChapterView(translationId: Long, bookOrder: Int): BibleViewResponse.Chapter =
+        bibleReader.getChapterView(translationId, bookOrder)
 
-    fun getChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int): BibleApiResponse.Verse =
-        bibleReader.getChapterVerses(translationId, bookId, chapterNumber)
+    fun getChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int): BibleApiResponse.Verse =
+        bibleReader.getChapterVerses(translationId, bookOrder, chapterNumber)
 
-    fun getAdjacentChapterVerses(translationId: Long, bookId: Long, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verse =
-        bibleReader.getAdjacentChapterVerses(translationId, bookId, chapterNumber, direction)
+    fun getAdjacentChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verse =
+        bibleReader.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
 
     fun searchBibleVerses(translationId: Long, keyword: String): List<BibleSearchResponse> =
         bibleReader.searchBibleVerses(translationId, keyword);

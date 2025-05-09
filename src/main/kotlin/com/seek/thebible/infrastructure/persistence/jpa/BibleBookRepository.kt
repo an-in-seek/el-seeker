@@ -15,8 +15,13 @@ interface BibleBookRepository : JpaRepository<BibleBook, Long> {
             SELECT b
             FROM BibleBook b
             LEFT JOIN FETCH b.chapters
-            WHERE b.id = :bookId
+            WHERE 1=1 
+            AND b.translationId = :translationId
+            AND b.bookOrder = :bookOrder
         """
     )
-    fun findByIdWithChapters(bookId: Long): BibleBook?
+    fun findByTranslationAndBook(
+        translationId: Long,
+        bookOrder: Int
+    ): BibleBook?
 }
