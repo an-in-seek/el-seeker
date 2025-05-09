@@ -16,6 +16,9 @@ class BibleBook(
     @JoinColumn(name = "translation_id", nullable = false)
     val translationId: Long,
 
+    @Column(nullable = false, unique = true)
+    val bookOrder: Int,
+
     @Column(nullable = false)
     val name: String, // 책 이름 (예: 창세기)
 
@@ -25,9 +28,6 @@ class BibleBook(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val testamentType: BibleTestamentType, // 구약/신약 구분 (예: OLD, NEW)
-
-    @Column(nullable = false)
-    val bookOrder: Int,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bookId")
     val chapters: MutableList<BibleChapter> = mutableListOf()
