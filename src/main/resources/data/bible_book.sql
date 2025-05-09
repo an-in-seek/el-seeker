@@ -1,3 +1,4 @@
+--------------------------------- KRV ---------------------------------
 -- 📌 구약 성경(Book) 데이터 삽입
 INSERT INTO bible_book (id, translation_id, name, abbreviation, testament_type, book_order)
 VALUES (1, 1, '창세기', '창', 'OLD', 1),
@@ -39,7 +40,6 @@ VALUES (1, 1, '창세기', '창', 'OLD', 1),
        (37, 1, '학개', '학', 'OLD', 37),
        (38, 1, '스가랴', '슥', 'OLD', 38),
        (39, 1, '말라기', '말', 'OLD', 39);
-
 -- 📌 신약 성경(Book) 데이터 삽입
 INSERT INTO bible_book (id, translation_id, name, abbreviation, testament_type, book_order)
 VALUES (40, 1, '마태복음', '마', 'NEW', 40),
@@ -69,3 +69,75 @@ VALUES (40, 1, '마태복음', '마', 'NEW', 40),
        (64, 1, '요한삼서', '요삼', 'NEW', 64),
        (65, 1, '유다서', '유', 'NEW', 65),
        (66, 1, '요한계시록', '계', 'NEW', 66);
+
+--------------------------------- KJV ---------------------------------
+-- 📌 KJV 구약 성경(Book) 데이터 삽입 (영문 이름 및 영문 약어 포함)
+INSERT INTO bible_book (id, translation_id, name, abbreviation, testament_type, book_order)
+VALUES (67, 5, 'Genesis', 'Gen', 'OLD', 1),
+       (68, 5, 'Exodus', 'Exod', 'OLD', 2),
+       (69, 5, 'Leviticus', 'Lev', 'OLD', 3),
+       (70, 5, 'Numbers', 'Num', 'OLD', 4),
+       (71, 5, 'Deuteronomy', 'Deut', 'OLD', 5),
+       (72, 5, 'Joshua', 'Josh', 'OLD', 6),
+       (73, 5, 'Judges', 'Judg', 'OLD', 7),
+       (74, 5, 'Ruth', 'Ruth', 'OLD', 8),
+       (75, 5, '1 Samuel', '1Sam', 'OLD', 9),
+       (76, 5, '2 Samuel', '2Sam', 'OLD', 10),
+       (77, 5, '1 Kings', '1Kgs', 'OLD', 11),
+       (78, 5, '2 Kings', '2Kgs', 'OLD', 12),
+       (79, 5, '1 Chronicles', '1Chr', 'OLD', 13),
+       (80, 5, '2 Chronicles', '2Chr', 'OLD', 14),
+       (81, 5, 'Ezra', 'Ezra', 'OLD', 15),
+       (82, 5, 'Nehemiah', 'Neh', 'OLD', 16),
+       (83, 5, 'Esther', 'Esth', 'OLD', 17),
+       (84, 5, 'Job', 'Job', 'OLD', 18),
+       (85, 5, 'Psalms', 'Ps', 'OLD', 19),
+       (86, 5, 'Proverbs', 'Prov', 'OLD', 20),
+       (87, 5, 'Ecclesiastes', 'Eccl', 'OLD', 21),
+       (88, 5, 'Song of Solomon', 'Song', 'OLD', 22),
+       (89, 5, 'Isaiah', 'Isa', 'OLD', 23),
+       (90, 5, 'Jeremiah', 'Jer', 'OLD', 24),
+       (91, 5, 'Lamentations', 'Lam', 'OLD', 25),
+       (92, 5, 'Ezekiel', 'Ezek', 'OLD', 26),
+       (93, 5, 'Daniel', 'Dan', 'OLD', 27),
+       (94, 5, 'Hosea', 'Hos', 'OLD', 28),
+       (95, 5, 'Joel', 'Joel', 'OLD', 29),
+       (96, 5, 'Amos', 'Amos', 'OLD', 30),
+       (97, 5, 'Obadiah', 'Obad', 'OLD', 31),
+       (98, 5, 'Jonah', 'Jonah', 'OLD', 32),
+       (99, 5, 'Micah', 'Mic', 'OLD', 33),
+       (100, 5, 'Nahum', 'Nah', 'OLD', 34),
+       (101, 5, 'Habakkuk', 'Hab', 'OLD', 35),
+       (102, 5, 'Zephaniah', 'Zeph', 'OLD', 36),
+       (103, 5, 'Haggai', 'Hag', 'OLD', 37),
+       (104, 5, 'Zechariah', 'Zech', 'OLD', 38),
+       (105, 5, 'Malachi', 'Mal', 'OLD', 39);
+-- 📌 KJV 신약 성경(Book) 데이터 삽입 (영문 이름 및 영문 약어 포함)
+INSERT INTO bible_book (id, translation_id, name, abbreviation, testament_type, book_order)
+VALUES (106, 5, 'Matthew', 'Matt', 'NEW', 40),
+       (107, 5, 'Mark', 'Mark', 'NEW', 41),
+       (108, 5, 'Luke', 'Luke', 'NEW', 42),
+       (109, 5, 'John', 'John', 'NEW', 43),
+       (110, 5, 'Acts', 'Acts', 'NEW', 44),
+       (111, 5, 'Romans', 'Rom', 'NEW', 45),
+       (112, 5, '1 Corinthians', '1Cor', 'NEW', 46),
+       (113, 5, '2 Corinthians', '2Cor', 'NEW', 47),
+       (114, 5, 'Galatians', 'Gal', 'NEW', 48),
+       (115, 5, 'Ephesians', 'Eph', 'NEW', 49),
+       (116, 5, 'Philippians', 'Phil', 'NEW', 50),
+       (117, 5, 'Colossians', 'Col', 'NEW', 51),
+       (118, 5, '1 Thessalonians', '1Thess', 'NEW', 52),
+       (119, 5, '2 Thessalonians', '2Thess', 'NEW', 53),
+       (120, 5, '1 Timothy', '1Tim', 'NEW', 54),
+       (121, 5, '2 Timothy', '2Tim', 'NEW', 55),
+       (122, 5, 'Titus', 'Titus', 'NEW', 56),
+       (123, 5, 'Philemon', 'Phlm', 'NEW', 57),
+       (124, 5, 'Hebrews', 'Heb', 'NEW', 58),
+       (125, 5, 'James', 'Jas', 'NEW', 59),
+       (126, 5, '1 Peter', '1Pet', 'NEW', 60),
+       (127, 5, '2 Peter', '2Pet', 'NEW', 61),
+       (128, 5, '1 John', '1John', 'NEW', 62),
+       (129, 5, '2 John', '2John', 'NEW', 63),
+       (130, 5, '3 John', '3John', 'NEW', 64),
+       (131, 5, 'Jude', 'Jude', 'NEW', 65),
+       (132, 5, 'Revelation', 'Rev', 'NEW', 66);
