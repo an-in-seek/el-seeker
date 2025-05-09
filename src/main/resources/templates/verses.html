@@ -76,18 +76,18 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v2"></script>
+<script src="/js/storage-util.js?v3"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const translationId = TranslationStore.getId();
-        const translationType = TranslationStore.getType();
+        const translationId = TranslationStore.getCurrentTranslationId();
+        const translationType = TranslationStore.getCurrentTranslationType();
         if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
         }
 
-        let bookOrder = BookStore.getOrder(translationId);
-        let bookName = BookStore.getName(translationId);
+        let bookOrder = BookStore.getCurrentBookOrder();
+        let bookName = BookStore.getBookName(translationId, bookOrder);
         if (!bookOrder || !bookName) {
             window.location.href = "/web/bible/book";
             return;
@@ -154,7 +154,7 @@
                 bookName = data.book.bookName;
                 chapterNumber = data.book.chapter.chapterNumber;
 
-                BookStore.save(translationId, {
+                BookStore.saveCurrentBook({
                     bookOrder: bookOrder,
                     bookName: bookName
                 });

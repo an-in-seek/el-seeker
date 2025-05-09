@@ -42,11 +42,11 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v1"></script>
+<script src="/js/storage-util.js?v3"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const translationId = TranslationStore.getId();
-        const translationType = TranslationStore.getType();
+        const translationId = TranslationStore.getCurrentTranslationId();
+        const translationType = TranslationStore.getCurrentTranslationType();
         if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
@@ -121,7 +121,7 @@
             if (!td) {
                 return;
             }
-            BookStore.save(translationId, {
+            BookStore.saveCurrentBook({
                 bookOrder: parseInt(td.dataset.bookOrder),
                 bookName: td.dataset.bookName,
             });

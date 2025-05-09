@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v1"></script>
+<script src="/js/storage-util.js?v3"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const returnPath = TranslationStore.consumeTranslationReturnPath();
@@ -39,7 +39,7 @@
                 const id = btn.getAttribute("data-translation-id");
                 const name = btn.getAttribute("data-translation-name");
                 const type = btn.getAttribute("data-translation-type");
-                TranslationStore.save({id, name, type});
+                TranslationStore.saveCurrentTranslation({id, name, type});
                 window.location.href = returnPath;
             });
         });

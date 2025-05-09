@@ -2,12 +2,9 @@
 
 // 스토리지 키 상수
 const STORAGE_KEYS = Object.freeze({
-    TRANSLATION: "translation",
-    TRANSLATION_ID: "translationId",
-    TRANSLATION_NAME: "translationName",
-    TRANSLATION_TYPE: "translationType",
+    CURRENT_TRANSLATION: "currentTranslation",
     TRANSLATION_RETURN_PATH: "translationReturnPath",
-    BOOK: "book",
+    CURRENT_BOOK: "currentBook",
     BOOK_DATA_PREFIX: "bible_book",
     TRANSLATION_BOOKS_PREFIX: "bible_translation",
     CHAPTER_ID: "chapterId",
@@ -56,19 +53,14 @@ const SessionStore = {
 
 // 번역본 관련
 const TranslationStore = {
-    save({id, name, type}) {
-        LocalStore.set(STORAGE_KEYS.TRANSLATION_ID, id);
-        LocalStore.set(STORAGE_KEYS.TRANSLATION_NAME, name);
-        LocalStore.set(STORAGE_KEYS.TRANSLATION_TYPE, type);
+    saveCurrentTranslation(translation) {
+        LocalStore.set(STORAGE_KEYS.CURRENT_TRANSLATION, translation);
     },
-    getId() {
-        return parseInt(LocalStore.get(STORAGE_KEYS.TRANSLATION_ID));
+    getCurrentTranslationId() {
+        return parseInt(LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION).id);
     },
-    getName() {
-        return LocalStore.get(STORAGE_KEYS.TRANSLATION_NAME);
-    },
-    getType() {
-        return LocalStore.get(STORAGE_KEYS.TRANSLATION_TYPE);
+    getCurrentTranslationType() {
+        return LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION).type;
     },
     saveTranslationReturnPath(path) {
         SessionStore.set(STORAGE_KEYS.TRANSLATION_RETURN_PATH, path);
@@ -80,14 +72,20 @@ const TranslationStore = {
 
 // 책 관련
 const BookStore = {
-    save(translationId, book) {
-        LocalStore.set(`${STORAGE_KEYS.TRANSLATION}_${translationId}_${STORAGE_KEYS.BOOK}`, book);
+    saveCurrentBook(book) {
+        LocalStore.set(STORAGE_KEYS.CURRENT_BOOK, book);
     },
-    getOrder(translationId) {
-        return parseInt(LocalStore.get(`${STORAGE_KEYS.TRANSLATION}_${translationId}_${STORAGE_KEYS.BOOK}`).bookOrder);
+    getCurrentBookOrder() {
+        return parseInt(LocalStore.get(STORAGE_KEYS.CURRENT_BOOK).bookOrder);
     },
-    getName(translationId) {
-        return LocalStore.get(`${STORAGE_KEYS.TRANSLATION}_${translationId}_${STORAGE_KEYS.BOOK}`).bookName;
+    getBookName(translationId, bookOrder) {
+        const key = `${STORAGE_KEYS.TRANSLATION_BOOKS_PREFIX}_${translationId}`;
+        const books = SessionStore.get(key);
+        if (!books) {
+            return null;
+        }
+        const book = books.find(book => book.bookOrder === bookOrder);
+        return book ? book.bookName : null;
     },
     saveListForTranslation(translationId, books) {
         const key = `${STORAGE_KEYS.TRANSLATION_BOOKS_PREFIX}_${translationId}`;

@@ -72,18 +72,18 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v2"></script>
+<script src="/js/storage-util.js?v3"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
-        const translationId = TranslationStore.getId();
-        const translationType = TranslationStore.getType();
+        const translationId = TranslationStore.getCurrentTranslationId();
+        const translationType = TranslationStore.getCurrentTranslationType();
         if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
         }
 
-        const bookOrder = BookStore.getOrder(translationId);
-        const bookName = BookStore.getName(translationId);
+        const bookOrder = BookStore.getCurrentBookOrder();
+        const bookName = BookStore.getBookName(translationId, bookOrder);
         if (!bookOrder || !bookName) {
             window.location.href = "/web/bible/book";
             return;
@@ -115,7 +115,7 @@
         DOM.prevBtn.addEventListener("click", () => {
             if (currentIndex > 0) {
                 const prevBook = books[currentIndex - 1];
-                BookStore.save(translationId, prevBook);
+                BookStore.saveCurrentBook(prevBook);
                 window.location.reload();
             }
         });
@@ -123,7 +123,7 @@
         DOM.nextBtn.addEventListener("click", () => {
             if (currentIndex < books.length - 1) {
                 const nextBook = books[currentIndex + 1];
-                BookStore.save(translationId, nextBook);
+                BookStore.saveCurrentBook(nextBook);
                 window.location.reload();
             }
         });
