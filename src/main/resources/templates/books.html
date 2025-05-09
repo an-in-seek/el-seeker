@@ -69,10 +69,7 @@
                 button.dataset.bookId = book.bookId;
                 button.dataset.bookName = book.bookName;
                 button.addEventListener("click", () => {
-                    BookStore.save({
-                        id: book.bookId,
-                        name: book.bookName
-                    });
+                    BookStore.save(translationId, book);
                     window.location.href = "/web/bible/chapter";
                 });
                 bookList.appendChild(button);

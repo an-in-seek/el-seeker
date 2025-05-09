@@ -46,13 +46,13 @@ GET /bibles/translations/{translationId}/books
 ### ✅ 특정 책에 해당하는 장 리스트 조회
 
 ```
-GET /bibles/translations/{translationId}/books/{bookId}/chapters
+GET /bibles/translations/{translationId}/books/{bookOrder}/chapters
 ```
 
 ### ✅ 특정 장에 해당하는 절 리스트 조회
 
 ```
-GET /bibles/translations/{translationId}/books/{bookId}/chapters/{chapterId}/verses
+GET /bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterId}/verses
 ```
 
 ### ✅ 성경 구절 검색 (키워드 포함)
@@ -107,11 +107,11 @@ GET /bibles/search?keyword=Jesus
   → 선택한 번역본의 책 목록 조회
 
 - **장 목록**  
-  → `/web/bible/translation/{translationId}/books/{bookId}/chapters`  
+  → `/web/bible/translation/{translationId}/books/{bookOrder}/chapters`  
   → 선택한 책의 장 목록 조회
 
 - **절 목록**  
-  → `/web/bible/translation/{translationId}/books/{bookId}/chapters/{chapterId}/verses`  
+  → `/web/bible/translation/{translationId}/books/{bookOrder}/chapters/{chapterId}/verses`  
   → 선택한 장의 절 목록 조회
 
 - **성경 구절 검색**  

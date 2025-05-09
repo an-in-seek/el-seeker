@@ -76,7 +76,7 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v1"></script>
+<script src="/js/storage-util.js?v2"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const translationId = TranslationStore.getId();
@@ -86,9 +86,9 @@
             return;
         }
 
-        let bookId = BookStore.getId();
-        let bookName = BookStore.getName();
-        if (!bookId || !bookName) {
+        let bookOrder = BookStore.getOrder(translationId);
+        let bookName = BookStore.getName(translationId);
+        if (!bookOrder || !bookName) {
             window.location.href = "/web/bible/book";
             return;
         }
@@ -140,9 +140,9 @@
             try {
                 let url;
                 if (direction === "CURRENT") {
-                    url = `/api/bibles/translations/${translationId}/books/${bookId}/chapters/${chapterNumber}/verses`;
+                    url = `/api/bibles/translations/${translationId}/books/${bookOrder}/chapters/${chapterNumber}/verses`;
                 } else {
-                    url = `/api/bibles/translations/${translationId}/books/${bookId}/chapters/${chapterNumber}/navigate?direction=${direction}`;
+                    url = `/api/bibles/translations/${translationId}/books/${bookOrder}/chapters/${chapterNumber}/navigate?direction=${direction}`;
                 }
 
                 const response = await fetch(url);
@@ -150,13 +150,13 @@
                     throw new Error("데이터 로딩 실패");
                 }
                 const data = await response.json();
-                bookId = data.book.bookId;
+                bookOrder = data.book.bookOrder;
                 bookName = data.book.bookName;
                 chapterNumber = data.book.chapter.chapterNumber;
 
-                BookStore.save({
-                    id: bookId,
-                    name: bookName
+                BookStore.save(translationId, {
+                    bookOrder: bookOrder,
+                    bookName: bookName
                 });
                 ChapterStore.saveNumber(chapterNumber);
                 renderChapter(data);
@@ -272,7 +272,7 @@
         }
 
         function buildMemoKey(verseNum) {
-            return `memo_${translationId}_${bookId}_${chapterNumber}_${verseNum}`;
+            return `memo_${translationId}_${bookOrder}_${chapterNumber}_${verseNum}`;
         }
 
         function showAlert(message, type = "success") {

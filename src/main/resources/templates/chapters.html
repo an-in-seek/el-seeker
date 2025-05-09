@@ -12,8 +12,10 @@
 
 <div class="container content-wrapper pt-3">
   <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
-    <!-- 번역본 -->
-    <a class="btn btn-outline-secondary text-truncate top-nav-translation-button"
+    <!-- 번역본 선택 -->
+    <a href="/web/bible/translation"
+       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/chapter')"
+       class="btn btn-outline-secondary dropdown-toggle text-truncate top-nav-translation-button"
        role="button"
        aria-label="번역본 선택"
        title="번역본 선택 페이지로 이동">
@@ -70,7 +72,7 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v1"></script>
+<script src="/js/storage-util.js?v2"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const translationId = TranslationStore.getId();
@@ -80,9 +82,9 @@
             return;
         }
 
-        const bookId = BookStore.getId();
-        const bookName = BookStore.getName();
-        if (!bookId || !bookName) {
+        const bookOrder = BookStore.getOrder(translationId);
+        const bookName = BookStore.getName(translationId);
+        if (!bookOrder || !bookName) {
             window.location.href = "/web/bible/book";
             return;
         }
@@ -106,14 +108,14 @@
         if (!books || books.length === 0) {
             return;
         }
-        const currentIndex = books.findIndex(book => book.bookId === bookId);
+        const currentIndex = books.findIndex(book => book.bookOrder === bookOrder);
         DOM.prevBtn.disabled = currentIndex <= 0;
         DOM.nextBtn.disabled = currentIndex >= books.length - 1;
 
         DOM.prevBtn.addEventListener("click", () => {
             if (currentIndex > 0) {
                 const prevBook = books[currentIndex - 1];
-                BookStore.save({id: prevBook.bookId, name: prevBook.bookName});
+                BookStore.save(translationId, prevBook);
                 window.location.reload();
             }
         });
@@ -121,14 +123,14 @@
         DOM.nextBtn.addEventListener("click", () => {
             if (currentIndex < books.length - 1) {
                 const nextBook = books[currentIndex + 1];
-                BookStore.save({id: nextBook.bookId, name: nextBook.bookName});
+                BookStore.save(translationId, nextBook);
                 window.location.reload();
             }
         });
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
-            const bookData = BookStore.getDetail(bookId);
+            const bookData = BookStore.getDetail(translationId, bookOrder);
             if (bookData) {
                 renderChapters(bookData);
                 return true;
@@ -151,14 +153,14 @@
                 });
                 DOM.chapterList.appendChild(tile);
             });
-            BookStore.saveDetail(bookId, data);
+            BookStore.saveDetail(translationId, bookOrder, data);
             window.scrollTo({top: 0, behavior: "smooth"});
         }
 
         // 📌 API에서 데이터 가져오기 (sessionStorage에 없을 경우)
         async function fetchChaptersFromAPI() {
             try {
-                const response = await fetch(`/api/bibles/translations/${translationId}/books/${bookId}/chapters`);
+                const response = await fetch(`/api/bibles/translations/${translationId}/books/${bookOrder}/chapters`);
                 if (!response.ok) {
                     throw new Error("데이터를 불러오는 중 오류가 발생했습니다.");
                 }

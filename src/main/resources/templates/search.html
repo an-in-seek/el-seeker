@@ -99,6 +99,7 @@
                     row.innerHTML = `
                       <td class="verse-link" style="cursor:pointer"
                           data-book-id="${item.bookId}"
+                          data-book-order="${item.bookOrder}"
                           data-book-name="${item.bookName}"
                           data-chapter-id="${item.chapterId}"
                           data-chapter-number="${item.chapterNumber}"
@@ -120,9 +121,9 @@
             if (!td) {
                 return;
             }
-            BookStore.save({
-                id: parseInt(td.dataset.bookId),
-                name: td.dataset.bookName,
+            BookStore.save(translationId, {
+                bookOrder: parseInt(td.dataset.bookOrder),
+                bookName: td.dataset.bookName,
             });
             ChapterStore.saveNumber(td.dataset.chapterNumber);
             VerseStore.saveNumber(td.dataset.verseNumber);
