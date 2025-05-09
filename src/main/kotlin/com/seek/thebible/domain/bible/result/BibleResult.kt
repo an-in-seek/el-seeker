@@ -22,6 +22,7 @@ object BibleResult {
 
     data class Book(
         val bookId: Long,
+        val bookOrder: Int,
         val bookName: String,
         val abbreviation: String,
         val testamentType: BibleTestamentType,
@@ -31,6 +32,7 @@ object BibleResult {
             fun from(book: BibleBook) = with(book) {
                 Book(
                     bookId = id!!,
+                    bookOrder = bookOrder,
                     bookName = name,
                     abbreviation = abbreviation,
                     testamentType = testamentType,

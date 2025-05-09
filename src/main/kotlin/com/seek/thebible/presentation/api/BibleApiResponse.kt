@@ -25,6 +25,7 @@ object BibleApiResponse {
 
     data class Book(
         val bookId: Long,
+        val bookOrder: Int,
         val bookName: String,
         val abbreviation: String,
         val testamentType: BibleTestamentType,
@@ -34,6 +35,7 @@ object BibleApiResponse {
             fun from(result: BibleResult.Book) =
                 Book(
                     bookId = result.bookId,
+                    bookOrder = result.bookOrder,
                     bookName = result.bookName,
                     abbreviation = result.abbreviation,
                     testamentType = result.testamentType,
