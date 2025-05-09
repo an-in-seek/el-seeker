@@ -41,6 +41,10 @@ spring:
         - classpath:data/bible_krv_09_1samuel.sql
         - classpath:data/bible_krv_10_2samuel.sql
         - classpath:data/bible_krv_11_1kings.sql
+        - classpath:data/bible_krv_12_2kings.sql
+        - classpath:data/bible_krv_13_1chronicles.sql
+        - classpath:data/bible_krv_14_2chronicles.sql
+        - classpath:data/bible_krv_15_ezra.sql
 
 springdoc:
   api-docs:
