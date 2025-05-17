@@ -44,7 +44,18 @@ object BibleApiResponse {
         }
     }
 
-    data class Verse(
+    data class Chapters(
+        val book: BibleResult.BookDetail
+    ) {
+        companion object {
+            fun from(book: BibleBook) =
+                Chapters(
+                    book = book.let(BibleResult.BookDetail::from)
+                )
+        }
+    }
+
+    data class Verses(
         val book: Book,
         val hasPrev: Boolean,
         val hasNext: Boolean,
@@ -65,12 +76,12 @@ object BibleApiResponse {
                 currentBook: BibleBook,
                 totalChapterCount: Int,
                 chapter: BibleChapter,
-            ): Verse {
+            ): Verses {
                 val isFirst = currentBook.bookOrder == 1 && chapter.chapterNumber == 1
                 val isLast = currentBook.bookOrder == books.last().bookOrder && chapter.chapterNumber == totalChapterCount
                 val hasPrev = !isFirst
                 val hasNext = !isLast
-                return Verse(
+                return Verses(
                     book = Book(
                         bookId = currentBook.id!!,
                         bookOrder = currentBook.bookOrder,

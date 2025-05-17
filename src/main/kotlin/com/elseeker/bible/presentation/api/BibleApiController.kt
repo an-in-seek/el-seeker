@@ -3,7 +3,6 @@ package com.elseeker.bible.presentation.api
 import com.elseeker.bible.application.bible.BibleFacade
 import com.elseeker.bible.domain.bible.DirectionType
 import com.elseeker.bible.presentation.api.response.BibleSearchResponse
-import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -31,7 +30,7 @@ class BibleApiController(
     override fun getChapters(
         @PathVariable translationId: Long,
         @PathVariable bookOrder: Int
-    ): ResponseEntity<BibleViewResponse.Chapter> {
+    ): ResponseEntity<BibleApiResponse.Chapters> {
         val response = bibleFacade.getChapterView(translationId, bookOrder)
         return ResponseEntity.ok().body(response)
     }
@@ -41,7 +40,7 @@ class BibleApiController(
         @PathVariable translationId: Long,
         @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int
-    ): ResponseEntity<BibleApiResponse.Verse> {
+    ): ResponseEntity<BibleApiResponse.Verses> {
         val response = bibleFacade.getChapterVerses(translationId, bookOrder, chapterNumber)
         return ResponseEntity.ok().body(response)
     }
@@ -52,7 +51,7 @@ class BibleApiController(
         @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int,
         @RequestParam direction: DirectionType // "prev" or "next"
-    ): ResponseEntity<BibleApiResponse.Verse> {
+    ): ResponseEntity<BibleApiResponse.Verses> {
         val response = bibleFacade.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
         return ResponseEntity.ok(response)
     }

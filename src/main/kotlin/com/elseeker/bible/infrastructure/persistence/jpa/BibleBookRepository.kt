@@ -8,16 +8,24 @@ import org.springframework.stereotype.Repository
 @Repository
 interface BibleBookRepository : JpaRepository<BibleBook, Long> {
 
+    @Query(
+        """
+            SELECT book
+            FROM BibleBook book
+            LEFT JOIN FETCH book.chapters
+            WHERE book.translationId = :translationId
+        """
+    )
     fun findByTranslationId(translationId: Long): List<BibleBook>
 
     @Query(
         """
-            SELECT b
-            FROM BibleBook b
-            LEFT JOIN FETCH b.chapters
-            WHERE 1=1 
-            AND b.translationId = :translationId
-            AND b.bookOrder = :bookOrder
+            SELECT book
+            FROM BibleBook book
+            LEFT JOIN FETCH book.description
+            LEFT JOIN FETCH book.chapters
+            WHERE book.translationId = :translationId
+            AND book.bookOrder = :bookOrder
         """
     )
     fun findByTranslationAndBook(

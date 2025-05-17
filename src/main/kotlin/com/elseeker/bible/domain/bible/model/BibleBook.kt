@@ -38,5 +38,8 @@ class BibleBook(
     val testamentType: BibleTestamentType, // 구약/신약 구분 (예: OLD, NEW)
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bookId")
-    val chapters: MutableList<BibleChapter> = mutableListOf()
+    val chapters: MutableList<BibleChapter> = mutableListOf(),
+
+    @OneToOne(mappedBy = "book", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, optional = false)
+    val description: BibleBookDescription
 )

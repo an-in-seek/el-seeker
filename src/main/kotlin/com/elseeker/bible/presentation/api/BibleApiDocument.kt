@@ -2,7 +2,6 @@ package com.elseeker.bible.presentation.api
 
 import com.elseeker.bible.domain.bible.DirectionType
 import com.elseeker.bible.presentation.api.response.BibleSearchResponse
-import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.http.ResponseEntity
 
 interface BibleApiDocument {
@@ -25,7 +24,7 @@ interface BibleApiDocument {
     fun getChapters(
         translationId: Long,
         bookOrder: Int
-    ): ResponseEntity<BibleViewResponse.Chapter>
+    ): ResponseEntity<BibleApiResponse.Chapters>
 
     /**
      * 📌 특정 장(Chapter)에 해당하는 절(Verse) 리스트 조회
@@ -34,14 +33,14 @@ interface BibleApiDocument {
         translationId: Long,
         bookOrder: Int,
         chapterNumber: Int
-    ): ResponseEntity<BibleApiResponse.Verse>
+    ): ResponseEntity<BibleApiResponse.Verses>
 
     fun getAdjacentChapterVerses(
         translationId: Long,
         bookOrder: Int,
         chapterNumber: Int,
         direction: DirectionType // "prev" or "next"
-    ): ResponseEntity<BibleApiResponse.Verse>
+    ): ResponseEntity<BibleApiResponse.Verses>
 
     /**
      * 📌 성경 구절 검색 (키워드 포함)

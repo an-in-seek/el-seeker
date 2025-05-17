@@ -1,6 +1,5 @@
 package com.elseeker.bible.presentation.web.response
 
-import com.elseeker.bible.domain.bible.model.BibleBook
 import com.elseeker.bible.domain.bible.model.BibleTranslationType
 import com.elseeker.bible.domain.bible.result.BibleResult
 
@@ -20,16 +19,4 @@ object BibleViewResponse {
                 )
         }
     }
-
-    data class Chapter(
-        val book: BibleResult.BookDetail
-    ) {
-        companion object {
-            fun from(book: BibleBook) =
-                Chapter(
-                    book = book.let(BibleResult.BookDetail::from)
-                )
-        }
-    }
-
 }

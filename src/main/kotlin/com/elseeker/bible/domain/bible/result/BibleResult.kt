@@ -46,6 +46,7 @@ object BibleResult {
         val bookId: Long,
         val bookName: String,
         val abbreviation: String,
+        val description: String,
         val chapters: List<Chapter>
     ) {
         companion object {
@@ -54,6 +55,7 @@ object BibleResult {
                     bookId = id!!,
                     bookName = name,
                     abbreviation = abbreviation,
+                    description = description.content,
                     chapters = book.chapters.map(Chapter::from)
                 )
             }

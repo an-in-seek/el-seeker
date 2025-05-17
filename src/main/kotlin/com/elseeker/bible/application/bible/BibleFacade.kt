@@ -5,7 +5,6 @@ import com.elseeker.bible.domain.bible.result.BibleResult
 import com.elseeker.bible.domain.bible.service.BibleReader
 import com.elseeker.bible.presentation.api.BibleApiResponse
 import com.elseeker.bible.presentation.api.response.BibleSearchResponse
-import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,13 +18,13 @@ class BibleFacade(
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleReader.getBooks(translationId)
 
-    fun getChapterView(translationId: Long, bookOrder: Int): BibleViewResponse.Chapter =
-        bibleReader.getChapterView(translationId, bookOrder)
+    fun getChapterView(translationId: Long, bookOrder: Int): BibleApiResponse.Chapters =
+        bibleReader.getChapters(translationId, bookOrder)
 
-    fun getChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int): BibleApiResponse.Verse =
+    fun getChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int): BibleApiResponse.Verses =
         bibleReader.getChapterVerses(translationId, bookOrder, chapterNumber)
 
-    fun getAdjacentChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verse =
+    fun getAdjacentChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verses =
         bibleReader.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
 
     fun searchBibleVerses(translationId: Long, keyword: String): List<BibleSearchResponse> =

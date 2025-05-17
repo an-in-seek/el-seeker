@@ -11,7 +11,6 @@ import com.elseeker.bible.infrastructure.persistence.jpa.BibleTranslationReposit
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleVerseRepository
 import com.elseeker.bible.presentation.api.BibleApiResponse
 import com.elseeker.bible.presentation.api.response.BibleSearchResponse
-import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,23 +24,23 @@ class BibleReader(
 ) {
 
     fun getTranslations(): List<BibleResult.Translation> =
-        bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(
-            setOf(BibleTranslationType.KRV, BibleTranslationType.KJV)
-        ).map(BibleResult.Translation::from)
+        bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(setOf(BibleTranslationType.KRV, BibleTranslationType.KJV))
+            .map(BibleResult.Translation::from)
 
     fun getBooks(translationId: Long): List<BibleResult.Book> =
-        bibleBookRepository.findByTranslationId(translationId).map(BibleResult.Book::from)
+        bibleBookRepository.findByTranslationId(translationId)
+            .map(BibleResult.Book::from)
 
-    fun getChapterView(translationId: Long, bookOrder: Int): BibleViewResponse.Chapter =
+    fun getChapters(translationId: Long, bookOrder: Int): BibleApiResponse.Chapters =
         bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
-            ?.let(BibleViewResponse.Chapter::from)
+            ?.let(BibleApiResponse.Chapters::from)
             ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
 
     fun getChapterVerses(
         translationId: Long,
         bookOrder: Int,
         chapterNumber: Int
-    ): BibleApiResponse.Verse {
+    ): BibleApiResponse.Verses {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
@@ -54,7 +53,7 @@ class BibleReader(
 
         val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
 
-        return BibleApiResponse.Verse.of(
+        return BibleApiResponse.Verses.of(
             books = books,
             currentBook = book,
             totalChapterCount = totalChapterCount,
@@ -67,7 +66,7 @@ class BibleReader(
         bookOrder: Int,
         chapterNumber: Int,
         direction: DirectionType
-    ): BibleApiResponse.Verse {
+    ): BibleApiResponse.Verses {
         val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
             ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
 
@@ -107,7 +106,7 @@ class BibleReader(
 
         val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)
 
-        return BibleApiResponse.Verse.of(
+        return BibleApiResponse.Verses.of(
             books = books,
             currentBook = targetBook,
             totalChapterCount = totalChapterCount,
