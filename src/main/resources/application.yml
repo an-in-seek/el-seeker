@@ -46,6 +46,7 @@ spring:
         - classpath:data/bible_krv_14_2chronicles.sql
         - classpath:data/bible_krv_15_ezra.sql
         - classpath:data/bible_krv_16_nehemiah.sql
+        - classpath:data/bible_krv_17_esther.sql
 
 springdoc:
   api-docs:
