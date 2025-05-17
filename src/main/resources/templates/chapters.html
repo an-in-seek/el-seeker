@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v5" rel="stylesheet">
+  <link href="/css/common.css?v6" rel="stylesheet">
 </head>
 <body>
 
@@ -37,6 +37,15 @@
     </a>
   </div>
 
+  <!-- 책 개요 -->
+  <a id="bookDescription"
+     class="book-description text-decoration-none"
+     href="#"
+     aria-label="책 상세 보기">
+    📘 <span id="bookDescriptionText"></span>
+  </a>
+
+  <!-- 장 선택 그리드 -->
   <div id="chapterList" class="chapter-grid"></div>
 </div>
 
@@ -92,6 +101,7 @@
         const DOM = {
             translationTypeLabel: document.getElementById("translationTypeLabel"),
             bookLabel: document.getElementById("bookLabel"),
+            bookDescriptionText: document.getElementById("bookDescriptionText"),
             chapterList: document.getElementById("chapterList"),
             prevBtn: document.getElementById("prevBookBtn"),
             bookSelectLink: document.getElementById("bookSelectLink"),
@@ -141,6 +151,7 @@
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderChapters(data) {
             DOM.bookSelectLinkLabel.textContent = data.book.bookName;
+            DOM.bookDescriptionText.textContent = data.book.description;
             DOM.chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");

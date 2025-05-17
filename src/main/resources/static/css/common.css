@@ -152,6 +152,26 @@
   background-color: #e2e6ea;
 }
 
+.book-description {
+  display: block;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #495057;
+  transition: background-color 0.2s;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.book-description:hover {
+  background-color: #e2e6ea;
+  text-decoration: none;
+}
+
 .chapter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
