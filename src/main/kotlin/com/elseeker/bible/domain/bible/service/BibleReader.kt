@@ -73,8 +73,7 @@ class BibleReader(
         val books = translation.books.sortedBy { it.bookOrder }
         val currentBookIndex = books.indexOfFirst { it.bookOrder == bookOrder }
         val currentBook = books.getOrNull(currentBookIndex) ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
-
-        val currentChapterCount = currentBook.chapters.size
+        val currentChapterCount = bibleChapterRepository.countByBookId(currentBook.id!!)
 
         var targetBook = currentBook
         var targetChapterNumber = chapterNumber
