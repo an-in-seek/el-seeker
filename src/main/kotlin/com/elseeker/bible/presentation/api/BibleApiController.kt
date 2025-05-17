@@ -26,12 +26,21 @@ class BibleApiController(
         return ResponseEntity.ok().body(response)
     }
 
+    @GetMapping("/translations/{translationId}/books/{bookOrder}")
+    override fun getBook(
+        @PathVariable translationId: Long,
+        @PathVariable bookOrder: Int
+    ): ResponseEntity<BibleApiResponse.BookDetail> {
+        val response = bibleFacade.getBook(translationId, bookOrder)
+        return ResponseEntity.ok().body(response)
+    }
+
     @GetMapping("/translations/{translationId}/books/{bookOrder}/chapters")
     override fun getChapters(
         @PathVariable translationId: Long,
         @PathVariable bookOrder: Int
     ): ResponseEntity<BibleApiResponse.Chapters> {
-        val response = bibleFacade.getChapterView(translationId, bookOrder)
+        val response = bibleFacade.getChapters(translationId, bookOrder)
         return ResponseEntity.ok().body(response)
     }
 

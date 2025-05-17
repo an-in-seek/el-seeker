@@ -10,6 +10,9 @@ class BibleBookDescription(
     @Column(name = "book_id")
     val bookId: Long,  // BibleBook ID와 동일하게 설정
 
+    @Column(nullable = false)
+    val summary: String,
+
     @Lob
     @Column(nullable = false)
     val content: String,

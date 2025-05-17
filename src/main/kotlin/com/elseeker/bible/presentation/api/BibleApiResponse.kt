@@ -44,6 +44,36 @@ object BibleApiResponse {
         }
     }
 
+    data class BookDetail(
+        val bookId: Long,
+        val bookOrder: Int,
+        val bookName: String,
+        val abbreviation: String,
+        val testamentType: BibleTestamentType,
+        val description: Description,
+    ) {
+        data class Description(
+            val summary: String,
+            val content: String,
+        )
+
+        companion object {
+            fun from(bibleBook: BibleBook): BookDetail {
+                return BookDetail(
+                    bookId = bibleBook.id!!,
+                    bookOrder = bibleBook.bookOrder,
+                    bookName = bibleBook.name,
+                    abbreviation = bibleBook.abbreviation,
+                    testamentType = bibleBook.testamentType,
+                    description = Description(
+                        summary = bibleBook.description.summary,
+                        content = bibleBook.description.content,
+                    ),
+                )
+            }
+        }
+    }
+
     data class Chapters(
         val book: BibleResult.BookDetail
     ) {

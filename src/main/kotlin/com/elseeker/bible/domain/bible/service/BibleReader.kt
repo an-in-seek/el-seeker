@@ -27,6 +27,10 @@ class BibleReader(
         bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(setOf(BibleTranslationType.KRV, BibleTranslationType.KJV))
             .map(BibleResult.Translation::from)
 
+    fun getBook(translationId: Long, bookOrder: Int): BibleApiResponse.BookDetail? =
+        bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
+            ?.let(BibleApiResponse.BookDetail::from)
+
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleBookRepository.findByTranslationId(translationId)
             .map(BibleResult.Book::from)

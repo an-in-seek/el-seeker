@@ -42,7 +42,7 @@
      class="book-description text-decoration-none"
      href="#"
      aria-label="책 상세 보기">
-    📘 <span id="bookDescriptionText"></span>
+    📘 <span id="bookDescriptionSummary"></span>
   </a>
 
   <!-- 장 선택 그리드 -->
@@ -101,7 +101,8 @@
         const DOM = {
             translationTypeLabel: document.getElementById("translationTypeLabel"),
             bookLabel: document.getElementById("bookLabel"),
-            bookDescriptionText: document.getElementById("bookDescriptionText"),
+            bookDescription: document.getElementById("bookDescription"),
+            bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
             chapterList: document.getElementById("chapterList"),
             prevBtn: document.getElementById("prevBookBtn"),
             bookSelectLink: document.getElementById("bookSelectLink"),
@@ -113,6 +114,7 @@
         DOM.bookLabel.textContent = bookName;
         DOM.bookSelectLinkLabel.textContent = bookName;
         DOM.bookSelectLink.href = "/web/bible/book";
+        DOM.bookDescription.href = "/web/bible/book/description";
 
         const books = BookStore.getListForTranslation(translationId);
         if (!books || books.length === 0) {
@@ -151,7 +153,7 @@
         // 📌 화면 업데이트 함수 (sessionStorage & API 호출 공통)
         function renderChapters(data) {
             DOM.bookSelectLinkLabel.textContent = data.book.bookName;
-            DOM.bookDescriptionText.textContent = data.book.description;
+            DOM.bookDescriptionSummary.textContent = data.book.descriptionSummary;
             DOM.chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");

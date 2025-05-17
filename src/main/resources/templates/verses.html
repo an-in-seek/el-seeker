@@ -57,7 +57,7 @@
 
     <!-- 장 선택 (페이지 이동) -->
     <a id="chapterSelectLink"
-       href="#"
+       href="/web/bible/chapter"
        class="btn btn-lg btn-primary"
        aria-label="장 선택">
       <span aria-hidden="true">📖</span>
@@ -105,7 +105,6 @@
             chapterLabel: document.getElementById("chapterLabel"),
             verseTable: document.getElementById("verseTableBody"),
             prevBtn: document.getElementById("prevChapterBtn"),
-            chapterSelectLink: document.getElementById("chapterSelectLink"),
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
             nextBtn: document.getElementById("nextChapterBtn"),
         };
@@ -115,7 +114,6 @@
         DOM.chapterLabel.textContent = chapterNumber;
         DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapterNumber}`;
 
-        DOM.chapterSelectLink.href = "/web/bible/chapter";
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
         DOM.nextBtn.addEventListener("click", () => loadChapter("NEXT"));
         DOM.verseTable.addEventListener("click", e => {

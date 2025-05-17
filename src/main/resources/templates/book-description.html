@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <title>Book Description</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="/css/common.css?v6" rel="stylesheet">
+</head>
+<body>
+<div class="container py-4">
+  <h5 id="bookName" class="fw-bold mb-3"></h5>
+  <p id="bookDescriptionSummary" class="lead"></p>
+  <hr/>
+  <p id="bookDescriptionContent"></p>
+</div>
+
+<!-- 하단 네비게이션 -->
+<div class="fixed-bottom-nav">
+  <div class="nav-container">
+    <!-- 이전 책 버튼 -->
+    <button id="prevBookBtn"
+            class="btn btn-lg btn-outline-primary prev-next"
+            type="button"
+            aria-label="이전 책으로 이동">
+      <span aria-hidden="true">⬅</span>
+      <span class="d-none d-md-inline ms-2">이전 책</span>
+    </button>
+
+    <!-- 장 선택 -->
+    <a id="bookSelectLink"
+       href="/web/bible/chapter"
+       class="btn btn-lg btn-primary"
+       aria-label="장 선택">
+      <span aria-hidden="true">📖</span>
+      <span id="chapterSelectLinkLabel" class="ms-2"></span>
+    </a>
+
+    <!-- 다음 책 버튼 -->
+    <button id="nextBookBtn"
+            class="btn btn-lg btn-outline-primary prev-next"
+            type="button"
+            aria-label="다음 책으로 이동">
+      <span class="d-none d-md-inline me-2">다음 책</span>
+      <span aria-hidden="true">➡</span>
+    </button>
+  </div>
+</div>
+
+<script src="/js/storage-util.js?v3"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const translationId = TranslationStore.getCurrentTranslationId();
+        const translationType = TranslationStore.getCurrentTranslationType();
+        if (!translationId || !translationType) {
+            window.location.href = "/web/bible/translation";
+            return;
+        }
+
+        const bookOrder = BookStore.getCurrentBookOrder();
+        const bookName = BookStore.getBookName(translationId, bookOrder);
+        if (!bookOrder || !bookName) {
+            window.location.href = "/web/bible/book";
+            return;
+        }
+
+        const DOM = {
+            bookName: document.getElementById("bookName"),
+            bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
+            bookDescriptionContent: document.getElementById("bookDescriptionContent"),
+            prevBtn: document.getElementById("prevBookBtn"),
+            nextBtn: document.getElementById("nextBookBtn"),
+            chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
+        }
+
+        DOM.chapterSelectLinkLabel.textContent = bookName;
+
+        // 책 리스트 가져오기 (sessionStorage 활용)
+        const books = BookStore.getListForTranslation(translationId);
+        if (!books || books.length === 0) {
+            return;
+        }
+        const currentIndex = books.findIndex(book => book.bookOrder === bookOrder);
+
+        // 이전/다음 버튼 제어
+        DOM.prevBtn.disabled = currentIndex <= 0;
+        DOM.nextBtn.disabled = currentIndex >= books.length - 1;
+
+        DOM.prevBtn.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                const prevBook = books[currentIndex - 1];
+                BookStore.saveCurrentBook(prevBook);
+                window.location.reload();
+            }
+        });
+
+        DOM.nextBtn.addEventListener("click", () => {
+            if (currentIndex < books.length - 1) {
+                const nextBook = books[currentIndex + 1];
+                BookStore.saveCurrentBook(nextBook);
+                window.location.reload();
+            }
+        });
+
+        // ✅ 분리된 함수 호출
+        await loadBookDetail(translationId, bookOrder, DOM);
+    });
+
+    async function loadBookDetail(translationId, bookOrder, DOM) {
+        try {
+            const response = await fetch(`/api/bibles/translations/${translationId}/books/${bookOrder}`);
+            if (!response.ok) {
+                throw new Error("책 정보를 불러오는 데 실패했습니다.");
+            }
+            const data = await response.json();
+            DOM.bookName.textContent = data.bookName;
+            DOM.bookDescriptionSummary.textContent = data.description.summary;
+            DOM.bookDescriptionContent.textContent = data.description.content;
+            DOM.chapterSelectLinkLabel.textContent = data.bookName;
+        } catch (error) {
+            alert("에러: " + error.message);
+        }
+    }
+</script>
+
+</body>
+</html>

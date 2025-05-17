@@ -25,6 +25,11 @@ class BibleWebController(
         return "books"
     }
 
+    @GetMapping("/book/description")
+    fun showBookDescription(): String {
+        return "book-description"
+    }
+
     @GetMapping("/chapter")
     fun showChapters(): String {
         return "chapters"

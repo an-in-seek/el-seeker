@@ -19,6 +19,14 @@ interface BibleApiDocument {
     ): ResponseEntity<List<BibleApiResponse.Book>>
 
     /**
+     * 📌 특정 책(Book) 조회
+     */
+    fun getBook(
+        translationId: Long,
+        bookOrder: Int
+    ): ResponseEntity<BibleApiResponse.BookDetail>
+
+    /**
      * 📌 특정 책(Book)에 해당하는 장(Chapter) 리스트 조회
      */
     fun getChapters(

@@ -15,10 +15,13 @@ class BibleFacade(
     fun getTranslations(): List<BibleResult.Translation> =
         bibleReader.getTranslations()
 
+    fun getBook(translationId: Long, bookOrder: Int): BibleApiResponse.BookDetail? =
+        bibleReader.getBook(translationId, bookOrder)
+
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleReader.getBooks(translationId)
 
-    fun getChapterView(translationId: Long, bookOrder: Int): BibleApiResponse.Chapters =
+    fun getChapters(translationId: Long, bookOrder: Int): BibleApiResponse.Chapters =
         bibleReader.getChapters(translationId, bookOrder)
 
     fun getChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int): BibleApiResponse.Verses =
