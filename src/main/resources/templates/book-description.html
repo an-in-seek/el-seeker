@@ -13,7 +13,7 @@
   <h5 id="bookName" class="fw-bold mb-3"></h5>
   <p id="bookDescriptionSummary" class="lead"></p>
   <hr/>
-  <p id="bookDescriptionContent"></p>
+  <div id="bookDescriptionContent"></div>
 </div>
 
 <!-- 하단 네비게이션 -->
@@ -116,7 +116,7 @@
             const data = await response.json();
             DOM.bookName.textContent = data.bookName;
             DOM.bookDescriptionSummary.textContent = data.description.summary;
-            DOM.bookDescriptionContent.textContent = data.description.content;
+            DOM.bookDescriptionContent.innerHTML = data.description.content;
             DOM.chapterSelectLinkLabel.textContent = data.bookName;
         } catch (error) {
             alert("에러: " + error.message);
