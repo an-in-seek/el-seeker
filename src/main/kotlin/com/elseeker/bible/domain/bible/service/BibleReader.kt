@@ -1,0 +1,129 @@
+package com.elseeker.bible.domain.bible.service
+
+import com.elseeker.bible.domain.ErrorType
+import com.elseeker.bible.domain.ServiceException
+import com.elseeker.bible.domain.bible.DirectionType
+import com.elseeker.bible.domain.bible.model.BibleTranslationType
+import com.elseeker.bible.domain.bible.result.BibleResult
+import com.elseeker.bible.infrastructure.persistence.jpa.BibleBookRepository
+import com.elseeker.bible.infrastructure.persistence.jpa.BibleChapterRepository
+import com.elseeker.bible.infrastructure.persistence.jpa.BibleTranslationRepository
+import com.elseeker.bible.infrastructure.persistence.jpa.BibleVerseRepository
+import com.elseeker.bible.presentation.api.BibleApiResponse
+import com.elseeker.bible.presentation.api.response.BibleSearchResponse
+import com.elseeker.bible.presentation.web.response.BibleViewResponse
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+
+@Component
+@Transactional(readOnly = true)
+class BibleReader(
+    private val bibleTranslationRepository: BibleTranslationRepository,
+    private val bibleBookRepository: BibleBookRepository,
+    private val bibleChapterRepository: BibleChapterRepository,
+    private val bibleVerseRepository: BibleVerseRepository
+) {
+
+    fun getTranslations(): List<BibleResult.Translation> =
+        bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(
+            setOf(BibleTranslationType.KRV, BibleTranslationType.KJV)
+        ).map(BibleResult.Translation::from)
+
+    fun getBooks(translationId: Long): List<BibleResult.Book> =
+        bibleBookRepository.findByTranslationId(translationId).map(BibleResult.Book::from)
+
+    fun getChapterView(translationId: Long, bookOrder: Int): BibleViewResponse.Chapter =
+        bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
+            ?.let(BibleViewResponse.Chapter::from)
+            ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+
+    fun getChapterVerses(
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int
+    ): BibleApiResponse.Verse {
+        val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
+            ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
+
+        val books = translation.books.sortedBy { it.bookOrder }
+        val book = books.firstOrNull { it.bookOrder == bookOrder } ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+        val bookId = book.id!!
+
+        val chapter = bibleChapterRepository.findByBookAndChapter(bookId, chapterNumber)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
+
+        val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
+
+        return BibleApiResponse.Verse.of(
+            books = books,
+            currentBook = book,
+            totalChapterCount = totalChapterCount,
+            chapter = chapter
+        )
+    }
+
+    fun getAdjacentChapterVerses(
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int,
+        direction: DirectionType
+    ): BibleApiResponse.Verse {
+        val translation = bibleTranslationRepository.findByIdWithBooks(translationId)
+            ?: throw ServiceException(ErrorType.TRANSLATION_NOT_FOUND)
+
+        val books = translation.books.sortedBy { it.bookOrder }
+        val currentBookIndex = books.indexOfFirst { it.bookOrder == bookOrder }
+        val currentBook = books.getOrNull(currentBookIndex) ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
+
+        val currentChapterCount = currentBook.chapters.size
+
+        var targetBook = currentBook
+        var targetChapterNumber = chapterNumber
+
+        when (direction) {
+            DirectionType.NEXT -> {
+                if (chapterNumber < currentChapterCount) {
+                    targetChapterNumber += 1
+                } else if (currentBookIndex < books.lastIndex) {
+                    targetBook = books[currentBookIndex + 1]
+                    targetChapterNumber = 1
+                }
+            }
+
+            DirectionType.PREV -> {
+                if (chapterNumber > 1) {
+                    targetChapterNumber -= 1
+                } else if (currentBookIndex > 0) {
+                    targetBook = books[currentBookIndex - 1]
+                    targetChapterNumber = targetBook.chapters.maxOfOrNull { it.chapterNumber }
+                        ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
+                }
+            }
+        }
+
+        val targetBookId = targetBook.id ?: throw IllegalStateException("Book has no ID")
+        val chapter = bibleChapterRepository.findByBookAndChapter(targetBookId, targetChapterNumber)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
+
+        val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)
+
+        return BibleApiResponse.Verse.of(
+            books = books,
+            currentBook = targetBook,
+            totalChapterCount = totalChapterCount,
+            chapter = chapter
+        )
+    }
+
+    fun searchBibleVerses(
+        translationId: Long,
+        keyword: String
+    ): List<BibleSearchResponse> {
+        if (keyword.isBlank()) throw ServiceException(ErrorType.INVALID_PARAMETER, "keyword is blank")
+        return try {
+            bibleVerseRepository.searchByTranslationAndText(translationId, keyword)
+        } catch (e: Exception) {
+            throw ServiceException(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
+        }
+    }
+}

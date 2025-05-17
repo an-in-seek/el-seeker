@@ -6,7 +6,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.seek"
+group = "com.elseeker"
 version = "1.0.0"
 
 java {
