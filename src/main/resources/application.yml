@@ -48,6 +48,7 @@ spring:
         - classpath:data/bible_krv_16_nehemiah.sql
         - classpath:data/bible_krv_17_esther.sql
         - classpath:data/bible_krv_18_job.sql
+        - classpath:data/bible_krv_19_psalms.sql
 
 springdoc:
   api-docs:
