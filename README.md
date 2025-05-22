@@ -27,7 +27,7 @@ Spring Boot와 Kotlin 기반으로 설계되었으며, **Domain Model Pattern** 
 - **Build**: Gradle
 - **Caching**: Redis (선택사항)
 - **API 문서화**: SpringDoc OpenAPI (Swagger)
-- **Web UI**: Thymeleaf, Bootstrap, jQuery
+- **Web UI**: HTML, CSS, JavaScript, Thymeleaf, Bootstrap
 
 ---
 
@@ -117,7 +117,7 @@ GET /api/bibles/translations/1/search?keyword=Jesus
 
 * **Thymeleaf**: 서버 사이드 템플릿 엔진
 * **Bootstrap**: 반응형 웹 디자인을 위한 CSS 프레임워크
-* **jQuery**: DOM 조작 및 Ajax 요청 등 동적 기능 구현
+* **JavaScript**: DOM 조작 및 fetch 요청 등 동적 기능 구현
 
 ---
 
