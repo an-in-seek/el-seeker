@@ -17,5 +17,16 @@
     <a class="btn btn-primary mt-3" href="/web/bible/translation">성경 번역본 보기</a>
   </nav>
 </div>
+
+<script src="/js/storage-util.js?v3"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const translationId = TranslationStore.getCurrentTranslationId();
+        const translationType = TranslationStore.getCurrentTranslationType();
+        if (translationId && translationType) {
+            window.location.href = "/web/bible/book";
+        }
+    });
+</script>
 </body>
 </html>
