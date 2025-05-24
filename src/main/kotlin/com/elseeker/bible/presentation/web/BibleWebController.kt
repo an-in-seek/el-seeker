@@ -17,12 +17,12 @@ class BibleWebController(
     fun showTranslations(model: Model): String {
         val translations = bibleFacade.getTranslations().map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
-        return "translations"
+        return "translation"
     }
 
     @GetMapping("/book")
     fun showBooks(): String {
-        return "books"
+        return "book"
     }
 
     @GetMapping("/book/description")
@@ -32,12 +32,12 @@ class BibleWebController(
 
     @GetMapping("/chapter")
     fun showChapters(): String {
-        return "chapters"
+        return "chapter"
     }
 
     @GetMapping("/verse")
     fun showVerses(): String {
-        return "verses"
+        return "verse"
     }
 
     @GetMapping("/search")

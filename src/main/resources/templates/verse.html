@@ -32,16 +32,16 @@
 
   <!-- 💅 Styles -->
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v6" rel="stylesheet">
+  <link href="/css/common.css?v7" rel="stylesheet">
 </head>
 <body>
 
 <div class="container content-wrapper pt-3">
-  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="top-nav">
     <!-- 번역본 선택 -->
     <a href="/web/bible/translation"
        onclick="TranslationStore.saveTranslationReturnPath('/web/bible/verse')"
-       class="btn btn-outline-secondary dropdown-toggle text-truncate top-nav-translation-button"
+       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
        role="button"
        aria-label="번역본 선택"
        title="번역본 선택 페이지로 이동">
@@ -49,13 +49,13 @@
     </a>
 
     <!-- 현재책 현재장 표시 -->
-    <div class="text-body-secondary flex-fill text-truncate text-center" style="font-size: 1.25rem;">
+    <div class="top-nav-title">
       <strong id="bookLabel"></strong>&nbsp;<span id="chapterLabel"></span>
     </div>
 
     <!-- 검색 -->
     <a href="/web/bible/search"
-       class="btn btn-outline-secondary d-flex align-items-center justify-content-center top-nav-search-button"
+       class="top-nav-search-button btn btn-outline-secondary"
        role="button"
        aria-label="본문 검색"
        title="본문 검색">

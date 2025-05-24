@@ -6,11 +6,35 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="/css/common.css?v6" rel="stylesheet">
+  <link href="/css/common.css?v7" rel="stylesheet">
 </head>
 <body>
 <div class="container py-4">
-  <h5 id="bookName" class="fw-bold mb-3"></h5>
+  <div class="top-nav">
+    <!-- 번역본 선택 -->
+    <a href="/web/bible/translation"
+       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book')"
+       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
+       role="button"
+       aria-label="번역본 선택"
+       title="번역본 선택 페이지로 이동">
+      <span id="translationTypeLabel"></span>
+    </a>
+
+    <!-- 현재 번역본 표시 -->
+    <div class="top-nav-title">
+      <strong id="bookLabel"></strong>
+    </div>
+
+    <!-- 검색 -->
+    <a href="/web/bible/search"
+       class="top-nav-search-button btn btn-outline-secondary"
+       role="button"
+       aria-label="본문 검색"
+       title="본문 검색">
+      🔍
+    </a>
+  </div>
   <p id="bookDescriptionSummary" class="lead"></p>
   <hr/>
   <div id="bookDescriptionContent"></div>
@@ -66,7 +90,8 @@
         }
 
         const DOM = {
-            bookName: document.getElementById("bookName"),
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            bookLabel: document.getElementById("bookLabel"),
             bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
             bookDescriptionContent: document.getElementById("bookDescriptionContent"),
             prevBtn: document.getElementById("prevBookBtn"),
@@ -74,6 +99,7 @@
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
         }
 
+        DOM.translationTypeLabel.textContent = translationType;
         DOM.chapterSelectLinkLabel.textContent = bookName;
 
         // 책 리스트 가져오기 (sessionStorage 활용)
@@ -114,7 +140,7 @@
                 throw new Error("책 정보를 불러오는 데 실패했습니다.");
             }
             const data = await response.json();
-            DOM.bookName.textContent = data.bookName;
+            DOM.bookLabel.textContent = data.bookName;
             DOM.bookDescriptionSummary.textContent = data.description.summary;
             DOM.bookDescriptionContent.innerHTML = data.description.content;
             DOM.chapterSelectLinkLabel.textContent = data.bookName;

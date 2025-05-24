@@ -32,26 +32,30 @@
 
   <!-- 💅 Styles -->
   <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/common.css?v6" rel="stylesheet">
+  <link href="/css/common.css?v7" rel="stylesheet">
 </head>
 <body>
 
 <div class="container content-wrapper pt-3">
-  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
-
+  <div class="top-nav">
     <!-- 번역본 선택 -->
     <a href="/web/bible/translation"
        onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book')"
-       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
+       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
        role="button"
        aria-label="번역본 선택"
        title="번역본 선택 페이지로 이동">
       <span id="translationTypeLabel"></span>
     </a>
 
+    <!-- 현재 번역본 표시 -->
+    <div class="top-nav-title">
+      <strong id="translationNameLabel"></strong>
+    </div>
+
     <!-- 검색 -->
     <a href="/web/bible/search"
-       class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+       class="top-nav-search-button btn btn-outline-secondary"
        role="button"
        aria-label="본문 검색"
        title="본문 검색">
@@ -67,11 +71,13 @@
     document.addEventListener("DOMContentLoaded", async function () {
         const translationId = TranslationStore.getCurrentTranslationId();
         const translationType = TranslationStore.getCurrentTranslationType();
+        const translationName = TranslationStore.getCurrentTranslationName();
         if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
         }
         document.getElementById("translationTypeLabel").textContent = translationType;
+        document.getElementById("translationNameLabel").textContent = translationName;
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
