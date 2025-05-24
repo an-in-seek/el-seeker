@@ -13,7 +13,7 @@
   <div class="top-nav">
     <!-- 번역본 선택 -->
     <a href="/web/bible/translation"
-       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book')"
+       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book/description')"
        class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
        role="button"
        aria-label="번역본 선택"
@@ -23,7 +23,7 @@
 
     <!-- 현재 번역본 표시 -->
     <div class="top-nav-title">
-      <strong id="bookLabel"></strong>
+      <strong id="bookName"></strong>
     </div>
 
     <!-- 검색 -->
@@ -35,9 +35,33 @@
       🔍
     </a>
   </div>
-  <p id="bookDescriptionSummary" class="lead"></p>
-  <hr/>
-  <div id="bookDescriptionContent"></div>
+  <div>
+    <p>
+      <strong id="summaryLabel"></strong><br>
+      <span id="summary"></span>
+    </p>
+    <hr/>
+    <p>
+      <strong id="authorLabel"></strong><br>
+      <span id="author"></span>
+    </p>
+    <p>
+      <strong id="writtenYearLabel"></strong><br>
+      <span id="writtenYear"></span>
+    </p>
+    <p>
+      <strong id="historicalPeriodLabel"></strong><br>
+      <span id="historicalPeriod"></span>
+    </p>
+    <p>
+      <strong id="backgroundLabel"></strong><br>
+      <span id="background"></span>
+    </p>
+    <p>
+      <strong id="contentLabel"></strong><br>
+      <span id="content"></span>
+    </p>
+  </div>
 </div>
 
 <!-- 하단 네비게이션 -->
@@ -72,11 +96,12 @@
   </div>
 </div>
 
-<script src="/js/storage-util.js?v5"></script>
+<script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const translationId = TranslationStore.getCurrentTranslationId();
         const translationType = TranslationStore.getCurrentTranslationType();
+        const translationLanguage = TranslationStore.getCurrentTranslationLanguage();
         if (!translationId || !translationType) {
             window.location.href = "/web/bible/translation";
             return;
@@ -91,16 +116,49 @@
 
         const DOM = {
             translationTypeLabel: document.getElementById("translationTypeLabel"),
-            bookLabel: document.getElementById("bookLabel"),
-            bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
-            bookDescriptionContent: document.getElementById("bookDescriptionContent"),
+            bookName: document.getElementById("bookName"),
+            summaryLabel: document.getElementById("summaryLabel"),
+            summary: document.getElementById("summary"),
+            authorLabel: document.getElementById("authorLabel"),
+            author: document.getElementById("author"),
+            writtenYearLabel: document.getElementById("writtenYearLabel"),
+            writtenYear: document.getElementById("writtenYear"),
+            historicalPeriodLabel: document.getElementById("historicalPeriodLabel"),
+            historicalPeriod: document.getElementById("historicalPeriod"),
+            backgroundLabel: document.getElementById("backgroundLabel"),
+            background: document.getElementById("background"),
+            contentLabel: document.getElementById("contentLabel"),
+            content: document.getElementById("content"),
             prevBtn: document.getElementById("prevBookBtn"),
             nextBtn: document.getElementById("nextBookBtn"),
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
         }
 
+        // 번역본 타입 기준으로 label 수정
         DOM.translationTypeLabel.textContent = translationType;
+
+        // 현재 책 이름 표시
         DOM.chapterSelectLinkLabel.textContent = bookName;
+
+        // 번역본 언어 기준으로 label 수정
+        switch (translationLanguage) {
+            case "ko":
+                DOM.summaryLabel.textContent = "요약";
+                DOM.authorLabel.textContent = "저자";
+                DOM.writtenYearLabel.textContent = "년도";
+                DOM.historicalPeriodLabel.textContent = "시대";
+                DOM.backgroundLabel.textContent = "배경";
+                DOM.contentLabel.textContent = "내용";
+                break;
+            case "en":
+                DOM.summaryLabel.textContent = "Summary";
+                DOM.authorLabel.textContent = "Author";
+                DOM.writtenYearLabel.textContent = "Written Year";
+                DOM.historicalPeriodLabel.textContent = "Historical Period";
+                DOM.backgroundLabel.textContent = "Background";
+                DOM.contentLabel.textContent = "Content";
+                break;
+        }
 
         // 책 리스트 가져오기 (sessionStorage 활용)
         const books = BookStore.getListForTranslation(translationId);
@@ -140,9 +198,13 @@
                 throw new Error("책 정보를 불러오는 데 실패했습니다.");
             }
             const data = await response.json();
-            DOM.bookLabel.textContent = data.bookName;
-            DOM.bookDescriptionSummary.textContent = data.description.summary;
-            DOM.bookDescriptionContent.innerHTML = data.description.content;
+            DOM.bookName.textContent = data.bookName;
+            DOM.summary.textContent = data.description.summary;
+            DOM.author.textContent = data.description.author;
+            DOM.writtenYear.textContent = data.description.writtenYear;
+            DOM.historicalPeriod.textContent = data.description.historicalPeriod;
+            DOM.background.textContent = data.description.background;
+            DOM.content.innerHTML = data.description.content;
             DOM.chapterSelectLinkLabel.textContent = data.bookName;
         } catch (error) {
             alert("에러: " + error.message);
