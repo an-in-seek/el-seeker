@@ -69,6 +69,10 @@ const TranslationStore = {
         const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
         return currentTranslation ? currentTranslation.name : null;
     },
+    getCurrentTranslationLanguage() {
+        const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
+        return currentTranslation ? currentTranslation.language : null;
+    },
     saveTranslationReturnPath(path) {
         SessionStore.set(STORAGE_KEYS.TRANSLATION_RETURN_PATH, path);
     },
