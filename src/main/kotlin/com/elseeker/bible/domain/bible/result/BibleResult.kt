@@ -7,14 +7,16 @@ object BibleResult {
     data class Translation(
         val translationId: Long,
         val translationType: BibleTranslationType,
-        val translationName: String
+        val translationName: String,
+        val translationLanguage: LanguageCode
     ) {
         companion object {
             fun from(translation: BibleTranslation) = with(translation) {
                 Translation(
                     translationId = id!!,
                     translationType = translationType,
-                    translationName = name
+                    translationName = name,
+                    translationLanguage = languageCode
                 )
             }
         }

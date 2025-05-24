@@ -13,6 +13,18 @@ class BibleBookDescription(
     @Column(nullable = false)
     val summary: String,
 
+    @Column(nullable = false)
+    val author: String,
+
+    @Column(nullable = false)
+    val writtenYear: String,
+
+    @Column(nullable = false)
+    val historicalPeriod: String,
+
+    @Column(nullable = false)
+    val background: String,
+
     @Lob
     @Column(nullable = false)
     val content: String,

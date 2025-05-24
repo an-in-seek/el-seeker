@@ -20,6 +20,10 @@ class BibleTranslation(
     @Column(nullable = false)
     val translationOrder: Int,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 4)
+    val languageCode: LanguageCode,
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "translationId")
     val books: MutableList<BibleBook> = mutableListOf()
 )

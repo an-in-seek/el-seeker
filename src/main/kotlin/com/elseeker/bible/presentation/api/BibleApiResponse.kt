@@ -1,9 +1,6 @@
 package com.elseeker.bible.presentation.api
 
-import com.elseeker.bible.domain.bible.model.BibleBook
-import com.elseeker.bible.domain.bible.model.BibleChapter
-import com.elseeker.bible.domain.bible.model.BibleTestamentType
-import com.elseeker.bible.domain.bible.model.BibleTranslationType
+import com.elseeker.bible.domain.bible.model.*
 import com.elseeker.bible.domain.bible.result.BibleResult
 
 object BibleApiResponse {
@@ -11,14 +8,16 @@ object BibleApiResponse {
     data class Translation(
         val translationId: Long,
         val translationType: BibleTranslationType,
-        val translationName: String
+        val translationName: String,
+        val translationLanguage: LanguageCode
     ) {
         companion object {
             fun from(result: BibleResult.Translation) =
                 Translation(
                     translationId = result.translationId,
                     translationType = result.translationType,
-                    translationName = result.translationName
+                    translationName = result.translationName,
+                    translationLanguage = result.translationLanguage
                 )
         }
     }
@@ -54,6 +53,10 @@ object BibleApiResponse {
     ) {
         data class Description(
             val summary: String,
+            val author: String,
+            val writtenYear: String,
+            val historicalPeriod: String,
+            val background: String,
             val content: String,
         )
 
@@ -67,6 +70,10 @@ object BibleApiResponse {
                     testamentType = bibleBook.testamentType,
                     description = Description(
                         summary = bibleBook.description.summary,
+                        author = bibleBook.description.author,
+                        writtenYear = bibleBook.description.writtenYear,
+                        historicalPeriod = bibleBook.description.historicalPeriod,
+                        background = bibleBook.description.background,
                         content = bibleBook.description.content,
                     ),
                 )
