@@ -57,10 +57,13 @@ const TranslationStore = {
         LocalStore.set(STORAGE_KEYS.CURRENT_TRANSLATION, translation);
     },
     getCurrentTranslationId() {
-        return parseInt(LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION).id);
+        const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
+        return currentTranslation ? parseInt(currentTranslation.id) : null;
+
     },
     getCurrentTranslationType() {
-        return LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION).type;
+        const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
+        return currentTranslation ? currentTranslation.type : null;
     },
     saveTranslationReturnPath(path) {
         SessionStore.set(STORAGE_KEYS.TRANSLATION_RETURN_PATH, path);
