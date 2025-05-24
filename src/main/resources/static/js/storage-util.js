@@ -65,6 +65,10 @@ const TranslationStore = {
         const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
         return currentTranslation ? currentTranslation.type : null;
     },
+    getCurrentTranslationName() {
+        const currentTranslation = LocalStore.get(STORAGE_KEYS.CURRENT_TRANSLATION);
+        return currentTranslation ? currentTranslation.name : null;
+    },
     saveTranslationReturnPath(path) {
         SessionStore.set(STORAGE_KEYS.TRANSLATION_RETURN_PATH, path);
     },
@@ -79,7 +83,8 @@ const BookStore = {
         LocalStore.set(STORAGE_KEYS.CURRENT_BOOK, book);
     },
     getCurrentBookOrder() {
-        return parseInt(LocalStore.get(STORAGE_KEYS.CURRENT_BOOK).bookOrder);
+        const currentBook = LocalStore.get(STORAGE_KEYS.CURRENT_BOOK);
+        return currentBook ? parseInt(currentBook.bookOrder) : null;
     },
     getBookName(translationId, bookOrder) {
         const key = `${STORAGE_KEYS.TRANSLATION_BOOKS_PREFIX}_${translationId}`;
