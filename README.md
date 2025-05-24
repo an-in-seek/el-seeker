@@ -18,7 +18,7 @@ Spring Boot와 Kotlin 기반으로 설계되었으며, **Domain Model Pattern** 
 * 사용자가 웹 인터페이스를 통해 번역본, 책, 장, 절을 탐색 가능
 * 키워드 검색을 통해 원하는 성경 구절을 빠르게 찾을 수 있음
 * 서버 사이드 렌더링 기반의 HTML 템플릿 사용 (`Thymeleaf`)
-* 프론트엔드에서는 **Bootstrap** 및 **jQuery**를 활용하여 동적 기능 제공
+* 프론트엔드에서는 **Bootstrap** 및 **JavaScript**를 활용하여 동적 기능 제공
 
 ## 📌 기술 스택
 
@@ -27,7 +27,7 @@ Spring Boot와 Kotlin 기반으로 설계되었으며, **Domain Model Pattern** 
 - **Build**: Gradle
 - **Caching**: Redis (선택사항)
 - **API 문서화**: SpringDoc OpenAPI (Swagger)
-- **Web UI**: Thymeleaf, Bootstrap, jQuery
+- **Web UI**: HTML, CSS, JavaScript, Thymeleaf, Bootstrap
 
 ---
 
@@ -117,7 +117,7 @@ GET /api/bibles/translations/1/search?keyword=Jesus
 
 * **Thymeleaf**: 서버 사이드 템플릿 엔진
 * **Bootstrap**: 반응형 웹 디자인을 위한 CSS 프레임워크
-* **jQuery**: DOM 조작 및 Ajax 요청 등 동적 기능 구현
+* **JavaScript**: DOM 조작 및 fetch 요청 등 동적 기능 구현
 
 ---
 
