@@ -50,6 +50,7 @@ spring:
         - classpath:data/bible_krv_18_job.sql
         - classpath:data/bible_krv_19_psalms.sql
         - classpath:data/bible_krv_20_proverbs.sql
+        - classpath:data/bible_krv_21_ecclesiastes.sql
 
 springdoc:
   api-docs:
