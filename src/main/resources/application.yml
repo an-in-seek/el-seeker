@@ -54,6 +54,8 @@ spring:
         - classpath:data/bible_krv_22_song_of_songs.sql
         - classpath:data/bible_krv_23_isaiah.sql
         - classpath:data/bible_krv_24_jeremiah.sql
+        - classpath:data/bible_krv_25_lamentations.sql
+        - classpath:data/bible_krv_26_ezekiel.sql
 
 springdoc:
   api-docs:
