@@ -57,6 +57,7 @@ spring:
         - classpath:data/bible_krv_25_lamentations.sql
         - classpath:data/bible_krv_26_ezekiel.sql
         - classpath:data/bible_krv_27_daniel.sql
+        - classpath:data/bible_krv_28_hosea.sql
 
 springdoc:
   api-docs:
