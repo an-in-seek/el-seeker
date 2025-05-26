@@ -64,6 +64,7 @@ spring:
         - classpath:data/bible_krv_32_jonah.sql
         - classpath:data/bible_krv_33_micah.sql
         - classpath:data/bible_krv_34_nahum.sql
+        - classpath:data/bible_krv_35_habakkuk.sql
 
 springdoc:
   api-docs:
