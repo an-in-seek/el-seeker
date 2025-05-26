@@ -60,6 +60,7 @@ spring:
         - classpath:data/bible_krv_28_hosea.sql
         - classpath:data/bible_krv_29_joel.sql
         - classpath:data/bible_krv_30_amos.sql
+        - classpath:data/bible_krv_31_obadiah.sql
 
 springdoc:
   api-docs:
