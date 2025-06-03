@@ -69,6 +69,7 @@ spring:
         - classpath:data/bible_krv_37_haggai.sql
         - classpath:data/bible_krv_38_zechariah.sql
         - classpath:data/bible_krv_39_malachi.sql
+        - classpath:data/bible_krv_40_matthew.sql
 
 springdoc:
   api-docs:
