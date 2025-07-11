@@ -50,7 +50,11 @@
 
     <!-- 현재책 표시 -->
     <div class="top-nav-title">
-      <strong id="bookLabel"></strong>
+      <a id="bookLabel"
+         href="#"
+         aria-label="책 선택"
+         class="label">
+      </a>
     </div>
 
     <!-- 검색 -->
@@ -90,7 +94,6 @@
             type="button"
             aria-label="이전 책으로 이동">
       <span aria-hidden="true">⬅</span>
-      <span class="d-none d-md-inline ms-2">이전</span>
     </button>
 
     <!-- 책 선택 (링크) -->
@@ -107,7 +110,6 @@
             class="btn btn-lg btn-outline-primary prev-next"
             type="button"
             aria-label="다음 책으로 이동">
-      <span class="d-none d-md-inline me-2">다음</span>
       <span aria-hidden="true">➡</span>
     </button>
   </div>
@@ -144,6 +146,7 @@
 
         DOM.translationTypeLabel.textContent = translationType;
         DOM.bookLabel.textContent = bookName;
+        DOM.bookLabel.href = "/web/bible/book";
         DOM.bookSelectLinkLabel.textContent = bookName;
         DOM.bookSelectLink.href = "/web/bible/book";
         DOM.bookDescription.href = "/web/bible/book/description";

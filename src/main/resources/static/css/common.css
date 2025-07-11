@@ -270,6 +270,12 @@
   color: var(--bs-secondary-color, #6c757d); /* Bootstrap 5 기준 */
 }
 
+.top-nav-title .label {
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+}
+
 .top-nav-search-button {
   min-width: 90px;
   max-width: 90px;
