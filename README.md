@@ -1,8 +1,8 @@
-# 📖 The Bible API
+# 📖 The Bible Service
 
 ## 📌 프로젝트 개요
 
-**The Bible API**는 성경 데이터(번역본, 책, 장, 절)를 효율적으로 관리하고 제공하는 **RESTful API 및 웹 UI**를 포함한 서비스입니다.
+**The Bible Service**는 성경 데이터(번역본, 책, 장, 절)를 효율적으로 관리하고 제공하는 **RESTful API 및 웹 UI**를 포함한 서비스입니다.
 Spring Boot와 Kotlin 기반으로 설계되었으며, **Domain Model Pattern** 원칙에 따라 도메인 중심의 구조를 갖추고 있습니다.
 
 해당 프로젝트는 아래와 같은 기능을 제공합니다:
