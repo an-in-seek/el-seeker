@@ -74,6 +74,7 @@ spring:
         - classpath:data/bible_krv_42_luke.sql
         - classpath:data/bible_krv_43_john.sql
         - classpath:data/bible_krv_44_acts.sql
+        - classpath:data/bible_krv_45_romans.sql
 
 springdoc:
   api-docs:
