@@ -8,7 +8,14 @@ import org.springframework.stereotype.Repository
 @Repository
 interface BibleChapterRepository : JpaRepository<BibleChapter, Long> {
 
-    fun countByBookId(bookId: Long): Int
+    @Query(
+        """
+            SELECT MAX(c.chapterNumber)
+            FROM BibleChapter c
+            WHERE c.bookId = :bookId
+        """
+    )
+    fun findMaxChapterNumberByBookId(bookId: Long): Int?
 
     @Query(
         """

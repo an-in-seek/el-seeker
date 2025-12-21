@@ -1,6 +1,6 @@
 package com.elseeker.bible.presentation.web
 
-import com.elseeker.bible.application.bible.BibleFacade
+import com.elseeker.bible.application.bible.service.BibleService
 import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 @Controller
 @RequestMapping("/web/bible")
 class BibleWebController(
-    private val bibleFacade: BibleFacade
+    private val bibleService: BibleService
 ) {
 
     @GetMapping("/translation")
     fun showTranslations(model: Model): String {
-        val translations = bibleFacade.getTranslations().map(BibleViewResponse.Translation::from)
+        val translations = bibleService.getTranslations().map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
         return "translation"
     }

@@ -1,4 +1,4 @@
-package com.elseeker.bible.domain.bible.service
+package com.elseeker.bible.application.bible.component
 
 import com.elseeker.bible.domain.ErrorType
 import com.elseeker.bible.domain.ServiceException
@@ -55,7 +55,8 @@ class BibleReader(
         val chapter = bibleChapterRepository.findByBookAndChapter(bookId, chapterNumber)
             ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
-        val totalChapterCount = bibleChapterRepository.countByBookId(bookId)
+        val totalChapterCount = bibleChapterRepository.findMaxChapterNumberByBookId(bookId)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         return BibleApiResponse.Verses.of(
             books = books,
@@ -77,18 +78,24 @@ class BibleReader(
         val books = translation.books.sortedBy { it.bookOrder }
         val currentBookIndex = books.indexOfFirst { it.bookOrder == bookOrder }
         val currentBook = books.getOrNull(currentBookIndex) ?: throw ServiceException(ErrorType.BOOK_NOT_FOUND)
-        val currentChapterCount = bibleChapterRepository.countByBookId(currentBook.id!!)
+        val currentBookId = currentBook.id ?: throw IllegalStateException("Book has no ID")
+        val currentMaxChapterNumber = bibleChapterRepository.findMaxChapterNumberByBookId(currentBookId)
+            ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
         var targetBook = currentBook
         var targetChapterNumber = chapterNumber
+        var targetMaxChapterNumber = currentMaxChapterNumber
 
         when (direction) {
             DirectionType.NEXT -> {
-                if (chapterNumber < currentChapterCount) {
+                if (chapterNumber < currentMaxChapterNumber) {
                     targetChapterNumber += 1
                 } else if (currentBookIndex < books.lastIndex) {
                     targetBook = books[currentBookIndex + 1]
                     targetChapterNumber = 1
+                    val nextBookId = targetBook.id ?: throw IllegalStateException("Book has no ID")
+                    targetMaxChapterNumber = bibleChapterRepository.findMaxChapterNumberByBookId(nextBookId)
+                        ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
                 }
             }
 
@@ -97,8 +104,10 @@ class BibleReader(
                     targetChapterNumber -= 1
                 } else if (currentBookIndex > 0) {
                     targetBook = books[currentBookIndex - 1]
-                    targetChapterNumber = targetBook.chapters.maxOfOrNull { it.chapterNumber }
+                    val prevBookId = targetBook.id ?: throw IllegalStateException("Book has no ID")
+                    targetMaxChapterNumber = bibleChapterRepository.findMaxChapterNumberByBookId(prevBookId)
                         ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
+                    targetChapterNumber = targetMaxChapterNumber
                 }
             }
         }
@@ -107,12 +116,10 @@ class BibleReader(
         val chapter = bibleChapterRepository.findByBookAndChapter(targetBookId, targetChapterNumber)
             ?: throw ServiceException(ErrorType.CHAPTER_NOT_FOUND)
 
-        val totalChapterCount = bibleChapterRepository.countByBookId(targetBook.id!!)
-
         return BibleApiResponse.Verses.of(
             books = books,
             currentBook = targetBook,
-            totalChapterCount = totalChapterCount,
+            totalChapterCount = targetMaxChapterNumber,
             chapter = chapter
         )
     }

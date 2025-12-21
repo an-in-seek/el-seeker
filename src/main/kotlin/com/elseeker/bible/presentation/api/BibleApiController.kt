@@ -1,6 +1,6 @@
 package com.elseeker.bible.presentation.api
 
-import com.elseeker.bible.application.bible.BibleFacade
+import com.elseeker.bible.application.bible.service.BibleService
 import com.elseeker.bible.domain.bible.DirectionType
 import com.elseeker.bible.presentation.api.response.BibleSearchResponse
 import org.springframework.http.ResponseEntity
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/bibles")
 class BibleApiController(
-    private val bibleFacade: BibleFacade
+    private val bibleService: BibleService
 ) : BibleApiDocument {
 
     @GetMapping("/translations")
     override fun getTranslations(): ResponseEntity<List<BibleApiResponse.Translation>> {
-        val response = bibleFacade.getTranslations().map(BibleApiResponse.Translation::from)
+        val response = bibleService.getTranslations().map(BibleApiResponse.Translation::from)
         return ResponseEntity.ok().body(response)
     }
 
@@ -22,7 +22,7 @@ class BibleApiController(
     override fun getBooks(
         @PathVariable translationId: Long
     ): ResponseEntity<List<BibleApiResponse.Book>> {
-        val response = bibleFacade.getBooks(translationId).map(BibleApiResponse.Book::from)
+        val response = bibleService.getBooks(translationId).map(BibleApiResponse.Book::from)
         return ResponseEntity.ok().body(response)
     }
 
@@ -31,7 +31,7 @@ class BibleApiController(
         @PathVariable translationId: Long,
         @PathVariable bookOrder: Int
     ): ResponseEntity<BibleApiResponse.BookDetail> {
-        val response = bibleFacade.getBook(translationId, bookOrder)
+        val response = bibleService.getBook(translationId, bookOrder)
         return ResponseEntity.ok().body(response)
     }
 
@@ -40,7 +40,7 @@ class BibleApiController(
         @PathVariable translationId: Long,
         @PathVariable bookOrder: Int
     ): ResponseEntity<BibleApiResponse.Chapters> {
-        val response = bibleFacade.getChapters(translationId, bookOrder)
+        val response = bibleService.getChapters(translationId, bookOrder)
         return ResponseEntity.ok().body(response)
     }
 
@@ -50,7 +50,7 @@ class BibleApiController(
         @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<BibleApiResponse.Verses> {
-        val response = bibleFacade.getChapterVerses(translationId, bookOrder, chapterNumber)
+        val response = bibleService.getChapterVerses(translationId, bookOrder, chapterNumber)
         return ResponseEntity.ok().body(response)
     }
 
@@ -61,7 +61,7 @@ class BibleApiController(
         @PathVariable chapterNumber: Int,
         @RequestParam direction: DirectionType // "prev" or "next"
     ): ResponseEntity<BibleApiResponse.Verses> {
-        val response = bibleFacade.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
+        val response = bibleService.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
         return ResponseEntity.ok(response)
     }
 
@@ -70,7 +70,7 @@ class BibleApiController(
         @PathVariable translationId: Long,
         @RequestParam keyword: String
     ): ResponseEntity<List<BibleSearchResponse>> {
-        val response = bibleFacade.searchBibleVerses(translationId, keyword)
+        val response = bibleService.searchBibleVerses(translationId, keyword)
         return ResponseEntity.ok(response)
     }
 }
