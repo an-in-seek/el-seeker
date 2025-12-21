@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
     kotlin("plugin.jpa") version "1.9.25"
-    id("org.springframework.boot") version "3.4.3"
+    id("org.springframework.boot") version "3.5.9"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -19,7 +19,7 @@ repositories {
     mavenCentral()
 }
 
-val springDocVersion = "2.8.5"
+val springDocVersion = "2.8.14"
 val kotlinLogging = "3.0.5"
 
 dependencies {
