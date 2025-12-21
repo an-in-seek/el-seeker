@@ -75,9 +75,11 @@ spring:
         - classpath:data/bible_krv_43_john.sql
         - classpath:data/bible_krv_44_acts.sql
         - classpath:data/bible_krv_45_romans.sql
+        - classpath:data/bible_krv_46_1corinthians.sql
 
 springdoc:
   api-docs:
+    enabled: true
     groups:
       enabled: false
   swagger-ui:

@@ -1,6 +1,6 @@
 package com.elseeker.bible.domain
 
-class ServiceException(
+class ServiceError(
     val errorType: ErrorType,
     vararg val data: Any
 ) : RuntimeException() {
