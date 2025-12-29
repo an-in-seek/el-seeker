@@ -57,9 +57,9 @@
         };
         if (navDOM.translationLink) {
             navDOM.translationLink.classList.remove("d-none");
-            navDOM.translationLink.addEventListener("click", () => {
-                TranslationStore.saveTranslationReturnPath("/web/bible/search");
-            });
+            navDOM.translationLink.classList.add("nav-placeholder");
+            navDOM.translationLink.setAttribute("aria-hidden", "true");
+            navDOM.translationLink.setAttribute("tabindex", "-1");
         }
         if (navDOM.pageTitleLabel) {
             navDOM.pageTitleLabel.textContent = "성경 검색";
