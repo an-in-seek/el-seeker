@@ -8,7 +8,6 @@
 <main class="container content-wrapper pt-3">
     <div class="search-controls">
         <form id="searchForm" role="search" class="mb-2">
-            <label for="keywordInput" class="form-label fw-semibold">검색어</label>
             <div class="input-group">
                 <a id="backBtn"
                    class="btn btn-outline-secondary back-btn-inline"
@@ -60,10 +59,6 @@
             navDOM.translationLink.classList.add("nav-placeholder");
             navDOM.translationLink.setAttribute("aria-hidden", "true");
             navDOM.translationLink.setAttribute("tabindex", "-1");
-        }
-        if (navDOM.pageTitleLabel) {
-            navDOM.pageTitleLabel.textContent = "성경 검색";
-            navDOM.pageTitleLabel.classList.remove("d-none");
         }
         if (navDOM.searchLink) {
             navDOM.searchLink.classList.remove("d-none");
