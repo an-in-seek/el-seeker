@@ -3,36 +3,9 @@
 <head th:replace="~{fragments/head :: head('TheBible - Bible Chapters | 성경 장 목록', true, null)}"></head>
 <body class="has-fixed-nav">
 
-<div class="container content-wrapper pt-3">
-  <div class="top-nav">
-    <!-- 번역본 선택 -->
-    <a href="/web/bible/translation"
-       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/chapter')"
-       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
-       role="button"
-       aria-label="번역본 선택"
-       title="번역본 선택 페이지로 이동">
-      <span id="translationTypeLabel"></span>
-    </a>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <!-- 현재책 표시 -->
-    <div class="top-nav-title">
-      <a id="bookLabel"
-         href="#"
-         aria-label="책 선택"
-         class="label">
-      </a>
-    </div>
-
-    <!-- 검색 -->
-    <a href="/web/bible/search"
-       class="top-nav-search-button btn btn-outline-secondary"
-       role="button"
-       aria-label="본문 검색"
-       title="본문 검색">
-      🔍
-    </a>
-  </div>
+<main class="container content-wrapper pt-3">
 
   <!-- 책 개요 -->
   <a id="bookDescription"
@@ -50,7 +23,7 @@
 
   <!-- 장 선택 그리드 -->
   <div id="chapterList" class="chapter-grid"></div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
@@ -87,6 +60,25 @@
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
+        const navDOM = {
+            translationLink: document.getElementById("topNavTranslationLink"),
+            searchLink: document.getElementById("topNavSearchLink"),
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            bookLabel: document.getElementById("bookLabel"),
+        };
+        if (navDOM.translationLink) {
+            navDOM.translationLink.classList.remove("d-none");
+            navDOM.translationLink.addEventListener("click", () => {
+                TranslationStore.saveTranslationReturnPath("/web/bible/chapter");
+            });
+        }
+        if (navDOM.searchLink) {
+            navDOM.searchLink.classList.remove("d-none");
+        }
+        if (navDOM.bookLabel) {
+            navDOM.bookLabel.classList.remove("d-none");
+        }
+
         const translationId = TranslationStore.getCurrentTranslationId();
         const translationType = TranslationStore.getCurrentTranslationType();
         if (!translationId || !translationType) {
@@ -102,8 +94,8 @@
         }
 
         const DOM = {
-            translationTypeLabel: document.getElementById("translationTypeLabel"),
-            bookLabel: document.getElementById("bookLabel"),
+            translationTypeLabel: navDOM.translationTypeLabel,
+            bookLabel: navDOM.bookLabel,
             bookDescription: document.getElementById("bookDescription"),
             bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
             chapterList: document.getElementById("chapterList"),
@@ -113,9 +105,13 @@
             nextBtn: document.getElementById("nextBookBtn"),
         }
 
-        DOM.translationTypeLabel.textContent = translationType;
-        DOM.bookLabel.textContent = bookName;
-        DOM.bookLabel.href = "/web/bible/book";
+        if (DOM.translationTypeLabel) {
+            DOM.translationTypeLabel.textContent = translationType;
+        }
+        if (DOM.bookLabel) {
+            DOM.bookLabel.textContent = bookName;
+            DOM.bookLabel.href = "/web/bible/book";
+        }
         DOM.bookSelectLinkLabel.textContent = bookName;
         DOM.bookSelectLink.href = "/web/bible/book";
         DOM.bookDescription.href = "/web/bible/book/description";

@@ -1,0 +1,29 @@
+<header th:fragment="header" class="site-header pt-3">
+    <nav class="container top-nav" aria-label="Primary Navigation">
+        <a id="topNavTranslationLink"
+           href="/web/bible/translation"
+           class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle d-none"
+           role="button"
+           aria-label="번역본 선택"
+           title="번역본 선택 페이지로 이동">
+            <span id="translationTypeLabel"></span>
+        </a>
+
+        <div class="top-nav-title">
+            <span id="pageTitleLabel" class="d-none"></span>
+            <strong id="translationNameLabel" class="d-none"></strong>
+            <a id="bookLabel" href="#" aria-label="책 선택" class="label d-none"></a>
+            <strong id="bookName" class="d-none"></strong>
+            <span id="chapterLabel" class="d-none ms-1"></span>
+        </div>
+
+        <a id="topNavSearchLink"
+           href="/web/bible/search"
+           class="top-nav-search-button btn btn-outline-secondary d-none"
+           role="button"
+           aria-label="본문 검색"
+           title="본문 검색">
+            🔍
+        </a>
+    </nav>
+</header>

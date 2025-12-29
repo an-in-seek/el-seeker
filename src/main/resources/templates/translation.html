@@ -3,7 +3,9 @@
 <head th:replace="~{fragments/head :: head('TheBible - Bible Translations | 성경 번역본', true, null)}"></head>
 <body>
 
-<div class="container content-wrapper mt-3">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper mt-3">
   <div class="list-group" id="translationList">
     <button type="button"
             class="list-group-item list-group-item-action text-start"
@@ -16,13 +18,19 @@
       <div class="small text-muted" th:text="${translation.translationType}"></div>
     </button>
   </div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 번역본";
+            pageTitleLabel.classList.remove("d-none");
+        }
+
         const returnPath = TranslationStore.consumeTranslationReturnPath();
         document.querySelectorAll("#translationList button").forEach(btn => {
             btn.addEventListener("click", () => {

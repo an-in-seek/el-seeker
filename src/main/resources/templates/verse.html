@@ -3,36 +3,13 @@
 <head th:replace="~{fragments/head :: head('TheBible - Bible Verses | 성경 구절 목록', true, null)}"></head>
 <body class="has-fixed-nav">
 
-<div class="container content-wrapper pt-3">
-  <div class="top-nav">
-    <!-- 번역본 선택 -->
-    <a href="/web/bible/translation"
-       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/verse')"
-       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
-       role="button"
-       aria-label="번역본 선택"
-       title="번역본 선택 페이지로 이동">
-      <span id="translationTypeLabel"></span>
-    </a>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <!-- 현재책 현재장 표시 -->
-    <div class="top-nav-title">
-      <strong id="bookLabel"></strong>&nbsp;<span id="chapterLabel"></span>
-    </div>
-
-    <!-- 검색 -->
-    <a href="/web/bible/search"
-       class="top-nav-search-button btn btn-outline-secondary"
-       role="button"
-       aria-label="본문 검색"
-       title="본문 검색">
-      🔍
-    </a>
-  </div>
+<main class="container content-wrapper pt-3">
   <table class="table table-striped table-sm">
     <tbody id="verseTableBody"></tbody>
   </table>
-</div>
+</main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
@@ -74,6 +51,29 @@
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
+        const navDOM = {
+            translationLink: document.getElementById("topNavTranslationLink"),
+            searchLink: document.getElementById("topNavSearchLink"),
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            bookLabel: document.getElementById("bookLabel"),
+            chapterLabel: document.getElementById("chapterLabel"),
+        };
+        if (navDOM.translationLink) {
+            navDOM.translationLink.classList.remove("d-none");
+            navDOM.translationLink.addEventListener("click", () => {
+                TranslationStore.saveTranslationReturnPath("/web/bible/verse");
+            });
+        }
+        if (navDOM.searchLink) {
+            navDOM.searchLink.classList.remove("d-none");
+        }
+        if (navDOM.bookLabel) {
+            navDOM.bookLabel.classList.remove("d-none");
+        }
+        if (navDOM.chapterLabel) {
+            navDOM.chapterLabel.classList.remove("d-none");
+        }
+
         const translationId = TranslationStore.getCurrentTranslationId();
         const translationType = TranslationStore.getCurrentTranslationType();
         if (!translationId || !translationType) {
@@ -95,18 +95,25 @@
         }
 
         const DOM = {
-            translationTypeLabel: document.getElementById("translationTypeLabel"),
-            bookLabel: document.getElementById("bookLabel"),
-            chapterLabel: document.getElementById("chapterLabel"),
+            translationTypeLabel: navDOM.translationTypeLabel,
+            bookLabel: navDOM.bookLabel,
+            chapterLabel: navDOM.chapterLabel,
             verseTable: document.getElementById("verseTableBody"),
             prevBtn: document.getElementById("prevChapterBtn"),
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
             nextBtn: document.getElementById("nextChapterBtn"),
         };
 
-        DOM.translationTypeLabel.textContent = translationType;
-        DOM.bookLabel.textContent = bookName;
-        DOM.chapterLabel.textContent = chapterNumber;
+        if (DOM.translationTypeLabel) {
+            DOM.translationTypeLabel.textContent = translationType;
+        }
+        if (DOM.bookLabel) {
+            DOM.bookLabel.textContent = bookName;
+            DOM.bookLabel.href = "/web/bible/book";
+        }
+        if (DOM.chapterLabel) {
+            DOM.chapterLabel.textContent = chapterNumber;
+        }
         DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapterNumber}`;
 
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
@@ -161,9 +168,16 @@
 
         function renderChapter(data) {
             const chapter = data.book.chapter;
-            DOM.translationTypeLabel.textContent = translationType;
-            DOM.bookLabel.textContent = bookName;
-            DOM.chapterLabel.textContent = chapter.chapterNumber;
+            if (DOM.translationTypeLabel) {
+                DOM.translationTypeLabel.textContent = translationType;
+            }
+            if (DOM.bookLabel) {
+                DOM.bookLabel.textContent = bookName;
+                DOM.bookLabel.href = "/web/bible/book";
+            }
+            if (DOM.chapterLabel) {
+                DOM.chapterLabel.textContent = chapter.chapterNumber;
+            }
             DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapter.chapterNumber}`;
             DOM.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
             DOM.prevBtn.disabled = data.isFirst;

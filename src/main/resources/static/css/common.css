@@ -323,7 +323,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem; /* Bootstrap의 gap-2와 동일 (8px) */
-    margin-bottom: 1rem; /* Bootstrap의 mb-3와 동일 (16px) */
 }
 
 .top-nav-translation-button {

@@ -3,41 +3,36 @@
 <head th:replace="~{fragments/head :: head('TheBible - Bible Books | 성경책 목록', true, null)}"></head>
 <body>
 
-<div class="container content-wrapper pt-3">
-  <div class="top-nav">
-    <!-- 번역본 선택 -->
-    <a href="/web/bible/translation"
-       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/book')"
-       class="top-nav-translation-button btn btn-outline-secondary dropdown-toggle"
-       role="button"
-       aria-label="번역본 선택"
-       title="번역본 선택 페이지로 이동">
-      <span id="translationTypeLabel"></span>
-    </a>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <!-- 현재 번역본 표시 -->
-    <div class="top-nav-title">
-      <strong id="translationNameLabel"></strong>
-    </div>
-
-    <!-- 검색 -->
-    <a href="/web/bible/search"
-       class="top-nav-search-button btn btn-outline-secondary"
-       role="button"
-       aria-label="본문 검색"
-       title="본문 검색">
-      🔍
-    </a>
-  </div>
-
+<main class="container content-wrapper pt-3">
   <div id="bookList" class="book-grid"></div>
-</div>
+</main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
+        const navDOM = {
+            translationLink: document.getElementById("topNavTranslationLink"),
+            searchLink: document.getElementById("topNavSearchLink"),
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            translationNameLabel: document.getElementById("translationNameLabel"),
+        };
+        if (navDOM.translationLink) {
+            navDOM.translationLink.classList.remove("d-none");
+            navDOM.translationLink.addEventListener("click", () => {
+                TranslationStore.saveTranslationReturnPath("/web/bible/book");
+            });
+        }
+        if (navDOM.searchLink) {
+            navDOM.searchLink.classList.remove("d-none");
+        }
+        if (navDOM.translationNameLabel) {
+            navDOM.translationNameLabel.classList.remove("d-none");
+        }
+
         const translationId = TranslationStore.getCurrentTranslationId();
         const translationType = TranslationStore.getCurrentTranslationType();
         const translationName = TranslationStore.getCurrentTranslationName();
@@ -45,8 +40,12 @@
             window.location.href = "/web/bible/translation";
             return;
         }
-        document.getElementById("translationTypeLabel").textContent = translationType;
-        document.getElementById("translationNameLabel").textContent = translationName;
+        if (navDOM.translationTypeLabel) {
+            navDOM.translationTypeLabel.textContent = translationType;
+        }
+        if (navDOM.translationNameLabel) {
+            navDOM.translationNameLabel.textContent = translationName;
+        }
 
         // 📌 sessionStorage에서 데이터 확인 후 즉시 렌더링 (API 요청 최소화)
         function renderFromSessionStorage() {
