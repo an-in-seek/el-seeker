@@ -94,6 +94,7 @@ spring:
         - classpath:data/bible_krv_62_1john.sql
         - classpath:data/bible_krv_63_2john.sql
         - classpath:data/bible_krv_64_3john.sql
+        - classpath:data/bible_krv_65_jude.sql
 
 springdoc:
   api-docs:
