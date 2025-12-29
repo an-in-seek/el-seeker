@@ -317,6 +317,14 @@
     white-space: nowrap;
 }
 
+.site-header {
+    padding-top: 0.75rem;
+}
+
+.search-result-meta {
+    min-height: 1.5rem;
+}
+
 .top-nav {
     display: flex;
     flex-wrap: nowrap;
@@ -349,6 +357,45 @@
     text-align: center;
     font-size: 1.25rem;
     color: var(--bs-secondary-color, #6c757d); /* Bootstrap 5 기준 */
+}
+
+.top-nav-title .page-title {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.nav-placeholder {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.back-btn-compact {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.back-btn-inline {
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.search-controls {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--bs-body-bg, #fff);
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.search-results-scroll {
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .top-nav-title .label {

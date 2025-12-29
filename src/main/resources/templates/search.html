@@ -3,40 +3,41 @@
 <head th:replace="~{fragments/head :: head('TheBible - Bible Search | 성경 검색', true, null)}"></head>
 <body class="has-fixed-nav">
 
-<div class="container content-wrapper pt-3">
-  <div class="d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 mb-3">
-    <a href="/web/bible/translation"
-       onclick="TranslationStore.saveTranslationReturnPath('/web/bible/search')"
-       class="btn btn-outline-secondary dropdown-toggle flex-fill text-truncate"
-       role="button"
-       aria-label="번역본 선택"
-       title="번역본 선택 페이지로 이동">
-      <span id="translationTypeLabel"></span>
-    </a>
-  </div>
-  <div class="input-group my-3">
-    <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요">
-    <button id="searchBtn" class="btn btn-outline-primary">🔍</button>
-  </div>
-  <table class="table table-striped">
-    <caption id="resultCount" class="text-start text-muted caption-top"></caption>
-    <tbody id="searchResultBody"></tbody>
-  </table>
-</div>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper pt-3">
+    <div class="search-controls">
+        <form id="searchForm" role="search" class="mb-2">
+            <label for="keywordInput" class="form-label fw-semibold">검색어</label>
+            <div class="input-group">
+                <a id="backBtn"
+                   class="btn btn-outline-secondary back-btn-inline"
+                   href="#"
+                   aria-label="뒤로가기">
+                    ⬅️
+                </a>
+                <input type="search"
+                       id="keywordInput"
+                       class="form-control"
+                       placeholder="검색할 단어를 입력하세요"
+                       autocomplete="off"
+                       inputmode="search">
+                <button id="clearBtn" type="button" class="btn btn-outline-secondary">지우기</button>
+                <button id="searchBtn" type="submit" class="btn btn-outline-primary">🔍</button>
+            </div>
+        </form>
+        <div id="resultCount" class="search-result-meta text-muted small" role="status" aria-live="polite"></div>
+        <div id="searchEmptyState" class="text-muted small">검색어를 입력하고 검색을 시작하세요.</div>
+    </div>
+
+    <div id="searchResultTable" class="table-responsive mt-2 d-none search-results-scroll">
+        <table class="table table-striped table-hover table-sm">
+            <tbody id="searchResultBody"></tbody>
+        </table>
+    </div>
+</main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
-
-<div class="fixed-bottom-nav">
-  <div class="nav-container">
-    <a id="backBtn"
-       class="btn btn-lg btn-primary"
-       href="#"
-       aria-label="번역본 선택">
-      <span aria-hidden="true">⬅️</span>
-      <span class="ms-2">뒤로가기</span>
-    </a>
-  </div>
-</div>
 
 <script src="/js/storage-util.js?v6"></script>
 <script>
@@ -48,28 +49,81 @@
             return;
         }
 
-        const translationTypeLabel = document.getElementById("translationTypeLabel");
+        const navDOM = {
+            translationLink: document.getElementById("topNavTranslationLink"),
+            translationTypeLabel: document.getElementById("translationTypeLabel"),
+            pageTitleLabel: document.getElementById("pageTitleLabel"),
+            searchLink: document.getElementById("topNavSearchLink"),
+        };
+        if (navDOM.translationLink) {
+            navDOM.translationLink.classList.remove("d-none");
+            navDOM.translationLink.addEventListener("click", () => {
+                TranslationStore.saveTranslationReturnPath("/web/bible/search");
+            });
+        }
+        if (navDOM.pageTitleLabel) {
+            navDOM.pageTitleLabel.textContent = "성경 검색";
+            navDOM.pageTitleLabel.classList.remove("d-none");
+        }
+        if (navDOM.searchLink) {
+            navDOM.searchLink.classList.remove("d-none");
+            navDOM.searchLink.classList.add("nav-placeholder");
+        }
+
+        const translationTypeLabel = navDOM.translationTypeLabel;
         const keywordInput = document.getElementById("keywordInput");
+        const searchForm = document.getElementById("searchForm");
+        const clearBtn = document.getElementById("clearBtn");
         const searchBtn = document.getElementById("searchBtn");
         const resultCount = document.getElementById("resultCount");
+        const emptyState = document.getElementById("searchEmptyState");
+        const searchResultTable = document.getElementById("searchResultTable");
         const searchResultBody = document.getElementById("searchResultBody");
         const backBtn = document.getElementById("backBtn");
 
-        translationTypeLabel.textContent = translationType;
+        if (translationTypeLabel) {
+            translationTypeLabel.textContent = translationType;
+        }
 
-        keywordInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                searchBtn.click();
-            }
+        function setEmptyState(message) {
+            emptyState.textContent = message;
+            emptyState.classList.remove("d-none");
+            searchResultTable.classList.add("d-none");
+        }
+
+        function setResultsVisible() {
+            emptyState.classList.add("d-none");
+            searchResultTable.classList.remove("d-none");
+        }
+
+        function setLoading(isLoading) {
+            searchBtn.disabled = isLoading;
+            keywordInput.disabled = isLoading;
+            clearBtn.disabled = isLoading;
+        }
+
+        clearBtn.addEventListener("click", () => {
+            keywordInput.value = "";
+            keywordInput.focus();
+            resultCount.textContent = "";
+            searchResultBody.innerHTML = "";
+            setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+        });
+
+        keywordInput.addEventListener("input", () => {
+            clearBtn.disabled = keywordInput.value.trim().length === 0;
         });
         keywordInput.focus();
+        clearBtn.disabled = true;
 
-        searchBtn.addEventListener("click", async () => {
+        searchForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
             const keyword = keywordInput.value.trim();
             if (!keyword) {
-                alert("검색어를 입력하세요.");
+                setEmptyState("검색어를 입력하세요.");
                 return;
             }
+            setLoading(true);
             resultCount.textContent = "검색 중...";
             searchResultBody.innerHTML = "";
             try {
@@ -80,9 +134,11 @@
                 const data = await response.json();
                 if (data.length === 0) {
                     resultCount.textContent = `"${keyword}"에 대한 결과가 없습니다.`;
+                    setEmptyState("다른 검색어로 다시 시도해 보세요.");
                     return;
                 }
                 resultCount.textContent = `"${keyword}"에 대한 결과 ${data.length}건`;
+                setResultsVisible();
                 data.forEach(item => {
                     const row = document.createElement("tr");
 
@@ -109,6 +165,9 @@
             } catch (e) {
                 resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 console.error(e);
+                setEmptyState("잠시 후 다시 시도해 주세요.");
+            } finally {
+                setLoading(false);
             }
         });
 
