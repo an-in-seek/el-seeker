@@ -89,6 +89,8 @@ spring:
         - classpath:data/bible_krv_57_philemon.sql
         - classpath:data/bible_krv_58_hebrews.sql
         - classpath:data/bible_krv_59_james.sql
+        - classpath:data/bible_krv_60_1peter.sql
+        - classpath:data/bible_krv_61_2peter.sql
 
 springdoc:
   api-docs:
