@@ -79,6 +79,14 @@ spring:
         - classpath:data/bible_krv_47_2corinthians.sql
         - classpath:data/bible_krv_48_galatians.sql
         - classpath:data/bible_krv_49_ephesians.sql
+        - classpath:data/bible_krv_50_philippians.sql
+        - classpath:data/bible_krv_51_colossians.sql
+        - classpath:data/bible_krv_52_1thessalonians.sql
+        - classpath:data/bible_krv_53_2thessalonians.sql
+        - classpath:data/bible_krv_54_1timothy.sql
+        - classpath:data/bible_krv_55_2timothy.sql
+        - classpath:data/bible_krv_56_titus.sql
+        - classpath:data/bible_krv_57_philemon.sql
 
 springdoc:
   api-docs:
