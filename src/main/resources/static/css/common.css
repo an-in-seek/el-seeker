@@ -1,300 +1,382 @@
 /* 클릭 가능한 테이블 행 스타일 */
 .clickable-row:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 /* 리스트가 네비게이션 영역과 겹치지 않도록 여백 추가 */
 .content-wrapper {
-  padding-bottom: 80px; /* 네비게이션 높이만큼 추가 여백 확보 */
+    min-height: 550px;
+    padding-bottom: 80px; /* 네비게이션 높이만큼 추가 여백 확보 */
 }
 
 
 /* 고정 하단 네비게이션 박스 */
 .fixed-bottom-nav {
-  /* position:fixed, bottom:0, width:100% 역할을
-     Bootstrap의 'fixed-bottom'으로 대체 가능하나
-     여기서는 기존 구조를 유지하며 개선합니다. */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #f8f9fa; /* 약간 밝은 배경으로 콘텐츠와 구분 */
-  border-top: 1px solid #dee2e6; /* 상단 경계 라인 */
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* 위쪽 음영 */
-  z-index: 1000;
+    /* position:fixed, bottom:0, width:100% 역할을
+       Bootstrap의 'fixed-bottom'으로 대체 가능하나
+       여기서는 기존 구조를 유지하며 개선합니다. */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa; /* 약간 밝은 배경으로 콘텐츠와 구분 */
+    border-top: 1px solid #dee2e6; /* 상단 경계 라인 */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* 위쪽 음영 */
+    z-index: 1000;
 
-  /* iPhone 등 노치 있는 기기에서 안전 영역 확보 */
-  padding-top: 10px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    /* iPhone 등 노치 있는 기기에서 안전 영역 확보 */
+    padding-top: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 /* 내부 컨테이너: 중앙정렬 + 최대 폭 제한 */
 .nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 900px;
-  margin: 0 auto;
-  gap: 8px; /* 버튼 간격 */
-  padding: 0 12px; /* 좌우 여백 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+    gap: 8px; /* 버튼 간격 */
+    padding: 0 12px; /* 좌우 여백 */
 }
 
 /* 공통 버튼 스타일(부트스트랩 btn-lg 사용) 커스터마이징 */
 .nav-container .btn {
-  flex: 1; /* 버튼 넓이 균등 분배 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-  position: relative; /* focus 링 등 위치 고정 */
-  transition: background-color 0.2s ease-in-out;
+    flex: 1; /* 버튼 넓이 균등 분배 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+    position: relative; /* focus 링 등 위치 고정 */
+    transition: background-color 0.2s ease-in-out;
 }
 
 /* 아이콘(이모지)와 텍스트 간격 */
 .nav-container .btn span[aria-hidden="true"] {
-  font-size: 18px;
+    font-size: 18px;
 }
 
 /* disabled 상태를 좀 더 명확히 표시 */
 .nav-container .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* 반응형: 작은 화면에서는 "이전 장"과 "다음 장" 텍스트만 숨김 */
 @media (max-width: 576px) {
-  .nav-container .btn.prev-next span.d-none.d-md-inline {
-    display: none !important;
-  }
+    .nav-container .btn.prev-next span.d-none.d-md-inline {
+        display: none !important;
+    }
 }
 
 /* 모바일(터치) 환경 한정으로, 버튼의 포커스/액티브/호버 상태를 강제 복원 */
 @media (pointer: coarse) {
-  .btn-outline-primary:hover,
-  .btn-outline-primary:focus,
-  .btn-outline-primary:active,
-  .btn-outline-primary.show {
-    --bs-btn-color: #0d6efd !important;
-    --bs-btn-border-color: #0d6efd !important;
-    --bs-btn-active-bg: transparent !important;
-    background-color: transparent !important; /* 실제 배경 해제 */
-    color: #0d6efd !important;
-    border-color: #0d6efd !important;
-    box-shadow: none !important;
-  }
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active,
+    .btn-outline-primary.show {
+        --bs-btn-color: #0d6efd !important;
+        --bs-btn-border-color: #0d6efd !important;
+        --bs-btn-active-bg: transparent !important;
+        background-color: transparent !important; /* 실제 배경 해제 */
+        color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        box-shadow: none !important;
+    }
 }
 
 .btn-outline-primary {
-  -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* 메모 박스 */
 .memo-container {
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .verse-text {
-  cursor: pointer;
-  display: inline-block;
-  padding: 0.2rem 0;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.2rem 0;
 }
 
 .verse-text.active {
-  color: #0d6efd;
-  font-weight: bold;
-  text-decoration: underline;
+    color: #0d6efd;
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 .memo-container textarea {
-  resize: vertical;
+    resize: vertical;
 }
 
 .verse-has-memo {
-  position: relative;
-  background-color: #f3f9ff;
-  border-left: 4px solid #0d6efd;
-  padding-left: 2.0rem; /* 아이콘 공간 확보 */
+    position: relative;
+    background-color: #f3f9ff;
+    border-left: 4px solid #0d6efd;
+    padding-left: 2.0rem; /* 아이콘 공간 확보 */
 }
 
 .verse-has-memo::before {
-  content: "💬";
-  position: absolute;
-  left: 0.5rem;
-  top: 0.2rem;
-  font-size: 1rem;
-  opacity: 0.7;
+    content: "💬";
+    position: absolute;
+    left: 0.5rem;
+    top: 0.2rem;
+    font-size: 1rem;
+    opacity: 0.7;
 }
 
 .book-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
 }
 
 .book-tile {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  padding: 16px 0;
-  text-align: center;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px 0;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
 }
 
 .book-tile:hover {
-  background-color: #e2e6ea;
+    background-color: #e2e6ea;
 }
 
 .book-description {
-  display: block;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  padding: 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 1rem;
-  color: #495057;
-  transition: background-color 0.2s;
-  margin-bottom: 12px;
-  line-height: 1.5;
-  text-decoration: none;
+    display: block;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #495057;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    text-decoration: none;
 }
 
 .book-description:hover {
-  background-color: #e2e6ea;
-  text-decoration: none;
+    background-color: #e2e6ea;
+    text-decoration: none;
 }
 
 .book-description-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px; /* 텍스트와 화살표 간 여백 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px; /* 텍스트와 화살표 간 여백 */
 }
 
 .book-description-text {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 .book-description-icon {
-  font-size: 1.25rem;
-  flex-shrink: 0;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.site-footer {
+    margin-top: 48px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 32px 0 24px;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.site-footer .footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.site-footer .footer-brand-logo {
+    height: 100px;
+    width: auto;
+    display: block;
+}
+
+.site-footer .footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.site-footer .footer-social a {
+    color: #495057;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-footer .footer-social a:hover {
+    text-decoration: underline;
+}
+
+.site-footer .footer-social .social-icon {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+
+.site-footer .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+}
+
+.site-footer .footer-links a {
+    color: #495057;
+    text-decoration: none;
+}
+
+.site-footer .footer-links a:hover {
+    text-decoration: underline;
+}
+
+.site-footer .footer-meta {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+.site-footer .footer-copy {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.has-fixed-nav .site-footer {
+    padding-bottom: 120px;
 }
 
 .chapter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 5px;
 }
 
 .chapter-tile {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  padding: 16px 0;
-  text-align: center;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px 0;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
 }
 
 .chapter-tile:hover {
-  background-color: #e2e6ea;
+    background-color: #e2e6ea;
 }
 
 .highlighted-verse {
-  background-color: #fff59d; /* 연한 노란색: 형광펜 느낌 */
-  transition: background-color 0.3s ease;
-  border-radius: 4px;
-  padding: 2px 4px;
+    background-color: #fff59d; /* 연한 노란색: 형광펜 느낌 */
+    transition: background-color 0.3s ease;
+    border-radius: 4px;
+    padding: 2px 4px;
 }
 
 .highlight-keyword {
-  background-color: #fff59d; /* 연한 형광 노랑 */
-  font-weight: bold;
-  border-radius: 2px;
-  padding: 0 2px;
+    background-color: #fff59d; /* 연한 형광 노랑 */
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 0 2px;
 }
 
 .fixed-bottom-nav .btn {
-  height: 48px;
-  font-size: 1rem;
+    height: 48px;
+    font-size: 1rem;
 }
 
 .text-truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .top-nav {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem; /* Bootstrap의 gap-2와 동일 (8px) */
-  margin-bottom: 1rem; /* Bootstrap의 mb-3와 동일 (16px) */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem; /* Bootstrap의 gap-2와 동일 (8px) */
+    margin-bottom: 1rem; /* Bootstrap의 mb-3와 동일 (16px) */
 }
 
 .top-nav-translation-button {
-  min-width: 90px;
-  max-width: 90px;
-  flex: 0 0 90px;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border: 1px solid #6c757d;
-  border-radius: 0.375rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+    min-width: 90px;
+    max-width: 90px;
+    flex: 0 0 90px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #6c757d;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 }
 
 .top-nav-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  font-size: 1.25rem;
-  color: var(--bs-secondary-color, #6c757d); /* Bootstrap 5 기준 */
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    font-size: 1.25rem;
+    color: var(--bs-secondary-color, #6c757d); /* Bootstrap 5 기준 */
 }
 
 .top-nav-title .label {
-  text-decoration: none;
-  color: inherit;
-  font-weight: bold;
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
 }
 
 .top-nav-search-button {
-  min-width: 90px;
-  max-width: 90px;
-  flex: 0 0 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border: 1px solid #6c757d;
-  border-radius: 0.375rem;
-  text-decoration: none;
-  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+    min-width: 90px;
+    max-width: 90px;
+    flex: 0 0 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #6c757d;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 
 .list-group-item {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
 

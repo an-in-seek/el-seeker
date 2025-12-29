@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head th:replace="~{fragments/head :: head('TheBible - Bible Verses | 성경 구절 목록', true, null)}"></head>
-<body>
+<body class="has-fixed-nav">
 
 <div class="container content-wrapper pt-3">
   <div class="top-nav">
@@ -33,6 +33,8 @@
     <tbody id="verseTableBody"></tbody>
   </table>
 </div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <!-- 하단 네비게이션 -->
 <div class="fixed-bottom-nav">

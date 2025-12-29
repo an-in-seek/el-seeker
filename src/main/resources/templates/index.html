@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('TheBible | 성경 검색', false, null)}"></head>
+<head th:replace="~{fragments/head :: head('TheBible | 성경 검색', true, null)}"></head>
 <body>
 <div class="container text-center">
   <h1 class="mt-5">📖 성경 검색 사이트</h1>
@@ -9,6 +9,8 @@
     <a class="btn btn-primary mt-3" href="/web/bible/translation">성경 번역본 보기</a>
   </nav>
 </div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <script src="/js/storage-util.js?v6"></script>
 <script>
