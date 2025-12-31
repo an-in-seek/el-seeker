@@ -35,6 +35,66 @@
         </table>
     </div>
 </main>
+
+<button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
+    ↑
+</button>
+
+<style>
+    .scroll-to-top-btn {
+        position: fixed;
+        right: 16px;
+        bottom: 24px;
+        width: 48px;
+        height: 48px;
+        border: none;
+        border-radius: 999px;
+        background-color: #0d6efd;
+        color: #ffffff;
+        font-size: 20px;
+        line-height: 1;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+        z-index: 1030;
+    }
+
+    .scroll-to-top-btn.is-visible {
+        opacity: 0.65;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .scroll-to-top-btn:hover {
+        opacity: 1;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+    }
+
+    @media (min-width: 992px) {
+        .scroll-to-top-btn {
+            right: max(24px, calc((100vw - (960px + 24px)) / 2 - 48px));
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .scroll-to-top-btn {
+            right: max(24px, calc((100vw - (1140px + 24px)) / 2 - 48px));
+        }
+    }
+
+    @media (min-width: 1400px) {
+        .scroll-to-top-btn {
+            right: max(24px, calc((100vw - (1320px + 24px)) / 2 - 48px));
+        }
+    }
+
+
+</style>
+
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -72,6 +132,8 @@
         const searchResultTable = document.getElementById("searchResultTable");
         const searchResultBody = document.getElementById("searchResultBody");
         const backBtn = document.getElementById("backBtn");
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+        const scrollThreshold = 300;
 
         if (translationTypeLabel) {
             translationTypeLabel.textContent = translationType;
@@ -86,30 +148,12 @@
         function setResultsVisible() {
             emptyState.classList.add("d-none");
             searchResultTable.classList.remove("d-none");
-            requestAnimationFrame(adjustSearchResultsHeight);
         }
 
         function setLoading(isLoading) {
             searchBtn.disabled = isLoading;
             keywordInput.disabled = isLoading;
             clearBtn.disabled = isLoading;
-        }
-
-        function adjustSearchResultsHeight() {
-            if (searchResultTable.classList.contains("d-none")) {
-                return;
-            }
-            const rect = searchResultTable.getBoundingClientRect();
-            const fixedNav = document.querySelector(".fixed-bottom-nav");
-            const fixedNavHeight = fixedNav ? fixedNav.getBoundingClientRect().height : 0;
-            const main = searchResultTable.closest("main");
-            const mainPaddingBottom = main ? parseFloat(window.getComputedStyle(main).paddingBottom) || 0 : 0;
-            const bottomPadding = 12;
-            const availableHeight = Math.max(
-                0,
-                window.innerHeight - rect.top - fixedNavHeight - mainPaddingBottom - bottomPadding
-            );
-            searchResultTable.style.height = `${availableHeight}px`;
         }
 
         clearBtn.addEventListener("click", () => {
@@ -200,7 +244,23 @@
             history.back();
         });
 
-        window.addEventListener("resize", adjustSearchResultsHeight);
+        if (scrollToTopBtn) {
+            const updateScrollToTopVisibility = () => {
+                if (window.scrollY >= scrollThreshold) {
+                    scrollToTopBtn.classList.add("is-visible");
+                } else {
+                    scrollToTopBtn.classList.remove("is-visible");
+                }
+            };
+
+            scrollToTopBtn.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+
+            window.addEventListener("scroll", updateScrollToTopVisibility, {passive: true});
+            updateScrollToTopVisibility();
+        }
+
     });
 </script>
 </body>
