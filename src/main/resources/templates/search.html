@@ -5,7 +5,7 @@
 
 <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="container content-wrapper pt-3">
+<main class="container search-page content-wrapper pt-3">
     <div class="search-controls">
         <form id="searchForm" role="search" class="mb-2">
             <div class="input-group">
@@ -35,9 +35,6 @@
         </table>
     </div>
 </main>
-
-<footer th:replace="~{fragments/footer :: footer}"></footer>
-
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -89,12 +86,30 @@
         function setResultsVisible() {
             emptyState.classList.add("d-none");
             searchResultTable.classList.remove("d-none");
+            requestAnimationFrame(adjustSearchResultsHeight);
         }
 
         function setLoading(isLoading) {
             searchBtn.disabled = isLoading;
             keywordInput.disabled = isLoading;
             clearBtn.disabled = isLoading;
+        }
+
+        function adjustSearchResultsHeight() {
+            if (searchResultTable.classList.contains("d-none")) {
+                return;
+            }
+            const rect = searchResultTable.getBoundingClientRect();
+            const fixedNav = document.querySelector(".fixed-bottom-nav");
+            const fixedNavHeight = fixedNav ? fixedNav.getBoundingClientRect().height : 0;
+            const main = searchResultTable.closest("main");
+            const mainPaddingBottom = main ? parseFloat(window.getComputedStyle(main).paddingBottom) || 0 : 0;
+            const bottomPadding = 12;
+            const availableHeight = Math.max(
+                0,
+                window.innerHeight - rect.top - fixedNavHeight - mainPaddingBottom - bottomPadding
+            );
+            searchResultTable.style.height = `${availableHeight}px`;
         }
 
         clearBtn.addEventListener("click", () => {
@@ -184,6 +199,8 @@
             e.preventDefault();
             history.back();
         });
+
+        window.addEventListener("resize", adjustSearchResultsHeight);
     });
 </script>
 </body>
