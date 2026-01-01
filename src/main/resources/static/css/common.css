@@ -195,6 +195,42 @@
     gap: 0.5rem;
 }
 
+.book-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.book-section {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 1rem 1.25rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.book-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.book-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.book-section-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+    background-color: #f1f3f5;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+}
+
 .book-tile {
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;

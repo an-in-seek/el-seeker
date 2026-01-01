@@ -6,7 +6,22 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper pt-3">
-  <div id="bookList" class="book-grid"></div>
+    <div class="book-sections">
+        <section class="book-section" aria-labelledby="oldTestamentTitle">
+            <div class="book-section-header">
+                <h2 id="oldTestamentTitle" class="book-section-title">구약</h2>
+                <span id="oldTestamentCount" class="book-section-count"></span>
+            </div>
+            <div id="oldTestamentList" class="book-grid"></div>
+        </section>
+        <section class="book-section" aria-labelledby="newTestamentTitle">
+            <div class="book-section-header">
+                <h2 id="newTestamentTitle" class="book-section-title">신약</h2>
+                <span id="newTestamentCount" class="book-section-count"></span>
+            </div>
+            <div id="newTestamentList" class="book-grid"></div>
+        </section>
+    </div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
@@ -58,22 +73,45 @@
         }
 
         // 📌 화면 업데이트 함수
-        function renderBooks(books) {
-            const bookList = document.getElementById("bookList");
-            bookList.innerHTML = "";
-            books.forEach(book => {
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "book-tile";
-                button.textContent = book.bookName;
-                button.dataset.bookId = book.bookId;
-                button.dataset.bookName = book.bookName;
-                button.addEventListener("click", () => {
-                    BookStore.saveCurrentBook(book);
-                    window.location.href = "/web/bible/chapter";
-                });
-                bookList.appendChild(button);
+        function createBookButton(book) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "book-tile";
+            button.textContent = book.bookName;
+            button.dataset.bookId = book.bookId;
+            button.dataset.bookName = book.bookName;
+            button.addEventListener("click", () => {
+                BookStore.saveCurrentBook(book);
+                window.location.href = "/web/bible/chapter";
             });
+            return button;
+        }
+
+        function renderGroup(list, listId, countId) {
+            const container = document.getElementById(listId);
+            const countLabel = document.getElementById(countId);
+            if (!container) {
+                return;
+            }
+            container.innerHTML = "";
+            list.forEach(book => container.appendChild(createBookButton(book)));
+            if (countLabel) {
+                countLabel.textContent = `${list.length}권`;
+            }
+        }
+
+        function renderBooks(books) {
+            const oldTestament = [];
+            const newTestament = [];
+            books.forEach(book => {
+                if (book.testamentType === "OLD") {
+                    oldTestament.push(book);
+                } else if (book.testamentType === "NEW") {
+                    newTestament.push(book);
+                }
+            });
+            renderGroup(oldTestament, "oldTestamentList", "oldTestamentCount");
+            renderGroup(newTestament, "newTestamentList", "newTestamentCount");
             BookStore.saveListForTranslation(translationId, books);
         }
 
