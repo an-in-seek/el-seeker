@@ -49,74 +49,85 @@
 <script src="/js/storage-util.js?v6"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const navDOM = {
+        const DOM = {
             translationLink: document.getElementById("topNavTranslationLink"),
             searchLink: document.getElementById("topNavSearchLink"),
             translationTypeLabel: document.getElementById("translationTypeLabel"),
             bookLabel: document.getElementById("bookLabel"),
             chapterLabel: document.getElementById("chapterLabel"),
-        };
-        if (navDOM.translationLink) {
-            navDOM.translationLink.classList.remove("d-none");
-            navDOM.translationLink.addEventListener("click", () => {
-                TranslationStore.saveTranslationReturnPath("/web/bible/verse");
-            });
-        }
-        if (navDOM.searchLink) {
-            navDOM.searchLink.classList.remove("d-none");
-        }
-        if (navDOM.bookLabel) {
-            navDOM.bookLabel.classList.remove("d-none");
-        }
-        if (navDOM.chapterLabel) {
-            navDOM.chapterLabel.classList.remove("d-none");
-        }
-
-        const translationId = TranslationStore.getCurrentTranslationId();
-        const translationType = TranslationStore.getCurrentTranslationType();
-        if (!translationId || !translationType) {
-            window.location.href = "/web/bible/translation";
-            return;
-        }
-
-        let bookOrder = BookStore.getCurrentBookOrder();
-        let bookName = BookStore.getBookName(translationId, bookOrder);
-        if (!bookOrder || !bookName) {
-            window.location.href = "/web/bible/book";
-            return;
-        }
-
-        let chapterNumber = ChapterStore.getNumber();
-        if (!chapterNumber) {
-            window.location.href = "/web/bible/chapter";
-            return;
-        }
-
-        const DOM = {
-            translationTypeLabel: navDOM.translationTypeLabel,
-            bookLabel: navDOM.bookLabel,
-            chapterLabel: navDOM.chapterLabel,
             verseTable: document.getElementById("verseTableBody"),
             prevBtn: document.getElementById("prevChapterBtn"),
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
             nextBtn: document.getElementById("nextChapterBtn"),
         };
 
-        if (DOM.translationTypeLabel) {
-            DOM.translationTypeLabel.textContent = translationType;
+        const RETURN_PATH = "/web/bible/verse";
+        const state = {
+            translationId: TranslationStore.getCurrentTranslationId(),
+            translationType: TranslationStore.getCurrentTranslationType(),
+            bookOrder: BookStore.getCurrentBookOrder(),
+            bookName: null,
+            chapterNumber: ChapterStore.getNumber(),
+        };
+
+        if (!state.translationId || !state.translationType) {
+            window.location.href = "/web/bible/translation";
+            return;
         }
-        if (DOM.bookLabel) {
-            DOM.bookLabel.textContent = bookName;
-            DOM.bookLabel.href = "/web/bible/book";
+
+        state.bookName = BookStore.getBookName(state.translationId, state.bookOrder);
+        if (!state.bookOrder || !state.bookName) {
+            window.location.href = "/web/bible/book";
+            return;
         }
-        if (DOM.chapterLabel) {
-            DOM.chapterLabel.textContent = chapterNumber;
+
+        if (!state.chapterNumber) {
+            window.location.href = "/web/bible/chapter";
+            return;
         }
-        DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapterNumber}`;
+
+        initNav();
+        updateLabels(state.chapterNumber);
 
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
         DOM.nextBtn.addEventListener("click", () => loadChapter("NEXT"));
-        DOM.verseTable.addEventListener("click", e => {
+        DOM.verseTable.addEventListener("click", handleVerseClick);
+
+        await loadChapter("CURRENT");
+
+        function initNav() {
+            if (DOM.translationLink) {
+                DOM.translationLink.classList.remove("d-none");
+                DOM.translationLink.addEventListener("click", () => {
+                    TranslationStore.saveTranslationReturnPath(RETURN_PATH);
+                });
+            }
+            if (DOM.searchLink) {
+                DOM.searchLink.classList.remove("d-none");
+            }
+            if (DOM.bookLabel) {
+                DOM.bookLabel.classList.remove("d-none");
+            }
+            if (DOM.chapterLabel) {
+                DOM.chapterLabel.classList.remove("d-none");
+            }
+        }
+
+        function updateLabels(chapterNum) {
+            if (DOM.translationTypeLabel) {
+                DOM.translationTypeLabel.textContent = state.translationType;
+            }
+            if (DOM.bookLabel) {
+                DOM.bookLabel.textContent = state.bookName;
+                DOM.bookLabel.href = "/web/bible/book";
+            }
+            if (DOM.chapterLabel) {
+                DOM.chapterLabel.textContent = chapterNum;
+            }
+            DOM.chapterSelectLinkLabel.textContent = `${state.bookName} ${chapterNum}`;
+        }
+
+        function handleVerseClick(e) {
             const verseEl = e.target.closest("[data-verse]");
             if (!verseEl) {
                 return;
@@ -124,39 +135,30 @@
             const verseNum = verseEl.getAttribute("data-verse");
             if (e.target.classList.contains("memo-save-btn")) {
                 saveMemo(verseNum);
-            } else if (e.target.classList.contains("memo-delete-btn")) {
-                deleteMemo(verseNum)
-            } else {
-                toggleMemo(verseNum);
-                applyVerseHighlight(verseNum);
+                return;
             }
-        });
-
-        await loadChapter("CURRENT");
+            if (e.target.classList.contains("memo-delete-btn")) {
+                deleteMemo(verseNum);
+                return;
+            }
+            toggleMemo(verseNum);
+            applyVerseHighlight(verseNum);
+        }
 
         async function loadChapter(direction) {
             try {
-                let url;
-                if (direction === "CURRENT") {
-                    url = `/api/bibles/translations/${translationId}/books/${bookOrder}/chapters/${chapterNumber}/verses`;
-                } else {
-                    url = `/api/bibles/translations/${translationId}/books/${bookOrder}/chapters/${chapterNumber}/navigate?direction=${direction}`;
-                }
-
+                const url = buildChapterUrl(direction);
                 const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error("데이터 로딩 실패");
-                }
+                if (!response.ok) throw new Error("데이터 로딩 실패");
                 const data = await response.json();
-                bookOrder = data.book.bookOrder;
-                bookName = data.book.bookName;
-                chapterNumber = data.book.chapter.chapterNumber;
-
+                state.bookOrder = data.book.bookOrder;
+                state.bookName = data.book.bookName;
+                state.chapterNumber = data.book.chapter.chapterNumber;
                 BookStore.saveCurrentBook({
-                    bookOrder: bookOrder,
-                    bookName: bookName
+                    bookOrder: state.bookOrder,
+                    bookName: state.bookName
                 });
-                ChapterStore.saveNumber(chapterNumber);
+                ChapterStore.saveNumber(state.chapterNumber);
                 renderChapter(data);
             } catch (e) {
                 showAlert("장 정보를 불러오지 못했습니다.", "danger");
@@ -164,37 +166,38 @@
             }
         }
 
+        function buildChapterUrl(direction) {
+            const base = `/api/bibles/translations/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}`;
+            if (direction === "CURRENT") {
+                return `${base}/verses`;
+            }
+            return `${base}/navigate?direction=${direction}`;
+        }
+
         function renderChapter(data) {
             const chapter = data.book.chapter;
-            if (DOM.translationTypeLabel) {
-                DOM.translationTypeLabel.textContent = translationType;
-            }
-            if (DOM.bookLabel) {
-                DOM.bookLabel.textContent = bookName;
-                DOM.bookLabel.href = "/web/bible/book";
-            }
-            if (DOM.chapterLabel) {
-                DOM.chapterLabel.textContent = chapter.chapterNumber;
-            }
-            DOM.chapterSelectLinkLabel.textContent = `${bookName} ${chapter.chapterNumber}`;
+            updateLabels(chapter.chapterNumber);
             DOM.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
             DOM.prevBtn.disabled = data.isFirst;
             DOM.nextBtn.disabled = data.isLast;
             const verseNumber = VerseStore.consumeVerseNumber();
             if (verseNumber) {
-                setTimeout(() => {
-                    const targetVerse = document.querySelector(`.verse-text[data-verse="${verseNumber}"]`);
-                    if (targetVerse) {
-                        targetVerse.classList.add("highlighted-verse");
-                        targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
-                        setTimeout(() => {
-                            targetVerse.classList.remove("highlighted-verse");
-                        }, 5000);
-                    }
-                }, 100);
+                highlightVerse(verseNumber);
             } else {
-                window.scrollTo({top: 0, behavior: "smooth"});
+                window.scrollTo(0, 0);
             }
+        }
+
+        function highlightVerse(verseNumber) {
+            setTimeout(() => {
+                const targetVerse = document.querySelector(`.verse-text[data-verse="${verseNumber}"]`);
+                if (!targetVerse) return;
+                targetVerse.classList.add("highlighted-verse");
+                targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
+                setTimeout(() => {
+                    targetVerse.classList.remove("highlighted-verse");
+                }, 5000);
+            }, 100);
         }
 
         function renderVerseRow(verse) {
@@ -277,7 +280,7 @@
         }
 
         function buildMemoKey(verseNum) {
-            return `memo_${translationId}_${bookOrder}_${chapterNumber}_${verseNum}`;
+            return `memo_${state.translationId}_${state.bookOrder}_${state.chapterNumber}_${verseNum}`;
         }
 
         function showAlert(message, type = "success") {
