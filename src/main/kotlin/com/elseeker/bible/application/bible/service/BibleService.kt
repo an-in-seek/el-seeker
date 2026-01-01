@@ -4,7 +4,7 @@ import com.elseeker.bible.application.bible.component.BibleReader
 import com.elseeker.bible.domain.bible.DirectionType
 import com.elseeker.bible.domain.bible.result.BibleResult
 import com.elseeker.bible.presentation.api.BibleApiResponse
-import com.elseeker.bible.presentation.api.response.BibleSearchResponse
+import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
 import org.springframework.stereotype.Service
 
 @Service
@@ -30,6 +30,11 @@ class BibleService(
     fun getAdjacentChapterVerses(translationId: Long, bookOrder: Int, chapterNumber: Int, direction: DirectionType): BibleApiResponse.Verses =
         bibleReader.getAdjacentChapterVerses(translationId, bookOrder, chapterNumber, direction)
 
-    fun searchBibleVerses(translationId: Long, keyword: String): List<BibleSearchResponse> =
-        bibleReader.searchBibleVerses(translationId, keyword);
+    fun searchBibleVersesSlice(
+        translationId: Long,
+        keyword: String,
+        page: Int,
+        size: Int
+    ): BibleSearchSliceResponse =
+        bibleReader.searchBibleVersesSlice(translationId, keyword, page, size)
 }

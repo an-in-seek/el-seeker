@@ -10,9 +10,10 @@ import com.elseeker.bible.infrastructure.persistence.jpa.BibleChapterRepository
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleTranslationRepository
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleVerseRepository
 import com.elseeker.bible.presentation.api.BibleApiResponse
-import com.elseeker.bible.presentation.api.response.BibleSearchResponse
+import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.domain.PageRequest
 
 @Component
 @Transactional(readOnly = true)
@@ -124,13 +125,30 @@ class BibleReader(
         )
     }
 
-    fun searchBibleVerses(
+    fun searchBibleVersesSlice(
         translationId: Long,
-        keyword: String
-    ): List<BibleSearchResponse> {
+        keyword: String,
+        page: Int,
+        size: Int
+    ): BibleSearchSliceResponse {
         if (keyword.isBlank()) throw ServiceError(ErrorType.INVALID_PARAMETER, "keyword is blank")
+        if (page < 0 || size <= 0) throw ServiceError(ErrorType.INVALID_PARAMETER, "page=$page, size=$size")
         return try {
-            bibleVerseRepository.searchByTranslationAndText(translationId, keyword)
+            val slice = bibleVerseRepository.searchSliceByTranslationAndText(
+                translationId,
+                keyword,
+                PageRequest.of(page, size)
+            )
+            val totalCount = if (page == 0) {
+                bibleVerseRepository.countByTranslationAndText(translationId, keyword)
+            } else {
+                null
+            }
+            BibleSearchSliceResponse(
+                content = slice.content,
+                hasNext = slice.hasNext(),
+                totalCount = totalCount
+            )
         } catch (e: Exception) {
             throw ServiceError(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
         }

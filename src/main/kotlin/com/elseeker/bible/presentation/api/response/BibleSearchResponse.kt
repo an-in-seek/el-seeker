@@ -10,3 +10,9 @@ data class BibleSearchResponse(
     val verseNumber: Int,
     val text: String
 )
+
+data class BibleSearchSliceResponse(
+    val content: List<BibleSearchResponse>,
+    val hasNext: Boolean,
+    val totalCount: Long?
+)

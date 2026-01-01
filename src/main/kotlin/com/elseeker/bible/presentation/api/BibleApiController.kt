@@ -2,7 +2,7 @@ package com.elseeker.bible.presentation.api
 
 import com.elseeker.bible.application.bible.service.BibleService
 import com.elseeker.bible.domain.bible.DirectionType
-import com.elseeker.bible.presentation.api.response.BibleSearchResponse
+import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -68,9 +68,11 @@ class BibleApiController(
     @GetMapping("/translations/{translationId}/search")
     override fun searchBible(
         @PathVariable translationId: Long,
-        @RequestParam keyword: String
-    ): ResponseEntity<List<BibleSearchResponse>> {
-        val response = bibleService.searchBibleVerses(translationId, keyword)
+        @RequestParam keyword: String,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "50") size: Int
+    ): ResponseEntity<BibleSearchSliceResponse> {
+        val response = bibleService.searchBibleVersesSlice(translationId, keyword, page, size)
         return ResponseEntity.ok(response)
     }
 }

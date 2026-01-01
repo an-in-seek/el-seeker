@@ -79,6 +79,13 @@
         const backBtn = document.getElementById("backBtn");
         const scrollToTopBtn = document.getElementById("scrollToTopBtn");
         const scrollThreshold = 300;
+        const pageSize = 50;
+        const scrollLoadOffset = 200;
+        let currentPage = 0;
+        let hasNext = false;
+        let isLoading = false;
+        let totalCount = null;
+        let activeKeyword = "";
 
         if (translationTypeLabel) {
             translationTypeLabel.textContent = translationType;
@@ -101,12 +108,114 @@
             clearBtn.disabled = isLoading;
         }
 
+        function resetSearchState() {
+            currentPage = 0;
+            hasNext = false;
+            totalCount = null;
+            activeKeyword = "";
+        }
+
+        function updateResultCount() {
+            if (totalCount !== null && activeKeyword) {
+                resultCount.textContent = `"${activeKeyword}"에 대한 결과 ${totalCount}건`;
+            }
+        }
+
+        function appendResults(items) {
+            items.forEach(item => {
+                const row = document.createElement("tr");
+
+                // 정규식으로 키워드 부분을 강조 처리
+                const highlightedText = item.text.replace(
+                    new RegExp(`(${activeKeyword})`, "gi"), // 대소문자 구분 없이 일치
+                    "<span class=\"highlight-keyword\">$1</span>"
+                );
+
+                row.innerHTML = `
+                  <td class="verse-link" style="cursor:pointer"
+                      data-book-id="${item.bookId}"
+                      data-book-order="${item.bookOrder}"
+                      data-book-name="${item.bookName}"
+                      data-chapter-id="${item.chapterId}"
+                      data-chapter-number="${item.chapterNumber}"
+                      data-verse-id="${item.verseId}"
+                      data-verse-number="${item.verseNumber}">
+                      ${highlightedText} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
+                  </td>
+                `;
+                searchResultBody.appendChild(row);
+            });
+        }
+
+        async function fetchSearchPage(page) {
+            if (!activeKeyword || isLoading || !hasNext) {
+                return;
+            }
+            isLoading = true;
+            if (page === 0) {
+                setLoading(true);
+                resultCount.textContent = "검색 중...";
+            }
+            try {
+                const response = await fetch(`/api/v1/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(activeKeyword)}&page=${page}&size=${pageSize}`);
+                if (!response.ok) {
+                    throw new Error("검색 실패");
+                }
+                const data = await response.json();
+                if (page === 0) {
+                    totalCount = data.totalCount ?? null;
+                    if (totalCount === 0) {
+                        resultCount.textContent = `"${activeKeyword}"에 대한 결과가 없습니다.`;
+                        setEmptyState("다른 검색어로 다시 시도해 보세요.");
+                        hasNext = false;
+                        return;
+                    }
+                    updateResultCount();
+                }
+
+                if (!data.content || data.content.length === 0) {
+                    if (page === 0) {
+                        setEmptyState("다른 검색어로 다시 시도해 보세요.");
+                    }
+                    hasNext = false;
+                    return;
+                }
+
+                setResultsVisible();
+                appendResults(data.content);
+                hasNext = data.hasNext === true;
+            } catch (e) {
+                if (page === 0) {
+                    resultCount.textContent = "검색 중 오류가 발생했습니다.";
+                    setEmptyState("잠시 후 다시 시도해 주세요.");
+                }
+                console.error(e);
+            } finally {
+                isLoading = false;
+                if (page === 0) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        function maybeLoadNextPage() {
+            if (!hasNext || isLoading) {
+                return;
+            }
+            const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollLoadOffset;
+            if (nearBottom) {
+                currentPage += 1;
+                fetchSearchPage(currentPage);
+            }
+        }
+
         clearBtn.addEventListener("click", () => {
             keywordInput.value = "";
             keywordInput.focus();
             resultCount.textContent = "";
             searchResultBody.innerHTML = "";
             setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+            resetSearchState();
         });
 
         keywordInput.addEventListener("input", () => {
@@ -122,52 +231,13 @@
                 setEmptyState("검색어를 입력하세요.");
                 return;
             }
-            setLoading(true);
-            resultCount.textContent = "검색 중...";
             searchResultBody.innerHTML = "";
-            try {
-                const response = await fetch(`/api/v1/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(keyword)}`);
-                if (!response.ok) {
-                    throw new Error("검색 실패");
-                }
-                const data = await response.json();
-                if (data.length === 0) {
-                    resultCount.textContent = `"${keyword}"에 대한 결과가 없습니다.`;
-                    setEmptyState("다른 검색어로 다시 시도해 보세요.");
-                    return;
-                }
-                resultCount.textContent = `"${keyword}"에 대한 결과 ${data.length}건`;
-                setResultsVisible();
-                data.forEach(item => {
-                    const row = document.createElement("tr");
-
-                    // 정규식으로 키워드 부분을 강조 처리
-                    const highlightedText = item.text.replace(
-                        new RegExp(`(${keyword})`, 'gi'), // 대소문자 구분 없이 일치
-                        '<span class="highlight-keyword">$1</span>'
-                    );
-
-                    row.innerHTML = `
-                      <td class="verse-link" style="cursor:pointer"
-                          data-book-id="${item.bookId}"
-                          data-book-order="${item.bookOrder}"
-                          data-book-name="${item.bookName}"
-                          data-chapter-id="${item.chapterId}"
-                          data-chapter-number="${item.chapterNumber}"
-                          data-verse-id="${item.verseId}"
-                          data-verse-number="${item.verseNumber}">
-                          ${highlightedText} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
-                      </td>
-                    `;
-                    searchResultBody.appendChild(row);
-                });
-            } catch (e) {
-                resultCount.textContent = "검색 중 오류가 발생했습니다.";
-                console.error(e);
-                setEmptyState("잠시 후 다시 시도해 주세요.");
-            } finally {
-                setLoading(false);
-            }
+            resetSearchState();
+            activeKeyword = keyword;
+            hasNext = true;
+            currentPage = 0;
+            await fetchSearchPage(0);
+            maybeLoadNextPage();
         });
 
         searchResultBody.addEventListener("click", e => {
@@ -205,6 +275,8 @@
             window.addEventListener("scroll", updateScrollToTopVisibility, {passive: true});
             updateScrollToTopVisibility();
         }
+
+        window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
 
     });
 </script>

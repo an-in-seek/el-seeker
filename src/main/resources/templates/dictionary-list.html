@@ -12,6 +12,12 @@
 
     <form class="mb-3" method="get" th:action="@{/web/study/dictionary}" role="search">
         <div class="input-group">
+            <a id="backBtn"
+               class="btn btn-outline-secondary back-btn-inline"
+               href="#"
+               aria-label="뒤로가기">
+                ⬅️
+            </a>
             <input type="search"
                    class="form-control"
                    name="keyword"
@@ -77,6 +83,19 @@
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "성경 사전";
             pageTitleLabel.classList.remove("d-none");
+        }
+
+        const keywordInput = document.querySelector("input[name=\"keyword\"]");
+        if (keywordInput) {
+            keywordInput.focus();
+        }
+
+        const backBtn = document.getElementById("backBtn");
+        if (backBtn) {
+            backBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                history.back();
+            });
         }
     });
 </script>

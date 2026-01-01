@@ -1,7 +1,7 @@
 package com.elseeker.bible.presentation.api
 
 import com.elseeker.bible.domain.bible.DirectionType
-import com.elseeker.bible.presentation.api.response.BibleSearchResponse
+import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
 import org.springframework.http.ResponseEntity
 
 interface BibleApiDocument {
@@ -55,6 +55,8 @@ interface BibleApiDocument {
      */
     fun searchBible(
         translationId: Long,
-        keyword: String
-    ): ResponseEntity<List<BibleSearchResponse>>
+        keyword: String,
+        page: Int,
+        size: Int
+    ): ResponseEntity<BibleSearchSliceResponse>
 }
