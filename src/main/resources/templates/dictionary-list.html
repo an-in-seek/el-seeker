@@ -24,7 +24,6 @@
                        autocomplete="off"
                        inputmode="search"
                        aria-label="성경 용어 검색">
-                <input type="hidden" name="size" th:value="${dictionaryPage.size}">
                 <button id="dictionaryClearBtn" class="btn btn-outline-secondary" type="button">지우기</button>
                 <button id="dictionarySearchBtn" class="btn btn-outline-primary" type="submit">🔍</button>
             </div>
@@ -58,18 +57,19 @@
         const resultCount = document.getElementById("dictionaryResultCount");
         const emptyState = document.getElementById("dictionaryEmptyState");
         const listContainer = document.getElementById("dictionaryList");
-        const sizeInput = document.querySelector("input[name=\"size\"]");
         const scrollToTopBtn = document.getElementById("scrollToTopBtn");
         const scrollThreshold = 300;
         const scrollLoadOffset = 200;
+        const pageSize = 10;
         const urlParams = new URLSearchParams(window.location.search);
         const initialKeyword = urlParams.get("keyword") ?? "";
-        const pageSize = parseInt(sizeInput?.value ?? "10", 10) || 10;
-        let currentPage = 0;
-        let hasNext = false;
-        let isLoading = false;
-        let activeKeyword = "";
-        let totalCount = null;
+        const state = {
+            currentPage: 0,
+            hasNext: false,
+            isLoading: false,
+            activeKeyword: "",
+            totalCount: null,
+        };
 
         if (keywordInput) {
             if (initialKeyword) {
@@ -137,25 +137,25 @@
         }
 
         function resetSearchState() {
-            currentPage = 0;
-            hasNext = false;
-            isLoading = false;
-            activeKeyword = "";
-            totalCount = null;
+            state.currentPage = 0;
+            state.hasNext = false;
+            state.isLoading = false;
+            state.activeKeyword = "";
+            state.totalCount = null;
         }
 
         function updateResultCount() {
             if (!resultCount) {
                 return;
             }
-            if (totalCount === null) {
+            if (state.totalCount === null) {
                 resultCount.textContent = "";
                 return;
             }
-            if (activeKeyword) {
-                resultCount.textContent = `"${activeKeyword}"에 대한 결과 ${totalCount}건`;
+            if (state.activeKeyword) {
+                resultCount.textContent = `"${state.activeKeyword}"에 대한 결과 ${state.totalCount}건`;
             } else {
-                resultCount.textContent = `성경 사전 ${totalCount}건`;
+                resultCount.textContent = `성경 사전 ${state.totalCount}건`;
             }
         }
 
@@ -172,8 +172,8 @@
 
         function buildDetailLink(id) {
             const params = new URLSearchParams();
-            if (activeKeyword) {
-                params.set("keyword", activeKeyword);
+            if (state.activeKeyword) {
+                params.set("keyword", state.activeKeyword);
             }
             const queryString = params.toString();
             return queryString ? `/web/study/dictionary/${id}?${queryString}` : `/web/study/dictionary/${id}`;
@@ -214,8 +214,8 @@
 
         function updateUrl() {
             const params = new URLSearchParams();
-            if (activeKeyword) {
-                params.set("keyword", activeKeyword);
+            if (state.activeKeyword) {
+                params.set("keyword", state.activeKeyword);
             }
             const queryString = params.toString();
             const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
@@ -223,18 +223,18 @@
         }
 
         async function fetchDictionaryPage(page) {
-            if (isLoading || !hasNext) {
+            if (state.isLoading || !state.hasNext) {
                 return;
             }
-            isLoading = true;
+            state.isLoading = true;
             if (page === 0) {
                 setLoading(true);
                 setLoadingState("검색 중...");
             }
             try {
                 const url = new URL("/api/v1/study/dictionaries", window.location.origin);
-                if (activeKeyword) {
-                    url.searchParams.set("keyword", activeKeyword);
+                if (state.activeKeyword) {
+                    url.searchParams.set("keyword", state.activeKeyword);
                 }
                 url.searchParams.set("page", String(page));
                 url.searchParams.set("size", String(pageSize));
@@ -246,12 +246,16 @@
                 const items = Array.isArray(data.content) ? data.content : [];
                 if (page === 0) {
                     if (typeof data.totalCount === "number") {
-                        totalCount = data.totalCount;
+                        state.totalCount = data.totalCount;
                     }
                     if (items.length === 0) {
-                        setEmptyState("다른 용어로 다시 시도해 보세요.");
+                        if (state.activeKeyword) {
+                            setEmptyState("다른 용어로 다시 시도해 보세요.");
+                        } else {
+                            setEmptyState("등록된 사전 항목이 없습니다.");
+                        }
                         updateResultCount();
-                        hasNext = false;
+                        state.hasNext = false;
                         return;
                     }
                 }
@@ -259,7 +263,7 @@
                 appendResults(items, page);
                 const sliceHasNext = data.hasNext === true;
                 const pageHasNext = typeof data.last === "boolean" ? !data.last : false;
-                hasNext = sliceHasNext || pageHasNext || items.length === pageSize;
+                state.hasNext = sliceHasNext || pageHasNext || items.length === pageSize;
                 updateResultCount();
             } catch (e) {
                 console.error(e);
@@ -270,7 +274,7 @@
                     setEmptyState("잠시 후 다시 시도해 주세요.");
                 }
             } finally {
-                isLoading = false;
+                state.isLoading = false;
                 if (page === 0) {
                     setLoading(false);
                 }
@@ -278,33 +282,31 @@
         }
 
         function maybeLoadNextPage() {
-            if (!hasNext || isLoading) {
+            if (!state.hasNext || state.isLoading) {
                 return;
             }
             const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollLoadOffset;
             if (nearBottom) {
-                currentPage += 1;
-                fetchDictionaryPage(currentPage);
+                state.currentPage += 1;
+                fetchDictionaryPage(state.currentPage);
             }
         }
 
-        async function startSearch(keyword, targetPage) {
+        function normalizeKeyword(keyword) {
+            return (keyword ?? "").trim();
+        }
+
+        async function startSearch(keyword) {
             if (listContainer) {
                 listContainer.innerHTML = "";
             }
             resetSearchState();
-            activeKeyword = keyword.trim();
-            hasNext = true;
-            currentPage = 0;
+            state.activeKeyword = normalizeKeyword(keyword);
+            state.hasNext = true;
+            state.currentPage = 0;
             updateUrl();
             setLoadingState("목록을 불러오는 중입니다.");
-            for (let page = 0; page <= targetPage; page += 1) {
-                if (!hasNext) {
-                    break;
-                }
-                currentPage = page;
-                await fetchDictionaryPage(page);
-            }
+            await fetchDictionaryPage(0);
             maybeLoadNextPage();
         }
 
@@ -328,12 +330,7 @@
                 if (resultCount) {
                     resultCount.textContent = "";
                 }
-                setEmptyState("검색어를 입력하고 사전 검색을 시작하세요.", "정확한 용어를 모르더라도 일부만 입력해 보세요.");
-                resetSearchState();
-                updateUrl();
-                if (clearBtn) {
-                    clearBtn.disabled = true;
-                }
+                startSearch("");
             });
         }
 
@@ -352,7 +349,7 @@
             searchForm.addEventListener("submit", (e) => {
                 e.preventDefault();
                 const keyword = keywordInput?.value ?? "";
-                startSearch(keyword, 0);
+                startSearch(keyword);
             });
         }
 
@@ -375,7 +372,10 @@
 
         window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
 
-        startSearch(initialKeyword, 0);
+        if (keywordInput) {
+            keywordInput.value = initialKeyword;
+        }
+        startSearch(initialKeyword);
     });
 </script>
 </body>
