@@ -6,46 +6,44 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper pt-3">
-  <table class="table table-striped table-sm">
-    <tbody id="verseTableBody"></tbody>
-  </table>
+    <table class="table table-striped table-sm">
+        <tbody id="verseTableBody"></tbody>
+    </table>
 </main>
-
-<footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <!-- 하단 네비게이션 -->
 <div class="fixed-bottom-nav">
-  <div class="nav-container">
-    <!-- 이전 장 버튼 -->
-    <button id="prevChapterBtn"
-            class="btn btn-lg btn-outline-primary prev-next"
-            type="button"
-            disabled
-            aria-label="이전 장으로 이동">
-      <!-- 이모지는 스크린리더에서 읽히지 않도록 aria-hidden 사용 -->
-      <span aria-hidden="true">⬅</span>
-      <span class="d-none d-md-inline ms-2">이전</span>
-    </button>
+    <div class="nav-container">
+        <!-- 이전 장 버튼 -->
+        <button id="prevChapterBtn"
+                class="btn btn-lg btn-outline-primary prev-next"
+                type="button"
+                disabled
+                aria-label="이전 장으로 이동">
+            <!-- 이모지는 스크린리더에서 읽히지 않도록 aria-hidden 사용 -->
+            <span aria-hidden="true">⬅</span>
+            <span class="d-none d-md-inline ms-2">이전</span>
+        </button>
 
-    <!-- 장 선택 (페이지 이동) -->
-    <a id="chapterSelectLink"
-       href="/web/bible/chapter"
-       class="btn btn-lg btn-primary"
-       aria-label="장 선택">
-      <span aria-hidden="true">📖</span>
-      <span id="chapterSelectLinkLabel" class="ms-2"></span>
-    </a>
+        <!-- 장 선택 (페이지 이동) -->
+        <a id="chapterSelectLink"
+           href="/web/bible/chapter"
+           class="btn btn-lg btn-primary"
+           aria-label="장 선택">
+            <span aria-hidden="true">📖</span>
+            <span id="chapterSelectLinkLabel" class="ms-2"></span>
+        </a>
 
-    <!-- 다음 장 버튼 -->
-    <button id="nextChapterBtn"
-            class="btn btn-lg btn-outline-primary prev-next"
-            type="button"
-            disabled
-            aria-label="다음 장으로 이동">
-      <span class="d-none d-md-inline me-2">다음</span>
-      <span aria-hidden="true">➡</span>
-    </button>
-  </div>
+        <!-- 다음 장 버튼 -->
+        <button id="nextChapterBtn"
+                class="btn btn-lg btn-outline-primary prev-next"
+                type="button"
+                disabled
+                aria-label="다음 장으로 이동">
+            <span class="d-none d-md-inline me-2">다음</span>
+            <span aria-hidden="true">➡</span>
+        </button>
+    </div>
 </div>
 
 <script src="/js/storage-util.js?v6"></script>
