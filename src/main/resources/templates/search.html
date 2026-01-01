@@ -66,6 +66,10 @@
             navDOM.searchLink.classList.remove("d-none");
             navDOM.searchLink.classList.add("nav-placeholder");
         }
+        if (navDOM.pageTitleLabel) {
+            navDOM.pageTitleLabel.textContent = "성경 검색";
+            navDOM.pageTitleLabel.classList.remove("d-none");
+        }
 
         const translationTypeLabel = navDOM.translationTypeLabel;
         const keywordInput = document.getElementById("keywordInput");
@@ -102,10 +106,25 @@
             searchResultTable.classList.remove("d-none");
         }
 
+        function hideEmptyState() {
+            emptyState.classList.add("d-none");
+        }
+
         function setLoading(isLoading) {
             searchBtn.disabled = isLoading;
             keywordInput.disabled = isLoading;
             clearBtn.disabled = isLoading;
+        }
+
+        function setLoadingState(message) {
+            if (!resultCount) {
+                return;
+            }
+            hideEmptyState();
+            resultCount.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                ${message}
+            `;
         }
 
         function resetSearchState() {
@@ -154,7 +173,8 @@
             isLoading = true;
             if (page === 0) {
                 setLoading(true);
-                resultCount.textContent = "검색 중...";
+                hideEmptyState();
+                setLoadingState("검색 중...");
             }
             try {
                 const response = await fetch(`/api/v1/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(activeKeyword)}&page=${page}&size=${pageSize}`);
@@ -165,10 +185,8 @@
                 if (page === 0) {
                     totalCount = data.totalCount ?? null;
                     if (totalCount === 0) {
-                        resultCount.textContent = `"${activeKeyword}"에 대한 결과가 없습니다.`;
                         setEmptyState("다른 검색어로 다시 시도해 보세요.");
                         hasNext = false;
-                        return;
                     }
                     updateResultCount();
                 }
@@ -232,6 +250,7 @@
                 return;
             }
             searchResultBody.innerHTML = "";
+            hideEmptyState();
             resetSearchState();
             activeKeyword = keyword;
             hasNext = true;

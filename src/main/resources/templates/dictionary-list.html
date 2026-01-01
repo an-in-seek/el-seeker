@@ -43,8 +43,6 @@
     ↑
 </button>
 
-<footer th:replace="~{fragments/footer :: footer}"></footer>
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const pageTitleLabel = document.getElementById("pageTitleLabel");
@@ -72,7 +70,6 @@
         let hasNext = false;
         let isLoading = false;
         let activeKeyword = "";
-        let hasResults = false;
         let totalCount = null;
 
         if (keywordInput) {
@@ -86,13 +83,15 @@
             if (emptyState) {
                 emptyState.innerHTML = "";
                 const title = document.createElement("p");
-                title.className = "mb-1";
+                title.className = detail ? "mb-1" : "mb-0";
                 title.textContent = message;
-                const body = document.createElement("p");
-                body.className = "small mb-0";
-                body.textContent = detail;
                 emptyState.appendChild(title);
-                emptyState.appendChild(body);
+                if (detail) {
+                    const body = document.createElement("p");
+                    body.className = "small mb-0";
+                    body.textContent = detail;
+                    emptyState.appendChild(body);
+                }
                 emptyState.classList.remove("d-none");
             }
             if (listContainer) {
@@ -121,12 +120,28 @@
             }
         }
 
+        function hideEmptyState() {
+            if (emptyState) {
+                emptyState.classList.add("d-none");
+            }
+        }
+
+        function setLoadingState(message) {
+            if (!resultCount) {
+                return;
+            }
+            hideEmptyState();
+            resultCount.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                ${message}
+            `;
+        }
+
         function resetSearchState() {
             currentPage = 0;
             hasNext = false;
             isLoading = false;
             activeKeyword = "";
-            hasResults = false;
             totalCount = null;
         }
 
@@ -134,7 +149,7 @@
             if (!resultCount) {
                 return;
             }
-            if (!hasResults || totalCount === null) {
+            if (totalCount === null) {
                 resultCount.textContent = "";
                 return;
             }
@@ -218,9 +233,7 @@
             isLoading = true;
             if (page === 0) {
                 setLoading(true);
-                if (resultCount) {
-                    resultCount.textContent = "검색 중...";
-                }
+                setLoadingState("검색 중...");
             }
             try {
                 const url = new URL("/api/v1/study/dictionaries", window.location.origin);
@@ -235,20 +248,17 @@
                 }
                 const data = await response.json();
                 const items = Array.isArray(data.content) ? data.content : [];
-                if (page === 0 && typeof data.totalCount === "number") {
-                    totalCount = data.totalCount;
-                }
-                if (page === 0 && items.length === 0) {
-                    if (resultCount) {
-                        resultCount.textContent = activeKeyword
-                            ? `"${activeKeyword}"에 대한 결과가 없습니다.`
-                            : "성경 사전 검색 결과가 없습니다.";
+                if (page === 0) {
+                    if (typeof data.totalCount === "number") {
+                        totalCount = data.totalCount;
                     }
-                    setEmptyState("검색 결과가 없습니다.", "다른 용어로 다시 시도해 보세요.");
-                    hasNext = false;
-                    return;
+                    if (items.length === 0) {
+                        setEmptyState("다른 용어로 다시 시도해 보세요.");
+                        updateResultCount();
+                        hasNext = false;
+                        return;
+                    }
                 }
-                hasResults = items.length > 0 || hasResults;
                 setResultsVisible();
                 appendResults(items, page);
                 const sliceHasNext = data.hasNext === true;
@@ -258,7 +268,10 @@
             } catch (e) {
                 console.error(e);
                 if (page === 0) {
-                    setEmptyState("잠시 후 다시 시도해 주세요.", "문제가 계속되면 새로고침해 주세요.");
+                    if (resultCount) {
+                        resultCount.textContent = "검색 중 오류가 발생했습니다.";
+                    }
+                    setEmptyState("잠시 후 다시 시도해 주세요.");
                 }
             } finally {
                 isLoading = false;
@@ -283,12 +296,12 @@
             if (listContainer) {
                 listContainer.innerHTML = "";
             }
-            setEmptyState("목록을 불러오는 중입니다.", "잠시만 기다려 주세요.");
             resetSearchState();
             activeKeyword = keyword.trim();
             hasNext = true;
             currentPage = 0;
             updateUrl(targetPage);
+            setLoadingState("목록을 불러오는 중입니다.");
             for (let page = 0; page <= targetPage; page += 1) {
                 if (!hasNext) {
                     break;
