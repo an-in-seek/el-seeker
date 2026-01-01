@@ -1,7 +1,6 @@
 package com.elseeker.bible.presentation.api
 
 import com.elseeker.bible.application.bible.service.BibleDictionaryService
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity
@@ -22,10 +21,14 @@ class BibleDictionaryApiController(
         @RequestParam(required = false) keyword: String?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
-    ): ResponseEntity<Page<BibleDictionaryApiResponse.DictionaryItem>> {
+    ): ResponseEntity<BibleDictionaryApiResponse.DictionarySliceResponse> {
         val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "term"))
-        val response = bibleDictionaryService.getDictionaries(keyword, pageable)
-            .map(BibleDictionaryApiResponse.DictionaryItem::from)
+        val dictionaryPage = bibleDictionaryService.getDictionaries(keyword, pageable)
+        val response = BibleDictionaryApiResponse.DictionarySliceResponse(
+            content = dictionaryPage.content.map(BibleDictionaryApiResponse.DictionaryItem::from),
+            hasNext = dictionaryPage.hasNext(),
+            totalCount = dictionaryPage.totalElements
+        )
         return ResponseEntity.ok(response)
     }
 

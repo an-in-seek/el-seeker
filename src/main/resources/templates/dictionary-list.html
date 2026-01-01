@@ -6,74 +6,42 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
-    <section class="mb-4 text-center">
-        <p class="text-muted mb-0">성경 용어를 검색하고 뜻을 확인하세요.</p>
-    </section>
-
-    <form class="mb-3" method="get" th:action="@{/web/study/dictionary}" role="search">
-        <div class="input-group">
-            <a id="backBtn"
-               class="btn btn-outline-secondary back-btn-inline"
-               href="#"
-               aria-label="뒤로가기">
-                ⬅️
-            </a>
-            <input type="search"
-                   class="form-control"
-                   name="keyword"
-                   placeholder="찾고 싶은 용어를 입력하세요"
-                   th:value="${keyword}"
-                   aria-label="성경 용어 검색">
-            <input type="hidden" name="size" th:value="${dictionaryPage.size}">
-            <button class="btn btn-outline-primary" type="submit">검색</button>
-        </div>
-    </form>
-
-    <div class="list-group" th:if="${dictionaryPage.totalElements > 0}">
-        <a class="list-group-item list-group-item-action"
-           th:each="item : ${dictionaryPage.content}"
-           th:href="@{/web/study/dictionary/{id}(id=${item.id}, keyword=${keyword}, page=${dictionaryPage.number}, size=${dictionaryPage.size})}">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="h6 fw-semibold mb-1" th:text="${item.term}">용어명</h2>
-                <span class="badge bg-light text-secondary">보기</span>
+    <div class="search-controls">
+        <form id="dictionarySearchForm" class="mb-2" method="get" th:action="@{/web/study/dictionary}" role="search">
+            <div class="input-group">
+                <a id="backBtn"
+                   class="btn btn-outline-secondary back-btn-inline"
+                   href="#"
+                   aria-label="뒤로가기">
+                    ⬅️
+                </a>
+                <input type="search"
+                       id="dictionaryKeywordInput"
+                       class="form-control"
+                       name="keyword"
+                       placeholder="찾고 싶은 성경 용어를 입력하세요"
+                       th:value="${keyword}"
+                       autocomplete="off"
+                       inputmode="search"
+                       aria-label="성경 용어 검색">
+                <input type="hidden" name="size" th:value="${dictionaryPage.size}">
+                <button id="dictionaryClearBtn" class="btn btn-outline-secondary" type="button">지우기</button>
+                <button id="dictionarySearchBtn" class="btn btn-outline-primary" type="submit">🔍</button>
             </div>
-            <p class="text-muted small mb-0" th:text="${item.summary}">설명 요약</p>
-        </a>
+        </form>
+        <div id="dictionaryResultCount" class="text-muted small" role="status" aria-live="polite"></div>
+        <div id="dictionaryEmptyState" class="text-muted small">
+            <p class="mb-1">검색어를 입력하고 사전 검색을 시작하세요.</p>
+            <p class="small mb-0">정확한 용어를 모르더라도 일부만 입력해 보세요.</p>
+        </div>
     </div>
 
-    <div class="text-center text-muted py-5" th:if="${dictionaryPage.totalElements == 0}">
-        <p class="mb-1">검색 결과가 없습니다.</p>
-        <p class="small mb-0">다른 용어로 다시 시도해 보세요.</p>
-    </div>
-
-    <nav class="mt-4" aria-label="성경 사전 페이지 이동" th:if="${dictionaryPage.totalPages > 1}">
-        <ul class="pagination justify-content-center flex-wrap">
-            <li class="page-item" th:classappend="${dictionaryPage.first} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${dictionaryPage.number - 1}, size=${dictionaryPage.size})}"
-                   aria-label="이전 페이지">
-                    이전
-                </a>
-            </li>
-            <li class="page-item"
-                th:each="pageNum : ${pageNumbers}"
-                th:classappend="${pageNum - 1 == dictionaryPage.number} ? 'active'">
-                <a class="page-link"
-                   th:text="${pageNum}"
-                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${pageNum - 1}, size=${dictionaryPage.size})}">
-                    1
-                </a>
-            </li>
-            <li class="page-item" th:classappend="${dictionaryPage.last} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${dictionaryPage.number + 1}, size=${dictionaryPage.size})}"
-                   aria-label="다음 페이지">
-                    다음
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <div id="dictionaryList" class="list-group mt-2"></div>
 </main>
+
+<button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
+    ↑
+</button>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
@@ -85,9 +53,250 @@
             pageTitleLabel.classList.remove("d-none");
         }
 
-        const keywordInput = document.querySelector("input[name=\"keyword\"]");
+        const keywordInput = document.getElementById("dictionaryKeywordInput");
+        const searchForm = document.getElementById("dictionarySearchForm");
+        const searchBtn = document.getElementById("dictionarySearchBtn");
+        const clearBtn = document.getElementById("dictionaryClearBtn");
+        const resultCount = document.getElementById("dictionaryResultCount");
+        const emptyState = document.getElementById("dictionaryEmptyState");
+        const listContainer = document.getElementById("dictionaryList");
+        const sizeInput = document.querySelector("input[name=\"size\"]");
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+        const scrollThreshold = 300;
+        const scrollLoadOffset = 200;
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialKeyword = urlParams.get("keyword") ?? "";
+        const initialPage = parseInt(urlParams.get("page") ?? "0", 10) || 0;
+        const pageSize = parseInt(urlParams.get("size") ?? sizeInput?.value ?? "10", 10) || 10;
+        let currentPage = 0;
+        let hasNext = false;
+        let isLoading = false;
+        let activeKeyword = "";
+        let hasResults = false;
+        let totalCount = null;
+
         if (keywordInput) {
+            if (initialKeyword) {
+                keywordInput.value = initialKeyword;
+            }
             keywordInput.focus();
+        }
+
+        function setEmptyState(message, detail) {
+            if (emptyState) {
+                emptyState.innerHTML = "";
+                const title = document.createElement("p");
+                title.className = "mb-1";
+                title.textContent = message;
+                const body = document.createElement("p");
+                body.className = "small mb-0";
+                body.textContent = detail;
+                emptyState.appendChild(title);
+                emptyState.appendChild(body);
+                emptyState.classList.remove("d-none");
+            }
+            if (listContainer) {
+                listContainer.classList.add("d-none");
+            }
+        }
+
+        function setResultsVisible() {
+            if (emptyState) {
+                emptyState.classList.add("d-none");
+            }
+            if (listContainer) {
+                listContainer.classList.remove("d-none");
+            }
+        }
+
+        function setLoading(loading) {
+            if (searchBtn) {
+                searchBtn.disabled = loading;
+            }
+            if (keywordInput) {
+                keywordInput.disabled = loading;
+            }
+            if (clearBtn) {
+                clearBtn.disabled = loading;
+            }
+        }
+
+        function resetSearchState() {
+            currentPage = 0;
+            hasNext = false;
+            isLoading = false;
+            activeKeyword = "";
+            hasResults = false;
+            totalCount = null;
+        }
+
+        function updateResultCount() {
+            if (!resultCount) {
+                return;
+            }
+            if (!hasResults || totalCount === null) {
+                resultCount.textContent = "";
+                return;
+            }
+            if (activeKeyword) {
+                resultCount.textContent = `"${activeKeyword}"에 대한 결과 ${totalCount}건`;
+            } else {
+                resultCount.textContent = `성경 사전 ${totalCount}건`;
+            }
+        }
+
+        function createSummary(description) {
+            const normalized = (description ?? "").trim();
+            if (!normalized) {
+                return "설명이 등록되지 않았습니다.";
+            }
+            if (normalized.length <= 120) {
+                return normalized;
+            }
+            return `${normalized.substring(0, 120).trimEnd()}...`;
+        }
+
+        function buildDetailLink(id, page) {
+            const params = new URLSearchParams();
+            if (activeKeyword) {
+                params.set("keyword", activeKeyword);
+            }
+            params.set("page", String(page));
+            params.set("size", String(pageSize));
+            return `/web/study/dictionary/${id}?${params.toString()}`;
+        }
+
+        function appendResults(items, page) {
+            if (!listContainer) {
+                return;
+            }
+            items.forEach(item => {
+                const link = document.createElement("a");
+                link.className = "list-group-item list-group-item-action";
+                link.href = buildDetailLink(item.id, page);
+
+                const header = document.createElement("div");
+                header.className = "d-flex justify-content-between align-items-center";
+
+                const title = document.createElement("h2");
+                title.className = "h6 fw-semibold mb-1";
+                title.textContent = item.term ?? "";
+
+                const badge = document.createElement("span");
+                badge.className = "badge bg-light text-secondary";
+                badge.textContent = "보기";
+
+                header.appendChild(title);
+                header.appendChild(badge);
+
+                const summary = document.createElement("p");
+                summary.className = "text-muted small mb-0";
+                summary.textContent = createSummary(item.description);
+
+                link.appendChild(header);
+                link.appendChild(summary);
+                listContainer.appendChild(link);
+            });
+        }
+
+        function updateUrl(page) {
+            const params = new URLSearchParams();
+            if (activeKeyword) {
+                params.set("keyword", activeKeyword);
+            }
+            params.set("page", String(page));
+            params.set("size", String(pageSize));
+            const queryString = params.toString();
+            const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            history.replaceState(null, "", newUrl);
+        }
+
+        async function fetchDictionaryPage(page) {
+            if (isLoading || !hasNext) {
+                return;
+            }
+            isLoading = true;
+            if (page === 0) {
+                setLoading(true);
+                if (resultCount) {
+                    resultCount.textContent = "검색 중...";
+                }
+            }
+            try {
+                const url = new URL("/api/v1/study/dictionaries", window.location.origin);
+                if (activeKeyword) {
+                    url.searchParams.set("keyword", activeKeyword);
+                }
+                url.searchParams.set("page", String(page));
+                url.searchParams.set("size", String(pageSize));
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("사전 조회 실패");
+                }
+                const data = await response.json();
+                const items = Array.isArray(data.content) ? data.content : [];
+                if (page === 0 && typeof data.totalCount === "number") {
+                    totalCount = data.totalCount;
+                }
+                if (page === 0 && items.length === 0) {
+                    if (resultCount) {
+                        resultCount.textContent = activeKeyword
+                            ? `"${activeKeyword}"에 대한 결과가 없습니다.`
+                            : "성경 사전 검색 결과가 없습니다.";
+                    }
+                    setEmptyState("검색 결과가 없습니다.", "다른 용어로 다시 시도해 보세요.");
+                    hasNext = false;
+                    return;
+                }
+                hasResults = items.length > 0 || hasResults;
+                setResultsVisible();
+                appendResults(items, page);
+                const sliceHasNext = data.hasNext === true;
+                const pageHasNext = typeof data.last === "boolean" ? !data.last : false;
+                hasNext = sliceHasNext || pageHasNext || items.length === pageSize;
+                updateResultCount();
+            } catch (e) {
+                console.error(e);
+                if (page === 0) {
+                    setEmptyState("잠시 후 다시 시도해 주세요.", "문제가 계속되면 새로고침해 주세요.");
+                }
+            } finally {
+                isLoading = false;
+                if (page === 0) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        function maybeLoadNextPage() {
+            if (!hasNext || isLoading) {
+                return;
+            }
+            const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - scrollLoadOffset;
+            if (nearBottom) {
+                currentPage += 1;
+                fetchDictionaryPage(currentPage);
+            }
+        }
+
+        async function startSearch(keyword, targetPage) {
+            if (listContainer) {
+                listContainer.innerHTML = "";
+            }
+            setEmptyState("목록을 불러오는 중입니다.", "잠시만 기다려 주세요.");
+            resetSearchState();
+            activeKeyword = keyword.trim();
+            hasNext = true;
+            currentPage = 0;
+            updateUrl(targetPage);
+            for (let page = 0; page <= targetPage; page += 1) {
+                if (!hasNext) {
+                    break;
+                }
+                currentPage = page;
+                await fetchDictionaryPage(page);
+            }
+            maybeLoadNextPage();
         }
 
         const backBtn = document.getElementById("backBtn");
@@ -97,6 +306,67 @@
                 history.back();
             });
         }
+
+        if (clearBtn) {
+            clearBtn.addEventListener("click", () => {
+                if (keywordInput) {
+                    keywordInput.value = "";
+                    keywordInput.focus();
+                }
+                if (listContainer) {
+                    listContainer.innerHTML = "";
+                }
+                if (resultCount) {
+                    resultCount.textContent = "";
+                }
+                setEmptyState("검색어를 입력하고 사전 검색을 시작하세요.", "정확한 용어를 모르더라도 일부만 입력해 보세요.");
+                resetSearchState();
+                updateUrl(0);
+                if (clearBtn) {
+                    clearBtn.disabled = true;
+                }
+            });
+        }
+
+        if (keywordInput) {
+            keywordInput.addEventListener("input", () => {
+                if (clearBtn) {
+                    clearBtn.disabled = keywordInput.value.trim().length === 0;
+                }
+            });
+            if (clearBtn) {
+                clearBtn.disabled = keywordInput.value.trim().length === 0;
+            }
+        }
+
+        if (searchForm) {
+            searchForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const keyword = keywordInput?.value ?? "";
+                startSearch(keyword, 0);
+            });
+        }
+
+        if (scrollToTopBtn) {
+            const updateScrollToTopVisibility = () => {
+                if (window.scrollY >= scrollThreshold) {
+                    scrollToTopBtn.classList.add("is-visible");
+                } else {
+                    scrollToTopBtn.classList.remove("is-visible");
+                }
+            };
+
+            scrollToTopBtn.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+
+            window.addEventListener("scroll", updateScrollToTopVisibility, {passive: true});
+            updateScrollToTopVisibility();
+        }
+
+        window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
+
+        startSearch(initialKeyword, initialPage);
     });
 </script>
 </body>

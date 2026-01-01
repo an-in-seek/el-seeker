@@ -21,6 +21,12 @@ object BibleDictionaryApiResponse {
         }
     }
 
+    data class DictionarySliceResponse(
+        val content: List<DictionaryItem>,
+        val hasNext: Boolean,
+        val totalCount: Long?
+    )
+
     data class DictionaryDetail(
         val id: Long,
         val term: String,
