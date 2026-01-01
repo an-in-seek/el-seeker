@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible - Bible Dictionary | 성경 사전', true, null)}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper">
+    <section class="mb-3">
+        <a class="btn btn-outline-secondary btn-sm"
+           th:href="${backLink}">
+            목록으로 돌아가기
+        </a>
+    </section>
+
+    <section class="card shadow-sm border-0">
+        <div class="card-body">
+            <h2 class="h4 fw-bold mb-3" th:text="${dictionary.term}">용어명</h2>
+
+            <div class="mb-4">
+                <h2 class="h6 text-muted">설명</h2>
+                <p class="mb-0" th:text="${dictionary.description.isBlank()} ? '등록된 설명이 없습니다.' : ${dictionary.description}">
+                    설명 내용
+                </p>
+            </div>
+
+            <div>
+                <h2 class="h6 text-muted">관련 성경 구절</h2>
+                <p class="mb-0" th:text="${dictionary.relatedVerses.isBlank()} ? '등록된 구절이 없습니다.' : ${dictionary.relatedVerses}">
+                    관련 성경 구절
+                </p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 사전";
+            pageTitleLabel.classList.remove("d-none");
+        }
+    });
+</script>
+</body>
+</html>

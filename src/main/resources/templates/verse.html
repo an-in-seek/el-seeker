@@ -167,7 +167,7 @@
         }
 
         function buildChapterUrl(direction) {
-            const base = `/api/bibles/translations/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}`;
+            const base = `/api/v1/bibles/translations/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}`;
             if (direction === "CURRENT") {
                 return `${base}/verses`;
             }

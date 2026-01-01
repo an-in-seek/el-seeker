@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible - Study | 학습', true, null)}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper">
+    <section class="mb-4 text-center">
+        <p class="text-muted mb-0">성경을 더 깊이 이해하기 위한 학습 항목을 선택하세요.</p>
+    </section>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-6 col-lg-4">
+            <a class="text-decoration-none menu-card-link" href="/web/study/dictionary">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h6 fw-semibold mb-1">성경 사전</h2>
+                        <p class="text-muted small mb-0">성경 용어를 빠르게 검색합니다.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 주석</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 역사</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 논문</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 지도</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 강의</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="menu-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h2 class="h6 fw-semibold mb-0">성경 다큐멘터리</h2>
+                            <span class="badge text-bg-warning text-uppercase small">준비중</span>
+                        </div>
+                        <p class="text-muted small mb-0">준비중</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const comingSoonCards = document.querySelectorAll(".coming-soon");
+        comingSoonCards.forEach((card) => {
+            card.addEventListener("click", (event) => {
+                event.preventDefault();
+            });
+        });
+
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "학습";
+            pageTitleLabel.classList.remove("d-none");
+        }
+    });
+</script>
+</body>
+</html>

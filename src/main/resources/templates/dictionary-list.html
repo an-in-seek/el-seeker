@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible - Bible Dictionary | 성경 사전', true, null)}"></head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper">
+    <section class="mb-4 text-center">
+        <p class="text-muted mb-0">성경 용어를 검색하고 뜻을 확인하세요.</p>
+    </section>
+
+    <form class="mb-3" method="get" th:action="@{/web/study/dictionary}" role="search">
+        <div class="input-group">
+            <input type="search"
+                   class="form-control"
+                   name="keyword"
+                   placeholder="찾고 싶은 용어를 입력하세요"
+                   th:value="${keyword}"
+                   aria-label="성경 용어 검색">
+            <input type="hidden" name="size" th:value="${dictionaryPage.size}">
+            <button class="btn btn-outline-primary" type="submit">검색</button>
+        </div>
+    </form>
+
+    <div class="list-group" th:if="${dictionaryPage.totalElements > 0}">
+        <a class="list-group-item list-group-item-action"
+           th:each="item : ${dictionaryPage.content}"
+           th:href="@{/web/study/dictionary/{id}(id=${item.id}, keyword=${keyword}, page=${dictionaryPage.number}, size=${dictionaryPage.size})}">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h6 fw-semibold mb-1" th:text="${item.term}">용어명</h2>
+                <span class="badge bg-light text-secondary">보기</span>
+            </div>
+            <p class="text-muted small mb-0" th:text="${item.summary}">설명 요약</p>
+        </a>
+    </div>
+
+    <div class="text-center text-muted py-5" th:if="${dictionaryPage.totalElements == 0}">
+        <p class="mb-1">검색 결과가 없습니다.</p>
+        <p class="small mb-0">다른 용어로 다시 시도해 보세요.</p>
+    </div>
+
+    <nav class="mt-4" aria-label="성경 사전 페이지 이동" th:if="${dictionaryPage.totalPages > 1}">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item" th:classappend="${dictionaryPage.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${dictionaryPage.number - 1}, size=${dictionaryPage.size})}"
+                   aria-label="이전 페이지">
+                    이전
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="pageNum : ${pageNumbers}"
+                th:classappend="${pageNum - 1 == dictionaryPage.number} ? 'active'">
+                <a class="page-link"
+                   th:text="${pageNum}"
+                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${pageNum - 1}, size=${dictionaryPage.size})}">
+                    1
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${dictionaryPage.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/web/study/dictionary(keyword=${keyword}, page=${dictionaryPage.number + 1}, size=${dictionaryPage.size})}"
+                   aria-label="다음 페이지">
+                    다음
+                </a>
+            </li>
+        </ul>
+    </nav>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 사전";
+            pageTitleLabel.classList.remove("d-none");
+        }
+    });
+</script>
+</body>
+</html>

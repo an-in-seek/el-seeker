@@ -126,7 +126,7 @@
             resultCount.textContent = "검색 중...";
             searchResultBody.innerHTML = "";
             try {
-                const response = await fetch(`/api/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(keyword)}`);
+                const response = await fetch(`/api/v1/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(keyword)}`);
                 if (!response.ok) {
                     throw new Error("검색 실패");
                 }

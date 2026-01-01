@@ -185,7 +185,7 @@
 
     async function loadBookDetail(translationId, bookOrder, DOM) {
         try {
-            const response = await fetch(`/api/bibles/translations/${translationId}/books/${bookOrder}`);
+            const response = await fetch(`/api/v1/bibles/translations/${translationId}/books/${bookOrder}`);
             if (!response.ok) {
                 throw new Error("책 정보를 불러오는 데 실패했습니다.");
             }
