@@ -6,18 +6,22 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper mt-3">
-  <div class="list-group" id="translationList">
-    <button type="button"
-            class="list-group-item list-group-item-action text-start"
-            th:each="translation : ${translations}"
-            th:data-translation-id="${translation.translationId}"
-            th:data-translation-name="${translation.translationName}"
-            th:data-translation-type="${translation.translationType}"
-            th:data-translation-language="${translation.translationLanguage}">
-      <div class="fw-semibold" th:text="${translation.translationName}"></div>
-      <div class="small text-muted" th:text="${translation.translationType}"></div>
-    </button>
-  </div>
+    <section class="text-center mb-4">
+        <p class="text-muted mb-1">👇 아래에서 원하시는 성경 번역본을 선택하세요.</p>
+    </section>
+    <div id="translationSections" class="translation-sections" aria-label="성경 번역본 목록"></div>
+    <div class="list-group" id="translationList">
+        <button type="button"
+                class="list-group-item list-group-item-action text-start"
+                th:each="translation : ${translations}"
+                th:data-translation-id="${translation.translationId}"
+                th:data-translation-name="${translation.translationName}"
+                th:data-translation-type="${translation.translationType}"
+                th:data-translation-language="${translation.translationLanguage}">
+            <div class="fw-semibold" th:text="${translation.translationName}"></div>
+            <div class="small text-muted" th:text="${translation.translationType}"></div>
+        </button>
+    </div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
@@ -32,7 +36,68 @@
         }
 
         const returnPath = TranslationStore.consumeTranslationReturnPath();
-        document.querySelectorAll("#translationList button").forEach(btn => {
+        const translationsContainer = document.getElementById("translationSections");
+        const sourceList = document.getElementById("translationList");
+        const translationButtons = sourceList ? Array.from(sourceList.querySelectorAll("button")) : [];
+        const languageLabelMap = {
+            ko: "한국어",
+            en: "영어",
+            zh: "중국어",
+            ja: "일본어",
+            es: "스페인어",
+            de: "독일어",
+            la: "라틴어"
+        };
+        const orderedLanguages = [];
+        const groupedByLanguage = {};
+
+        translationButtons.forEach(btn => {
+            const language = btn.dataset.translationLanguage || "unknown";
+            if (!groupedByLanguage[language]) {
+                groupedByLanguage[language] = [];
+                orderedLanguages.push(language);
+            }
+            groupedByLanguage[language].push(btn);
+        });
+
+        if (translationsContainer) {
+            translationsContainer.innerHTML = "";
+            orderedLanguages.forEach(language => {
+                const section = document.createElement("section");
+                section.className = "translation-section";
+
+                const header = document.createElement("div");
+                header.className = "translation-section-header";
+
+                const title = document.createElement("h2");
+                const titleId = `translationLang-${language}`;
+                title.id = titleId;
+                title.className = "translation-section-title";
+                title.textContent = languageLabelMap[language] || language.toUpperCase();
+
+                const count = document.createElement("span");
+                count.className = "translation-section-count";
+                count.textContent = `${groupedByLanguage[language].length}개`;
+
+                header.appendChild(title);
+                header.appendChild(count);
+
+                const listGroup = document.createElement("div");
+                listGroup.className = "list-group";
+                listGroup.setAttribute("aria-labelledby", titleId);
+                groupedByLanguage[language].forEach(btn => listGroup.appendChild(btn));
+
+                section.appendChild(header);
+                section.appendChild(listGroup);
+                translationsContainer.appendChild(section);
+            });
+        }
+        if (sourceList) {
+            sourceList.classList.add("d-none");
+            sourceList.setAttribute("aria-hidden", "true");
+        }
+
+        translationButtons.forEach(btn => {
             btn.addEventListener("click", () => {
                 const id = btn.getAttribute("data-translation-id");
                 const name = btn.getAttribute("data-translation-name");
