@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 
 @Controller
 @RequestMapping("/web/bible")
@@ -41,7 +42,11 @@ class BibleWebController(
     }
 
     @GetMapping("/search")
-    fun showSearch(): String {
+    fun showSearch(
+        @RequestParam(required = false) keyword: String?,
+        model: Model
+    ): String {
+        model.addAttribute("keyword", keyword?.trim().orEmpty())
         return "search"
     }
 }
