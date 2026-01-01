@@ -3,10 +3,10 @@
     cursor: pointer;
 }
 
-/* 리스트가 네비게이션 영역과 겹치지 않도록 여백 추가 */
+/* 상단 하단 여백 */
 .content-wrapper {
-    min-height: 550px;
-    padding-bottom: 80px; /* 네비게이션 높이만큼 추가 여백 확보 */
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
 }
 
 /* 검색 페이지 전용 스타일 */
@@ -400,6 +400,54 @@
     padding-bottom: 120px;
 }
 
+.home-hero {
+    margin-bottom: 2.5rem;
+    padding: 2.75rem 2.5rem;
+    border-radius: 18px;
+    border: 1px solid #e7ecf2;
+    background: linear-gradient(135deg, #fff9ec 0%, #edf4ff 100%);
+    box-shadow: 0 12px 12px rgba(15, 23, 42, 0.08);
+}
+
+.home-hero-content {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.home-hero-eyebrow {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #3559a2;
+    letter-spacing: 0.02em;
+}
+
+.home-hero-title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.8rem, 2.2vw + 1.1rem, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #1f2a44;
+}
+
+.home-hero-lead {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #2f3d57;
+}
+
+.home-hero-description {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+@media (max-width: 576px) {
+    .home-hero {
+        padding: 2rem 1.5rem;
+    }
+}
+
 .chapter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -472,7 +520,6 @@
 .top-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* Bootstrap의 gap-2와 동일 (8px) */
 }
 
 .top-nav-row {
@@ -535,7 +582,7 @@
     text-align: center;
     font-size: 1.25rem;
     color: var(--bs-secondary-color, #6c757d); /* Bootstrap 5 기준 */
-    padding: 0 0.75rem;
+    padding: 0.75rem;
 }
 
 .top-nav-title .page-title {
