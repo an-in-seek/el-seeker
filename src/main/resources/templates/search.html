@@ -19,6 +19,7 @@
                        id="keywordInput"
                        class="form-control"
                        placeholder="검색할 단어를 입력하세요"
+                       th:value="${keyword}"
                        autocomplete="off"
                        inputmode="search">
                 <button id="clearBtn" type="button" class="btn btn-outline-secondary">지우기</button>
@@ -85,6 +86,8 @@
         const scrollThreshold = 300;
         const pageSize = 50;
         const scrollLoadOffset = 200;
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialKeyword = urlParams.get("keyword") ?? "";
         let currentPage = 0;
         let hasNext = false;
         let isLoading = false;
@@ -132,6 +135,17 @@
             hasNext = false;
             totalCount = null;
             activeKeyword = "";
+            isLoading = false;
+        }
+
+        function updateUrl() {
+            const params = new URLSearchParams();
+            if (activeKeyword) {
+                params.set("keyword", activeKeyword);
+            }
+            const queryString = params.toString();
+            const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            history.replaceState(null, "", newUrl);
         }
 
         function updateResultCount() {
@@ -216,6 +230,25 @@
             }
         }
 
+        async function startSearch(keyword) {
+            const normalizedKeyword = keyword.trim();
+            searchResultBody.innerHTML = "";
+            resultCount.textContent = "";
+            resetSearchState();
+            if (!normalizedKeyword) {
+                setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+                updateUrl();
+                return;
+            }
+            hideEmptyState();
+            activeKeyword = normalizedKeyword;
+            hasNext = true;
+            currentPage = 0;
+            updateUrl();
+            await fetchSearchPage(0);
+            maybeLoadNextPage();
+        }
+
         function maybeLoadNextPage() {
             if (!hasNext || isLoading) {
                 return;
@@ -230,33 +263,22 @@
         clearBtn.addEventListener("click", () => {
             keywordInput.value = "";
             keywordInput.focus();
-            resultCount.textContent = "";
             searchResultBody.innerHTML = "";
+            resultCount.textContent = "";
             setEmptyState("검색어를 입력하고 검색을 시작하세요.");
             resetSearchState();
+            updateUrl();
         });
 
         keywordInput.addEventListener("input", () => {
             clearBtn.disabled = keywordInput.value.trim().length === 0;
         });
         keywordInput.focus();
-        clearBtn.disabled = true;
+        clearBtn.disabled = keywordInput.value.trim().length === 0;
 
         searchForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const keyword = keywordInput.value.trim();
-            if (!keyword) {
-                setEmptyState("검색어를 입력하세요.");
-                return;
-            }
-            searchResultBody.innerHTML = "";
-            hideEmptyState();
-            resetSearchState();
-            activeKeyword = keyword;
-            hasNext = true;
-            currentPage = 0;
-            await fetchSearchPage(0);
-            maybeLoadNextPage();
+            await startSearch(keywordInput.value);
         });
 
         searchResultBody.addEventListener("click", e => {
@@ -296,6 +318,11 @@
         }
 
         window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
+
+        if (initialKeyword) {
+            keywordInput.value = initialKeyword;
+            startSearch(initialKeyword);
+        }
 
     });
 </script>
