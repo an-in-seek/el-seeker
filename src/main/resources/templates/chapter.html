@@ -7,54 +7,54 @@
 
 <main class="container content-wrapper pt-3">
 
-  <!-- 책 개요 -->
-  <a id="bookDescription"
-     class="book-description text-decoration-none"
-     href="#"
-     aria-label="책 상세 보기"
-     title="책 개요를 보려면 클릭하세요">
-    <div class="book-description-row">
-      <div class="book-description-text">
-        📘 <span id="bookDescriptionSummary"></span>
-      </div>
-      <div class="book-description-icon">➡️</div>
-    </div>
-  </a>
+    <!-- 책 개요 -->
+    <a id="bookDescription"
+       class="book-description text-decoration-none"
+       href="#"
+       aria-label="책 상세 보기"
+       title="책 개요를 보려면 클릭하세요">
+        <div class="book-description-row">
+            <div class="book-description-text">
+                📘 <span id="bookDescriptionSummary"></span>
+            </div>
+            <div class="book-description-icon">➡️</div>
+        </div>
+    </a>
 
-  <!-- 장 선택 그리드 -->
-  <div id="chapterList" class="chapter-grid"></div>
+    <!-- 장 선택 그리드 -->
+    <div id="chapterList" class="chapter-grid"></div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 <!-- 하단 네비게이션 -->
 <div class="fixed-bottom-nav">
-  <div class="nav-container">
-    <!-- 이전 책 버튼 -->
-    <button id="prevBookBtn"
-            class="btn btn-lg btn-outline-primary prev-next"
-            type="button"
-            aria-label="이전 책으로 이동">
-      <span aria-hidden="true">⬅</span>
-    </button>
+    <div class="nav-container">
+        <!-- 이전 책 버튼 -->
+        <button id="prevBookBtn"
+                class="btn btn-lg btn-outline-primary prev-next"
+                type="button"
+                aria-label="이전 책으로 이동">
+            <span aria-hidden="true">⬅</span>
+        </button>
 
-    <!-- 책 선택 (링크) -->
-    <a id="bookSelectLink"
-       href="#"
-       class="btn btn-lg btn-primary"
-       aria-label="책 선택">
-      <span aria-hidden="true">📖</span>
-      <span id="bookSelectLinkLabel" class="ms-2"></span>
-    </a>
+        <!-- 책 선택 (링크) -->
+        <a id="bookSelectLink"
+           href="#"
+           class="btn btn-lg btn-primary"
+           aria-label="책 선택">
+            <span aria-hidden="true">📖</span>
+            <span id="bookSelectLinkLabel" class="ms-2"></span>
+        </a>
 
-    <!-- 다음 책 버튼 -->
-    <button id="nextBookBtn"
-            class="btn btn-lg btn-outline-primary prev-next"
-            type="button"
-            aria-label="다음 책으로 이동">
-      <span aria-hidden="true">➡</span>
-    </button>
-  </div>
+        <!-- 다음 책 버튼 -->
+        <button id="nextBookBtn"
+                class="btn btn-lg btn-outline-primary prev-next"
+                type="button"
+                aria-label="다음 책으로 이동">
+            <span aria-hidden="true">➡</span>
+        </button>
+    </div>
 </div>
 
 <script src="/js/storage-util.js?v6"></script>
