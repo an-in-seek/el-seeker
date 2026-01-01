@@ -15,6 +15,49 @@
     padding-bottom: 12px;
 }
 
+/* 사전 상세 상단 "목록으로 돌아가기" 버튼 */
+.dictionary-detail-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.dictionary-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #1b4332;
+    background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+}
+
+.dictionary-back-btn:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, #2d6a4f, #40916c);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.dictionary-back-btn:focus-visible {
+    outline: 3px solid rgba(27, 67, 50, 0.25);
+    outline-offset: 2px;
+}
+
+@media (max-width: 576px) {
+    .dictionary-back-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+    }
+}
+
 /* Scroll-to-top button */
 .scroll-to-top-btn {
     position: fixed;
