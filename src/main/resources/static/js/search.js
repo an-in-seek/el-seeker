@@ -367,6 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         targetUrl.searchParams.set("bookOrder", selectedBookOrder);
         targetUrl.searchParams.set("chapterNumber", selectedChapterNumber);
         targetUrl.searchParams.set("verseNumber", td.dataset.verseNumber);
+        targetUrl.searchParams.set("from", "search");
         window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
     }
 

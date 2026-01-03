@@ -1,14 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const navDOM = {
+        translationLink: document.getElementById("topNavTranslationLink"),
+        searchLink: document.getElementById("topNavSearchLink"),
+        translationTypeLabel: document.getElementById("translationTypeLabel"),
+        translationNameLabel: document.getElementById("translationNameLabel"),
+    };
 
     const init = async () => {
-        const navDOM = {
-            translationLink: document.getElementById("topNavTranslationLink"),
-            searchLink: document.getElementById("topNavSearchLink"),
-            translationTypeLabel: document.getElementById("translationTypeLabel"),
-            translationNameLabel: document.getElementById("translationNameLabel"),
-        };
-
-        initNav(navDOM);
+        initNav();
 
         const translationId = getTranslationId();
         if (!translationId) {
@@ -17,14 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const translationInfo = await ensureTranslationInfo(translationId);
-        updateTranslationLabels(navDOM, translationInfo);
+        updateTranslationLabels(translationInfo);
 
         if (!renderFromSessionStorage(translationId)) {
             await fetchBooksFromAPI(translationId);
         }
     };
 
-    const initNav = navDOM => {
+    const initNav = () => {
         if (navDOM.translationLink) {
             navDOM.translationLink.classList.remove("d-none");
             navDOM.translationLink.addEventListener("click", () => {
@@ -85,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return stored;
     };
 
-    const updateTranslationLabels = (navDOM, translationInfo) => {
+    const updateTranslationLabels = translationInfo => {
         if (navDOM.translationTypeLabel && translationInfo.type) {
             navDOM.translationTypeLabel.textContent = translationInfo.type;
         }

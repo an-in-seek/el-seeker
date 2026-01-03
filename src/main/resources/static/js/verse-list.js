@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const verseNumber = Number.isNaN(parsedVerseNumber) ? null : parsedVerseNumber;
     const dom = {
+        backButton: document.getElementById("topNavBackButton"),
         translationLink: document.getElementById("topNavTranslationLink"),
         searchLink: document.getElementById("topNavSearchLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
@@ -48,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bookName: null,
         chapterNumber,
         verseNumber,
+        fromSearch: urlParams.get("from") === "search",
     };
 
     const init = async () => {
@@ -56,28 +58,28 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const translationInfo = await ensureTranslationInfo(state.translationId);
+        const translationInfo = await ensureTranslationInfo();
         state.translationType = translationInfo.type;
 
         if (!state.bookOrder) {
-            redirectToBookList(state.translationId);
+            redirectToBookList();
             return;
         }
 
         if (!state.chapterNumber) {
-            redirectToChapterList(state.translationId, state.bookOrder);
+            redirectToChapterList();
             return;
         }
 
-        const books = await ensureBookList(state.translationId);
-        state.bookName = resolveBookName(state.translationId, state.bookOrder, books);
+        const books = await ensureBookList();
+        state.bookName = resolveBookName(books);
         if (!state.bookName) {
-            redirectToBookList(state.translationId);
+            redirectToBookList();
             return;
         }
 
         initNav();
-        updateLabels(state.chapterNumber);
+        updateLabels();
         updateVerseUrl();
 
         if (dom.prevBtn) {
@@ -94,6 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const initNav = () => {
+        const handleBack = () => {
+            if (state.fromSearch) {
+                history.back();
+                return;
+            }
+            window.location.href = state.translationId && state.bookOrder
+                ? `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${state.bookOrder}`
+                : "/web/bible/translation";
+        };
+        setupBackButton(dom.backButton, handleBack);
         if (dom.translationLink) {
             dom.translationLink.classList.remove("d-none");
             dom.translationLink.addEventListener("click", () => {
@@ -111,7 +123,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const updateLabels = chapterNum => {
+    const setupBackButton = (button, onClick) => {
+        if (!button) {
+            return;
+        }
+        button.classList.remove("d-none");
+        button.addEventListener("click", onClick);
+    };
+
+    const updateLabels = () => {
         if (dom.translationTypeLabel) {
             dom.translationTypeLabel.textContent = state.translationType;
         }
@@ -120,10 +140,10 @@ document.addEventListener("DOMContentLoaded", () => {
             dom.bookLabel.href = `/web/bible/book?translationId=${state.translationId}`;
         }
         if (dom.chapterLabel) {
-            dom.chapterLabel.textContent = chapterNum;
+            dom.chapterLabel.textContent = state.chapterNumber;
         }
         if (dom.chapterSelectLinkLabel) {
-            dom.chapterSelectLinkLabel.textContent = `${state.bookName} ${chapterNum}`;
+            dom.chapterSelectLinkLabel.textContent = `${state.bookName} ${state.chapterNumber}`;
         }
         if (dom.chapterSelectLink) {
             dom.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
@@ -140,9 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasCompleteTranslation = (stored, targetId) =>
         stored.id === targetId && stored.type && stored.name && stored.language;
 
-    const ensureTranslationInfo = async targetId => {
+    const ensureTranslationInfo = async () => {
         const stored = getStoredTranslation();
-        if (hasCompleteTranslation(stored, targetId)) {
+        if (hasCompleteTranslation(stored, state.translationId)) {
             return stored;
         }
         try {
@@ -151,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
             }
             const translations = await response.json();
-            const match = translations.find(item => item.translationId === targetId);
+            const match = translations.find(item => item.translationId === state.translationId);
             if (match) {
                 const translation = {
                     id: match.translationId,
@@ -168,18 +188,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return stored;
     };
 
-    const ensureBookList = async targetTranslationId => {
-        const cached = BookStore.getListForTranslation(targetTranslationId);
+    const ensureBookList = async () => {
+        const cached = BookStore.getListForTranslation(state.translationId);
         if (cached && cached.length > 0) {
             return cached;
         }
         try {
-            const response = await fetch(`/api/v1/bibles/translations/${targetTranslationId}/books`);
+            const response = await fetch(`/api/v1/bibles/translations/${state.translationId}/books`);
             if (!response.ok) {
                 throw new Error("데이터를 불러오는 중 오류가 발생했습니다.");
             }
             const data = await response.json();
-            BookStore.saveListForTranslation(targetTranslationId, data);
+            BookStore.saveListForTranslation(state.translationId, data);
             return data;
         } catch (error) {
             console.warn(error.message);
@@ -187,10 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
     };
 
-    const resolveBookName = (translationId, bookOrder, books) => {
-        let bookName = BookStore.getBookName(translationId, bookOrder);
+    const resolveBookName = books => {
+        let bookName = BookStore.getBookName(state.translationId, state.bookOrder);
         if (!bookName && books) {
-            const currentBook = books.find(book => book.bookOrder === bookOrder);
+            const currentBook = books.find(book => book.bookOrder === state.bookOrder);
             if (currentBook) {
                 BookStore.saveCurrentBook(currentBook);
                 bookName = currentBook.bookName;
@@ -255,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const renderChapter = data => {
         const chapter = data.book.chapter;
-        updateLabels(chapter.chapterNumber);
+        updateLabels();
         if (dom.verseTable) {
             dom.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
         }
@@ -403,16 +423,16 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/web/bible/translation";
     };
 
-    const redirectToBookList = translationId => {
+    const redirectToBookList = () => {
         const bookUrl = new URL("/web/bible/book", window.location.origin);
-        bookUrl.searchParams.set("translationId", translationId);
+        bookUrl.searchParams.set("translationId", state.translationId);
         window.location.href = `${bookUrl.pathname}${bookUrl.search}`;
     };
 
-    const redirectToChapterList = (translationId, bookOrder) => {
+    const redirectToChapterList = () => {
         const chapterUrl = new URL("/web/bible/chapter", window.location.origin);
-        chapterUrl.searchParams.set("translationId", translationId);
-        chapterUrl.searchParams.set("bookOrder", bookOrder);
+        chapterUrl.searchParams.set("translationId", state.translationId);
+        chapterUrl.searchParams.set("bookOrder", state.bookOrder);
         window.location.href = `${chapterUrl.pathname}${chapterUrl.search}`;
     };
 
