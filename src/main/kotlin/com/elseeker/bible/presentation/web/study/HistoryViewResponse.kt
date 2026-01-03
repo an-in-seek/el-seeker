@@ -49,18 +49,19 @@ data class EraTimelineBlock(
 
 object HistoryDummyData {
     val eras: List<EraSummary> = listOf(
-        EraSummary("patriarchs", "창조와 족장 시대", "B.C 2000-1500", listOf("창조", "언약")),
-        EraSummary("exodus", "출애굽과 광야", "B.C 1500-1400", listOf("해방", "광야")),
+        EraSummary("patriarchs", "창조와 족장 시대", "연대 미상", listOf("창조", "언약")),
+        EraSummary("exodus", "출애굽과 광야", "B.C 1500-1300", listOf("해방", "광야")),
         EraSummary("conquest", "가나안 정복", "B.C 1400-1200", listOf("여호수아", "정복")),
         EraSummary("judges", "사사 시대", "B.C 1200-1050", listOf("사사", "순환")),
         EraSummary("united-kingdom", "통일 왕국 시대", "B.C 1050-930", listOf("다윗", "솔로몬")),
         EraSummary("divided-kingdom", "분열 왕국 시대", "B.C 930-586", listOf("북이스라엘", "남유다")),
-        EraSummary("exile", "바벨론 포로", "B.C 586-538", listOf("바벨론", "포로")),
-        EraSummary("return", "귀환과 재건", "B.C 538-400", listOf("예루살렘", "성전")),
-        EraSummary("intertestamental", "중간사 시대", "B.C 400-A.D 1", listOf("헬라", "로마")),
-        EraSummary("jesus", "예수 시대", "A.D 1-33", listOf("복음", "구원")),
+        EraSummary("exile", "바벨론 포로", "B.C 586-539", listOf("바벨론", "포로")),
+        EraSummary("return", "귀환과 재건", "B.C 538-430", listOf("예루살렘", "성전")),
+        EraSummary("intertestamental", "중간사 시대", "B.C 400-4", listOf("헬라", "로마")),
+        EraSummary("jesus", "예수 시대", "B.C 4-A.D 30", listOf("복음", "구원")),
         EraSummary("early-church", "초대 교회", "A.D 33-100", listOf("사도", "선교"))
     )
+
 
     val bookCategories: List<String> = listOf(
         "율법서",

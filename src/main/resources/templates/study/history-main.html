@@ -7,7 +7,7 @@
 
 <main class="container content-wrapper">
     <section class="mb-4 container">
-        <p class="text-muted mb-0">위에서 아래로 이어지는 연대기 흐름 속에서 시대, 사건, 관련 성경 책을 한눈에 살펴보세요.</p>
+        <p class="text-muted mb-0">성경 연대기 흐름 속에서 시대 별 사건과 관련된 성경책을 한눈에 살펴보세요.</p>
     </section>
 
     <section class="history-map">
@@ -22,6 +22,7 @@
                     <a class="text-decoration-none era-label"
                        th:href="@{/web/study/history/{era}(era=${block.era.slug})}"
                        th:text="${block.era.label}"></a>
+                    <div class="era-period" th:text="${block.era.period}"></div>
                     <div class="era-keywords"
                          th:text="|${block.era.keywords[0]} · ${block.era.keywords[1]}|"></div>
                     <div class="d-flex flex-wrap gap-1 mt-1" th:if="${!#lists.isEmpty(block.eventHighlights)}">
