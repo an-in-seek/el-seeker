@@ -6,7 +6,15 @@ import jakarta.persistence.*
  * 성경 절 (각 장의 구절)
  */
 @Entity
-@Table(name = "bible_verse")
+@Table(
+    name = "bible_verse",
+    indexes = [
+        Index(
+            name = "IDX_verse_chapter_number",
+            columnList = "chapter_id, verse_number"
+        )
+    ]
+)
 class BibleVerse(
 
     @Id

@@ -27,8 +27,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
-        JOIN BibleTranslation t ON b.translationId = t.id
-        WHERE t.id = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        WHERE b.translationId = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
         ORDER BY b.bookOrder, c.chapterNumber, v.verseNumber
         """
     )
@@ -44,8 +43,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
-        JOIN BibleTranslation t ON b.translationId = t.id
-        WHERE t.id = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        WHERE b.translationId = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
         """
     )
     fun countByTranslationAndText(
