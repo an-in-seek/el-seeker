@@ -683,15 +683,6 @@
     padding-right: 1rem;
 }
 
-.back-btn-inline {
-    min-width: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
-
 .search-controls {
     position: sticky;
     top: 0;
@@ -709,12 +700,6 @@
 .search-results-scroll {
     max-height: none;
     overflow-y: auto;
-}
-
-.top-nav-title .label {
-    text-decoration: none;
-    color: inherit;
-    font-weight: bold;
 }
 
 .top-nav-search-button {

@@ -20,12 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
         translationLink: document.getElementById("topNavTranslationLink"),
         searchLink: document.getElementById("topNavSearchLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
-        bookLabel: document.getElementById("bookLabel"),
+        pageTitleLabel: document.getElementById("pageTitleLabel"),
     };
 
     const dom = {
         translationTypeLabel: navDOM.translationTypeLabel,
-        bookLabel: navDOM.bookLabel,
+        pageTitleLabel: navDOM.pageTitleLabel,
         bookDescription: document.getElementById("bookDescription"),
         bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
         chapterList: document.getElementById("chapterList"),
@@ -90,8 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navDOM.searchLink) {
             navDOM.searchLink.classList.remove("d-none");
         }
-        if (navDOM.bookLabel) {
-            navDOM.bookLabel.classList.remove("d-none");
+        if (navDOM.pageTitleLabel) {
+            navDOM.pageTitleLabel.classList.remove("d-none");
         }
     };
 
@@ -184,9 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dom.translationTypeLabel && translationType) {
             dom.translationTypeLabel.textContent = translationType;
         }
-        if (dom.bookLabel) {
-            dom.bookLabel.textContent = bookName;
-            dom.bookLabel.href = `/web/bible/book?translationId=${state.translationId}`;
+        if (dom.pageTitleLabel) {
+            dom.pageTitleLabel.textContent = bookName;
         }
         if (dom.bookSelectLinkLabel) {
             dom.bookSelectLinkLabel.textContent = bookName;
@@ -239,8 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dom.bookSelectLinkLabel) {
             dom.bookSelectLinkLabel.textContent = data.book.bookName;
         }
-        if (dom.bookLabel) {
-            dom.bookLabel.textContent = data.book.bookName;
+        if (dom.pageTitleLabel) {
+            dom.pageTitleLabel.textContent = data.book.bookName;
         }
         if (dom.bookDescriptionSummary) {
             dom.bookDescriptionSummary.textContent = data.book.descriptionSummary;

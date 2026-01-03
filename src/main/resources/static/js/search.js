@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     const dom = {
+        backButton: document.getElementById("topNavBackButton"),
         translationLink: document.getElementById("topNavTranslationLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
         pageTitleLabel: document.getElementById("pageTitleLabel"),
@@ -13,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
         emptyState: document.getElementById("searchEmptyState"),
         searchResultTable: document.getElementById("searchResultTable"),
         searchResultBody: document.getElementById("searchResultBody"),
-        backBtn: document.getElementById("backBtn"),
         scrollToTopBtn: document.getElementById("scrollToTopBtn"),
     };
 
@@ -75,6 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function initNav() {
+        if (dom.backButton) {
+            dom.backButton.classList.remove("d-none");
+            dom.backButton.addEventListener("click", () => {
+                history.back();
+            });
+        }
         if (dom.translationLink) {
             dom.translationLink.classList.remove("d-none");
             dom.translationLink.classList.add("nav-placeholder");
@@ -122,12 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        if (dom.backBtn) {
-            dom.backBtn.addEventListener("click", event => {
-                event.preventDefault();
-                history.back();
-            });
-        }
     }
 
     function initResultHandlers() {

@@ -28,12 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
         translationLink: document.getElementById("topNavTranslationLink"),
         searchLink: document.getElementById("topNavSearchLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
-        bookName: document.getElementById("bookName"),
+        pageTitleLabel: document.getElementById("pageTitleLabel"),
     };
 
     const dom = {
         translationTypeLabel: navDOM.translationTypeLabel,
-        bookName: navDOM.bookName,
+        pageTitleLabel: navDOM.pageTitleLabel,
         summaryLabel: document.getElementById("summaryLabel"),
         summary: document.getElementById("summary"),
         authorLabel: document.getElementById("authorLabel"),
@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navDOM.searchLink) {
             navDOM.searchLink.classList.remove("d-none");
         }
-        if (navDOM.bookName) {
-            navDOM.bookName.classList.remove("d-none");
+        if (navDOM.pageTitleLabel) {
+            navDOM.pageTitleLabel.classList.remove("d-none");
         }
     };
 
@@ -196,6 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const updateHeader = () => {
         if (dom.translationTypeLabel) {
             dom.translationTypeLabel.textContent = state.translationType;
+        }
+        if (dom.pageTitleLabel) {
+            dom.pageTitleLabel.textContent = state.bookName;
         }
         if (dom.chapterSelectLinkLabel) {
             dom.chapterSelectLinkLabel.textContent = state.bookName;
@@ -277,8 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error("책 정보를 불러오는 데 실패했습니다.");
             }
             const data = await response.json();
-            if (dom.bookName) {
-                dom.bookName.textContent = data.bookName;
+            if (dom.pageTitleLabel) {
+                dom.pageTitleLabel.textContent = data.bookName;
             }
             if (dom.summary) {
                 dom.summary.textContent = data.description.summary;

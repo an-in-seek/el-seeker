@@ -33,8 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         translationLink: document.getElementById("topNavTranslationLink"),
         searchLink: document.getElementById("topNavSearchLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
-        bookLabel: document.getElementById("bookLabel"),
-        chapterLabel: document.getElementById("chapterLabel"),
+        pageTitleLabel: document.getElementById("pageTitleLabel"),
         verseTable: document.getElementById("verseTableBody"),
         prevBtn: document.getElementById("prevChapterBtn"),
         chapterSelectLink: document.getElementById("chapterSelectLink"),
@@ -115,11 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dom.searchLink) {
             dom.searchLink.classList.remove("d-none");
         }
-        if (dom.bookLabel) {
-            dom.bookLabel.classList.remove("d-none");
-        }
-        if (dom.chapterLabel) {
-            dom.chapterLabel.classList.remove("d-none");
+        if (dom.pageTitleLabel) {
+            dom.pageTitleLabel.classList.remove("d-none");
         }
     };
 
@@ -135,12 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dom.translationTypeLabel) {
             dom.translationTypeLabel.textContent = state.translationType;
         }
-        if (dom.bookLabel) {
-            dom.bookLabel.textContent = state.bookName;
-            dom.bookLabel.href = `/web/bible/book?translationId=${state.translationId}`;
-        }
-        if (dom.chapterLabel) {
-            dom.chapterLabel.textContent = state.chapterNumber;
+        if (dom.pageTitleLabel) {
+            dom.pageTitleLabel.textContent = `${state.bookName} ${state.chapterNumber}`;
         }
         if (dom.chapterSelectLinkLabel) {
             dom.chapterSelectLinkLabel.textContent = `${state.bookName} ${state.chapterNumber}`;

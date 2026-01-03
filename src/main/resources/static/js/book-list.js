@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
         translationLink: document.getElementById("topNavTranslationLink"),
         searchLink: document.getElementById("topNavSearchLink"),
         translationTypeLabel: document.getElementById("translationTypeLabel"),
-        translationNameLabel: document.getElementById("translationNameLabel"),
+        pageTitleLabel: document.getElementById("pageTitleLabel"),
     };
 
     const init = async () => {
@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navDOM.searchLink) {
             navDOM.searchLink.classList.remove("d-none");
         }
-        if (navDOM.translationNameLabel) {
-            navDOM.translationNameLabel.classList.remove("d-none");
+        if (navDOM.pageTitleLabel) {
+            navDOM.pageTitleLabel.classList.remove("d-none");
         }
     };
 
@@ -88,8 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navDOM.translationTypeLabel && translationInfo.type) {
             navDOM.translationTypeLabel.textContent = translationInfo.type;
         }
-        if (navDOM.translationNameLabel && translationInfo.name) {
-            navDOM.translationNameLabel.textContent = translationInfo.name;
+        if (navDOM.pageTitleLabel && translationInfo.name) {
+            navDOM.pageTitleLabel.textContent = translationInfo.name;
         }
     };
 
