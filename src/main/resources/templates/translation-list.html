@@ -103,8 +103,10 @@
                 const name = btn.getAttribute("data-translation-name");
                 const type = btn.getAttribute("data-translation-type");
                 const language = btn.getAttribute("data-translation-language");
+                const targetUrl = new URL(returnPath, window.location.origin);
+                targetUrl.searchParams.set("translationId", id);
                 TranslationStore.saveCurrentTranslation({id, name, type, language});
-                window.location.href = returnPath;
+                window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
             });
         });
     });

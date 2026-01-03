@@ -43,10 +43,16 @@
 
 <script src="/js/storage-util.js?v6"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const translationId = TranslationStore.getCurrentTranslationId();
-        const translationType = TranslationStore.getCurrentTranslationType();
-        if (!translationId || !translationType) {
+    document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const translationIdParam = parseInt(urlParams.get("translationId"), 10);
+        const state = {
+            translationId: Number.isNaN(translationIdParam)
+                ? TranslationStore.getCurrentTranslationId()
+                : translationIdParam,
+            translationType: null,
+        };
+        if (!state.translationId) {
             window.location.href = "/web/bible/translation";
             return;
         }
@@ -86,7 +92,6 @@
         const scrollThreshold = 300;
         const pageSize = 50;
         const scrollLoadOffset = 200;
-        const urlParams = new URLSearchParams(window.location.search);
         const initialKeyword = urlParams.get("keyword") ?? "";
         let currentPage = 0;
         let hasNext = false;
@@ -94,8 +99,52 @@
         let totalCount = null;
         let activeKeyword = "";
 
+        function getStoredTranslation() {
+            return {
+                id: TranslationStore.getCurrentTranslationId(),
+                type: TranslationStore.getCurrentTranslationType(),
+                name: TranslationStore.getCurrentTranslationName(),
+                language: TranslationStore.getCurrentTranslationLanguage(),
+            };
+        }
+
+        function hasCompleteTranslation(stored, targetId) {
+            return stored.id === targetId && stored.type && stored.name && stored.language;
+        }
+
+        async function ensureTranslationInfo(targetId) {
+            const stored = getStoredTranslation();
+            if (hasCompleteTranslation(stored, targetId)) {
+                return stored;
+            }
+            try {
+                const response = await fetch("/api/v1/bibles/translations");
+                if (!response.ok) {
+                    throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
+                }
+                const translations = await response.json();
+                const match = translations.find(item => item.translationId === targetId);
+                if (match) {
+                    const translation = {
+                        id: match.translationId,
+                        name: match.translationName,
+                        type: match.translationType,
+                        language: match.translationLanguage,
+                    };
+                    TranslationStore.saveCurrentTranslation(translation);
+                    return translation;
+                }
+            } catch (error) {
+                console.warn(error.message);
+            }
+            return stored;
+        }
+
+        const translationInfo = await ensureTranslationInfo(state.translationId);
+        state.translationType = translationInfo.type;
+
         if (translationTypeLabel) {
-            translationTypeLabel.textContent = translationType;
+            translationTypeLabel.textContent = state.translationType ?? "";
         }
 
         function setEmptyState(message) {
@@ -138,14 +187,18 @@
             isLoading = false;
         }
 
-        function updateUrl() {
+        function buildSearchUrl() {
             const params = new URLSearchParams();
+            params.set("translationId", state.translationId);
             if (activeKeyword) {
                 params.set("keyword", activeKeyword);
             }
             const queryString = params.toString();
-            const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-            history.replaceState(null, "", newUrl);
+            return `${window.location.pathname}?${queryString}`;
+        }
+
+        function updateUrl() {
+            history.replaceState(null, "", buildSearchUrl());
         }
 
         function updateResultCount() {
@@ -191,7 +244,7 @@
                 setLoadingState("검색 중...");
             }
             try {
-                const response = await fetch(`/api/v1/bibles/translations/${translationId}/search?keyword=${encodeURIComponent(activeKeyword)}&page=${page}&size=${pageSize}`);
+                const response = await fetch(`/api/v1/bibles/translations/${state.translationId}/search?keyword=${encodeURIComponent(activeKeyword)}&page=${page}&size=${pageSize}`);
                 if (!response.ok) {
                     throw new Error("검색 실패");
                 }
@@ -286,13 +339,20 @@
             if (!td) {
                 return;
             }
+            const selectedBookOrder = parseInt(td.dataset.bookOrder, 10);
+            const selectedChapterNumber = parseInt(td.dataset.chapterNumber, 10);
             BookStore.saveCurrentBook({
-                bookOrder: parseInt(td.dataset.bookOrder),
+                bookOrder: selectedBookOrder,
                 bookName: td.dataset.bookName,
             });
-            ChapterStore.saveNumber(td.dataset.chapterNumber);
+            ChapterStore.saveNumber(selectedChapterNumber);
             VerseStore.saveNumber(td.dataset.verseNumber);
-            window.location.href = "/web/bible/verse";
+            const targetUrl = new URL("/web/bible/verse", window.location.origin);
+            targetUrl.searchParams.set("translationId", state.translationId);
+            targetUrl.searchParams.set("bookOrder", selectedBookOrder);
+            targetUrl.searchParams.set("chapterNumber", selectedChapterNumber);
+            targetUrl.searchParams.set("verseNumber", td.dataset.verseNumber);
+            window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
         });
 
         backBtn.addEventListener("click", (e) => {
@@ -322,6 +382,8 @@
         if (initialKeyword) {
             keywordInput.value = initialKeyword;
             startSearch(initialKeyword);
+        } else {
+            updateUrl();
         }
 
     });

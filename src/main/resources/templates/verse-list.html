@@ -57,37 +57,148 @@
             chapterLabel: document.getElementById("chapterLabel"),
             verseTable: document.getElementById("verseTableBody"),
             prevBtn: document.getElementById("prevChapterBtn"),
+            chapterSelectLink: document.getElementById("chapterSelectLink"),
             chapterSelectLinkLabel: document.getElementById("chapterSelectLinkLabel"),
             nextBtn: document.getElementById("nextChapterBtn"),
         };
 
-        const RETURN_PATH = "/web/bible/verse";
+        const urlParams = new URLSearchParams(window.location.search);
+        const translationIdParam = parseInt(urlParams.get("translationId"), 10);
+        const bookOrderParam = parseInt(urlParams.get("bookOrder"), 10);
+        const chapterNumberParam = parseInt(urlParams.get("chapterNumber"), 10);
+        const verseNumberParam = parseInt(urlParams.get("verseNumber"), 10);
         const state = {
-            translationId: TranslationStore.getCurrentTranslationId(),
-            translationType: TranslationStore.getCurrentTranslationType(),
-            bookOrder: BookStore.getCurrentBookOrder(),
+            translationId: Number.isNaN(translationIdParam)
+                ? TranslationStore.getCurrentTranslationId()
+                : translationIdParam,
+            translationType: null,
+            bookOrder: Number.isNaN(bookOrderParam)
+                ? BookStore.getCurrentBookOrder()
+                : bookOrderParam,
             bookName: null,
-            chapterNumber: ChapterStore.getNumber(),
+            chapterNumber: Number.isNaN(chapterNumberParam)
+                ? ChapterStore.getNumber()
+                : chapterNumberParam,
+            verseNumber: Number.isNaN(verseNumberParam) ? null : verseNumberParam,
         };
 
-        if (!state.translationId || !state.translationType) {
+        if (!state.translationId) {
             window.location.href = "/web/bible/translation";
             return;
         }
 
-        state.bookName = BookStore.getBookName(state.translationId, state.bookOrder);
-        if (!state.bookOrder || !state.bookName) {
-            window.location.href = "/web/bible/book";
+        function getStoredTranslation() {
+            return {
+                id: TranslationStore.getCurrentTranslationId(),
+                type: TranslationStore.getCurrentTranslationType(),
+                name: TranslationStore.getCurrentTranslationName(),
+                language: TranslationStore.getCurrentTranslationLanguage(),
+            };
+        }
+
+        function hasCompleteTranslation(stored, targetId) {
+            return stored.id === targetId && stored.type && stored.name && stored.language;
+        }
+
+        async function ensureTranslationInfo(targetId) {
+            const stored = getStoredTranslation();
+            if (hasCompleteTranslation(stored, targetId)) {
+                return stored;
+            }
+            try {
+                const response = await fetch("/api/v1/bibles/translations");
+                if (!response.ok) {
+                    throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
+                }
+                const translations = await response.json();
+                const match = translations.find(item => item.translationId === targetId);
+                if (match) {
+                    const translation = {
+                        id: match.translationId,
+                        name: match.translationName,
+                        type: match.translationType,
+                        language: match.translationLanguage,
+                    };
+                    TranslationStore.saveCurrentTranslation(translation);
+                    return translation;
+                }
+            } catch (error) {
+                console.warn(error.message);
+            }
+            return stored;
+        }
+
+        async function ensureBookList(targetTranslationId) {
+            const cached = BookStore.getListForTranslation(targetTranslationId);
+            if (cached && cached.length > 0) {
+                return cached;
+            }
+            try {
+                const response = await fetch(`/api/v1/bibles/translations/${targetTranslationId}/books`);
+                if (!response.ok) {
+                    throw new Error("데이터를 불러오는 중 오류가 발생했습니다.");
+                }
+                const data = await response.json();
+                BookStore.saveListForTranslation(targetTranslationId, data);
+                return data;
+            } catch (error) {
+                console.warn(error.message);
+            }
+            return null;
+        }
+
+        function buildVerseUrl() {
+            const targetUrl = new URL("/web/bible/verse", window.location.origin);
+            targetUrl.searchParams.set("translationId", state.translationId);
+            targetUrl.searchParams.set("bookOrder", state.bookOrder);
+            targetUrl.searchParams.set("chapterNumber", state.chapterNumber);
+            if (state.verseNumber) {
+                targetUrl.searchParams.set("verseNumber", state.verseNumber);
+            }
+            return `${targetUrl.pathname}${targetUrl.search}`;
+        }
+
+        function updateVerseUrl() {
+            history.replaceState(null, "", buildVerseUrl());
+        }
+
+        const translationInfo = await ensureTranslationInfo(state.translationId);
+        state.translationType = translationInfo.type;
+
+        if (!state.bookOrder) {
+            const bookUrl = new URL("/web/bible/book", window.location.origin);
+            bookUrl.searchParams.set("translationId", state.translationId);
+            window.location.href = `${bookUrl.pathname}${bookUrl.search}`;
             return;
         }
 
         if (!state.chapterNumber) {
-            window.location.href = "/web/bible/chapter";
+            const chapterUrl = new URL("/web/bible/chapter", window.location.origin);
+            chapterUrl.searchParams.set("translationId", state.translationId);
+            chapterUrl.searchParams.set("bookOrder", state.bookOrder);
+            window.location.href = `${chapterUrl.pathname}${chapterUrl.search}`;
+            return;
+        }
+
+        const books = await ensureBookList(state.translationId);
+        state.bookName = BookStore.getBookName(state.translationId, state.bookOrder);
+        if (!state.bookName && books) {
+            const currentBook = books.find(book => book.bookOrder === state.bookOrder);
+            if (currentBook) {
+                BookStore.saveCurrentBook(currentBook);
+                state.bookName = currentBook.bookName;
+            }
+        }
+        if (!state.bookName) {
+            const bookUrl = new URL("/web/bible/book", window.location.origin);
+            bookUrl.searchParams.set("translationId", state.translationId);
+            window.location.href = `${bookUrl.pathname}${bookUrl.search}`;
             return;
         }
 
         initNav();
         updateLabels(state.chapterNumber);
+        updateVerseUrl();
 
         DOM.prevBtn.addEventListener("click", () => loadChapter("PREV"));
         DOM.nextBtn.addEventListener("click", () => loadChapter("NEXT"));
@@ -99,7 +210,7 @@
             if (DOM.translationLink) {
                 DOM.translationLink.classList.remove("d-none");
                 DOM.translationLink.addEventListener("click", () => {
-                    TranslationStore.saveTranslationReturnPath(RETURN_PATH);
+                    TranslationStore.saveTranslationReturnPath(buildVerseUrl());
                 });
             }
             if (DOM.searchLink) {
@@ -119,12 +230,15 @@
             }
             if (DOM.bookLabel) {
                 DOM.bookLabel.textContent = state.bookName;
-                DOM.bookLabel.href = "/web/bible/book";
+                DOM.bookLabel.href = `/web/bible/book?translationId=${state.translationId}`;
             }
             if (DOM.chapterLabel) {
                 DOM.chapterLabel.textContent = chapterNum;
             }
             DOM.chapterSelectLinkLabel.textContent = `${state.bookName} ${chapterNum}`;
+            if (DOM.chapterSelectLink) {
+                DOM.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
+            }
         }
 
         function handleVerseClick(e) {
@@ -147,6 +261,9 @@
 
         async function loadChapter(direction) {
             try {
+                if (direction !== "CURRENT") {
+                    state.verseNumber = null;
+                }
                 const url = buildChapterUrl(direction);
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("데이터 로딩 실패");
@@ -159,6 +276,7 @@
                     bookName: state.bookName
                 });
                 ChapterStore.saveNumber(state.chapterNumber);
+                updateVerseUrl();
                 renderChapter(data);
             } catch (e) {
                 showAlert("장 정보를 불러오지 못했습니다.", "danger");
@@ -180,7 +298,7 @@
             DOM.verseTable.innerHTML = chapter.verses.map(renderVerseRow).join("");
             DOM.prevBtn.disabled = data.isFirst;
             DOM.nextBtn.disabled = data.isLast;
-            const verseNumber = VerseStore.consumeVerseNumber();
+            const verseNumber = state.verseNumber ?? VerseStore.consumeVerseNumber();
             if (verseNumber) {
                 highlightVerse(verseNumber);
             } else {

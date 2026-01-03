@@ -48,13 +48,62 @@
             navDOM.translationNameLabel.classList.remove("d-none");
         }
 
-        const translationId = TranslationStore.getCurrentTranslationId();
-        const translationType = TranslationStore.getCurrentTranslationType();
-        const translationName = TranslationStore.getCurrentTranslationName();
-        if (!translationId || !translationType) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const translationIdParam = parseInt(urlParams.get("translationId"), 10);
+        const translationId = Number.isNaN(translationIdParam)
+            ? TranslationStore.getCurrentTranslationId()
+            : translationIdParam;
+
+        if (!translationId) {
             window.location.href = "/web/bible/translation";
             return;
         }
+
+        function getStoredTranslation() {
+            return {
+                id: TranslationStore.getCurrentTranslationId(),
+                type: TranslationStore.getCurrentTranslationType(),
+                name: TranslationStore.getCurrentTranslationName(),
+                language: TranslationStore.getCurrentTranslationLanguage(),
+            };
+        }
+
+        function hasCompleteTranslation(stored, targetId) {
+            return stored.id === targetId && stored.type && stored.name && stored.language;
+        }
+
+        async function ensureTranslationInfo(targetId) {
+            const stored = getStoredTranslation();
+            if (hasCompleteTranslation(stored, targetId)) {
+                return stored;
+            }
+            try {
+                const response = await fetch("/api/v1/bibles/translations");
+                if (!response.ok) {
+                    throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
+                }
+                const translations = await response.json();
+                const match = translations.find(item => item.translationId === targetId);
+                if (match) {
+                    const translation = {
+                        id: match.translationId,
+                        name: match.translationName,
+                        type: match.translationType,
+                        language: match.translationLanguage,
+                    };
+                    TranslationStore.saveCurrentTranslation(translation);
+                    return translation;
+                }
+            } catch (error) {
+                console.warn(error.message);
+            }
+            return stored;
+        }
+
+        const translationInfo = await ensureTranslationInfo(translationId);
+        const translationType = translationInfo.type;
+        const translationName = translationInfo.name;
+
         if (navDOM.translationTypeLabel) {
             navDOM.translationTypeLabel.textContent = translationType;
         }
@@ -82,7 +131,10 @@
             button.dataset.bookName = book.bookName;
             button.addEventListener("click", () => {
                 BookStore.saveCurrentBook(book);
-                window.location.href = "/web/bible/chapter";
+                const targetUrl = new URL("/web/bible/chapter", window.location.origin);
+                targetUrl.searchParams.set("translationId", translationId);
+                targetUrl.searchParams.set("bookOrder", book.bookOrder);
+                window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
             });
             return button;
         }
