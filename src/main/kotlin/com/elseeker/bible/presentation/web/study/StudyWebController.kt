@@ -1,4 +1,4 @@
-package com.elseeker.bible.presentation.web
+package com.elseeker.bible.presentation.web.study
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping

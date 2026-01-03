@@ -1,4 +1,4 @@
-package com.elseeker.bible.presentation.web.response
+package com.elseeker.bible.presentation.web.bible
 
 import com.elseeker.bible.domain.bible.model.BibleTranslationType
 import com.elseeker.bible.domain.bible.model.LanguageCode

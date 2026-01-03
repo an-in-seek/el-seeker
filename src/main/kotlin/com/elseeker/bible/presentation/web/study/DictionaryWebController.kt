@@ -1,7 +1,6 @@
-package com.elseeker.bible.presentation.web
+package com.elseeker.bible.presentation.web.study
 
 import com.elseeker.bible.application.bible.service.BibleDictionaryService
-import com.elseeker.bible.presentation.web.response.BibleDictionaryViewResponse
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +12,7 @@ import java.nio.charset.StandardCharsets
 
 @Controller
 @RequestMapping("/web/study/dictionary")
-class BibleDictionaryWebController(
+class DictionaryWebController(
     private val bibleDictionaryService: BibleDictionaryService
 ) {
     @GetMapping
@@ -31,7 +30,7 @@ class BibleDictionaryWebController(
         @RequestParam(required = false) keyword: String?,
         model: Model
     ): String {
-        val dictionary = BibleDictionaryViewResponse.Detail.from(bibleDictionaryService.getDictionary(id))
+        val dictionary = DictionaryViewResponse.Detail.from(bibleDictionaryService.getDictionary(id))
         val backLink = buildBackLink(keyword)
         model.addAttribute("dictionary", dictionary)
         model.addAttribute("backLink", backLink)

@@ -1,4 +1,4 @@
-package com.elseeker.bible.presentation.web.history
+package com.elseeker.bible.presentation.web.study
 
 data class EraSummary(
     val slug: String,

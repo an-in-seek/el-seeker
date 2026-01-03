@@ -1,7 +1,6 @@
-package com.elseeker.bible.presentation.web
+package com.elseeker.bible.presentation.web.bible
 
 import com.elseeker.bible.application.bible.service.BibleService
-import com.elseeker.bible.presentation.web.response.BibleViewResponse
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping

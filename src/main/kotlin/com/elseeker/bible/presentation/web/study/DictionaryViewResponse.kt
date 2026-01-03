@@ -1,8 +1,8 @@
-package com.elseeker.bible.presentation.web.response
+package com.elseeker.bible.presentation.web.study
 
 import com.elseeker.bible.domain.bible.model.BibleDictionary
 
-object BibleDictionaryViewResponse {
+object DictionaryViewResponse {
 
     data class ListItem(
         val id: Long,
