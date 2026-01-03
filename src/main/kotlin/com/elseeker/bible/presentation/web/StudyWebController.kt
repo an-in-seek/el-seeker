@@ -10,6 +10,6 @@ class StudyWebController {
 
     @GetMapping
     fun showStudyHome(): String {
-        return "study"
+        return "/study/study"
     }
 }

@@ -18,27 +18,27 @@ class BibleWebController(
     fun showTranslations(model: Model): String {
         val translations = bibleService.getTranslations().map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
-        return "translation-list"
+        return "/bible/translation-list"
     }
 
     @GetMapping("/book")
     fun showBooks(): String {
-        return "book-list"
+        return "/bible/book-list"
     }
 
     @GetMapping("/book/description")
     fun showBookDescription(): String {
-        return "book-description"
+        return "/bible/book-description"
     }
 
     @GetMapping("/chapter")
     fun showChapters(): String {
-        return "chapter-list"
+        return "/bible/chapter-list"
     }
 
     @GetMapping("/verse")
     fun showVerses(): String {
-        return "verse-list"
+        return "/bible/verse-list"
     }
 
     @GetMapping("/search")
@@ -47,6 +47,6 @@ class BibleWebController(
         model: Model
     ): String {
         model.addAttribute("keyword", keyword?.trim().orEmpty())
-        return "search"
+        return "/bible/search"
     }
 }
