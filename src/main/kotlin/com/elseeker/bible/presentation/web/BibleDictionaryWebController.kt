@@ -22,7 +22,7 @@ class BibleDictionaryWebController(
         model: Model
     ): String {
         model.addAttribute("keyword", normalizeKeyword(keyword))
-        return "/study/dictionary-list"
+        return "study/dictionary-list"
     }
 
     @GetMapping("/{id}")
@@ -35,7 +35,7 @@ class BibleDictionaryWebController(
         val backLink = buildBackLink(keyword)
         model.addAttribute("dictionary", dictionary)
         model.addAttribute("backLink", backLink)
-        return "/study/dictionary-detail"
+        return "study/dictionary-detail"
     }
 
     // --------------------- Private Methods ---------------------
