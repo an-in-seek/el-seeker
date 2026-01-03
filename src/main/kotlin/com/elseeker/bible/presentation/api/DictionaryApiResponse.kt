@@ -2,7 +2,7 @@ package com.elseeker.bible.presentation.api
 
 import com.elseeker.bible.domain.bible.model.BibleDictionary
 
-object BibleDictionaryApiResponse {
+object DictionaryApiResponse {
 
     data class DictionaryItem(
         val id: Long,
