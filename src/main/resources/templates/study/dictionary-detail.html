@@ -6,13 +6,6 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
-    <section class="dictionary-detail-toolbar mb-3">
-        <a class="dictionary-back-btn"
-           th:href="${backLink}">
-            ⬅️ 목록으로 돌아가기
-        </a>
-    </section>
-
     <section class="card shadow-sm border-0">
         <div class="card-body">
             <h2 class="h4 fw-bold mb-3" th:text="${dictionary.term}">용어명</h2>
@@ -36,12 +29,20 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
+        const backLink = /*[[${backLink}]]*/ "/web/study";
+        const backButton = document.getElementById("topNavBackButton");
         const pageTitleLabel = document.getElementById("pageTitleLabel");
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "성경 사전";
             pageTitleLabel.classList.remove("d-none");
+        }
+        if (backButton) {
+            backButton.classList.remove("d-none");
+            backButton.addEventListener("click", () => {
+                window.location.href = backLink || "/web/study";
+            });
         }
     });
 </script>
