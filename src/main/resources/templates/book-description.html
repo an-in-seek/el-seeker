@@ -67,7 +67,7 @@
     </div>
 </div>
 
-<script src="/js/storage-util.js?v6"></script>
+<script src="/js/storage-util.js?v=1.0"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const navDOM = {
@@ -79,12 +79,18 @@
         const urlParams = new URLSearchParams(window.location.search);
         const translationIdParam = parseInt(urlParams.get("translationId"), 10);
         const bookOrderParam = parseInt(urlParams.get("bookOrder"), 10);
+        const storedTranslationId = TranslationStore.getCurrentTranslationId();
+        const storedBookOrder = BookStore.getCurrentBookOrder();
         const translationId = Number.isNaN(translationIdParam)
-            ? TranslationStore.getCurrentTranslationId()
+            ? storedTranslationId
             : translationIdParam;
-        const bookOrder = Number.isNaN(bookOrderParam)
-            ? BookStore.getCurrentBookOrder()
-            : bookOrderParam;
+        let bookOrder = Number.isNaN(bookOrderParam) ? storedBookOrder : bookOrderParam;
+        if (Number.isNaN(bookOrderParam)
+            && !Number.isNaN(translationIdParam)
+            && storedTranslationId
+            && translationIdParam !== storedTranslationId) {
+            bookOrder = null;
+        }
 
         if (navDOM.translationLink) {
             navDOM.translationLink.classList.remove("d-none");

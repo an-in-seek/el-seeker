@@ -25,7 +25,6 @@
                             <small class="d-block text-muted fw-normal">Bible</small>
                         </h2>
                         <p class="text-muted small mb-0">성경 번역본과 본문을 살펴봅니다.</p>
-
                     </div>
                 </div>
             </a>
@@ -40,7 +39,6 @@
                             <small class="d-block text-muted fw-normal">Study</small>
                         </h2>
                         <p class="text-muted small mb-0">성경을 이해하고 배우는 공간입니다.</p>
-
                     </div>
                 </div>
             </a>
@@ -58,7 +56,6 @@
                             </h2>
                         </div>
                         <p class="text-muted small mb-0">성경에 대한 질문과 나눔으로 함께합니다.</p>
-
                     </div>
                 </div>
             </a>
@@ -76,7 +73,6 @@
                             </h2>
                         </div>
                         <p class="text-muted small mb-0">재미있는 게임을 통해 성경을 배웁니다.</p>
-
                     </div>
                 </div>
             </a>
@@ -86,7 +82,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script src="/js/storage-util.js?v6"></script>
+<script src="/js/storage-util.js?v=1.0"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const comingSoonLinks = document.querySelectorAll(".coming-soon");
@@ -95,7 +91,6 @@
                 event.preventDefault();
             });
         });
-
         const pageTitleLabel = document.getElementById("pageTitleLabel");
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "The Bible";
