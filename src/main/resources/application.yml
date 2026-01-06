@@ -30,6 +30,8 @@ spring:
       data-locations:
         - classpath:data/bible_dictionary.sql
         - classpath:data/bible_translation.sql
+        - classpath:data/bible_book_description_ko.sql
+        - classpath:data/bible_book_description_en.sql
         - classpath:data/krv/bible_krv_book.sql
         - classpath:data/krv/bible_krv_01_genesis.sql
         - classpath:data/krv/bible_krv_02_exodus.sql

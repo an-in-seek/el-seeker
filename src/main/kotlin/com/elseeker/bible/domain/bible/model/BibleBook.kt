@@ -12,12 +12,20 @@ import jakarta.persistence.*
         UniqueConstraint(
             name = "UK_translation_book_order",
             columnNames = ["translation_id", "book_order"]
+        ),
+        UniqueConstraint(
+            name = "UK_translation_book_key",
+            columnNames = ["translation_id", "book_key"]
         )
     ],
     indexes = [
         Index(
             name = "IDX_book_translation_order",
             columnList = "translation_id, book_order"
+        ),
+        Index(
+            name = "IDX_book_translation_key",
+            columnList = "translation_id, book_key"
         )
     ]
 )
@@ -29,6 +37,10 @@ class BibleBook(
 
     @JoinColumn(name = "translation_id", nullable = false)
     val translationId: Long,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "book_key", nullable = false, length = 32)
+    val bookKey: BibleBookKey,
 
     @Column(name = "book_order", nullable = false)
     val bookOrder: Int,
@@ -44,8 +56,5 @@ class BibleBook(
     val testamentType: BibleTestamentType, // 구약/신약 구분 (예: OLD, NEW)
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bookId")
-    val chapters: MutableList<BibleChapter> = mutableListOf(),
-
-    @OneToOne(mappedBy = "book", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, optional = false)
-    val description: BibleBookDescription
+    val chapters: MutableList<BibleChapter> = mutableListOf()
 )

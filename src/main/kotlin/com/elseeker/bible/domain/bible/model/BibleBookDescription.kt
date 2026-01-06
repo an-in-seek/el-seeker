@@ -1,14 +1,30 @@
 package com.elseeker.bible.domain.bible.model
 
 import jakarta.persistence.*
+import java.io.Serializable
 
 @Entity
-@Table(name = "bible_book_description")
+@Table(
+    name = "bible_book_description",
+    indexes = [
+        Index(
+            name = "IDX_book_description_key_language",
+            columnList = "book_key, language_code"
+        )
+    ]
+)
+@IdClass(BibleBookDescriptionId::class)
 class BibleBookDescription(
 
     @Id
-    @Column(name = "book_id")
-    val bookId: Long,  // BibleBook ID와 동일하게 설정
+    @Enumerated(EnumType.STRING)
+    @Column(name = "book_key", nullable = false, length = 32)
+    val bookKey: BibleBookKey,
+
+    @Id
+    @Enumerated(EnumType.STRING)
+    @Column(name = "language_code", nullable = false, length = 4)
+    val languageCode: LanguageCode,
 
     @Column(nullable = false)
     val summary: String,
@@ -27,10 +43,10 @@ class BibleBookDescription(
 
     @Lob
     @Column(nullable = false)
-    val content: String,
-
-    @MapsId  // PK = FK 구조
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id")
-    val book: BibleBook
+    val content: String
 )
+
+data class BibleBookDescriptionId(
+    var bookKey: BibleBookKey = BibleBookKey.GEN,
+    var languageCode: LanguageCode = LanguageCode.ko
+) : Serializable

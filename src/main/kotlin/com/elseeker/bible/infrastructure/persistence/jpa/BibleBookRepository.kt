@@ -22,7 +22,6 @@ interface BibleBookRepository : JpaRepository<BibleBook, Long> {
         """
             SELECT book
             FROM BibleBook book
-            LEFT JOIN FETCH book.description
             LEFT JOIN FETCH book.chapters
             WHERE book.translationId = :translationId
             AND book.bookOrder = :bookOrder

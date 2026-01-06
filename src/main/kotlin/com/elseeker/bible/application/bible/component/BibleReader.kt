@@ -3,9 +3,11 @@ package com.elseeker.bible.application.bible.component
 import com.elseeker.bible.domain.ErrorType
 import com.elseeker.bible.domain.ServiceError
 import com.elseeker.bible.domain.bible.DirectionType
+import com.elseeker.bible.domain.bible.model.LanguageCode
 import com.elseeker.bible.domain.bible.model.BibleTranslationType
 import com.elseeker.bible.domain.bible.result.BibleResult
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleBookRepository
+import com.elseeker.bible.infrastructure.persistence.jpa.BibleBookDescriptionRepository
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleChapterRepository
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleTranslationRepository
 import com.elseeker.bible.infrastructure.persistence.jpa.BibleVerseRepository
@@ -20,6 +22,7 @@ import org.springframework.data.domain.PageRequest
 class BibleReader(
     private val bibleTranslationRepository: BibleTranslationRepository,
     private val bibleBookRepository: BibleBookRepository,
+    private val bibleBookDescriptionRepository: BibleBookDescriptionRepository,
     private val bibleChapterRepository: BibleChapterRepository,
     private val bibleVerseRepository: BibleVerseRepository
 ) {
@@ -28,9 +31,12 @@ class BibleReader(
         bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(setOf(BibleTranslationType.KRV, BibleTranslationType.KJV))
             .map(BibleResult.Translation::from)
 
-    fun getBook(translationId: Long, bookOrder: Int): BibleApiResponse.BookDetail? =
-        bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
-            ?.let(BibleApiResponse.BookDetail::from)
+    fun getBook(translationId: Long, bookOrder: Int): BibleApiResponse.BookDetail? {
+        val book = bibleBookRepository.findByTranslationAndBook(translationId, bookOrder) ?: return null
+        val languageCode = getTranslationLanguage(translationId) ?: return null
+        val description = bibleBookDescriptionRepository.findByBookKeyAndLanguageCode(book.bookKey, languageCode) ?: return null
+        return BibleApiResponse.BookDetail.from(book, description)
+    }
 
     fun getBooks(translationId: Long): List<BibleResult.Book> =
         bibleBookRepository.findByTranslationId(translationId)
@@ -38,7 +44,13 @@ class BibleReader(
 
     fun getChapters(translationId: Long, bookOrder: Int): BibleApiResponse.Chapters =
         bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
-            ?.let(BibleApiResponse.Chapters::from)
+            ?.let { book ->
+                val languageCode = getTranslationLanguage(translationId)
+                    ?: throw ServiceError(ErrorType.TRANSLATION_NOT_FOUND)
+                val description = bibleBookDescriptionRepository.findByBookKeyAndLanguageCode(book.bookKey, languageCode)
+                    ?: throw ServiceError(ErrorType.BOOK_DESCRIPTION_NOT_FOUND)
+                BibleApiResponse.Chapters.from(book, description)
+            }
             ?: throw ServiceError(ErrorType.BOOK_NOT_FOUND)
 
     fun getChapterVerses(
@@ -153,4 +165,9 @@ class BibleReader(
             throw ServiceError(ErrorType.SEARCH_ERROR, "keyword=$keyword", e.message ?: "Unknown error")
         }
     }
+
+    private fun getTranslationLanguage(translationId: Long): LanguageCode? =
+        bibleTranslationRepository.findById(translationId)
+            .orElse(null)
+            ?.languageCode
 }

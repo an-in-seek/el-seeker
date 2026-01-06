@@ -52,7 +52,7 @@ object BibleResult {
         val chapters: List<Chapter>
     ) {
         companion object {
-            fun from(book: BibleBook) = with(book) {
+            fun from(book: BibleBook, description: BibleBookDescription) = with(book) {
                 BookDetail(
                     bookId = id!!,
                     bookName = name,

@@ -61,7 +61,7 @@ object BibleApiResponse {
         )
 
         companion object {
-            fun from(bibleBook: BibleBook): BookDetail {
+            fun from(bibleBook: BibleBook, description: BibleBookDescription): BookDetail {
                 return BookDetail(
                     bookId = bibleBook.id!!,
                     bookOrder = bibleBook.bookOrder,
@@ -69,12 +69,12 @@ object BibleApiResponse {
                     abbreviation = bibleBook.abbreviation,
                     testamentType = bibleBook.testamentType,
                     description = Description(
-                        summary = bibleBook.description.summary,
-                        author = bibleBook.description.author,
-                        writtenYear = bibleBook.description.writtenYear,
-                        historicalPeriod = bibleBook.description.historicalPeriod,
-                        background = bibleBook.description.background,
-                        content = bibleBook.description.content,
+                        summary = description.summary,
+                        author = description.author,
+                        writtenYear = description.writtenYear,
+                        historicalPeriod = description.historicalPeriod,
+                        background = description.background,
+                        content = description.content,
                     ),
                 )
             }
@@ -85,9 +85,9 @@ object BibleApiResponse {
         val book: BibleResult.BookDetail
     ) {
         companion object {
-            fun from(book: BibleBook) =
+            fun from(book: BibleBook, description: BibleBookDescription) =
                 Chapters(
-                    book = book.let(BibleResult.BookDetail::from)
+                    book = BibleResult.BookDetail.from(book, description)
                 )
         }
     }
