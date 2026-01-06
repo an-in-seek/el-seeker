@@ -191,7 +191,7 @@
 
 .book-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
     gap: 0.5rem;
 }
 
