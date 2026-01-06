@@ -3,6 +3,10 @@ package com.elseeker.bible.domain.bible.model
 enum class BibleTranslationType(val abbreviation: String, val displayName: String) {
     KRV("KRV", "개역한글"),
     NKRV("NKRV", "개역개정"),
+    RNKSV("RNKSV", "새번역"),
+    KOERV("KOERV", "읽기 쉬운 성경"),
+    KLB("KLB", "현대인의 성경"),
+    NLTNK("NLTNK", "하나님의 약속: 평양말 NLT"),
     NIV("NIV", "New International Version"),
     ESV("ESV", "English Standard Version"),
     KJV("KJV", "King James Version"),
