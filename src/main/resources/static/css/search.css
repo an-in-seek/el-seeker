@@ -1,0 +1,28 @@
+/* 검색 페이지 전용 스타일 */
+.search-page.content-wrapper {
+    min-height: auto;
+    padding-bottom: 12px;
+}
+
+.search-controls {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--bs-body-bg, #fff);
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.has-fixed-nav .search-controls {
+    top: 52px;
+    z-index: 1020;
+}
+
+.search-results-scroll {
+    max-height: none;
+    overflow-y: auto;
+}
+
+.search-result-meta {
+    min-height: 1.5rem;
+}

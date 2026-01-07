@@ -9,11 +9,6 @@
     padding-bottom: 1rem !important;
 }
 
-/* 검색 페이지 전용 스타일 */
-.search-page.content-wrapper {
-    min-height: auto;
-    padding-bottom: 12px;
-}
 
 /* Scroll-to-top button */
 .scroll-to-top-btn {
@@ -495,9 +490,6 @@
     white-space: nowrap;
 }
 
-.search-result-meta {
-    min-height: 1.5rem;
-}
 
 .menu-card-link .card {
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
@@ -601,6 +593,19 @@
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 }
 
+.top-nav-search-button {
+    min-width: 90px;
+    max-width: 90px;
+    flex: 0 0 90px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #6c757d;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
 .top-nav-title {
     flex: 1 1 auto;
     min-width: 0;
@@ -640,37 +645,6 @@
     padding-right: 1rem;
 }
 
-.search-controls {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background-color: var(--bs-body-bg, #fff);
-    padding-top: 0.25rem;
-    padding-bottom: 0.5rem;
-}
-
-.has-fixed-nav .search-controls {
-    top: 52px;
-    z-index: 1020;
-}
-
-.search-results-scroll {
-    max-height: none;
-    overflow-y: auto;
-}
-
-.top-nav-search-button {
-    min-width: 90px;
-    max-width: 90px;
-    flex: 0 0 90px;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border: 1px solid #6c757d;
-    border-radius: 0.375rem;
-    text-decoration: none;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-}
 
 .list-group-item {
     padding-top: 0.75rem;
