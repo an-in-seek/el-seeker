@@ -1,10 +1,13 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/main/kotlin/com/elseeker/bible`: Spring Boot app code (domain, application, infrastructure, presentation).
+- `src/main/kotlin/com/elseeker`: Spring Boot app code organized by domain modules.
+  - `common`: shared config, error model, common web components.
+  - `bible`: Bible domain (domain, application, adapter/in, adapter/out).
+  - `study`: Study domain (dictionary/history) with the same adapter structure.
 - `src/main/resources`: configuration and assets.
   - `application.yml`: runtime config (H2, JPA).
-  - `data/`: SQL seed scripts for translations/books/chapters/verses.
+  - `data/`: SQL seed scripts for translations/books/chapters/verses and dictionary.
   - `templates/`: Thymeleaf HTML pages.
   - `static/`: CSS, JS, images.
 - No `src/test` directory yet; add tests under `src/test/kotlin` when introducing them.
@@ -18,7 +21,7 @@
 ## Coding Style & Naming Conventions
 - Kotlin + Spring Boot 3; keep idiomatic Kotlin (data classes, null-safety) and Spring annotations.
 - Use 4-space indentation and standard Kotlin naming: `UpperCamel` for classes, `lowerCamel` for functions/vars, `UPPER_SNAKE` for constants.
-- SQL seed files follow `bible_krv_XX_<book>.sql` in `src/main/resources/data`.
+- SQL seed files follow `bible_krv_XX_<book>.sql` in `src/main/resources/data/krv`.
 - No formatter or linter is configured; avoid reformatting unrelated files.
 
 ## Testing Guidelines
@@ -32,5 +35,5 @@
 - PRs should describe the change, link related issues, and include screenshots for UI/template changes.
 
 ## Configuration & Data Notes
-- H2 runs in-memory by default (`jdbc:h2:mem:testdb`); data is loaded from SQL in `src/main/resources/data`.
+- H2 runs in-memory by default (`jdbc:h2:mem:test`); data is loaded from SQL in `src/main/resources/data`.
 - If you add new Bible content, keep book order and naming consistent with existing SQL files.
