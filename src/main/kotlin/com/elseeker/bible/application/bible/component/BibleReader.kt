@@ -1,21 +1,17 @@
 package com.elseeker.bible.application.bible.component
 
-import com.elseeker.bible.domain.ErrorType
-import com.elseeker.bible.domain.ServiceError
-import com.elseeker.bible.domain.bible.DirectionType
-import com.elseeker.bible.domain.bible.model.LanguageCode
-import com.elseeker.bible.domain.bible.model.BibleTranslationType
 import com.elseeker.bible.domain.bible.result.BibleResult
-import com.elseeker.bible.infrastructure.persistence.jpa.BibleBookRepository
-import com.elseeker.bible.infrastructure.persistence.jpa.BibleBookDescriptionRepository
-import com.elseeker.bible.infrastructure.persistence.jpa.BibleChapterRepository
-import com.elseeker.bible.infrastructure.persistence.jpa.BibleTranslationRepository
-import com.elseeker.bible.infrastructure.persistence.jpa.BibleVerseRepository
-import com.elseeker.bible.presentation.api.BibleApiResponse
-import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
+import com.elseeker.bible.domain.bible.vo.BibleTranslationType
+import com.elseeker.bible.domain.bible.vo.DirectionType
+import com.elseeker.bible.domain.bible.vo.LanguageCode
+import com.elseeker.bible.domain.common.ErrorType
+import com.elseeker.bible.domain.common.ServiceError
+import com.elseeker.bible.infrastructure.persistence.jpa.bible.*
+import com.elseeker.bible.presentation.api.bible.response.BibleApiResponse
+import com.elseeker.bible.presentation.api.bible.response.BibleSearchSliceResponse
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.data.domain.PageRequest
 
 @Component
 @Transactional(readOnly = true)

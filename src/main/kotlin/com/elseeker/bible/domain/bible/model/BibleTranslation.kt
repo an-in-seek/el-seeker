@@ -1,5 +1,7 @@
 package com.elseeker.bible.domain.bible.model
 
+import com.elseeker.bible.domain.bible.vo.BibleTranslationType
+import com.elseeker.bible.domain.bible.vo.LanguageCode
 import jakarta.persistence.*
 
 @Entity

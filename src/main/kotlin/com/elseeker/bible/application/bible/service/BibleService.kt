@@ -1,10 +1,10 @@
 package com.elseeker.bible.application.bible.service
 
 import com.elseeker.bible.application.bible.component.BibleReader
-import com.elseeker.bible.domain.bible.DirectionType
 import com.elseeker.bible.domain.bible.result.BibleResult
-import com.elseeker.bible.presentation.api.BibleApiResponse
-import com.elseeker.bible.presentation.api.response.BibleSearchSliceResponse
+import com.elseeker.bible.domain.bible.vo.DirectionType
+import com.elseeker.bible.presentation.api.bible.response.BibleApiResponse
+import com.elseeker.bible.presentation.api.bible.response.BibleSearchSliceResponse
 import org.springframework.stereotype.Service
 
 @Service

@@ -1,6 +1,6 @@
 package com.elseeker.bible.presentation.error
 
-import com.elseeker.bible.domain.ServiceError
+import com.elseeker.bible.domain.common.ServiceError
 import mu.KotlinLogging
 import org.springframework.boot.logging.LogLevel
 import org.springframework.http.ResponseEntity
