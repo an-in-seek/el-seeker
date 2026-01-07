@@ -1,0 +1,57 @@
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 0.5rem;
+}
+
+.book-tile {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px 0;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
+}
+
+.book-tile:hover {
+    background-color: #e2e6ea;
+}
+
+.book-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.book-section {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 1rem 1.25rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.book-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.book-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.book-section-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+    background-color: #f1f3f5;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+}

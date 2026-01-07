@@ -184,122 +184,6 @@
     opacity: 0.7;
 }
 
-.book-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    gap: 0.5rem;
-}
-
-.book-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.book-section {
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 1rem 1rem 1.25rem;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-
-.book-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-}
-
-.book-section-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.book-section-count {
-    font-size: 0.9rem;
-    color: #6c757d;
-    background-color: #f1f3f5;
-    padding: 0.2rem 0.65rem;
-    border-radius: 999px;
-}
-
-.book-tile {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 16px 0;
-    text-align: center;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 1rem;
-}
-
-.book-tile:hover {
-    background-color: #e2e6ea;
-}
-
-.book-description {
-    display: block;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 1rem;
-    color: #495057;
-    transition: background-color 0.2s;
-    margin-bottom: 12px;
-    line-height: 1.5;
-    text-decoration: none;
-}
-
-.book-description:hover {
-    background-color: #e2e6ea;
-    text-decoration: none;
-}
-
-.book-description-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px; /* 텍스트와 화살표 간 여백 */
-}
-
-.book-description-text {
-    flex-grow: 1;
-}
-
-.book-description-icon {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-}
-
-.chapter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 5px;
-}
-
-.chapter-tile {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 16px 0;
-    text-align: center;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 1rem;
-}
-
-.chapter-tile:hover {
-    background-color: #e2e6ea;
-}
-
 .highlighted-verse {
     background-color: #fff59d; /* 연한 노란색: 형광펜 느낌 */
     transition: background-color 0.3s ease;
@@ -324,7 +208,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 
 .menu-card-link .card {
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;

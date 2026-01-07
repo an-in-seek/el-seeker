@@ -1,0 +1,57 @@
+.book-description {
+    display: block;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #495057;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    text-decoration: none;
+}
+
+.book-description:hover {
+    background-color: #e2e6ea;
+    text-decoration: none;
+}
+
+.book-description-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px; /* 텍스트와 화살표 간 여백 */
+}
+
+.book-description-text {
+    flex-grow: 1;
+}
+
+.book-description-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 5px;
+}
+
+.chapter-tile {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 16px 0;
+    text-align: center;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
+}
+
+.chapter-tile:hover {
+    background-color: #e2e6ea;
+}
