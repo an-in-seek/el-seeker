@@ -1,1 +1,1 @@
-rootProject.name = "the_bible"
+rootProject.name = "el_seeker"
