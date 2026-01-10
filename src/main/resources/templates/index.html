@@ -82,6 +82,15 @@
 <script src="/js/storage-util.js?v=1.0"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
+        const lastRead = LastReadStore.get();
+        if (lastRead) {
+            const verseUrl = new URL("/web/bible/verse", window.location.origin);
+            verseUrl.searchParams.set("translationId", lastRead.translationId);
+            verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
+            verseUrl.searchParams.set("chapterNumber", lastRead.chapterNumber);
+            window.location.replace(`${verseUrl.pathname}${verseUrl.search}`);
+            return;
+        }
         const comingSoonLinks = document.querySelectorAll(".coming-soon");
         comingSoonLinks.forEach((link) => {
             link.addEventListener("click", (event) => {

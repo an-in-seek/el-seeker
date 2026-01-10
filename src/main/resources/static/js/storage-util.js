@@ -11,6 +11,7 @@ const STORAGE_KEYS = Object.freeze({
     CHAPTER_NUMBER: "chapterNumber",
     VERSE_ID: "verseId",
     VERSE_NUMBER: "verseNumber",
+    LAST_READ_LOCATION: "lastReadLocation",
 });
 
 // === Local Storage Utility ===
@@ -146,3 +147,63 @@ const VerseStore = {
         return SessionStore.consume(STORAGE_KEYS.VERSE_NUMBER);
     }
 };
+
+// 마지막 읽기 위치 관련
+const LastReadStore = {
+    save({translationId, bookOrder, chapterNumber}) {
+        const parsedTranslationId = parseInt(translationId);
+        const parsedBookOrder = parseInt(bookOrder);
+        const parsedChapterNumber = parseInt(chapterNumber);
+        if ([parsedTranslationId, parsedBookOrder, parsedChapterNumber].some(Number.isNaN)) {
+            console.warn("LastReadStore.save: 유효하지 않은 위치 정보", {
+                translationId,
+                bookOrder,
+                chapterNumber,
+            });
+            return;
+        }
+        LocalStore.set(STORAGE_KEYS.LAST_READ_LOCATION, {
+            translationId: parsedTranslationId,
+            bookOrder: parsedBookOrder,
+            chapterNumber: parsedChapterNumber,
+        });
+    },
+    get() {
+        const stored = LocalStore.get(STORAGE_KEYS.LAST_READ_LOCATION);
+        if (!stored) {
+            return null;
+        }
+        const parsedTranslationId = parseInt(stored.translationId);
+        const parsedBookOrder = parseInt(stored.bookOrder);
+        const parsedChapterNumber = parseInt(stored.chapterNumber);
+        if ([parsedTranslationId, parsedBookOrder, parsedChapterNumber].some(Number.isNaN)) {
+            return null;
+        }
+        return {
+            translationId: parsedTranslationId,
+            bookOrder: parsedBookOrder,
+            chapterNumber: parsedChapterNumber,
+        };
+    },
+    clear() {
+        LocalStore.remove(STORAGE_KEYS.LAST_READ_LOCATION);
+    }
+};
+
+const onDomReady = callback => {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", callback);
+    } else {
+        callback();
+    }
+};
+
+onDomReady(() => {
+    const homeButton = document.querySelector(".top-nav-home-button");
+    if (!homeButton) {
+        return;
+    }
+    homeButton.addEventListener("click", () => {
+        LastReadStore.clear();
+    });
+});

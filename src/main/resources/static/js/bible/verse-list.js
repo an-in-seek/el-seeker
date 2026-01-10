@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initNav();
         updateLabels();
         updateVerseUrl();
+        saveLastRead();
 
         if (dom.prevBtn) {
             dom.prevBtn.addEventListener("click", () => loadChapter("PREV"));
@@ -226,6 +227,14 @@ document.addEventListener("DOMContentLoaded", () => {
         history.replaceState(null, "", buildVerseUrl());
     };
 
+    const saveLastRead = () => {
+        LastReadStore.save({
+            translationId: state.translationId,
+            bookOrder: state.bookOrder,
+            chapterNumber: state.chapterNumber,
+        });
+    };
+
     const loadChapter = async direction => {
         try {
             if (direction !== "CURRENT") {
@@ -263,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
             bookName: state.bookName
         });
         ChapterStore.saveNumber(state.chapterNumber);
+        saveLastRead();
     };
 
     const renderChapter = data => {
