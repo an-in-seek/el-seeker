@@ -10,6 +10,6 @@ class GameWebController {
 
     @GetMapping
     fun showGameList(): String {
-        return "game/game-list"
+        return "game/game"
     }
 }

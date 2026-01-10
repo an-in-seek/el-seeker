@@ -23,7 +23,7 @@ class HistoryWebController {
         model.addAttribute("bookCategories", HistoryDummyData.bookCategories)
         model.addAttribute("timelineBlocks", HistoryDummyData.timelineBlocks)
         model.addAttribute("selectedEra", normalizedSelectedEra)
-        return "study/history-main"
+        return "study/history"
     }
 
     @GetMapping("/{era}")
