@@ -19,18 +19,21 @@
             <article class="card card-panel card-soft card-lift card-clickable" data-game-key="bible-quiz" data-game-route="/web/game/bible-quiz">
                 <div class="card-body d-flex flex-column">
                     <div class="game-card-icon" aria-hidden="true">🧠</div>
-                    <h3 class="h6 fw-semibold mb-2">성경 퀴즈</h3>
-                    <p class="text-muted small mb-3">성경 상식을 빠르게 확인하며 지식을 쌓아보세요.</p>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h3 class="h6 fw-semibold mb-2">성경 퀴즈</h3>
+                    </div>
+                    <p class="text-muted small mb-3">오늘의 성경 퀴즈 5문제</p>
                     <div class="mt-auto game-card-meta">
+                        <span class="badge text-bg-light">오늘</span>
                         <span class="badge text-bg-light">퀴즈</span>
-                        <span class="badge text-bg-light">스코어</span>
-                        <span class="badge text-bg-light">랭킹</span>
+                        <span class="badge text-bg-light">5문제</span>
                     </div>
                 </div>
             </article>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-soft card-lift coming-soon" data-game-key="bible-word-puzzle" data-game-route="/web/game/bible-word-puzzle">
+            <article class="card card-panel card-soft card-lift coming-soon" data-game-key="bible-word-puzzle"
+                     data-game-route="/web/game/bible-word-puzzle">
                 <div class="card-body d-flex flex-column">
                     <div class="game-card-icon" aria-hidden="true">🧩</div>
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -70,6 +73,28 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        const gameList = document.querySelector(".game-list");
+        if (gameList) {
+            gameList.addEventListener("click", (event) => {
+                const card = event.target.closest(".card");
+                if (!card) {
+                    return;
+                }
+                if (card.classList.contains("coming-soon")) {
+                    event.preventDefault();
+                    return;
+                }
+                if (card.dataset.gameKey === "bible-quiz" && card.dataset.gameRoute) {
+                    window.location.href = card.dataset.gameRoute;
+                }
+            });
+        }
+        const comingSoonCards = document.querySelectorAll(".coming-soon");
+        comingSoonCards.forEach((card) => {
+            card.addEventListener("click", (event) => {
+                event.preventDefault();
+            });
+        });
         const pageTitleLabel = document.getElementById("pageTitleLabel");
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "게임";

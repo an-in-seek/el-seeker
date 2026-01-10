@@ -12,4 +12,9 @@ class GameWebController {
     fun showGameList(): String {
         return "game/game"
     }
+
+    @GetMapping("/bible-quiz")
+    fun showBibleQuiz(): String {
+        return "game/bible-quiz"
+    }
 }

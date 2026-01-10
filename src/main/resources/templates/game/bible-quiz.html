@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible - Bible Quiz | 성경 퀴즈', true, '/css/hero.css?v=1.0,/css/card.css?v=1.0,/css/game/bible-quiz.css?v=1.0')}"></head>
+<body class="has-fixed-nav">
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper">
+    <section class="quiz-hero page-hero" aria-labelledby="quizTitle">
+        <div class="quiz-hero-content page-hero-content">
+            <p class="quiz-hero-eyebrow page-hero-eyebrow">오늘의 성경 퀴즈</p>
+            <h2 id="quizTitle" class="quiz-hero-title page-hero-title">오늘 5문제</h2>
+            <p class="quiz-hero-lead page-hero-lead">오늘의 퀴즈를 바로 시작합니다.</p>
+        </div>
+    </section>
+
+    <section class="quiz-card card card-panel card-soft" id="quizPanel" aria-live="polite">
+        <div class="card-body">
+            <div class="quiz-progress" id="quizProgress">1 / 5</div>
+            <h3 class="quiz-question h5 fw-semibold mb-3" id="quizQuestion"></h3>
+            <div class="quiz-options" id="quizOptions"></div>
+            <p class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></p>
+            <button class="btn btn-primary quiz-next" id="quizNext" type="button" disabled>다음 문제</button>
+        </div>
+    </section>
+
+    <section class="quiz-complete card card-panel card-soft d-none" id="quizComplete">
+        <div class="card-body text-center">
+            <div class="quiz-complete-icon" aria-hidden="true">✅</div>
+            <h3 class="h5 fw-semibold mb-2">오늘의 퀴즈를 마쳤어요</h3>
+            <p class="text-muted small mb-0">내일 새로운 5문제가 준비됩니다.</p>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script src="/js/storage-util.js?v=1.0"></script>
+<script src="/js/game/bible-quiz.js?v=1.0"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const backButton = document.getElementById("topNavBackButton");
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 퀴즈";
+            pageTitleLabel.classList.remove("d-none");
+        }
+        if (backButton) {
+            backButton.classList.remove("d-none");
+            backButton.addEventListener("click", () => {
+                window.location.href = "/web/game";
+            });
+        }
+    });
+</script>
+</body>
+</html>
