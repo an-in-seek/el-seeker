@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: the_bible
+    name: el_seeker
   h2:
     console:
       enabled: true

@@ -14,7 +14,7 @@ RUN gradle clean build -x test --no-daemon
 FROM eclipse-temurin:21.0.1_12-jdk-alpine
 
 # 빌더 이미지에서 jar 파일만 복사
-COPY --from=builder /app/build/libs/the_bible-1.0.0.jar /app.jar
+COPY --from=builder /app/build/libs/el_seeker-1.0.0.jar /app.jar
 
 EXPOSE 8080
 
