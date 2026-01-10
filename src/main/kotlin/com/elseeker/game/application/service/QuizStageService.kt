@@ -16,7 +16,8 @@ class QuizStageService(
     fun getStage(stageNumber: Int): QuizStageResponse {
         if (stageNumber < 1) throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
         val stage = quizStageRepository.findByStageNumber(stageNumber) ?: throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
-        return stage.toResponse()
+        val stageCount = quizStageRepository.count().toInt()
+        return stage.toResponse(stageCount)
     }
 
     fun getStageSummaries(): List<QuizStageSummaryResponse> {

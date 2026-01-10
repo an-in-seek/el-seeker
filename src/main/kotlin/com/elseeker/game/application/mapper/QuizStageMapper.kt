@@ -5,13 +5,14 @@ import com.elseeker.game.adapter.input.api.dto.QuizStageResponse
 import com.elseeker.game.domain.model.QuizQuestion
 import com.elseeker.game.domain.model.QuizStage
 
-fun QuizStage.toResponse(): QuizStageResponse {
+fun QuizStage.toResponse(stageCount: Int): QuizStageResponse {
+    val sortedQuestions = questions.sortedBy { it.id }
     return QuizStageResponse(
         stage = stageNumber,
         title = title,
-        questions = questions
-            .sortedBy { it.id }
-            .map { it.toResponse() }
+        questions = sortedQuestions.map { it.toResponse() },
+        stageCount = stageCount,
+        questionCount = sortedQuestions.size
     )
 }
 

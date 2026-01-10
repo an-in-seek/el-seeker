@@ -1,10 +1,10 @@
-const QUIZ_STAGE_COUNT = 10;
-const QUESTIONS_PER_STAGE = 10;
 const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
     LAST_COMPLETED_DATE: "lastCompletedDate",
     LAST_STAGE_SCORE: "lastStageScore",
+    LAST_STAGE_QUESTION_COUNT: "lastStageQuestionCount",
+    STAGE_COUNT: "quizStageCount",
 });
 
 const fetchStageData = async stageNumber => {
@@ -21,15 +21,23 @@ const fetchStageData = async stageNumber => {
 
 const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const normalizeStage = stageValue => {
+const normalizeStage = (stageValue, stageCount) => {
     const parsed = parseInt(stageValue, 10);
     if (Number.isNaN(parsed)) {
         return 1;
     }
-    return clampNumber(parsed, 1, QUIZ_STAGE_COUNT);
+    if (!stageCount) {
+        return Math.max(parsed, 1);
+    }
+    return clampNumber(parsed, 1, stageCount);
 };
 
 const getStoredDate = () => LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
+
+const getStoredStageCount = () => {
+    const count = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.STAGE_COUNT), 10);
+    return Number.isNaN(count) ? null : count;
+};
 
 const getStoredScore = () => {
     const score = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE);
@@ -37,11 +45,16 @@ const getStoredScore = () => {
     return Number.isNaN(parsed) ? null : parsed;
 };
 
-const showCompletion = (quizPanel, quizComplete, quizScore, score) => {
+const getStoredQuestionCount = () => {
+    const count = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT), 10);
+    return Number.isNaN(count) ? null : count;
+};
+
+const showCompletion = (quizPanel, quizComplete, quizScore, score, questionCount) => {
     quizPanel.setAttribute("aria-busy", "false");
     quizPanel.classList.add("d-none");
-    if (score !== null && score !== undefined) {
-        quizScore.textContent = `오늘 점수 ${score} / ${QUESTIONS_PER_STAGE}`;
+    if (score !== null && score !== undefined && questionCount) {
+        quizScore.textContent = `오늘 점수 ${score} / ${questionCount}`;
     } else {
         quizScore.textContent = "";
     }
@@ -85,20 +98,25 @@ const buildContext = elements => {
     const today = getLocalDateString();
     const storedDate = getStoredDate();
     const storedScore = getStoredScore();
+    const storedQuestionCount = getStoredQuestionCount();
+    const storedStageCount = getStoredStageCount();
     const queryParams = new URLSearchParams(window.location.search);
     const requestedStage = parseInt(queryParams.get("stage"), 10);
-    const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE));
+    const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE), storedStageCount);
     const isReviewMode = queryParams.get("mode") === "review"
         && !Number.isNaN(requestedStage)
         && requestedStage >= 1
+        && (!storedStageCount || requestedStage <= storedStageCount)
         && requestedStage < currentStage;
-    const activeStage = isReviewMode ? normalizeStage(requestedStage) : currentStage;
+    const activeStage = isReviewMode ? requestedStage : currentStage;
 
     return {
         elements,
         today,
         storedDate,
         storedScore,
+        storedQuestionCount,
+        stageCount: storedStageCount,
         isReviewMode,
         activeStage,
         state: null
@@ -127,23 +145,26 @@ const updateProgress = context => {
     if (!state) {
         return;
     }
+    const stageCount = context.stageCount || state.stage;
     const questionNumber = state.index + 1;
-    context.elements.quizStage.textContent = `${state.stage} / ${QUIZ_STAGE_COUNT}`;
+    context.elements.quizStage.textContent = `${state.stage} / ${stageCount}`;
     context.elements.quizQuestionProgress.textContent = `${questionNumber} / ${state.questions.length}`;
-    updateProgressBar(context.elements.quizStageProgress, state.stage, QUIZ_STAGE_COUNT, 1);
+    updateProgressBar(context.elements.quizStageProgress, state.stage, stageCount, 1);
     updateProgressBar(context.elements.quizQuestionProgressBar, questionNumber, state.questions.length, 1);
 };
 
 const showLoadError = context => {
+    const stageCount = context.stageCount || 0;
+    const questionCount = context.storedQuestionCount || 0;
     setBusy(context, false);
     context.elements.quizQuestion.textContent = "오늘의 퀴즈를 불러올 수 없습니다";
     context.elements.quizOptions.textContent = "잠시 후 다시 시도해주세요.";
     context.elements.quizNext.disabled = true;
     resetFeedback(context);
-    context.elements.quizStage.textContent = `0 / ${QUIZ_STAGE_COUNT}`;
-    context.elements.quizQuestionProgress.textContent = `0 / ${QUESTIONS_PER_STAGE}`;
-    updateProgressBar(context.elements.quizStageProgress, 0, QUIZ_STAGE_COUNT, 0);
-    updateProgressBar(context.elements.quizQuestionProgressBar, 0, QUESTIONS_PER_STAGE, 0);
+    context.elements.quizStage.textContent = `0 / ${stageCount}`;
+    context.elements.quizQuestionProgress.textContent = `0 / ${questionCount}`;
+    updateProgressBar(context.elements.quizStageProgress, 0, stageCount, 0);
+    updateProgressBar(context.elements.quizQuestionProgressBar, 0, questionCount, 0);
 };
 
 const renderQuestion = context => {
@@ -236,16 +257,20 @@ const handleNext = context => {
     }
     if (context.state.index === context.state.questions.length - 1) {
         if (!context.state.isReview) {
-            const nextStage = Math.min(context.state.stage + 1, QUIZ_STAGE_COUNT);
+            const nextStage = context.stageCount
+                ? Math.min(context.state.stage + 1, context.stageCount)
+                : context.state.stage + 1;
             LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, nextStage);
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE, context.today);
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE, context.state.score);
+            LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT, context.state.questions.length);
         }
         showCompletion(
             context.elements.quizPanel,
             context.elements.quizComplete,
             context.elements.quizScore,
-            context.state.isReview ? null : context.state.score
+            context.state.isReview ? null : context.state.score,
+            context.state.questions.length
         );
         return;
     }
@@ -259,7 +284,8 @@ const initializeQuiz = async context => {
             context.elements.quizPanel,
             context.elements.quizComplete,
             context.elements.quizScore,
-            context.storedScore
+            context.storedScore,
+            context.storedQuestionCount
         );
         return;
     }
@@ -270,6 +296,10 @@ const initializeQuiz = async context => {
     if (!stageData || !Array.isArray(stageData.questions) || stageData.questions.length === 0) {
         showLoadError(context);
         return;
+    }
+    if (Number.isInteger(stageData.stageCount) && stageData.stageCount > 0) {
+        context.stageCount = stageData.stageCount;
+        LocalStore.set(QUIZ_STORAGE_KEYS.STAGE_COUNT, stageData.stageCount);
     }
 
     context.state = {

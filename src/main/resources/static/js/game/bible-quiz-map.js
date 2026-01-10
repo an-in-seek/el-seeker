@@ -1,5 +1,4 @@
 const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
-const QUIZ_STAGE_COUNT = 10;
 
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
@@ -8,12 +7,15 @@ const QUIZ_STORAGE_KEYS = Object.freeze({
 
 const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const normalizeStage = stageValue => {
+const normalizeStage = (stageValue, stageCount) => {
     const parsed = parseInt(stageValue, 10);
     if (Number.isNaN(parsed)) {
         return 1;
     }
-    return clampNumber(parsed, 1, QUIZ_STAGE_COUNT);
+    if (!stageCount) {
+        return Math.max(parsed, 1);
+    }
+    return clampNumber(parsed, 1, stageCount);
 };
 
 const fetchStageSummaries = async () => {
@@ -41,7 +43,7 @@ const getQuizMapElements = () => {
 const buildContext = elements => {
     const today = getLocalDateString();
     const storedDate = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
-    const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE));
+    const currentStage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE), 10);
 
     return {
         elements,
@@ -146,12 +148,13 @@ const showLoadError = context => {
 };
 
 const initializeQuizMap = async context => {
-    updateSummary(context);
     const stageSummaries = await fetchStageSummaries();
-    if (!Array.isArray(stageSummaries)) {
+    if (!Array.isArray(stageSummaries) || stageSummaries.length === 0) {
         showLoadError(context);
         return;
     }
+    context.currentStage = normalizeStage(context.currentStage, stageSummaries.length);
+    updateSummary(context);
     renderStages(context, stageSummaries);
 };
 
