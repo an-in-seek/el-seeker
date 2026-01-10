@@ -368,19 +368,18 @@ const getLocalDateString = () => {
     return `${year}-${month}-${day}`;
 };
 
+const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
+
 const normalizeStage = stageValue => {
     const parsed = parseInt(stageValue, 10);
-    if (Number.isNaN(parsed) || parsed < 1) {
+    if (Number.isNaN(parsed)) {
         return 1;
     }
-    if (parsed > QUIZ_STAGE_COUNT) {
-        return QUIZ_STAGE_COUNT;
-    }
-    return parsed;
+    return clampNumber(parsed, 1, QUIZ_STAGE_COUNT);
 };
 
 const getStageData = stageNumber => {
-    const stageIndex = Math.min(Math.max(stageNumber, 1), QUIZ_STAGE_COUNT) - 1;
+    const stageIndex = clampNumber(stageNumber, 1, QUIZ_STAGE_COUNT) - 1;
     return QUIZ_STAGES[stageIndex] || QUIZ_STAGES[0];
 };
 
@@ -404,22 +403,58 @@ const showCompletion = (quizPanel, quizComplete, quizScore, score) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    const quizPanel = document.getElementById("quizPanel");
-    const quizComplete = document.getElementById("quizComplete");
-    const quizStage = document.getElementById("quizStage");
-    const quizQuestionProgress = document.getElementById("quizQuestionProgress");
-    const quizStageProgress = document.getElementById("quizStageProgress");
-    const quizQuestionProgressBar = document.getElementById("quizQuestionProgressBar");
-    const quizQuestion = document.getElementById("quizQuestion");
-    const quizOptions = document.getElementById("quizOptions");
-    const quizFeedback = document.getElementById("quizFeedback");
-    const quizNext = document.getElementById("quizNext");
-    const quizScore = document.getElementById("quizScore");
-    const quizStartButton = document.getElementById("quizStartButton");
+    const getElement = id => document.getElementById(id);
+    const getQuizElements = () => {
+        const elements = {
+            quizPanel: getElement("quizPanel"),
+            quizComplete: getElement("quizComplete"),
+            quizStage: getElement("quizStage"),
+            quizQuestionProgress: getElement("quizQuestionProgress"),
+            quizStageProgress: getElement("quizStageProgress"),
+            quizQuestionProgressBar: getElement("quizQuestionProgressBar"),
+            quizQuestion: getElement("quizQuestion"),
+            quizOptions: getElement("quizOptions"),
+            quizFeedback: getElement("quizFeedback"),
+            quizNext: getElement("quizNext"),
+            quizScore: getElement("quizScore"),
+            quizStartButton: getElement("quizStartButton")
+        };
+        const missingRequired = [
+            "quizPanel",
+            "quizComplete",
+            "quizStage",
+            "quizQuestionProgress",
+            "quizStageProgress",
+            "quizQuestionProgressBar",
+            "quizQuestion",
+            "quizOptions",
+            "quizFeedback",
+            "quizNext",
+            "quizScore"
+        ].some(key => !elements[key]);
 
-    if (!quizPanel || !quizComplete || !quizStage || !quizQuestionProgress || !quizStageProgress || !quizQuestionProgressBar || !quizQuestion || !quizOptions || !quizFeedback || !quizNext || !quizScore) {
+        return missingRequired ? null : elements;
+    };
+
+    const elements = getQuizElements();
+    if (!elements) {
         return;
     }
+
+    const {
+        quizPanel,
+        quizComplete,
+        quizStage,
+        quizQuestionProgress,
+        quizStageProgress,
+        quizQuestionProgressBar,
+        quizQuestion,
+        quizOptions,
+        quizFeedback,
+        quizNext,
+        quizScore,
+        quizStartButton
+    } = elements;
 
     const today = getLocalDateString();
     const storedDate = getStoredDate();
@@ -427,8 +462,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const queryParams = new URLSearchParams(window.location.search);
     const requestedStage = parseInt(queryParams.get("stage"), 10);
     const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE));
-    const isReviewMode = queryParams.get("mode") === "review" && !Number.isNaN(requestedStage)
-        && requestedStage >= 1 && requestedStage < currentStage;
+    const isReviewMode = queryParams.get("mode") === "review"
+        && !Number.isNaN(requestedStage)
+        && requestedStage >= 1
+        && requestedStage < currentStage;
     const activeStage = isReviewMode ? normalizeStage(requestedStage) : currentStage;
     const stageData = getStageData(activeStage);
 
@@ -441,20 +478,20 @@ document.addEventListener("DOMContentLoaded", () => {
         quizFeedback.classList.remove("is-correct", "is-wrong");
     };
 
+    const updateProgressBar = (element, value, max, min) => {
+        element.max = max;
+        element.value = value;
+        element.setAttribute("aria-valuemin", String(min));
+        element.setAttribute("aria-valuemax", String(max));
+        element.setAttribute("aria-valuenow", String(value));
+    };
+
     const updateProgress = () => {
         const questionNumber = state.index + 1;
         quizStage.textContent = `${state.stage} / ${QUIZ_STAGE_COUNT}`;
         quizQuestionProgress.textContent = `${questionNumber} / ${state.questions.length}`;
-        quizStageProgress.max = QUIZ_STAGE_COUNT;
-        quizStageProgress.value = state.stage;
-        quizStageProgress.setAttribute("aria-valuemin", "1");
-        quizStageProgress.setAttribute("aria-valuemax", String(QUIZ_STAGE_COUNT));
-        quizStageProgress.setAttribute("aria-valuenow", String(state.stage));
-        quizQuestionProgressBar.max = state.questions.length;
-        quizQuestionProgressBar.value = questionNumber;
-        quizQuestionProgressBar.setAttribute("aria-valuemin", "1");
-        quizQuestionProgressBar.setAttribute("aria-valuemax", String(state.questions.length));
-        quizQuestionProgressBar.setAttribute("aria-valuenow", String(questionNumber));
+        updateProgressBar(quizStageProgress, state.stage, QUIZ_STAGE_COUNT, 1);
+        updateProgressBar(quizQuestionProgressBar, questionNumber, state.questions.length, 1);
     };
 
     const showLoadError = () => {
@@ -465,14 +502,8 @@ document.addEventListener("DOMContentLoaded", () => {
         resetFeedback();
         quizStage.textContent = `0 / ${QUIZ_STAGE_COUNT}`;
         quizQuestionProgress.textContent = `0 / ${QUESTIONS_PER_STAGE}`;
-        quizStageProgress.value = 0;
-        quizStageProgress.setAttribute("aria-valuemin", "0");
-        quizStageProgress.setAttribute("aria-valuemax", String(QUIZ_STAGE_COUNT));
-        quizStageProgress.setAttribute("aria-valuenow", "0");
-        quizQuestionProgressBar.value = 0;
-        quizQuestionProgressBar.setAttribute("aria-valuemin", "0");
-        quizQuestionProgressBar.setAttribute("aria-valuemax", String(QUESTIONS_PER_STAGE));
-        quizQuestionProgressBar.setAttribute("aria-valuenow", "0");
+        updateProgressBar(quizStageProgress, 0, QUIZ_STAGE_COUNT, 0);
+        updateProgressBar(quizQuestionProgressBar, 0, QUESTIONS_PER_STAGE, 0);
     };
 
     if (quizStartButton) {
@@ -482,7 +513,6 @@ document.addEventListener("DOMContentLoaded", () => {
         quizStartButton.addEventListener("click", event => {
             if (quizPanel.classList.contains("d-none")) {
                 event.preventDefault();
-                return;
             }
         });
     }
@@ -539,24 +569,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const current = state.questions[state.index];
         const isCorrect = state.selectedIndex === current.answerIndex;
 
-        quizOptions.querySelectorAll(".quiz-option").forEach((button, index) => {
-            button.disabled = true;
-            if (index === current.answerIndex) {
-                button.classList.add("is-correct");
-            }
-            if (index === state.selectedIndex && !isCorrect) {
-                button.classList.add("is-wrong");
-            }
-        });
+        quizOptions.querySelectorAll(".quiz-option")
+            .forEach((button, index) => {
+                button.disabled = true;
+                if (index === current.answerIndex) {
+                    button.classList.add("is-correct");
+                    button.textContent = `${button.textContent} (정답)`;
+                }
+                if (index === state.selectedIndex && !isCorrect) {
+                    button.classList.add("is-wrong");
+                    button.textContent = `${button.textContent} (오답)`;
+                }
+            });
 
         if (isCorrect) {
             if (!state.isReview) {
                 state.score += 1;
             }
-            quizFeedback.textContent = "맞았습니다";
+            quizFeedback.textContent = "😊 잘하셨어요 정답입니다!";
             quizFeedback.classList.add("is-correct");
         } else {
-            quizFeedback.textContent = "다시 한번 읽어보세요";
+            quizFeedback.textContent = "🥲 아쉽지만 오답입니다. 말씀을 다시 읽어보면 도움이 될 거예요!";
             quizFeedback.classList.add("is-wrong");
         }
 
