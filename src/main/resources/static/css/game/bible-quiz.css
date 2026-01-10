@@ -2,6 +2,21 @@
     background: linear-gradient(135deg, #f8fbff 0%, #eef7ff 45%, #fff6e9 100%);
 }
 
+.quiz-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #3f5fbf;
+    text-decoration: none;
+}
+
+.quiz-map-link:hover {
+    text-decoration: underline;
+}
+
 .quiz-card,
 .quiz-complete {
     max-width: 640px;
@@ -9,10 +24,21 @@
 }
 
 .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.9rem;
     font-weight: 600;
     color: #3a4a66;
     margin-bottom: 0.75rem;
+}
+
+.quiz-progress-item {
+    min-width: 64px;
+}
+
+.quiz-progress-divider {
+    color: #b4c1d6;
 }
 
 .quiz-options {
@@ -81,4 +107,8 @@
 .quiz-complete-icon {
     font-size: 2rem;
     margin-bottom: 0.75rem;
+}
+
+.quiz-score {
+    font-weight: 600;
 }

@@ -17,4 +17,9 @@ class GameWebController {
     fun showBibleQuiz(): String {
         return "game/bible-quiz"
     }
+
+    @GetMapping("/bible-quiz/map")
+    fun showBibleQuizMap(): String {
+        return "game/bible-quiz-map"
+    }
 }
