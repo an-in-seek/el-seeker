@@ -1,5 +1,5 @@
 const QUIZ_STAGE_COUNT = 10;
-const QUESTIONS_PER_STAGE = 5;
+const QUESTIONS_PER_STAGE = 10;
 const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
