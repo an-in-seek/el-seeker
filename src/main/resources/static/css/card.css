@@ -1,0 +1,47 @@
+.card-soft {
+    border-radius: 16px;
+}
+
+.card-panel {
+    height: 100%;
+    border: 0;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+@media (max-width: 576px) {
+    .card-soft {
+        border-radius: 14px;
+    }
+}
+
+.card-lift .card,
+.card-lift.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+    .card-lift:hover .card,
+    .card-lift:focus-visible .card,
+    .card-lift.card:hover,
+    .card-lift.card:focus-visible {
+        background-color: #f8f9fa;
+        box-shadow: 0 0.75rem 1.5rem rgba(33, 37, 41, 0.12);
+        transform: translateY(-4px);
+    }
+
+    .card-lift:hover .text-muted,
+    .card-lift:focus-visible .text-muted,
+    .card-lift.card:hover .text-muted,
+    .card-lift.card:focus-visible .text-muted {
+        color: #495057;
+    }
+}
+
+.coming-soon,
+.coming-soon .card {
+    cursor: not-allowed;
+}

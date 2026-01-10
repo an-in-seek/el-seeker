@@ -101,29 +101,6 @@
     white-space: nowrap;
 }
 
-.menu-card-link .card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-.menu-card-link.coming-soon,
-.menu-card-link.coming-soon .card {
-    cursor: not-allowed;
-}
-
-@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
-    .menu-card-link:hover .card,
-    .menu-card-link:focus-visible .card {
-        background-color: #f8f9fa;
-        box-shadow: 0 0.75rem 1.5rem rgba(33, 37, 41, 0.12);
-        transform: translateY(-4px);
-    }
-
-    .menu-card-link:hover .card .text-muted,
-    .menu-card-link:focus-visible .card .text-muted {
-        color: #495057;
-    }
-}
-
 .nav-placeholder {
     visibility: hidden;
     pointer-events: none;
