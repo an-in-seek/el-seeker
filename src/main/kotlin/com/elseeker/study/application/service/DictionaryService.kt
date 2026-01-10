@@ -2,7 +2,7 @@ package com.elseeker.study.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.ServiceError
-import com.elseeker.study.adapter.out.jpa.DictionaryRepository
+import com.elseeker.study.adapter.output.jpa.DictionaryRepository
 import com.elseeker.study.domain.model.Dictionary
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

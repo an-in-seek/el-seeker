@@ -1,8 +1,8 @@
 package com.elseeker.bible.application.component
 
-import com.elseeker.bible.adapter.`in`.api.response.BibleApiResponse
-import com.elseeker.bible.adapter.`in`.api.response.BibleSearchSliceResponse
-import com.elseeker.bible.adapter.out.jpa.*
+import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
+import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
+import com.elseeker.bible.adapter.output.jpa.*
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.DirectionType

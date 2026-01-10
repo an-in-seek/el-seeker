@@ -1,7 +1,7 @@
 package com.elseeker.bible.application.service
 
-import com.elseeker.bible.adapter.`in`.api.response.BibleApiResponse
-import com.elseeker.bible.adapter.`in`.api.response.BibleSearchSliceResponse
+import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
+import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
 import com.elseeker.bible.application.component.BibleReader
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.DirectionType
