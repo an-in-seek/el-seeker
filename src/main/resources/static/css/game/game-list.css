@@ -41,6 +41,10 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+.game-card.coming-soon {
+    cursor: not-allowed;
+}
+
 .game-card-icon {
     width: 44px;
     height: 44px;
