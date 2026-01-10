@@ -393,6 +393,7 @@ const getStoredScore = () => {
 };
 
 const showCompletion = (quizPanel, quizComplete, quizScore, score) => {
+    quizPanel.setAttribute("aria-busy", "false");
     quizPanel.classList.add("d-none");
     if (score !== null && score !== undefined) {
         quizScore.textContent = `오늘 점수 ${score} / ${QUESTIONS_PER_STAGE}`;
@@ -407,13 +408,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const quizComplete = document.getElementById("quizComplete");
     const quizStage = document.getElementById("quizStage");
     const quizQuestionProgress = document.getElementById("quizQuestionProgress");
+    const quizStageProgress = document.getElementById("quizStageProgress");
+    const quizQuestionProgressBar = document.getElementById("quizQuestionProgressBar");
     const quizQuestion = document.getElementById("quizQuestion");
     const quizOptions = document.getElementById("quizOptions");
     const quizFeedback = document.getElementById("quizFeedback");
     const quizNext = document.getElementById("quizNext");
     const quizScore = document.getElementById("quizScore");
+    const quizStartButton = document.getElementById("quizStartButton");
 
-    if (!quizPanel || !quizComplete || !quizStage || !quizQuestionProgress || !quizQuestion || !quizOptions || !quizFeedback || !quizNext || !quizScore) {
+    if (!quizPanel || !quizComplete || !quizStage || !quizQuestionProgress || !quizStageProgress || !quizQuestionProgressBar || !quizQuestion || !quizOptions || !quizFeedback || !quizNext || !quizScore) {
         return;
     }
 
@@ -428,18 +432,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeStage = isReviewMode ? normalizeStage(requestedStage) : currentStage;
     const stageData = getStageData(activeStage);
 
-    if (!isReviewMode && storedDate === today) {
-        showCompletion(quizPanel, quizComplete, quizScore, storedScore);
-        return;
-    }
-
-    const state = {
-        index: 0,
-        answered: false,
-        score: 0,
-        stage: activeStage,
-        questions: stageData.questions,
-        isReview: isReviewMode,
+    const setBusy = isBusy => {
+        quizPanel.setAttribute("aria-busy", isBusy ? "true" : "false");
     };
 
     const resetFeedback = () => {
@@ -447,39 +441,111 @@ document.addEventListener("DOMContentLoaded", () => {
         quizFeedback.classList.remove("is-correct", "is-wrong");
     };
 
-    const renderQuestion = () => {
-        const current = state.questions[state.index];
+    const updateProgress = () => {
+        const questionNumber = state.index + 1;
         quizStage.textContent = `${state.stage} / ${QUIZ_STAGE_COUNT}`;
-        quizQuestionProgress.textContent = `${state.index + 1} / ${state.questions.length}`;
+        quizQuestionProgress.textContent = `${questionNumber} / ${state.questions.length}`;
+        quizStageProgress.max = QUIZ_STAGE_COUNT;
+        quizStageProgress.value = state.stage;
+        quizStageProgress.setAttribute("aria-valuemin", "1");
+        quizStageProgress.setAttribute("aria-valuemax", String(QUIZ_STAGE_COUNT));
+        quizStageProgress.setAttribute("aria-valuenow", String(state.stage));
+        quizQuestionProgressBar.max = state.questions.length;
+        quizQuestionProgressBar.value = questionNumber;
+        quizQuestionProgressBar.setAttribute("aria-valuemin", "1");
+        quizQuestionProgressBar.setAttribute("aria-valuemax", String(state.questions.length));
+        quizQuestionProgressBar.setAttribute("aria-valuenow", String(questionNumber));
+    };
+
+    const showLoadError = () => {
+        setBusy(false);
+        quizQuestion.textContent = "오늘의 퀴즈를 불러올 수 없습니다";
+        quizOptions.textContent = "잠시 후 다시 시도해주세요.";
+        quizNext.disabled = true;
+        resetFeedback();
+        quizStage.textContent = `0 / ${QUIZ_STAGE_COUNT}`;
+        quizQuestionProgress.textContent = `0 / ${QUESTIONS_PER_STAGE}`;
+        quizStageProgress.value = 0;
+        quizStageProgress.setAttribute("aria-valuemin", "0");
+        quizStageProgress.setAttribute("aria-valuemax", String(QUIZ_STAGE_COUNT));
+        quizStageProgress.setAttribute("aria-valuenow", "0");
+        quizQuestionProgressBar.value = 0;
+        quizQuestionProgressBar.setAttribute("aria-valuemin", "0");
+        quizQuestionProgressBar.setAttribute("aria-valuemax", String(QUESTIONS_PER_STAGE));
+        quizQuestionProgressBar.setAttribute("aria-valuenow", "0");
+    };
+
+    if (quizStartButton) {
+        if (isReviewMode) {
+            quizStartButton.textContent = "오늘의 퀴즈 이어서 하기";
+        }
+        quizStartButton.addEventListener("click", event => {
+            if (quizPanel.classList.contains("d-none")) {
+                event.preventDefault();
+                return;
+            }
+        });
+    }
+
+    if (!isReviewMode && storedDate === today) {
+        showCompletion(quizPanel, quizComplete, quizScore, storedScore);
+        return;
+    }
+
+    const renderQuestion = () => {
+        setBusy(true);
+        const current = state.questions[state.index];
+        if (!current) {
+            showLoadError();
+            return;
+        }
         quizQuestion.textContent = current.question;
         quizOptions.innerHTML = "";
         resetFeedback();
         quizNext.disabled = true;
-        quizNext.textContent = state.index === state.questions.length - 1 ? "완료" : "다음 문제";
+        quizNext.textContent = "정답 확인";
         state.answered = false;
+        state.selectedIndex = null;
 
         current.options.forEach((option, optionIndex) => {
             const button = document.createElement("button");
             button.type = "button";
             button.className = "quiz-option";
             button.textContent = option;
-            button.addEventListener("click", () => handleAnswer(button, optionIndex));
+            button.addEventListener("click", () => selectOption(button, optionIndex));
             quizOptions.appendChild(button);
         });
+        updateProgress();
+        setBusy(false);
     };
 
-    const handleAnswer = (selectedButton, selectedIndex) => {
+    const selectOption = (selectedButton, selectedIndex) => {
         if (state.answered) {
+            return;
+        }
+        state.selectedIndex = selectedIndex;
+        quizOptions.querySelectorAll(".quiz-option").forEach(button => {
+            button.classList.remove("is-selected");
+        });
+        selectedButton.classList.add("is-selected");
+        quizNext.disabled = false;
+    };
+
+    const gradeAnswer = () => {
+        if (state.answered || state.selectedIndex === null) {
             return;
         }
         state.answered = true;
         const current = state.questions[state.index];
-        const isCorrect = selectedIndex === current.answerIndex;
+        const isCorrect = state.selectedIndex === current.answerIndex;
 
         quizOptions.querySelectorAll(".quiz-option").forEach((button, index) => {
             button.disabled = true;
             if (index === current.answerIndex) {
                 button.classList.add("is-correct");
+            }
+            if (index === state.selectedIndex && !isCorrect) {
+                button.classList.add("is-wrong");
             }
         });
 
@@ -490,16 +556,20 @@ document.addEventListener("DOMContentLoaded", () => {
             quizFeedback.textContent = "맞았습니다";
             quizFeedback.classList.add("is-correct");
         } else {
-            selectedButton.classList.add("is-wrong");
             quizFeedback.textContent = "다시 한번 읽어보세요";
             quizFeedback.classList.add("is-wrong");
         }
 
         quizNext.disabled = false;
+        quizNext.textContent = state.index === state.questions.length - 1 ? "완료" : "다음 문제";
     };
 
     quizNext.addEventListener("click", () => {
         if (!state.answered) {
+            if (state.selectedIndex === null) {
+                return;
+            }
+            gradeAnswer();
             return;
         }
         if (state.index === state.questions.length - 1) {
@@ -515,6 +585,21 @@ document.addEventListener("DOMContentLoaded", () => {
         state.index += 1;
         renderQuestion();
     });
+
+    if (!stageData || !Array.isArray(stageData.questions) || stageData.questions.length === 0) {
+        showLoadError();
+        return;
+    }
+
+    const state = {
+        index: 0,
+        answered: false,
+        score: 0,
+        stage: activeStage,
+        questions: stageData.questions,
+        isReview: isReviewMode,
+        selectedIndex: null,
+    };
 
     renderQuestion();
 });

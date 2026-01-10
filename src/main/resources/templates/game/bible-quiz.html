@@ -11,19 +11,31 @@
             <p class="quiz-hero-eyebrow page-hero-eyebrow">오늘의 성경 퀴즈</p>
             <h2 id="quizTitle" class="quiz-hero-title page-hero-title">오늘 5문제</h2>
             <p class="quiz-hero-lead page-hero-lead">오늘의 퀴즈를 바로 시작합니다.</p>
-            <a class="quiz-map-link" href="/web/game/bible-quiz/map">스테이지 보기</a>
+            <div class="flex-wrap gap-2 mt-2">
+                <a class="btn btn-primary btn-pill" href="#quizPanel" id="quizStartButton">퀴즈 시작하기</a>
+                <a class="btn btn-outline-secondary btn-pill" href="/web/game/bible-quiz/map">스테이지 보기</a>
+            </div>
         </div>
     </section>
 
-    <section class="quiz-card card card-panel card-soft" id="quizPanel" aria-live="polite">
+    <section class="quiz-card card card-panel card-soft" id="quizPanel" aria-busy="true">
         <div class="card-body">
             <div class="quiz-progress">
-                <span class="quiz-progress-item" id="quizStage">1 / 10</span>
-                <span class="quiz-progress-divider" aria-hidden="true">|</span>
-                <span class="quiz-progress-item" id="quizQuestionProgress">1 / 5</span>
+                <div class="quiz-progress-block">
+                    <span class="quiz-progress-label">스테이지</span>
+                    <progress class="quiz-progress-bar" id="quizStageProgress" value="1" max="10" aria-valuemin="1" aria-valuemax="10"
+                              aria-valuenow="1"></progress>
+                    <span class="quiz-progress-item" id="quizStage">1 / 10</span>
+                </div>
+                <div class="quiz-progress-block">
+                    <span class="quiz-progress-label">문제</span>
+                    <progress class="quiz-progress-bar" id="quizQuestionProgressBar" value="1" max="5" aria-valuemin="1" aria-valuemax="5"
+                              aria-valuenow="1"></progress>
+                    <span class="quiz-progress-item" id="quizQuestionProgress">1 / 5</span>
+                </div>
             </div>
-            <h3 class="quiz-question h5 fw-semibold mb-3" id="quizQuestion"></h3>
-            <div class="quiz-options" id="quizOptions"></div>
+            <h3 class="quiz-question h5 fw-semibold mb-3" id="quizQuestion">문제를 불러오는 중입니다…</h3>
+            <div class="quiz-options" id="quizOptions">문제를 불러오는 중입니다…</div>
             <p class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></p>
             <button class="btn btn-primary quiz-next" id="quizNext" type="button" disabled>다음 문제</button>
         </div>
@@ -32,7 +44,7 @@
     <section class="quiz-complete card card-panel card-soft d-none" id="quizComplete">
         <div class="card-body text-center">
             <div class="quiz-complete-icon" aria-hidden="true">✅</div>
-            <h3 class="h5 fw-semibold mb-2">오늘의 퀴즈를 마쳤어요</h3>
+            <h3 class="h5 fw-semibold mb-2" id="quizCompleteTitle">오늘의 퀴즈를 마쳤어요</h3>
             <p class="quiz-score text-muted small mb-1" id="quizScore"></p>
             <p class="text-muted small mb-0">내일 새로운 5문제가 준비됩니다.</p>
             <a class="btn btn-outline-secondary btn-sm mt-3" href="/web/game/bible-quiz/map">스테이지 보기</a>
