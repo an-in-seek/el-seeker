@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('The Bible - Study | 학습', true, null)}"></head>
+<head th:replace="~{fragments/head :: head('The Bible - Study | 학습', true, '/css/study/study.css?v=1.0')}"></head>
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
-    <section class="mb-4 text-center">
-        <p class="text-muted mb-0">성경을 더 깊이 이해하기 위한 학습 항목을 선택하세요.</p>
+    <section class="study-hero" aria-labelledby="studyListTitle">
+        <div class="study-hero-content">
+            <p class="study-hero-eyebrow">말씀을 더 깊이 배우는 시간</p>
+            <h2 id="studyListTitle" class="study-hero-title">성경 학습 콘텐츠를 한눈에</h2>
+            <p class="study-hero-lead">사전과 역사부터 다양한 학습 자료를 준비했습니다.</p>
+        </div>
     </section>
 
     <div class="row g-3">
         <div class="col-12 col-md-6 col-lg-4">
-            <a class="text-decoration-none menu-card-link" href="/web/study/dictionary">
-                <div class="card h-100 border-0 shadow-sm">
+            <a class="text-decoration-none menu-card-link study-card-link" href="/web/study/dictionary">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-1"><span class="me-2" aria-hidden="true">📚</span>성경 사전</h2>
                         <p class="text-muted small mb-0">성경 용어를 빠르게 검색합니다.</p>
@@ -22,8 +26,8 @@
             </a>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <a class="text-decoration-none menu-card-link" href="/web/study/history">
-                <div class="card h-100 border-0 shadow-sm">
+            <a class="text-decoration-none menu-card-link study-card-link" href="/web/study/history">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <h2 class="h6 fw-semibold mb-1"><span class="me-2" aria-hidden="true">📜</span>성경 역사</h2>
                         <p class="text-muted small mb-0">성경 시대와 사건을 한눈에 살펴봅니다.</p>
@@ -32,8 +36,8 @@
             </a>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="menu-card-link coming-soon">
-                <div class="card h-100 border-0 shadow-sm">
+            <div class="menu-card-link study-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h2 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📝</span>성경 주석</h2>
@@ -45,8 +49,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="menu-card-link coming-soon">
-                <div class="card h-100 border-0 shadow-sm">
+            <div class="menu-card-link study-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h2 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📄</span>성경 논문</h2>
@@ -58,8 +62,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="menu-card-link coming-soon">
-                <div class="card h-100 border-0 shadow-sm">
+            <div class="menu-card-link study-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h2 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🗺️</span>성경 지도</h2>
@@ -71,8 +75,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="menu-card-link coming-soon">
-                <div class="card h-100 border-0 shadow-sm">
+            <div class="menu-card-link study-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h2 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🎓</span>성경 강의</h2>
@@ -84,8 +88,8 @@
             </div>
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="menu-card-link coming-soon">
-                <div class="card h-100 border-0 shadow-sm">
+            <div class="menu-card-link study-card-link coming-soon">
+                <div class="card h-100 border-0 shadow-sm study-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h2 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🎬</span>성경 다큐멘터리</h2>
