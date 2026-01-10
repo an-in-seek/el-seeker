@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('The Bible - History | 성경 역사', true, '/css/history-main.css?v=1.0')}"></head>
+<head th:replace="~{fragments/head :: head('The Bible - History | 성경 역사', true, '/css/study/history-main.css?v=1.0')}"></head>
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
@@ -19,12 +19,11 @@
                     <div class="era-marker">
                         <span th:text="${#numbers.formatInteger(iter.index + 1, 2)}"></span>
                     </div>
+                    <div class="era-period" th:text="${block.era.period}"></div>
                     <a class="text-decoration-none era-label"
                        th:href="@{/web/study/history/{era}(era=${block.era.slug})}"
                        th:text="${block.era.label}"></a>
-                    <div class="era-period" th:text="${block.era.period}"></div>
-                    <div class="era-keywords"
-                         th:text="|${block.era.keywords[0]} · ${block.era.keywords[1]}|"></div>
+                    <div class="era-keywords" th:text="|${block.era.keywords[0]} · ${block.era.keywords[1]}|"></div>
                     <div class="d-flex flex-wrap gap-1 mt-1" th:if="${!#lists.isEmpty(block.eventHighlights)}">
                         <a th:each="event : ${block.eventHighlights}"
                            class="event-chip"
