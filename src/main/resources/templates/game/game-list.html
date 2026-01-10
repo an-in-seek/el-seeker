@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible - Games | 게임', true, '/css/game/game-list.css?v=1.0')}"></head>
+<body class="has-fixed-nav">
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper">
+    <section class="game-hero" aria-labelledby="gameListTitle">
+        <div class="game-hero-content">
+            <p class="game-hero-eyebrow">즐겁게 배우는 성경</p>
+            <h2 id="gameListTitle" class="game-hero-title">성경 기반 게임을 한눈에</h2>
+            <p class="game-hero-lead">퀴즈부터 퍼즐, 타자까지 다양한 게임을 준비했습니다.</p>
+        </div>
+    </section>
+
+    <div class="row g-3 game-list">
+        <div class="col-12 col-md-6 col-lg-4">
+            <article class="card h-100 border-0 shadow-sm game-card" data-game-key="bible-quiz" data-game-route="/web/game/bible-quiz">
+                <div class="card-body d-flex flex-column">
+                    <div class="game-card-icon" aria-hidden="true">🧠</div>
+                    <h3 class="h6 fw-semibold mb-2">성경 퀴즈</h3>
+                    <p class="text-muted small mb-3">성경 상식을 빠르게 확인하며 지식을 쌓아보세요.</p>
+                    <div class="mt-auto game-card-meta">
+                        <span class="badge text-bg-light">퀴즈</span>
+                        <span class="badge text-bg-light">스코어</span>
+                        <span class="badge text-bg-light">랭킹</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <article class="card h-100 border-0 shadow-sm game-card" data-game-key="bible-word-puzzle" data-game-route="/web/game/bible-word-puzzle">
+                <div class="card-body d-flex flex-column">
+                    <div class="game-card-icon" aria-hidden="true">🧩</div>
+                    <h3 class="h6 fw-semibold mb-2">성경 단어 퍼즐(가로·세로 낱말 맞추기)</h3>
+                    <p class="text-muted small mb-3">말씀의 핵심 단어를 연결하며 재미있게 복습합니다.</p>
+                    <div class="mt-auto game-card-meta">
+                        <span class="badge text-bg-light">퍼즐</span>
+                        <span class="badge text-bg-light">가로·세로</span>
+                        <span class="badge text-bg-light">힌트</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+            <article class="card h-100 border-0 shadow-sm game-card" data-game-key="bible-typing" data-game-route="/web/game/bible-typing">
+                <div class="card-body d-flex flex-column">
+                    <div class="game-card-icon" aria-hidden="true">⌨️</div>
+                    <h3 class="h6 fw-semibold mb-2">성경 타자</h3>
+                    <p class="text-muted small mb-3">말씀을 타이핑하며 암송과 집중력을 함께 높입니다.</p>
+                    <div class="mt-auto game-card-meta">
+                        <span class="badge text-bg-light">타자</span>
+                        <span class="badge text-bg-light">기록</span>
+                        <span class="badge text-bg-light">연습</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "게임";
+            pageTitleLabel.classList.remove("d-none");
+        }
+    });
+</script>
+</body>
+</html>
