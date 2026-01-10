@@ -13,8 +13,9 @@
 
 .verse-text {
     cursor: pointer;
-    display: inline-block;
-    padding: 0.2rem 0;
+    display: block;
+    line-height: 1.6;
+    padding: 0;
 }
 
 .verse-text.active {
@@ -44,4 +45,18 @@
     transition: background-color 0.3s ease;
     border-radius: 4px;
     padding: 2px 4px;
+}
+
+.verse-table td {
+    vertical-align: baseline;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.verse-table td:first-child {
+    width: 2.5rem;
+    text-align: right;
+    padding-right: 0.6rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
