@@ -24,8 +24,13 @@ class BibleReader(
 ) {
 
     fun getTranslations(): List<BibleResult.Translation> =
-        bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(setOf(BibleTranslationType.KRV, BibleTranslationType.KJV))
-            .map(BibleResult.Translation::from)
+        bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(
+            setOf(
+                BibleTranslationType.KRV,
+                BibleTranslationType.NKRV,
+                BibleTranslationType.KJV
+            )
+        ).map(BibleResult.Translation::from)
 
     fun getBook(translationId: Long, bookOrder: Int): BibleApiResponse.BookDetail? {
         val book = bibleBookRepository.findByTranslationAndBook(translationId, bookOrder) ?: return null

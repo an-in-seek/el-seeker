@@ -2,6 +2,7 @@ package com.elseeker.bible.adapter.`in`.web
 
 import com.elseeker.bible.adapter.`in`.web.response.BibleViewResponse
 import com.elseeker.bible.application.service.BibleService
+import com.elseeker.bible.domain.vo.BibleTranslationType
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,8 +16,20 @@ class BibleWebController(
 ) {
 
     @GetMapping("/translation")
-    fun showTranslations(model: Model): String {
-        val translations = bibleService.getTranslations().map(BibleViewResponse.Translation::from)
+    fun showTranslations(
+        model: Model,
+        @RequestParam(required = false) dev: String?
+    ): String {
+        val devEnabled = dev == "1" || dev.equals("true", ignoreCase = true)
+        val translations = bibleService.getTranslations()
+            .let { items ->
+                if (devEnabled) {
+                    items
+                } else {
+                    items.filter { it.translationType != BibleTranslationType.NKRV }
+                }
+            } // TODO: 추후 개역개정 저작권 무료화되면 제거 예정
+            .map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
         return "bible/translation-list"
     }

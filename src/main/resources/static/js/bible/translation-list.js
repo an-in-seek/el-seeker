@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    const DEV_CLICK_THRESHOLD = 12;
     const returnPath = TranslationStore.consumeTranslationReturnPath();
     const translationsContainer = document.getElementById("translationSections");
     const sourceList = document.getElementById("translationList");
@@ -12,6 +13,38 @@ document.addEventListener("DOMContentLoaded", () => {
         es: "스페인어",
         de: "독일어",
         la: "라틴어"
+    };
+
+    const isDevParamPresent = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("dev") === "1" || params.get("dev") === "true";
+    };
+
+    const stripDevParam = () => {
+        const url = new URL(window.location.href);
+        if (!url.searchParams.has("dev")) {
+            return;
+        }
+        url.searchParams.delete("dev");
+        const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+        window.history.replaceState({}, "", nextUrl);
+    };
+
+    const redirectToDevMode = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("dev", "1");
+        window.location.replace(`${url.pathname}${url.search}${url.hash}`);
+    };
+
+    const attachDevClickCounter = () => {
+        let clickCount = 0;
+        document.addEventListener("click", () => {
+            clickCount += 1;
+            if (clickCount < DEV_CLICK_THRESHOLD) {
+                return;
+            }
+            redirectToDevMode();
+        });
     };
 
     const updatePageTitle = () => {
@@ -94,6 +127,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const init = () => {
+        const devEnabled = isDevParamPresent();
+        if (devEnabled) {
+            stripDevParam();
+        } else {
+            attachDevClickCounter();
+        }
         updatePageTitle();
         const {orderedLanguages, groupedByLanguage} = groupButtonsByLanguage(translationButtons);
         renderSections(translationsContainer, orderedLanguages, groupedByLanguage);
