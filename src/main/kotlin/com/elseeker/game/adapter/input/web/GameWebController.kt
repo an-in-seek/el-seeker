@@ -1,4 +1,4 @@
-package com.elseeker.game.adapter.`in`.web
+package com.elseeker.game.adapter.input.web
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping

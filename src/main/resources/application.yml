@@ -28,6 +28,7 @@ spring:
     init:
       mode: always # ✅ 항상 SQL 스크립트 실행
       data-locations:
+        - classpath:data/bible_quiz.sql
         - classpath:data/dictionary.sql
         - classpath:data/bible_translation.sql
         - classpath:data/bible_book_description_ko.sql

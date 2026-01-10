@@ -1,122 +1,165 @@
+const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STAGE_COUNT = 10;
-const QUESTIONS_PER_STAGE = 5;
 
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
     LAST_COMPLETED_DATE: "lastCompletedDate",
 });
 
-const getLocalDateString = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-};
+const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const normalizeStage = stageValue => {
     const parsed = parseInt(stageValue, 10);
-    if (Number.isNaN(parsed) || parsed < 1) {
+    if (Number.isNaN(parsed)) {
         return 1;
     }
-    if (parsed > QUIZ_STAGE_COUNT) {
-        return QUIZ_STAGE_COUNT;
-    }
-    return parsed;
+    return clampNumber(parsed, 1, QUIZ_STAGE_COUNT);
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-    const stageList = document.getElementById("stageList");
-    const quizMapDate = document.getElementById("quizMapDate");
-    const quizMapNote = document.getElementById("quizMapNote");
-
-    if (!stageList || !quizMapDate || !quizMapNote) {
-        return;
+const fetchStageSummaries = async () => {
+    try {
+        const response = await fetch(`${QUIZ_API_BASE}/stages`);
+        if (!response.ok) {
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        return null;
     }
+};
 
+const getQuizMapElements = () => {
+    const elements = {
+        stageList: document.getElementById("stageList"),
+        quizMapDate: document.getElementById("quizMapDate"),
+        quizMapNote: document.getElementById("quizMapNote")
+    };
+    const missingRequired = Object.values(elements).some(element => !element);
+    return missingRequired ? null : elements;
+};
+
+const buildContext = elements => {
     const today = getLocalDateString();
     const storedDate = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
     const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE));
-    const canPlayToday = storedDate !== today;
 
-    quizMapDate.textContent = `오늘 ${today}`;
+    return {
+        elements,
+        today,
+        storedDate,
+        currentStage,
+        canPlayToday: storedDate !== today
+    };
+};
 
-    if (storedDate === today) {
-        quizMapNote.textContent = "오늘의 퀴즈를 완료했습니다. 현재 스테이지는 내일부터 시작할 수 있습니다.";
-    } else {
-        quizMapNote.textContent = "현재 스테이지는 오늘의 퀴즈에서 진행됩니다.";
+const updateSummary = context => {
+    context.elements.quizMapDate.textContent = `오늘 ${context.today}`;
+    if (context.storedDate === context.today) {
+        context.elements.quizMapNote.textContent = "오늘의 퀴즈를 완료했습니다. 현재 스테이지는 내일부터 시작할 수 있습니다.";
+        return;
     }
+    context.elements.quizMapNote.textContent = "현재 스테이지는 오늘의 퀴즈에서 진행됩니다.";
+};
 
-    stageList.innerHTML = "";
+const resolveStageStatus = (stage, currentStage) => {
+    if (stage < currentStage) {
+        return "complete";
+    }
+    if (stage === currentStage) {
+        return "current";
+    }
+    return "locked";
+};
 
-    for (let stage = 1; stage <= QUIZ_STAGE_COUNT; stage += 1) {
-        const status = stage < currentStage ? "complete" : stage === currentStage ? "current" : "locked";
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "stage-card";
+const resolveStageCardProps = (status, questionCount, canPlayToday, stage) => {
+    let statusLabel = "진행 전";
+    let metaText = `${questionCount}문제`;
+    let route = null;
+    let isClickable = false;
+    const classList = ["stage-card"];
 
-        let statusLabel = "진행 전";
-        let metaText = `${QUESTIONS_PER_STAGE}문제`;
-        let route = null;
-        let isClickable = false;
-
-        if (status === "complete") {
-            card.classList.add("is-complete", "is-clickable");
-            statusLabel = "완료";
-            metaText = "복습 가능";
-            route = `/web/game/bible-quiz?stage=${stage}&mode=review`;
+    if (status === "complete") {
+        classList.push("is-complete", "is-clickable");
+        statusLabel = "완료";
+        metaText = "복습 가능";
+        route = `/web/game/bible-quiz?stage=${stage}&mode=review`;
+        isClickable = true;
+    } else if (status === "current") {
+        classList.push("is-current");
+        statusLabel = "현재";
+        if (canPlayToday) {
+            classList.push("is-clickable");
+            metaText = "오늘 진행";
+            route = "/web/game/bible-quiz";
             isClickable = true;
-        } else if (status === "current") {
-            card.classList.add("is-current");
-            statusLabel = "현재";
-            if (canPlayToday) {
-                card.classList.add("is-clickable");
-                metaText = "오늘 진행";
-                route = "/web/game/bible-quiz";
-                isClickable = true;
-            } else {
-                metaText = "내일 시작 가능";
-            }
         } else {
-            card.classList.add("is-locked");
+            metaText = "내일 시작 가능";
         }
-
-        if (!isClickable) {
-            card.disabled = true;
-        }
-
-        const header = document.createElement("div");
-        header.className = "stage-card-header";
-
-        const number = document.createElement("span");
-        number.className = "stage-number";
-        number.textContent = `${stage} 스테이지`;
-
-        const statusBadge = document.createElement("span");
-        statusBadge.className = "stage-status";
-        if (status === "complete") {
-            statusBadge.classList.add("is-complete");
-        }
-        if (status === "current") {
-            statusBadge.classList.add("is-current");
-        }
-        statusBadge.textContent = statusLabel;
-
-        const meta = document.createElement("div");
-        meta.className = "stage-meta";
-        meta.textContent = metaText;
-
-        header.appendChild(number);
-        header.appendChild(statusBadge);
-        card.appendChild(header);
-        card.appendChild(meta);
-
-        if (route) {
-            card.addEventListener("click", () => {
-                window.location.href = route;
-            });
-        }
-
-        stageList.appendChild(card);
+    } else {
+        classList.push("is-locked");
     }
+
+    return { statusLabel, metaText, route, isClickable, classList };
+};
+
+const buildStageCardMarkup = (summary, context) => {
+    const stage = summary.stage;
+    const status = resolveStageStatus(stage, context.currentStage);
+    const { statusLabel, metaText, route, isClickable, classList } = resolveStageCardProps(
+        status,
+        summary.questionCount,
+        context.canPlayToday,
+        stage
+    );
+    const badgeClass = [
+        "stage-status",
+        status === "complete" ? "is-complete" : "",
+        status === "current" ? "is-current" : ""
+    ].filter(Boolean).join(" ");
+    const disabledAttr = isClickable ? "" : "disabled";
+    const routeAttr = route ? `data-route="${route}"` : "";
+
+    return `
+        <button type="button" class="${classList.join(" ")}" ${disabledAttr} ${routeAttr}>
+            <div class="stage-card-header">
+                <span class="stage-number">${stage} 스테이지</span>
+                <span class="${badgeClass}">${statusLabel}</span>
+            </div>
+            <div class="stage-meta">${metaText}</div>
+        </button>
+    `;
+};
+
+const renderStages = (context, stageSummaries) => {
+    context.elements.stageList.innerHTML = stageSummaries
+        .map(summary => buildStageCardMarkup(summary, context))
+        .join("");
+    context.elements.stageList.querySelectorAll("[data-route]").forEach(card => {
+        card.addEventListener("click", () => {
+            window.location.href = card.dataset.route;
+        });
+    });
+};
+
+const showLoadError = context => {
+    context.elements.quizMapNote.textContent = "퀴즈 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+};
+
+const initializeQuizMap = async context => {
+    updateSummary(context);
+    const stageSummaries = await fetchStageSummaries();
+    if (!Array.isArray(stageSummaries)) {
+        showLoadError(context);
+        return;
+    }
+    renderStages(context, stageSummaries);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const elements = getQuizMapElements();
+    if (!elements) {
+        return;
+    }
+    const context = buildContext(elements);
+    initializeQuizMap(context).catch(() => showLoadError(context));
 });
