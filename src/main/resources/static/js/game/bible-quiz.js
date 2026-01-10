@@ -97,16 +97,16 @@ const showCompletion = (quizPanel, quizComplete, quizScore, score, questionCount
 };
 
 const showReviewButton = context => {
-    const {quizReviewButton} = context.elements;
-    if (!quizReviewButton) {
+    const {quizModeSelectButton} = context.elements;
+    if (!quizModeSelectButton) {
         return;
     }
     const reviewStage = context.state?.stage || getStoredLastCompletedStage();
     if (!reviewStage) {
         return;
     }
-    quizReviewButton.classList.remove("d-none");
-    quizReviewButton.addEventListener("click", () => {
+    quizModeSelectButton.classList.remove("d-none");
+    quizModeSelectButton.addEventListener("click", () => {
         window.location.href = `/web/game/bible-quiz?stage=${reviewStage}`;
     });
 };
@@ -128,7 +128,7 @@ const getQuizElements = () => {
         quizFeedback: getElement("quizFeedback"),
         quizNext: getElement("quizNext"),
         quizScore: getElement("quizScore"),
-        quizReviewButton: getElement("quizReviewButton"),
+        quizModeSelectButton: getElement("quizModeSelectButton"),
         quizHeroLead: getElement("quizHeroLead")
     };
     const missingRequired = [
@@ -212,6 +212,7 @@ const showModeSelection = context => {
     quizModeSelect.classList.remove("d-none");
     quizPanel.classList.add("d-none");
     quizModeRetryButton.disabled = !context.canRetry;
+    quizModeRetryButton.textContent = context.canRetry ? "재도전" : "재도전 (불가능)"
     quizModeRetryButton.addEventListener("click", () => {
         if (!context.canRetry) {
             return;
