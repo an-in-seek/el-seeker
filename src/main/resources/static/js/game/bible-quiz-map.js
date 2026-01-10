@@ -3,6 +3,7 @@ const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
     LAST_COMPLETED_DATE: "lastCompletedDate",
+    STAGE_SCORE_PREFIX: "quizStageScore",
 });
 
 const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -16,6 +17,13 @@ const normalizeStage = (stageValue, stageCount) => {
         return Math.max(parsed, 1);
     }
     return clampNumber(parsed, 1, stageCount);
+};
+
+const getStageScoreKey = stage => `${QUIZ_STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
+
+const getStoredStageScore = stage => {
+    const score = parseInt(LocalStore.get(getStageScoreKey(stage)), 10);
+    return Number.isNaN(score) ? null : score;
 };
 
 const fetchStageSummaries = async () => {
@@ -73,7 +81,7 @@ const resolveStageStatus = (stage, currentStage) => {
     return "locked";
 };
 
-const resolveStageCardProps = (status, questionCount, canPlayToday, stage) => {
+const resolveStageCardProps = (status, questionCount, canPlayToday, stage, stageScore) => {
     let statusLabel = "진행 전";
     let metaText = `${questionCount}문제`;
     let route = null;
@@ -83,7 +91,12 @@ const resolveStageCardProps = (status, questionCount, canPlayToday, stage) => {
     if (status === "complete") {
         classList.push("is-complete", "is-clickable");
         statusLabel = "완료";
-        metaText = "복습 가능";
+        if (stageScore !== null && questionCount > 0) {
+            const percentage = Math.round((stageScore / questionCount) * 100);
+            metaText = `점수 ${stageScore} / ${questionCount} (${percentage}%)`;
+        } else {
+            metaText = "복습 가능";
+        }
         route = `/web/game/bible-quiz?stage=${stage}&mode=review`;
         isClickable = true;
     } else if (status === "current") {
@@ -107,11 +120,13 @@ const resolveStageCardProps = (status, questionCount, canPlayToday, stage) => {
 const buildStageCardMarkup = (summary, context) => {
     const stage = summary.stage;
     const status = resolveStageStatus(stage, context.currentStage);
+    const stageScore = status === "complete" ? getStoredStageScore(stage) : null;
     const { statusLabel, metaText, route, isClickable, classList } = resolveStageCardProps(
         status,
         summary.questionCount,
         context.canPlayToday,
-        stage
+        stage,
+        stageScore
     );
     const badgeClass = [
         "stage-status",

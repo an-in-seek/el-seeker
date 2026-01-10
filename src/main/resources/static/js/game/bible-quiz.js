@@ -5,6 +5,7 @@ const QUIZ_STORAGE_KEYS = Object.freeze({
     LAST_STAGE_SCORE: "lastStageScore",
     LAST_STAGE_QUESTION_COUNT: "lastStageQuestionCount",
     STAGE_COUNT: "quizStageCount",
+    STAGE_SCORE_PREFIX: "quizStageScore",
 });
 
 const fetchStageData = async stageNumber => {
@@ -49,6 +50,8 @@ const getStoredQuestionCount = () => {
     const count = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT), 10);
     return Number.isNaN(count) ? null : count;
 };
+
+const getStageScoreKey = stage => `${QUIZ_STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
 
 const showCompletion = (quizPanel, quizComplete, quizScore, score, questionCount) => {
     quizPanel.setAttribute("aria-busy", "false");
@@ -264,6 +267,7 @@ const handleNext = context => {
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE, context.today);
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE, context.state.score);
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT, context.state.questions.length);
+            LocalStore.set(getStageScoreKey(context.state.stage), context.state.score);
         }
         showCompletion(
             context.elements.quizPanel,
