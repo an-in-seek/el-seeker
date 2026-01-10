@@ -33,9 +33,7 @@ class DictionaryApi(
     fun getDictionary(
         @PathVariable id: Long
     ): ResponseEntity<DictionaryApiResponse.DictionaryDetail> {
-        val response = DictionaryApiResponse.DictionaryDetail.from(
-            dictionaryService.getDictionary(id)
-        )
+        val response = dictionaryService.getDictionary(id).let(DictionaryApiResponse.DictionaryDetail::from)
         return ResponseEntity.ok(response)
     }
 }

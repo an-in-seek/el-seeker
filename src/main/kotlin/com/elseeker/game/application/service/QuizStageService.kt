@@ -1,12 +1,12 @@
 package com.elseeker.game.application.service
 
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
 import com.elseeker.game.adapter.input.api.dto.QuizStageResponse
 import com.elseeker.game.adapter.input.api.dto.QuizStageSummaryResponse
 import com.elseeker.game.adapter.output.jpa.QuizStageRepository
 import com.elseeker.game.application.mapper.toResponse
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class QuizStageService(
@@ -14,11 +14,8 @@ class QuizStageService(
 ) {
 
     fun getStage(stageNumber: Int): QuizStageResponse {
-        if (stageNumber < 1) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Stage not found")
-        }
-        val stage = quizStageRepository.findByStageNumber(stageNumber)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Stage not found")
+        if (stageNumber < 1) throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
+        val stage = quizStageRepository.findByStageNumber(stageNumber) ?: throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
         return stage.toResponse()
     }
 

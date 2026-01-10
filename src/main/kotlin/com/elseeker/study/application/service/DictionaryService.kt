@@ -1,11 +1,12 @@
 package com.elseeker.study.application.service
 
 import com.elseeker.common.domain.ErrorType
-import com.elseeker.common.domain.ServiceError
+import com.elseeker.common.domain.throwError
 import com.elseeker.study.adapter.output.jpa.DictionaryRepository
 import com.elseeker.study.domain.model.Dictionary
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,6 +31,5 @@ class DictionaryService(
         }
 
     fun getDictionary(id: Long): Dictionary =
-        dictionaryRepository.findById(id)
-            .orElseThrow { ServiceError(ErrorType.DICTIONARY_NOT_FOUND, "id=$id") }
+        dictionaryRepository.findByIdOrNull(id) ?: throwError(ErrorType.DICTIONARY_NOT_FOUND, "id=$id")
 }

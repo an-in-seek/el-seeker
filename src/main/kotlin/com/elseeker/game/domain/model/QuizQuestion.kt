@@ -1,5 +1,6 @@
 package com.elseeker.game.domain.model
 
+import com.elseeker.game.domain.vo.QuizDifficulty
 import jakarta.persistence.*
 
 @Entity

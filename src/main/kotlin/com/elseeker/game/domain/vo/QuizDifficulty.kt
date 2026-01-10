@@ -1,4 +1,4 @@
-package com.elseeker.game.domain.model
+package com.elseeker.game.domain.vo
 
 enum class QuizDifficulty {
     EASY,

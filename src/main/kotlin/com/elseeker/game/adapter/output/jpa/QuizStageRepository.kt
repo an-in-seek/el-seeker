@@ -21,8 +21,7 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 
     @Query(
         """
-            SELECT stage.stageNumber AS stageNumber,
-                   COUNT(question) AS questionCount
+            SELECT stage.stageNumber AS stageNumber, COUNT(question) AS questionCount
             FROM QuizStage stage
             LEFT JOIN stage.questions question
             GROUP BY stage.id, stage.stageNumber

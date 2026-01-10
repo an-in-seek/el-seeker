@@ -17,3 +17,7 @@ class ServiceError(
             errorType.message
         }
 }
+
+fun throwError(errorType: ErrorType, vararg data: Any): Nothing {
+    throw ServiceError(errorType, *data)
+}
