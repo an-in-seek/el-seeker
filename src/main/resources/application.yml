@@ -32,6 +32,7 @@ spring:
         - classpath:data/bible_translation.sql
         - classpath:data/bible_book_description_ko.sql
         - classpath:data/bible_book_description_en.sql
+        # KRV
         - classpath:data/krv/bible_krv_book.sql
         - classpath:data/krv/bible_krv_01_genesis.sql
         - classpath:data/krv/bible_krv_02_exodus.sql
@@ -99,7 +100,11 @@ spring:
         - classpath:data/krv/bible_krv_64_3john.sql
         - classpath:data/krv/bible_krv_65_jude.sql
         - classpath:data/krv/bible_krv_66_revelation.sql
+        # NKRV
         - classpath:data/nkrv/bible_nkrv_book.sql
+        - classpath:data/nkrv/bible_nkrv_01_genesis.sql
+        - classpath:data/nkrv/bible_nkrv_02_exodus.sql
+        # KJV
         - classpath:data/kjv/bible_kjv_book.sql
 
 springdoc:
