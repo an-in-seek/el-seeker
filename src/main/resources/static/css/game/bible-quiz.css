@@ -3,7 +3,8 @@
 }
 
 .quiz-card,
-.quiz-complete {
+.quiz-complete,
+.quiz-mode {
     max-width: 640px;
     margin: 0 auto 1.5rem auto;
 }
@@ -140,4 +141,31 @@
 
 .quiz-score {
     font-weight: 600;
+}
+
+.quiz-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.quiz-complete .btn,
+.quiz-mode .btn {
+    min-height: 44px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+@media (max-width: 576px) {
+    .quiz-complete .btn,
+    .quiz-mode .btn {
+        min-height: 48px;
+        padding: 0.7rem 1.1rem;
+        font-size: 1rem;
+    }
+
+    .quiz-action-group {
+        gap: 0.75rem;
+    }
 }

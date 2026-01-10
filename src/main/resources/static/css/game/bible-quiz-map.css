@@ -133,6 +133,17 @@
     color: inherit;
 }
 
+.stage-action {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(71, 109, 196, 0.15);
+    color: #2b4e9d;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 .quiz-map-note {
     color: #7a879e;
 }

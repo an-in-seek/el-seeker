@@ -10,10 +10,20 @@
         <div class="quiz-hero-content page-hero-content">
             <p class="quiz-hero-eyebrow page-hero-eyebrow">오늘의 성경 퀴즈</p>
             <h2 id="quizTitle" class="quiz-hero-title page-hero-title">오늘 10문제</h2>
-            <p class="quiz-hero-lead page-hero-lead">오늘의 퀴즈를 바로 시작합니다.</p>
+            <p class="quiz-hero-lead page-hero-lead" id="quizHeroLead">오늘의 퀴즈를 바로 시작합니다.</p>
             <div class="flex-wrap gap-2 mt-2">
-                <a class="btn btn-primary btn-pill" href="#quizPanel" id="quizStartButton">퀴즈 시작하기</a>
                 <a class="btn btn-outline-secondary btn-pill" href="/web/game/bible-quiz/map">스테이지 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="quiz-mode card card-panel card-soft d-none" id="quizModeSelect" aria-live="polite">
+        <div class="card-body text-center">
+            <h3 class="h5 fw-semibold mb-2">모드를 선택하세요</h3>
+            <p class="text-muted small mb-3">재도전은 기록에 반영되고, 연습은 기록에 반영되지 않습니다.</p>
+            <div class="flex-wrap quiz-action-group">
+                <button class="btn btn-primary btn-sm" id="quizModeRetryButton" type="button">재도전</button>
+                <button class="btn btn-outline-secondary btn-sm" id="quizModeReviewButton" type="button">연습</button>
             </div>
         </div>
     </section>
@@ -47,7 +57,10 @@
             <h3 class="h5 fw-semibold mb-2" id="quizCompleteTitle">오늘의 퀴즈를 마쳤어요</h3>
             <p class="quiz-score text-muted small mb-1" id="quizScore"></p>
             <p class="text-muted small mb-0">내일 새로운 10문제가 준비됩니다.</p>
-            <a class="btn btn-outline-secondary btn-sm mt-3" href="/web/game/bible-quiz/map">스테이지 보기</a>
+            <div class="flex-wrap quiz-action-group mt-3">
+                <button class="btn btn-outline-secondary btn-sm d-none" id="quizReviewButton" type="button">모드 선택 (연습/재도전)</button>
+                <a class="btn btn-outline-secondary btn-sm" href="/web/game/bible-quiz/map">스테이지 보기</a>
+            </div>
         </div>
     </section>
 </main>
