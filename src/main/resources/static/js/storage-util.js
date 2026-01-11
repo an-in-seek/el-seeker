@@ -1,7 +1,7 @@
 // /js/storage-util.js
 
 // 스토리지 키 상수
-const STORAGE_KEYS = Object.freeze({
+export const STORAGE_KEYS = Object.freeze({
     CURRENT_TRANSLATION: "currentTranslation",
     TRANSLATION_RETURN_PATH: "translationReturnPath",
     CURRENT_BOOK: "currentBook",
@@ -15,7 +15,7 @@ const STORAGE_KEYS = Object.freeze({
 });
 
 // === Local Storage Utility ===
-const LocalStore = {
+export const LocalStore = {
     set(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
     },
@@ -34,7 +34,7 @@ const LocalStore = {
 };
 
 // === Session Storage Utility ===
-const SessionStore = {
+export const SessionStore = {
     set(key, value) {
         sessionStorage.setItem(key, JSON.stringify(value));
     },
@@ -53,7 +53,7 @@ const SessionStore = {
 };
 
 // 번역본 관련
-const TranslationStore = {
+export const TranslationStore = {
     saveCurrentTranslation(translation) {
         LocalStore.set(STORAGE_KEYS.CURRENT_TRANSLATION, translation);
     },
@@ -83,7 +83,7 @@ const TranslationStore = {
 }
 
 // 책 관련
-const BookStore = {
+export const BookStore = {
     saveCurrentBook(book) {
         LocalStore.set(STORAGE_KEYS.CURRENT_BOOK, book);
     },
@@ -119,7 +119,7 @@ const BookStore = {
 };
 
 // 장 관련
-const ChapterStore = {
+export const ChapterStore = {
     saveNumber(number) {
         const parsed = parseInt(number);
         if (!isNaN(parsed)) {
@@ -134,7 +134,7 @@ const ChapterStore = {
 };
 
 // 절 관련
-const VerseStore = {
+export const VerseStore = {
     saveNumber(number) {
         const parsed = parseInt(number);
         if (!isNaN(parsed)) {
@@ -149,7 +149,7 @@ const VerseStore = {
 };
 
 // 마지막 읽기 위치 관련
-const LastReadStore = {
+export const LastReadStore = {
     save({translationId, bookOrder, chapterNumber}) {
         const parsedTranslationId = parseInt(translationId);
         const parsedBookOrder = parseInt(bookOrder);

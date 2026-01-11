@@ -1,3 +1,5 @@
+import {BookStore, ChapterStore, LastReadStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
+
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const parsedTranslationId = parseInt(urlParams.get("translationId"), 10);

@@ -1,3 +1,5 @@
+import {LocalStore} from "/js/storage-util.js?v=2.1";
+
 const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",

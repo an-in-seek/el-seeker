@@ -25,7 +25,7 @@
                 <span class="legend-item legend-current">현재</span>
                 <span class="legend-item legend-locked">잠김</span>
             </div>
-            <div class="stage-grid" id="stageList"></div>
+            <div class="stage-grid" id="stageList" data-snake-columns="2"></div>
             <p class="quiz-map-note text-muted small mb-0" id="quizMapNote"></p>
         </div>
     </section>
@@ -33,9 +33,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script src="/js/storage-util.js?v=2.1"></script>
-<script src="/js/common.js?v=2.1"></script>
-<script src="/js/game/bible-quiz-map.js?v=2.1"></script>
+<script type="module" src="/js/game/bible-quiz-map.js?v=2.1"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const backButton = document.getElementById("topNavBackButton");

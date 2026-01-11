@@ -1,3 +1,5 @@
+import {TranslationStore} from "/js/storage-util.js?v=2.1";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const DEV_CLICK_THRESHOLD = 12;

@@ -1,3 +1,5 @@
+import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
+
 document.addEventListener("DOMContentLoaded", () => {
     
     const dom = {

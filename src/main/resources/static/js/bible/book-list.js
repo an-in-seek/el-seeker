@@ -1,3 +1,5 @@
+import {BookStore, TranslationStore} from "/js/storage-util.js?v=2.1";
+
 document.addEventListener("DOMContentLoaded", () => {
     const navDOM = {
         translationLink: document.getElementById("topNavTranslationLink"),
