@@ -1,257 +1,293 @@
 import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
 
-document.addEventListener("DOMContentLoaded", () => {
-    
-    const dom = {
-        backButton: document.getElementById("topNavBackButton"),
-        translationLink: document.getElementById("topNavTranslationLink"),
-        translationTypeLabel: document.getElementById("translationTypeLabel"),
-        pageTitleLabel: document.getElementById("pageTitleLabel"),
-        searchLink: document.getElementById("topNavSearchLink"),
-        keywordInput: document.getElementById("keywordInput"),
-        searchForm: document.getElementById("searchForm"),
-        clearBtn: document.getElementById("clearBtn"),
-        searchBtn: document.getElementById("searchBtn"),
-        resultCount: document.getElementById("resultCount"),
-        emptyState: document.getElementById("searchEmptyState"),
-        searchResultTable: document.getElementById("searchResultTable"),
-        searchResultBody: document.getElementById("searchResultBody"),
-        scrollToTopBtn: document.getElementById("scrollToTopBtn"),
-    };
+const UI_CLASSES = {
+    HIDDEN: "d-none",
+    VISIBLE: "is-visible"
+};
 
-    const config = {
-        scrollThreshold: 300,
-        pageSize: 50,
-        scrollLoadOffset: 200,
-    };
+const API_CONFIG = {
+    TRANSLATIONS: "/api/v1/bibles/translations"
+};
 
-    const state = {
-        translationId: getTranslationId(),
+const ROUTES = {
+    TRANSLATION_LIST: "/web/bible/translation",
+    VERSE_LIST: "/web/bible/verse"
+};
+
+const CONFIG = {
+    SCROLL_THRESHOLD: 300,
+    PAGE_SIZE: 50,
+    SCROLL_LOAD_OFFSET: 200
+};
+
+const DomHelper = {
+    getElements: () => {
+        const get = id => document.getElementById(id);
+        return {
+            backButton: get("topNavBackButton"),
+            translationLink: get("topNavTranslationLink"),
+            translationTypeLabel: get("translationTypeLabel"),
+            pageTitleLabel: get("pageTitleLabel"),
+            searchLink: get("topNavSearchLink"),
+            keywordInput: get("keywordInput"),
+            searchForm: get("searchForm"),
+            clearBtn: get("clearBtn"),
+            searchBtn: get("searchBtn"),
+            resultCount: get("resultCount"),
+            emptyState: get("searchEmptyState"),
+            searchResultTable: get("searchResultTable"),
+            searchResultBody: get("searchResultBody"),
+            scrollToTopBtn: get("scrollToTopBtn")
+        };
+    }
+};
+
+const App = {
+    elements: null,
+    state: {
+        translationId: null,
         translationType: null,
         currentPage: 0,
         hasNext: false,
         isLoading: false,
         totalCount: null,
         activeKeyword: "",
-        initialKeyword: getInitialKeyword(),
-    };
+        initialKeyword: ""
+    },
 
-    const init = async () => {
-        if (!state.translationId) {
-            redirectToTranslation();
+    init: async () => {
+        App.elements = DomHelper.getElements();
+        App.state.translationId = App.getTranslationId();
+        App.state.initialKeyword = App.getInitialKeyword();
+
+        if (!App.state.translationId) {
+            App.redirectToTranslation();
             return;
         }
 
-        initNav();
+        App.initNav();
 
-        const translationInfo = await ensureTranslationInfo(state.translationId);
-        state.translationType = translationInfo.type;
-        updateTranslationTypeLabel();
+        const translationInfo = await App.ensureTranslationInfo(App.state.translationId);
+        App.state.translationType = translationInfo.type;
+        App.updateTranslationTypeLabel();
 
-        initFormControls();
-        initResultHandlers();
-        initScrollToTop();
-        window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
+        App.initFormControls();
+        App.initResultHandlers();
+        App.initScrollToTop();
+        window.addEventListener("scroll", App.maybeLoadNextPage, {passive: true});
 
-        if (state.initialKeyword) {
-            if (dom.keywordInput) {
-                dom.keywordInput.value = state.initialKeyword;
+        if (App.state.initialKeyword) {
+            if (App.elements.keywordInput) {
+                App.elements.keywordInput.value = App.state.initialKeyword;
             }
-            startSearch(state.initialKeyword);
+            App.startSearch(App.state.initialKeyword);
         } else {
-            updateUrl();
+            App.updateUrl();
         }
-    };
+    },
 
-    function getTranslationId() {
+    getTranslationId: () => {
         const urlParams = new URLSearchParams(window.location.search);
         const translationIdParam = parseInt(urlParams.get("translationId"), 10);
         return Number.isNaN(translationIdParam)
             ? TranslationStore.getCurrentTranslationId()
             : translationIdParam;
-    }
+    },
 
-    function getInitialKeyword() {
+    getInitialKeyword: () => {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get("keyword") ?? "";
-    }
+    },
 
-    function initNav() {
-        if (dom.backButton) {
-            dom.backButton.classList.remove("d-none");
-            dom.backButton.addEventListener("click", () => {
+    initNav: () => {
+        const {backButton, translationLink, searchLink, pageTitleLabel} = App.elements;
+        if (backButton) {
+            backButton.classList.remove(UI_CLASSES.HIDDEN);
+            backButton.addEventListener("click", () => {
                 history.back();
             });
         }
-        if (dom.translationLink) {
-            dom.translationLink.classList.remove("d-none");
-            dom.translationLink.classList.add("nav-placeholder");
-            dom.translationLink.setAttribute("aria-hidden", "true");
-            dom.translationLink.setAttribute("tabindex", "-1");
+        if (translationLink) {
+            translationLink.classList.remove(UI_CLASSES.HIDDEN);
+            translationLink.classList.add("nav-placeholder");
+            translationLink.setAttribute("aria-hidden", "true");
+            translationLink.setAttribute("tabindex", "-1");
         }
-        if (dom.searchLink) {
-            dom.searchLink.classList.remove("d-none");
-            dom.searchLink.classList.add("nav-placeholder");
+        if (searchLink) {
+            searchLink.classList.remove(UI_CLASSES.HIDDEN);
+            searchLink.classList.add("nav-placeholder");
         }
-        if (dom.pageTitleLabel) {
-            dom.pageTitleLabel.textContent = "성경 검색";
-            dom.pageTitleLabel.classList.remove("d-none");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 검색";
+            pageTitleLabel.classList.remove(UI_CLASSES.HIDDEN);
         }
-    }
+    },
 
-    function updateTranslationTypeLabel() {
-        if (dom.translationTypeLabel) {
-            dom.translationTypeLabel.textContent = state.translationType ?? "";
+    updateTranslationTypeLabel: () => {
+        const {translationTypeLabel} = App.elements;
+        if (translationTypeLabel) {
+            translationTypeLabel.textContent = App.state.translationType ?? "";
         }
-    }
+    },
 
-    function initFormControls() {
-        if (dom.clearBtn && dom.keywordInput) {
-            dom.clearBtn.addEventListener("click", () => {
-                dom.keywordInput.value = "";
-                dom.keywordInput.focus();
-                clearResults();
-                setEmptyState("검색어를 입력하고 검색을 시작하세요.");
-                resetSearchState();
-                updateUrl();
+    initFormControls: () => {
+        const {clearBtn, keywordInput, searchForm} = App.elements;
+        if (clearBtn && keywordInput) {
+            clearBtn.addEventListener("click", () => {
+                keywordInput.value = "";
+                keywordInput.focus();
+                App.clearResults();
+                App.setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+                App.resetSearchState();
+                App.updateUrl();
             });
 
-            dom.keywordInput.addEventListener("input", () => {
-                dom.clearBtn.disabled = dom.keywordInput.value.trim().length === 0;
+            keywordInput.addEventListener("input", () => {
+                clearBtn.disabled = keywordInput.value.trim().length === 0;
             });
-            dom.keywordInput.focus();
-            dom.clearBtn.disabled = dom.keywordInput.value.trim().length === 0;
+            keywordInput.focus();
+            clearBtn.disabled = keywordInput.value.trim().length === 0;
         }
 
-        if (dom.searchForm && dom.keywordInput) {
-            dom.searchForm.addEventListener("submit", async event => {
+        if (searchForm && keywordInput) {
+            searchForm.addEventListener("submit", async event => {
                 event.preventDefault();
-                await startSearch(dom.keywordInput.value);
+                await App.startSearch(keywordInput.value);
             });
         }
+    },
 
-    }
-
-    function initResultHandlers() {
-        if (dom.searchResultBody) {
-            dom.searchResultBody.addEventListener("click", handleResultClick);
+    initResultHandlers: () => {
+        const {searchResultBody} = App.elements;
+        if (searchResultBody) {
+            searchResultBody.addEventListener("click", App.handleResultClick);
         }
-    }
+    },
 
-    function initScrollToTop() {
-        if (!dom.scrollToTopBtn) {
+    initScrollToTop: () => {
+        const {scrollToTopBtn} = App.elements;
+        if (!scrollToTopBtn) {
             return;
         }
 
-        const updateScrollToTopVisibility = () => {
-            if (window.scrollY >= config.scrollThreshold) {
-                dom.scrollToTopBtn.classList.add("is-visible");
-            } else {
-                dom.scrollToTopBtn.classList.remove("is-visible");
-            }
-        };
-
-        dom.scrollToTopBtn.addEventListener("click", () => {
+        scrollToTopBtn.addEventListener("click", () => {
             window.scrollTo({top: 0, behavior: "smooth"});
         });
 
-        window.addEventListener("scroll", updateScrollToTopVisibility, {passive: true});
-        updateScrollToTopVisibility();
-    }
+        window.addEventListener("scroll", App.updateScrollToTopVisibility, {passive: true});
+        App.updateScrollToTopVisibility();
+    },
 
-    function setEmptyState(message) {
-        if (dom.emptyState) {
-            dom.emptyState.textContent = message;
-            dom.emptyState.classList.remove("d-none");
-        }
-        if (dom.searchResultTable) {
-            dom.searchResultTable.classList.add("d-none");
-        }
-    }
-
-    function setResultsVisible() {
-        if (dom.emptyState) {
-            dom.emptyState.classList.add("d-none");
-        }
-        if (dom.searchResultTable) {
-            dom.searchResultTable.classList.remove("d-none");
-        }
-    }
-
-    function hideEmptyState() {
-        if (dom.emptyState) {
-            dom.emptyState.classList.add("d-none");
-        }
-    }
-
-    function setLoading(loading) {
-        if (dom.searchBtn) {
-            dom.searchBtn.disabled = loading;
-        }
-        if (dom.keywordInput) {
-            dom.keywordInput.disabled = loading;
-        }
-        if (dom.clearBtn) {
-            dom.clearBtn.disabled = loading;
-        }
-    }
-
-    function setLoadingState(message) {
-        if (!dom.resultCount) {
+    updateScrollToTopVisibility: () => {
+        const {scrollToTopBtn} = App.elements;
+        if (!scrollToTopBtn) {
             return;
         }
-        hideEmptyState();
-        dom.resultCount.innerHTML = `
+        const shouldShow = window.scrollY >= CONFIG.SCROLL_THRESHOLD;
+        scrollToTopBtn.classList.toggle(UI_CLASSES.VISIBLE, shouldShow);
+    },
+
+    setEmptyState: message => {
+        const {emptyState, searchResultTable} = App.elements;
+        if (emptyState) {
+            emptyState.textContent = message;
+            emptyState.classList.remove(UI_CLASSES.HIDDEN);
+        }
+        if (searchResultTable) {
+            searchResultTable.classList.add(UI_CLASSES.HIDDEN);
+        }
+    },
+
+    setResultsVisible: () => {
+        const {emptyState, searchResultTable} = App.elements;
+        if (emptyState) {
+            emptyState.classList.add(UI_CLASSES.HIDDEN);
+        }
+        if (searchResultTable) {
+            searchResultTable.classList.remove(UI_CLASSES.HIDDEN);
+        }
+    },
+
+    hideEmptyState: () => {
+        const {emptyState} = App.elements;
+        if (emptyState) {
+            emptyState.classList.add(UI_CLASSES.HIDDEN);
+        }
+    },
+
+    setLoading: loading => {
+        const {searchBtn, keywordInput, clearBtn} = App.elements;
+        if (searchBtn) {
+            searchBtn.disabled = loading;
+        }
+        if (keywordInput) {
+            keywordInput.disabled = loading;
+        }
+        if (clearBtn) {
+            clearBtn.disabled = loading;
+        }
+    },
+
+    setLoadingState: message => {
+        const {resultCount} = App.elements;
+        if (!resultCount) {
+            return;
+        }
+        App.hideEmptyState();
+        resultCount.innerHTML = `
                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                 ${message}
             `;
-    }
+    },
 
-    function resetSearchState() {
-        state.currentPage = 0;
-        state.hasNext = false;
-        state.totalCount = null;
-        state.activeKeyword = "";
-        state.isLoading = false;
-    }
+    resetSearchState: () => {
+        App.state.currentPage = 0;
+        App.state.hasNext = false;
+        App.state.totalCount = null;
+        App.state.activeKeyword = "";
+        App.state.isLoading = false;
+    },
 
-    function buildSearchUrl() {
+    buildSearchUrl: () => {
         const params = new URLSearchParams();
-        params.set("translationId", state.translationId);
-        if (state.activeKeyword) {
-            params.set("keyword", state.activeKeyword);
+        params.set("translationId", App.state.translationId);
+        if (App.state.activeKeyword) {
+            params.set("keyword", App.state.activeKeyword);
         }
         const queryString = params.toString();
         return `${window.location.pathname}?${queryString}`;
-    }
+    },
 
-    function updateUrl() {
-        history.replaceState(null, "", buildSearchUrl());
-    }
+    updateUrl: () => {
+        history.replaceState(null, "", App.buildSearchUrl());
+    },
 
-    function updateResultCount() {
-        if (dom.resultCount && state.totalCount !== null && state.activeKeyword) {
-            dom.resultCount.textContent = `"${state.activeKeyword}"에 대한 결과 ${state.totalCount}건`;
+    updateResultCount: () => {
+        const {resultCount} = App.elements;
+        if (resultCount && App.state.totalCount !== null && App.state.activeKeyword) {
+            resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${App.state.totalCount}건`;
         }
-    }
+    },
 
-    function clearResults() {
-        if (dom.searchResultBody) {
-            dom.searchResultBody.innerHTML = "";
+    clearResults: () => {
+        const {searchResultBody, resultCount} = App.elements;
+        if (searchResultBody) {
+            searchResultBody.innerHTML = "";
         }
-        if (dom.resultCount) {
-            dom.resultCount.textContent = "";
+        if (resultCount) {
+            resultCount.textContent = "";
         }
-    }
+    },
 
-    function appendResults(items) {
-        if (!dom.searchResultBody) {
+    appendResults: items => {
+        const {searchResultBody} = App.elements;
+        if (!searchResultBody) {
             return;
         }
         items.forEach(item => {
             const row = document.createElement("tr");
             const highlightedText = item.text.replace(
-                new RegExp(`(${state.activeKeyword})`, "gi"),
+                new RegExp(`(${App.state.activeKeyword})`, "gi"),
                 "<span class=\"highlight-keyword\">$1</span>"
             );
             row.innerHTML = `
@@ -266,92 +302,93 @@ document.addEventListener("DOMContentLoaded", () => {
                       ${highlightedText} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
                   </td>
                 `;
-            dom.searchResultBody.appendChild(row);
+            searchResultBody.appendChild(row);
         });
-    }
+    },
 
-    async function fetchSearchPage(page) {
-        if (!state.activeKeyword || state.isLoading || !state.hasNext) {
+    fetchSearchPage: async page => {
+        if (!App.state.activeKeyword || App.state.isLoading || !App.state.hasNext) {
             return;
         }
-        state.isLoading = true;
+        App.state.isLoading = true;
         if (page === 0) {
-            setLoading(true);
-            hideEmptyState();
-            setLoadingState("검색 중...");
+            App.setLoading(true);
+            App.hideEmptyState();
+            App.setLoadingState("검색 중...");
         }
         try {
-            const response = await fetch(`/api/v1/bibles/translations/${state.translationId}/search?keyword=${encodeURIComponent(state.activeKeyword)}&page=${page}&size=${config.pageSize}`);
+            const response = await fetch(`${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/search?keyword=${encodeURIComponent(App.state.activeKeyword)}&page=${page}&size=${CONFIG.PAGE_SIZE}`);
             if (!response.ok) {
                 throw new Error("검색 실패");
             }
             const data = await response.json();
             if (page === 0) {
-                state.totalCount = data.totalCount ?? null;
-                if (state.totalCount === 0) {
-                    setEmptyState("다른 검색어로 다시 시도해 보세요.");
-                    state.hasNext = false;
+                App.state.totalCount = data.totalCount ?? null;
+                if (App.state.totalCount === 0) {
+                    App.setEmptyState("다른 검색어로 다시 시도해 보세요.");
+                    App.state.hasNext = false;
                 }
-                updateResultCount();
+                App.updateResultCount();
             }
 
             if (!data.content || data.content.length === 0) {
                 if (page === 0) {
-                    setEmptyState("다른 검색어로 다시 시도해 보세요.");
+                    App.setEmptyState("다른 검색어로 다시 시도해 보세요.");
                 }
-                state.hasNext = false;
+                App.state.hasNext = false;
                 return;
             }
 
-            setResultsVisible();
-            appendResults(data.content);
-            state.hasNext = data.hasNext === true;
+            App.setResultsVisible();
+            App.appendResults(data.content);
+            App.state.hasNext = data.hasNext === true;
         } catch (error) {
             if (page === 0) {
-                if (dom.resultCount) {
-                    dom.resultCount.textContent = "검색 중 오류가 발생했습니다.";
+                const {resultCount} = App.elements;
+                if (resultCount) {
+                    resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 }
-                setEmptyState("잠시 후 다시 시도해 주세요.");
+                App.setEmptyState("잠시 후 다시 시도해 주세요.");
             }
             console.error(error);
         } finally {
-            state.isLoading = false;
+            App.state.isLoading = false;
             if (page === 0) {
-                setLoading(false);
+                App.setLoading(false);
             }
         }
-    }
+    },
 
-    async function startSearch(keyword) {
+    startSearch: async keyword => {
         const normalizedKeyword = keyword.trim();
-        clearResults();
-        resetSearchState();
+        App.clearResults();
+        App.resetSearchState();
         if (!normalizedKeyword) {
-            setEmptyState("검색어를 입력하고 검색을 시작하세요.");
-            updateUrl();
+            App.setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+            App.updateUrl();
             return;
         }
-        hideEmptyState();
-        state.activeKeyword = normalizedKeyword;
-        state.hasNext = true;
-        state.currentPage = 0;
-        updateUrl();
-        await fetchSearchPage(0);
-        maybeLoadNextPage();
-    }
+        App.hideEmptyState();
+        App.state.activeKeyword = normalizedKeyword;
+        App.state.hasNext = true;
+        App.state.currentPage = 0;
+        App.updateUrl();
+        await App.fetchSearchPage(0);
+        App.maybeLoadNextPage();
+    },
 
-    function maybeLoadNextPage() {
-        if (!state.hasNext || state.isLoading) {
+    maybeLoadNextPage: () => {
+        if (!App.state.hasNext || App.state.isLoading) {
             return;
         }
-        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - config.scrollLoadOffset;
+        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - CONFIG.SCROLL_LOAD_OFFSET;
         if (nearBottom) {
-            state.currentPage += 1;
-            fetchSearchPage(state.currentPage);
+            App.state.currentPage += 1;
+            App.fetchSearchPage(App.state.currentPage);
         }
-    }
+    },
 
-    function handleResultClick(event) {
+    handleResultClick: event => {
         const td = event.target.closest(".verse-link");
         if (!td) {
             return;
@@ -360,39 +397,36 @@ document.addEventListener("DOMContentLoaded", () => {
         const selectedChapterNumber = parseInt(td.dataset.chapterNumber, 10);
         BookStore.saveCurrentBook({
             bookOrder: selectedBookOrder,
-            bookName: td.dataset.bookName,
+            bookName: td.dataset.bookName
         });
         ChapterStore.saveNumber(selectedChapterNumber);
         VerseStore.saveNumber(td.dataset.verseNumber);
-        const targetUrl = new URL("/web/bible/verse", window.location.origin);
-        targetUrl.searchParams.set("translationId", state.translationId);
+        const targetUrl = new URL(ROUTES.VERSE_LIST, window.location.origin);
+        targetUrl.searchParams.set("translationId", App.state.translationId);
         targetUrl.searchParams.set("bookOrder", selectedBookOrder);
         targetUrl.searchParams.set("chapterNumber", selectedChapterNumber);
         targetUrl.searchParams.set("verseNumber", td.dataset.verseNumber);
         targetUrl.searchParams.set("from", "search");
         window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
-    }
+    },
 
-    function getStoredTranslation() {
-        return {
-            id: TranslationStore.getCurrentTranslationId(),
-            type: TranslationStore.getCurrentTranslationType(),
-            name: TranslationStore.getCurrentTranslationName(),
-            language: TranslationStore.getCurrentTranslationLanguage(),
-        };
-    }
+    getStoredTranslation: () => ({
+        id: TranslationStore.getCurrentTranslationId(),
+        type: TranslationStore.getCurrentTranslationType(),
+        name: TranslationStore.getCurrentTranslationName(),
+        language: TranslationStore.getCurrentTranslationLanguage()
+    }),
 
-    function hasCompleteTranslation(stored, targetId) {
-        return stored.id === targetId && stored.type && stored.name && stored.language;
-    }
+    hasCompleteTranslation: (stored, targetId) =>
+        stored.id === targetId && stored.type && stored.name && stored.language,
 
-    async function ensureTranslationInfo(targetId) {
-        const stored = getStoredTranslation();
-        if (hasCompleteTranslation(stored, targetId)) {
+    ensureTranslationInfo: async targetId => {
+        const stored = App.getStoredTranslation();
+        if (App.hasCompleteTranslation(stored, targetId)) {
             return stored;
         }
         try {
-            const response = await fetch("/api/v1/bibles/translations");
+            const response = await fetch(API_CONFIG.TRANSLATIONS);
             if (!response.ok) {
                 throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
             }
@@ -403,7 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     id: match.translationId,
                     name: match.translationName,
                     type: match.translationType,
-                    language: match.translationLanguage,
+                    language: match.translationLanguage
                 };
                 TranslationStore.saveCurrentTranslation(translation);
                 return translation;
@@ -412,11 +446,11 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn(error.message);
         }
         return stored;
-    }
+    },
 
-    function redirectToTranslation() {
-        window.location.href = "/web/bible/translation";
+    redirectToTranslation: () => {
+        window.location.href = ROUTES.TRANSLATION_LIST;
     }
+};
 
-    init();
-});
+document.addEventListener("DOMContentLoaded", App.init);
