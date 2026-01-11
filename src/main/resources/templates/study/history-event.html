@@ -68,25 +68,6 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const backButton = document.getElementById("topNavBackButton");
-        const pageTitleLabel = document.getElementById("pageTitleLabel");
-        if (pageTitleLabel) {
-            pageTitleLabel.textContent = "성경 역사";
-            pageTitleLabel.classList.remove("d-none");
-        }
-        if (backButton) {
-            backButton.classList.remove("d-none");
-            backButton.addEventListener("click", () => {
-                if (window.history.length > 1) {
-                    window.history.back();
-                } else {
-                    window.location.href = "/web/study/history";
-                }
-            });
-        }
-    });
-</script>
+<script type="module" src="/js/study/history-event.js?v=2.1"></script>
 </body>
 </html>
