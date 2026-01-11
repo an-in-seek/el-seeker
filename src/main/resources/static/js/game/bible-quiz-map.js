@@ -1,276 +1,389 @@
-const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
-
-const QUIZ_STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "currentStage",
-    LAST_COMPLETED_STAGE: "lastCompletedStage",
-    STAGE_SCORE_PREFIX: "quizStageScore",
-});
-
-const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
-
-const normalizeStage = (stageValue, stageCount) => {
-    const parsed = parseInt(stageValue, 10);
-    if (Number.isNaN(parsed)) {
-        return 1;
-    }
-    if (!stageCount) {
-        return Math.max(parsed, 1);
-    }
-    return clampNumber(parsed, 1, stageCount);
-};
-
-const getStageScoreKey = stage => `${QUIZ_STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
-
-const getStoredStageScore = stage => {
-    const score = parseInt(LocalStore.get(getStageScoreKey(stage)), 10);
-    return Number.isNaN(score) ? null : score;
-};
-
-const fetchStageSummaries = async () => {
-    try {
-        const response = await fetch(`${QUIZ_API_BASE}/stages`);
-        if (!response.ok) {
-            return null;
+(function () {
+    // ==========================================
+    // Constants & Configuration
+    // ==========================================
+    const API_CONFIG = {
+        BASE_URL: "/api/v1/game/bible-quiz",
+        ENDPOINTS: {
+            STAGES: "/stages"
         }
-        return await response.json();
-    } catch (error) {
-        return null;
-    }
-};
-
-const getQuizMapElements = () => {
-    const elements = {
-        stageList: document.getElementById("stageList"),
-        quizMapNote: document.getElementById("quizMapNote")
     };
-    const missingRequired = [
-        "stageList",
-        "quizMapNote"
-    ].some(key => !elements[key]);
-    return missingRequired ? null : elements;
-};
 
-const buildContext = elements => {
-    const rawCurrentStage = LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE);
-    const currentStage = parseInt(rawCurrentStage, 10);
-    const normalizedCurrentStage = Number.isNaN(currentStage) || currentStage < 1 ? 1 : currentStage;
-    if (normalizedCurrentStage !== currentStage) {
-        LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, 1);
-    }
-    const rawLastCompletedStage = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE);
-    if (rawLastCompletedStage === null) {
-        LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
-    }
-    const lastCompletedStage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
-    return {
-        elements,
-        currentStage: normalizedCurrentStage,
-        lastCompletedStage: Number.isNaN(lastCompletedStage) ? 0 : lastCompletedStage
-    };
-};
-
-const updateSummary = context => {
-    context.elements.quizMapNote.textContent = "스테이지를 선택하면 퀴즈 화면에서 모드를 고를 수 있습니다.";
-};
-
-const resolveStageStatus = (stage, currentStage) => {
-    if (stage < currentStage) {
-        return "completed";
-    }
-    if (stage === currentStage) {
-        return "active";
-    }
-    return "locked";
-};
-
-const resolveStageCardProps = (status, questionCount, stage, stageScore, lastCompletedStage) => {
-    let statusLabel = "진행 전";
-    let metaText = `${questionCount}문제`;
-    let route = `/web/game/bible-quiz?stage=${stage}`;
-    let isClickable = status !== "locked";
-    let actionLabel = null;
-    const classList = ["stage-card"];
-
-    if (status === "completed") {
-        classList.push("is-complete");
-        statusLabel = "완료";
-        if (stageScore !== null && questionCount > 0) {
-            const percentage = Math.round((stageScore / questionCount) * 100);
-            metaText = `점수 ${stageScore} / ${questionCount} (${percentage}%)`;
-        } else {
-            metaText = "완료";
-        }
-        if (stage === lastCompletedStage) {
-            actionLabel = "재도전 가능";
-        }
-    } else if (status === "active") {
-        classList.push("is-current");
-        statusLabel = "현재";
-        metaText = "진행 가능";
-    } else {
-        classList.push("is-locked");
-        statusLabel = "잠김";
-        metaText = "진행 전";
-        route = null;
-    }
-
-    if (isClickable) {
-        classList.push("is-clickable");
-    }
-
-    return {statusLabel, metaText, route, isClickable, actionLabel, classList};
-};
-
-const buildStageCardMarkup = (summary, context) => {
-    const stage = summary.stage;
-    const status = resolveStageStatus(stage, context.currentStage);
-    const stageScore = status === "completed" ? getStoredStageScore(stage) : null;
-    const {statusLabel, metaText, route, isClickable, actionLabel, classList} = resolveStageCardProps(
-        status,
-        summary.questionCount,
-        stage,
-        stageScore,
-        context.lastCompletedStage
-    );
-    const isCurrentStage = status === "active";
-    const badgeClass = [
-        "stage-status",
-        status === "completed" ? "is-complete" : "",
-        status === "active" ? "is-current" : ""
-    ].filter(Boolean).join(" ");
-    const statusIcon = status === "completed" ? "✓" : status === "active" ? "▶︎" : "";
-    const statusIconMarkup = statusIcon
-        ? `<span class="stage-status-icon" aria-hidden="true">${statusIcon}</span>`
-        : "";
-    const disabledAttr = isClickable ? "" : "disabled";
-    const routeAttr = route ? `data-route="${route}"` : "";
-    const ariaCurrentAttr = isCurrentStage ? 'aria-current="step"' : "";
-    const actionMarkup = actionLabel ? `<span class="stage-action">${actionLabel}</span>` : "";
-    const currentLabelMarkup = isCurrentStage
-        ? `<span class="stage-current-label">현재 스테이지</span>`
-        : "";
-
-    return `
-        <button type="button" class="${classList.join(" ")}" ${disabledAttr} ${routeAttr} ${ariaCurrentAttr}>
-            <div class="stage-card-header">
-                <span class="stage-number">${stage} 스테이지</span>
-                <span class="${badgeClass}">${statusIconMarkup}${statusLabel}</span>
-            </div>
-            <div class="stage-meta">${metaText}</div>
-            ${currentLabelMarkup}
-            ${actionMarkup}
-        </button>
-    `;
-};
-
-const getGridColumnCount = stageList => {
-    const template = window.getComputedStyle(stageList).gridTemplateColumns;
-    if (!template || template === "none") {
-        return 1;
-    }
-    const columns = template.split(" ").filter(Boolean).length;
-    return columns > 0 ? columns : 1;
-};
-
-const clearFlowClasses = stageCards => {
-    stageCards.forEach(card => {
-        card.classList.remove("flow-right", "flow-left", "flow-down", "flow-end");
+    const STORAGE_KEYS = Object.freeze({
+        CURRENT_STAGE: "currentStage",
+        LAST_COMPLETED_STAGE: "lastCompletedStage",
+        STAGE_SCORE_PREFIX: "quizStageScore",
     });
-};
 
-const applyFlowDirections = stageList => {
-    const stageCards = Array.from(stageList.querySelectorAll(".stage-card"));
-    if (stageCards.length === 0) {
-        return;
-    }
-    clearFlowClasses(stageCards);
-    const columns = getGridColumnCount(stageList);
-    const total = stageCards.length;
-    const maxRow = Math.floor((total - 1) / columns);
+    const UI_CLASSES = {
+        CARD: "stage-card",
+        STATUS_BADGE: "stage-status",
+        ICON: "stage-status-icon",
+        ACTION: "stage-action",
+        CURRENT_LABEL: "stage-current-label",
+        FLOW: {
+            RIGHT: "flow-right",
+            LEFT: "flow-left",
+            DOWN: "flow-down",
+            END: "flow-end"
+        },
+        STATE: {
+            COMPLETED: "is-complete",
+            CURRENT: "is-current",
+            LOCKED: "is-locked",
+            CLICKABLE: "is-clickable"
+        }
+    };
 
-    stageCards.forEach((card, index) => {
-        if (index === total - 1) {
-            card.classList.add("flow-end");
-            return;
+    // ==========================================
+    // Pure Utilities & Logic
+    // ==========================================
+
+    /**
+     * Clamps a number between min and max.
+     */
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    /**
+     * Normalizes the current stage value.
+     */
+    const normalizeStage = (stageValue, totalStages) => {
+        const parsed = parseInt(stageValue, 10);
+        if (Number.isNaN(parsed)) return 1;
+        if (!totalStages) return Math.max(parsed, 1);
+        return clamp(parsed, 1, totalStages);
+    };
+
+    /**
+     * Determines the status of a stage relative to the user's current progress.
+     * @returns {'completed' | 'active' | 'locked'}
+     */
+    const calculateStageStatus = (stageNumber, currentStageNumber) => {
+        if (stageNumber < currentStageNumber) return "completed";
+        if (stageNumber === currentStageNumber) return "active";
+        return "locked";
+    };
+
+    /**
+     * Generates the properties needed to render a stage card.
+     */
+    const getStageCardProps = ({stage, questionCount, status, score, lastCompletedStage}) => {
+        const isCompleted = status === "completed";
+        const isActive = status === "active";
+        const isLocked = status === "locked";
+
+        let label = "잠김";
+        let meta = "진행 전";
+        let route = null;
+        let action = null;
+        const cssClasses = [UI_CLASSES.CARD];
+
+        if (isCompleted) {
+            cssClasses.push(UI_CLASSES.STATE.COMPLETED);
+            label = "완료";
+            if (score !== null && questionCount > 0) {
+                const percent = Math.round((score / questionCount) * 100);
+                meta = `점수 ${score} / ${questionCount} (${percent}%)`;
+            } else {
+                meta = "완료";
+            }
+            if (stage === lastCompletedStage) {
+                action = "재도전 가능";
+            }
+            route = `/web/game/bible-quiz?stage=${stage}`;
+        } else if (isActive) {
+            cssClasses.push(UI_CLASSES.STATE.CURRENT);
+            label = "현재";
+            meta = "진행 가능";
+            route = `/web/game/bible-quiz?stage=${stage}`;
+        } else {
+            cssClasses.push(UI_CLASSES.STATE.LOCKED);
         }
-        if (columns === 1) {
-            card.classList.add("flow-down");
-            return;
+
+        const isClickable = !isLocked;
+        if (isClickable) {
+            cssClasses.push(UI_CLASSES.STATE.CLICKABLE);
         }
+
+        return {
+            label,
+            meta,
+            route,
+            isClickable,
+            action,
+            cssClasses: cssClasses.join(" "),
+            statusIcon: isCompleted ? "✓" : (isActive ? "▶︎" : null)
+        };
+    };
+
+    /**
+     * Determines the flow direction class for a card at a given index in the grid.
+     * Used to draw the connecting lines (snake layout).
+     */
+    const calculateFlowDirection = (index, totalItems, columns) => {
+        // Last item always ends the flow
+        if (index === totalItems - 1) return UI_CLASSES.FLOW.END;
+
+        // Single column layout always flows down
+        if (columns === 1) return UI_CLASSES.FLOW.DOWN;
 
         const row = Math.floor(index / columns);
         const col = index % columns;
         const isRowEven = row % 2 === 0;
+        const maxRow = Math.floor((totalItems - 1) / columns);
 
+        // Even Rows (Left -> Right)
         if (isRowEven) {
-            const hasNextInRow = index + 1 < total && Math.floor((index + 1) / columns) === row;
-            if (hasNextInRow) {
-                card.classList.add("flow-right");
+            const isLastInRow = col === columns - 1;
+            // If not last in row, go right.
+            // If last in row, go down (unless it's the very last row)
+            if (!isLastInRow) return UI_CLASSES.FLOW.RIGHT;
+            return (row < maxRow) ? UI_CLASSES.FLOW.DOWN : UI_CLASSES.FLOW.END;
+        }
+
+        // Odd Rows (Right -> Left)
+        const isFirstInRow = col === 0;
+        if (!isFirstInRow) return UI_CLASSES.FLOW.LEFT;
+        return (row < maxRow) ? UI_CLASSES.FLOW.DOWN : UI_CLASSES.FLOW.END;
+    };
+
+    // ==========================================
+    // Data Access & Storage
+    // ==========================================
+
+    const Storage = (() => {
+        const store = window.LocalStore ?? window.localStorage;
+        return {
+            get: (key) => (store.get ? store.get(key) : store.getItem(key)),
+            set: (key, value) => (store.set ? store.set(key, value) : store.setItem(key, String(value))),
+            remove: (key) => (store.remove ? store.remove(key) : store.removeItem(key))
+        };
+    })();
+
+    const StorageService = {
+        getStageScore: (stage) => {
+            const key = `${STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
+            const val = parseInt(Storage.get(key), 10);
+            return Number.isNaN(val) ? null : val;
+        },
+        getCurrentStage: () => {
+            const val = parseInt(Storage.get(STORAGE_KEYS.CURRENT_STAGE), 10);
+            return (Number.isNaN(val) || val < 1) ? 1 : val;
+        },
+        setCurrentStage: (stage) => {
+            Storage.set(STORAGE_KEYS.CURRENT_STAGE, stage);
+        },
+        getLastCompletedStage: () => {
+            const val = parseInt(Storage.get(STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
+            return Number.isNaN(val) ? 0 : val;
+        },
+        initDefaults: () => {
+            if (Storage.get(STORAGE_KEYS.LAST_COMPLETED_STAGE) === null) {
+                Storage.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
+            }
+            // Ensure current stage is valid
+            const current = StorageService.getCurrentStage();
+            const stored = parseInt(Storage.get(STORAGE_KEYS.CURRENT_STAGE), 10);
+            if (stored !== current) {
+                StorageService.setCurrentStage(current);
+            }
+        }
+    };
+
+    const ApiService = {
+        fetchStages: async () => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            try {
+                const response = await fetch(
+                    `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}`,
+                    {signal: controller.signal}
+                );
+                return response.ok ? await response.json() : null;
+            } catch (e) {
+                console.error("Failed to fetch stages", e);
+                return null;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+    };
+
+    // ==========================================
+    // DOM Manipulation & Rendering
+    // ==========================================
+
+    const DomHelper = {
+        getElements: () => {
+            const stageList = document.getElementById("stageList");
+            const quizMapNote = document.getElementById("quizMapNote");
+            return (stageList && quizMapNote) ? {stageList, quizMapNote} : null;
+        },
+
+        createCardElement: (summary, context) => {
+            const {stage, questionCount} = summary;
+            const status = calculateStageStatus(stage, context.currentStage);
+            const score = status === "completed" ? StorageService.getStageScore(stage) : null;
+
+            const props = getStageCardProps({
+                stage,
+                questionCount,
+                status,
+                score,
+                lastCompletedStage: context.lastCompletedStage
+            });
+
+            const statusBadgeClass = [
+                UI_CLASSES.STATUS_BADGE,
+                status === "completed" ? UI_CLASSES.STATE.COMPLETED : "",
+                status === "active" ? UI_CLASSES.STATE.CURRENT : ""
+            ].join(" ").trim();
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = props.cssClasses;
+            button.disabled = !props.isClickable;
+            if (props.route) button.dataset.route = props.route;
+            if (status === "active") button.setAttribute("aria-current", "step");
+
+            const header = document.createElement("div");
+            header.className = "stage-card-header";
+
+            const number = document.createElement("span");
+            number.className = "stage-number";
+            number.textContent = `${stage} 스테이지`;
+
+            const badge = document.createElement("span");
+            badge.className = statusBadgeClass;
+            if (props.statusIcon) {
+                const icon = document.createElement("span");
+                icon.className = UI_CLASSES.ICON;
+                icon.setAttribute("aria-hidden", "true");
+                icon.textContent = props.statusIcon;
+                badge.appendChild(icon);
+            }
+            const labelText = document.createTextNode(props.label);
+            badge.appendChild(labelText);
+
+            header.appendChild(number);
+            header.appendChild(badge);
+
+            const meta = document.createElement("div");
+            meta.className = "stage-meta";
+            meta.textContent = props.meta;
+
+            button.appendChild(header);
+            button.appendChild(meta);
+
+            if (status === "active") {
+                const currentLabel = document.createElement("span");
+                currentLabel.className = UI_CLASSES.CURRENT_LABEL;
+                currentLabel.textContent = "현재 스테이지";
+                button.appendChild(currentLabel);
+            }
+
+            if (props.action) {
+                const action = document.createElement("span");
+                action.className = UI_CLASSES.ACTION;
+                action.textContent = props.action;
+                button.appendChild(action);
+            }
+
+            return button;
+        },
+
+        updateFlowDirections: (stageList) => {
+            const cards = Array.from(stageList.querySelectorAll(`.${UI_CLASSES.CARD}`));
+            if (!cards.length) return;
+
+            // Reset classes
+            const flowClasses = Object.values(UI_CLASSES.FLOW);
+            cards.forEach(card => card.classList.remove(...flowClasses));
+
+            // Calculate grid columns
+            const gridStyle = window.getComputedStyle(stageList).gridTemplateColumns;
+            const columns = (gridStyle && gridStyle !== "none")
+                ? gridStyle.split(" ").filter(Boolean).length
+                : 1;
+
+            // Apply new classes
+            cards.forEach((card, index) => {
+                const directionClass = calculateFlowDirection(index, cards.length, columns);
+                card.classList.add(directionClass);
+            });
+        },
+
+        render: (elements, stageSummaries, context) => {
+            const fragment = document.createDocumentFragment();
+            stageSummaries.forEach(summary => {
+                fragment.appendChild(DomHelper.createCardElement(summary, context));
+            });
+            elements.stageList.replaceChildren(fragment);
+
+            DomHelper.updateFlowDirections(elements.stageList);
+        },
+
+        bindEvents: (elements) => {
+            elements.stageList.addEventListener("click", (event) => {
+                const target = event.target.closest("[data-route]");
+                if (!target || !elements.stageList.contains(target)) return;
+                window.location.href = target.dataset.route;
+            });
+        },
+
+        showError: (elements) => {
+            elements.quizMapNote.textContent = "퀴즈 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+        },
+
+        showIntro: (elements) => {
+            elements.quizMapNote.textContent = "스테이지를 선택하면 퀴즈 화면에서 모드를 고를 수 있습니다.";
+        }
+    };
+
+    // ==========================================
+    // Main Application Logic
+    // ==========================================
+
+    const App = {
+        init: async () => {
+            const elements = DomHelper.getElements();
+            if (!elements) return;
+
+            StorageService.initDefaults();
+
+            const context = {
+                currentStage: StorageService.getCurrentStage(),
+                lastCompletedStage: StorageService.getLastCompletedStage()
+            };
+
+            const stages = await ApiService.fetchStages();
+            if (!stages || !stages.length) {
+                DomHelper.showError(elements);
                 return;
             }
-            if (row < maxRow) {
-                card.classList.add("flow-down");
-                return;
+
+            // Validate current stage against actual stage count
+            const normalizedStage = normalizeStage(context.currentStage, stages.length);
+            if (normalizedStage !== context.currentStage) {
+                context.currentStage = normalizedStage;
+                StorageService.setCurrentStage(normalizedStage);
             }
-            card.classList.add("flow-end");
-            return;
+
+            DomHelper.showIntro(elements);
+            DomHelper.bindEvents(elements);
+            DomHelper.render(elements, stages, context);
+
+            // Handle Resize for Flow Lines
+            let resizeTimer;
+            window.addEventListener("resize", () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    DomHelper.updateFlowDirections(elements.stageList);
+                }, 120);
+            });
         }
+    };
 
-        const hasPrevInRow = col > 0;
-        if (hasPrevInRow) {
-            card.classList.add("flow-left");
-            return;
-        }
-        if (row < maxRow) {
-            card.classList.add("flow-down");
-            return;
-        }
-        card.classList.add("flow-end");
-    });
-};
-
-const renderStages = (context, stageSummaries) => {
-    context.elements.stageList.innerHTML = stageSummaries
-        .map(summary => buildStageCardMarkup(summary, context))
-        .join("");
-    applyFlowDirections(context.elements.stageList);
-    context.elements.stageList.querySelectorAll("[data-route]").forEach(card => {
-        card.addEventListener("click", () => {
-            window.location.href = card.dataset.route;
-        });
-    });
-};
-
-const showLoadError = context => {
-    context.elements.quizMapNote.textContent = "퀴즈 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
-};
-
-const initializeQuizMap = async context => {
-    const stageSummaries = await fetchStageSummaries();
-    if (!Array.isArray(stageSummaries) || stageSummaries.length === 0) {
-        showLoadError(context);
-        return;
-    }
-    const stageCount = stageSummaries.length;
-    context.currentStage = normalizeStage(context.currentStage, stageCount);
-    updateSummary(context);
-    renderStages(context, stageSummaries);
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-    const elements = getQuizMapElements();
-    if (!elements) {
-        return;
-    }
-    const context = buildContext(elements);
-    initializeQuizMap(context).catch(() => showLoadError(context));
-    let resizeTimer = null;
-    window.addEventListener("resize", () => {
-        if (resizeTimer) {
-            window.clearTimeout(resizeTimer);
-        }
-        resizeTimer = window.setTimeout(() => {
-            applyFlowDirections(elements.stageList);
-        }, 120);
-    });
-});
+    // Bootstrap
+    document.addEventListener("DOMContentLoaded", App.init);
+})();
