@@ -359,8 +359,24 @@ const DomHelper = {
 // Main Application Logic
 // ==========================================
 
+const initNav = () => {
+    const backButton = document.getElementById("topNavBackButton");
+    const pageTitleLabel = document.getElementById("pageTitleLabel");
+    if (pageTitleLabel) {
+        pageTitleLabel.textContent = "성경 퀴즈";
+        pageTitleLabel.classList.remove("d-none");
+    }
+    if (backButton) {
+        backButton.classList.remove("d-none");
+        backButton.addEventListener("click", () => {
+            window.location.href = "/web/game/bible-quiz";
+        });
+    }
+};
+
 const App = {
     init: async () => {
+        initNav();
         const elements = DomHelper.getElements();
         if (!elements) return;
 

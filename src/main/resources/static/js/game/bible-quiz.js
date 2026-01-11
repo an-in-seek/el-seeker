@@ -109,6 +109,21 @@ const getQuizElements = () => {
     return missingRequired ? null : elements;
 };
 
+const initNav = () => {
+    const backButton = document.getElementById("topNavBackButton");
+    const pageTitleLabel = document.getElementById("pageTitleLabel");
+    if (pageTitleLabel) {
+        pageTitleLabel.textContent = "성경 퀴즈";
+        pageTitleLabel.classList.remove("d-none");
+    }
+    if (backButton) {
+        backButton.classList.remove("d-none");
+        backButton.addEventListener("click", () => {
+            window.location.href = "/web/game";
+        });
+    }
+};
+
 const buildContext = elements => {
     const storedStageCount = getStoredStageCount();
     const rawLastCompletedStage = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE);
@@ -436,6 +451,7 @@ const bindQuizEvents = context => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    initNav();
     const elements = getQuizElements();
     if (!elements) {
         return;
