@@ -105,21 +105,6 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const comingSoonCards = document.querySelectorAll(".coming-soon");
-        comingSoonCards.forEach((card) => {
-            card.addEventListener("click", (event) => {
-                event.preventDefault();
-            });
-        });
-
-        const pageTitleLabel = document.getElementById("pageTitleLabel");
-        if (pageTitleLabel) {
-            pageTitleLabel.textContent = "학습";
-            pageTitleLabel.classList.remove("d-none");
-        }
-    });
-</script>
+<script type="module" src="/js/study/study.js?v=2.1"></script>
 </body>
 </html>
