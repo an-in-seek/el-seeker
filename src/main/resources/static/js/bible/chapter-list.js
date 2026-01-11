@@ -1,140 +1,161 @@
 import {BookStore, ChapterStore, TranslationStore} from "/js/storage-util.js?v=2.1";
 
-document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const parsedTranslationId = parseInt(urlParams.get("translationId"), 10);
-    const parsedBookOrder = parseInt(urlParams.get("bookOrder"), 10);
-    const storedTranslationId = TranslationStore.getCurrentTranslationId();
-    const storedBookOrder = BookStore.getCurrentBookOrder();
-    const canUseStoredBookOrder = Number.isNaN(parsedTranslationId)
-        || (storedTranslationId && parsedTranslationId === storedTranslationId);
-    const state = {
-        translationId: Number.isNaN(parsedTranslationId)
-            ? storedTranslationId
-            : parsedTranslationId,
-        bookOrder: Number.isNaN(parsedBookOrder)
-            ? (canUseStoredBookOrder ? storedBookOrder : null)
-            : parsedBookOrder,
-    };
+const UI_CLASSES = {
+    HIDDEN: "d-none"
+};
 
-    const navDOM = {
-        backButton: document.getElementById("topNavBackButton"),
-        translationLink: document.getElementById("topNavTranslationLink"),
-        searchLink: document.getElementById("topNavSearchLink"),
-        translationTypeLabel: document.getElementById("translationTypeLabel"),
-        pageTitleLabel: document.getElementById("pageTitleLabel"),
-    };
+const API_CONFIG = {
+    TRANSLATIONS: "/api/v1/bibles/translations"
+};
 
-    const dom = {
-        translationTypeLabel: navDOM.translationTypeLabel,
-        pageTitleLabel: navDOM.pageTitleLabel,
-        bookDescription: document.getElementById("bookDescription"),
-        bookDescriptionSummary: document.getElementById("bookDescriptionSummary"),
-        chapterList: document.getElementById("chapterList"),
-        prevBtn: document.getElementById("prevBookBtn"),
-        bookSelectLink: document.getElementById("bookSelectLink"),
-        bookSelectLinkLabel: document.getElementById("bookSelectLinkLabel"),
-        nextBtn: document.getElementById("nextBookBtn"),
-    };
+const ROUTES = {
+    TRANSLATION_LIST: "/web/bible/translation",
+    BOOK_LIST: "/web/bible/book",
+    CHAPTER_LIST: "/web/bible/chapter",
+    CHAPTER_DESCRIPTION: "/web/bible/book/description",
+    VERSE_LIST: "/web/bible/verse"
+};
 
-    const init = async () => {
-        const translationId = state.translationId;
-        const bookOrder = state.bookOrder;
+const DomHelper = {
+    getElements: () => {
+        const get = id => document.getElementById(id);
+        return {
+            backButton: get("topNavBackButton"),
+            translationLink: get("topNavTranslationLink"),
+            searchLink: get("topNavSearchLink"),
+            translationTypeLabel: get("translationTypeLabel"),
+            pageTitleLabel: get("pageTitleLabel"),
+            bookDescription: get("bookDescription"),
+            bookDescriptionSummary: get("bookDescriptionSummary"),
+            chapterList: get("chapterList"),
+            prevBtn: get("prevBookBtn"),
+            bookSelectLink: get("bookSelectLink"),
+            bookSelectLinkLabel: get("bookSelectLinkLabel"),
+            nextBtn: get("nextBookBtn")
+        };
+    }
+};
 
-        initNav();
+const App = {
+    elements: null,
+    state: {
+        translationId: null,
+        bookOrder: null
+    },
 
-        if (!translationId) {
-            redirectToTranslation();
+    init: async () => {
+        App.elements = DomHelper.getElements();
+        App.initStateFromUrl();
+        App.initNav();
+
+        if (!App.state.translationId) {
+            App.redirectToTranslation();
             return;
         }
 
-        const translationInfo = await ensureTranslationInfo();
-        updateTranslationLabel(translationInfo);
+        const translationInfo = await App.ensureTranslationInfo();
+        App.updateTranslationLabel(translationInfo);
 
-        if (!bookOrder) {
-            redirectToBookList();
+        if (!App.state.bookOrder) {
+            App.redirectToBookList();
             return;
         }
 
-        const books = await ensureBookList();
-        const bookName = resolveBookName(books);
+        const books = await App.ensureBookList();
+        const bookName = App.resolveBookName(books);
         if (!bookName) {
-            redirectToBookList();
+            App.redirectToBookList();
             return;
         }
 
-        updateHeader(translationInfo.type, bookName);
-        setupPrevNext(books);
+        App.updateHeader(translationInfo.type, bookName);
+        App.setupPrevNext(books);
 
-        if (!renderFromSessionStorage()) {
-            await fetchChaptersFromAPI();
+        if (!App.renderFromSessionStorage()) {
+            await App.fetchChaptersFromAPI();
         }
-    };
+    },
 
-    const initNav = () => {
-        const buildBackUrl = () => state.translationId
-            ? `/web/bible/book?translationId=${state.translationId}`
-            : "/web/bible/translation";
-        setupBackButton(navDOM.backButton, buildBackUrl);
-        if (navDOM.translationLink) {
-            navDOM.translationLink.classList.remove("d-none");
-            navDOM.translationLink.addEventListener("click", () => {
-                const returnUrl = new URL("/web/bible/chapter", window.location.origin);
-                if (state.translationId) {
-                    returnUrl.searchParams.set("translationId", state.translationId);
+    initStateFromUrl: () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const parsedTranslationId = parseInt(urlParams.get("translationId"), 10);
+        const parsedBookOrder = parseInt(urlParams.get("bookOrder"), 10);
+        const storedTranslationId = TranslationStore.getCurrentTranslationId();
+        const storedBookOrder = BookStore.getCurrentBookOrder();
+        const canUseStoredBookOrder = Number.isNaN(parsedTranslationId)
+            || (storedTranslationId && parsedTranslationId === storedTranslationId);
+        App.state.translationId = Number.isNaN(parsedTranslationId)
+            ? storedTranslationId
+            : parsedTranslationId;
+        App.state.bookOrder = Number.isNaN(parsedBookOrder)
+            ? (canUseStoredBookOrder ? storedBookOrder : null)
+            : parsedBookOrder;
+    },
+
+    initNav: () => {
+        const {backButton, translationLink, searchLink, pageTitleLabel} = App.elements;
+        App.setupBackButton(backButton);
+        if (translationLink) {
+            translationLink.classList.remove(UI_CLASSES.HIDDEN);
+            translationLink.addEventListener("click", () => {
+                const returnUrl = new URL(ROUTES.CHAPTER_LIST, window.location.origin);
+                if (App.state.translationId) {
+                    returnUrl.searchParams.set("translationId", App.state.translationId);
                 }
-                if (state.bookOrder) {
-                    returnUrl.searchParams.set("bookOrder", state.bookOrder);
+                if (App.state.bookOrder) {
+                    returnUrl.searchParams.set("bookOrder", App.state.bookOrder);
                 }
                 TranslationStore.saveTranslationReturnPath(`${returnUrl.pathname}${returnUrl.search}`);
             });
         }
-        if (navDOM.searchLink) {
-            navDOM.searchLink.classList.remove("d-none");
+        if (searchLink) {
+            searchLink.classList.remove(UI_CLASSES.HIDDEN);
         }
-        if (navDOM.pageTitleLabel) {
-            navDOM.pageTitleLabel.classList.remove("d-none");
+        if (pageTitleLabel) {
+            pageTitleLabel.classList.remove(UI_CLASSES.HIDDEN);
         }
-    };
+    },
 
-    const setupBackButton = (button, getTargetUrl) => {
+    setupBackButton: (button) => {
         if (!button) {
             return;
         }
-        button.classList.remove("d-none");
+        button.classList.remove(UI_CLASSES.HIDDEN);
         button.addEventListener("click", () => {
-            window.location.href = getTargetUrl();
+            window.location.href = App.state.translationId
+                ? `${ROUTES.BOOK_LIST}?translationId=${App.state.translationId}`
+                : ROUTES.TRANSLATION_LIST;
         });
-    };
+    },
 
-    const getStoredTranslation = () => ({
+    getStoredTranslation: () => ({
         id: TranslationStore.getCurrentTranslationId(),
         type: TranslationStore.getCurrentTranslationType(),
         name: TranslationStore.getCurrentTranslationName(),
-        language: TranslationStore.getCurrentTranslationLanguage(),
-    });
+        language: TranslationStore.getCurrentTranslationLanguage()
+    }),
 
-    const hasCompleteTranslation = (stored, targetId) =>
-        stored.id === targetId && stored.type && stored.name && stored.language;
+    hasCompleteTranslation: (stored, targetId) =>
+        stored.id === targetId && stored.type && stored.name && stored.language,
 
-    const ensureTranslationInfo = async () => {
-        const stored = getStoredTranslation();
-        if (hasCompleteTranslation(stored, state.translationId)) {
+    ensureTranslationInfo: async () => {
+        const stored = App.getStoredTranslation();
+        if (App.hasCompleteTranslation(stored, App.state.translationId)) {
             return stored;
         }
         try {
-            const response = await fetch("/api/v1/bibles/translations");
+            const response = await fetch(API_CONFIG.TRANSLATIONS);
             if (!response.ok) {
                 throw new Error("번역본 정보를 불러오는 중 오류가 발생했습니다.");
             }
             const translations = await response.json();
-            const match = translations.find(item => item.translationId === state.translationId);
+            const match = translations.find(item => item.translationId === App.state.translationId);
             if (match) {
                 const translation = {
                     id: match.translationId,
                     name: match.translationName,
                     type: match.translationType,
-                    language: match.translationLanguage,
+                    language: match.translationLanguage
                 };
                 TranslationStore.saveCurrentTranslation(translation);
                 return translation;
@@ -143,111 +164,124 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn(error.message);
         }
         return stored;
-    };
+    },
 
-    const ensureBookList = async () => {
-        const cached = BookStore.getListForTranslation(state.translationId);
+    ensureBookList: async () => {
+        const cached = BookStore.getListForTranslation(App.state.translationId);
         if (cached && cached.length > 0) {
             return cached;
         }
         try {
-            const response = await fetch(`/api/v1/bibles/translations/${state.translationId}/books`);
+            const response = await fetch(`${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/books`);
             if (!response.ok) {
                 throw new Error("데이터를 불러오는 중 오류가 발생했습니다.");
             }
             const data = await response.json();
-            BookStore.saveListForTranslation(state.translationId, data);
+            BookStore.saveListForTranslation(App.state.translationId, data);
             return data;
         } catch (error) {
             console.warn(error.message);
         }
         return null;
-    };
+    },
 
-    const resolveBookName = books => {
-        let bookName = BookStore.getBookName(state.translationId, state.bookOrder);
+    resolveBookName: books => {
+        let bookName = BookStore.getBookName(App.state.translationId, App.state.bookOrder);
         if (!bookName && books) {
-            const currentBook = books.find(book => book.bookOrder === state.bookOrder);
+            const currentBook = books.find(book => book.bookOrder === App.state.bookOrder);
             if (currentBook) {
                 BookStore.saveCurrentBook(currentBook);
                 bookName = currentBook.bookName;
             }
         }
         return bookName;
-    };
+    },
 
-    const updateTranslationLabel = translationInfo => {
-        if (navDOM.translationTypeLabel && translationInfo.type) {
-            navDOM.translationTypeLabel.textContent = translationInfo.type;
+    updateTranslationLabel: translationInfo => {
+        if (App.elements.translationTypeLabel && translationInfo.type) {
+            App.elements.translationTypeLabel.textContent = translationInfo.type;
         }
-    };
+    },
 
-    const updateHeader = (translationType, bookName) => {
-        if (dom.translationTypeLabel && translationType) {
-            dom.translationTypeLabel.textContent = translationType;
+    updateHeader: (translationType, bookName) => {
+        const {
+            translationTypeLabel,
+            pageTitleLabel,
+            bookSelectLinkLabel,
+            bookSelectLink,
+            bookDescription
+        } = App.elements;
+        if (translationTypeLabel && translationType) {
+            translationTypeLabel.textContent = translationType;
         }
-        if (dom.pageTitleLabel) {
-            dom.pageTitleLabel.textContent = bookName;
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = bookName;
         }
-        if (dom.bookSelectLinkLabel) {
-            dom.bookSelectLinkLabel.textContent = bookName;
+        if (bookSelectLinkLabel) {
+            bookSelectLinkLabel.textContent = bookName;
         }
-        if (dom.bookSelectLink) {
-            dom.bookSelectLink.href = `/web/bible/book?translationId=${state.translationId}`;
+        if (bookSelectLink) {
+            bookSelectLink.href = `${ROUTES.BOOK_LIST}?translationId=${App.state.translationId}`;
         }
-        if (dom.bookDescription) {
-            dom.bookDescription.href = `/web/bible/book/description?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
+        if (bookDescription) {
+            bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
         }
-    };
+    },
 
-    const setupPrevNext = books => {
+    setupPrevNext: books => {
         if (!books || books.length === 0) {
             return;
         }
-        const currentIndex = books.findIndex(book => book.bookOrder === state.bookOrder);
-        if (dom.prevBtn) {
-            dom.prevBtn.disabled = currentIndex <= 0;
-            dom.prevBtn.addEventListener("click", () => {
+        const currentIndex = books.findIndex(book => book.bookOrder === App.state.bookOrder);
+        if (App.elements.prevBtn) {
+            App.elements.prevBtn.disabled = currentIndex <= 0;
+            App.elements.prevBtn.addEventListener("click", () => {
                 if (currentIndex > 0) {
                     const prevBook = books[currentIndex - 1];
                     BookStore.saveCurrentBook(prevBook);
-                    navigateToBook(prevBook.bookOrder);
+                    App.navigateToBook(prevBook.bookOrder);
                 }
             });
         }
-        if (dom.nextBtn) {
-            dom.nextBtn.disabled = currentIndex >= books.length - 1;
-            dom.nextBtn.addEventListener("click", () => {
+        if (App.elements.nextBtn) {
+            App.elements.nextBtn.disabled = currentIndex >= books.length - 1;
+            App.elements.nextBtn.addEventListener("click", () => {
                 if (currentIndex < books.length - 1) {
                     const nextBook = books[currentIndex + 1];
                     BookStore.saveCurrentBook(nextBook);
-                    navigateToBook(nextBook.bookOrder);
+                    App.navigateToBook(nextBook.bookOrder);
                 }
             });
         }
-    };
+    },
 
-    const renderFromSessionStorage = () => {
-        const bookData = BookStore.getDetail(state.translationId, state.bookOrder);
+    renderFromSessionStorage: () => {
+        const bookData = BookStore.getDetail(App.state.translationId, App.state.bookOrder);
         if (bookData) {
-            renderChapters(bookData);
+            App.renderChapters(bookData);
             return true;
         }
         return false;
-    };
+    },
 
-    const renderChapters = data => {
-        if (dom.bookSelectLinkLabel) {
-            dom.bookSelectLinkLabel.textContent = data.book.bookName;
+    renderChapters: data => {
+        const {
+            bookSelectLinkLabel,
+            pageTitleLabel,
+            bookDescriptionSummary,
+            chapterList
+        } = App.elements;
+        if (bookSelectLinkLabel) {
+            bookSelectLinkLabel.textContent = data.book.bookName;
         }
-        if (dom.pageTitleLabel) {
-            dom.pageTitleLabel.textContent = data.book.bookName;
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = data.book.bookName;
         }
-        if (dom.bookDescriptionSummary) {
-            dom.bookDescriptionSummary.textContent = data.book.descriptionSummary;
+        if (bookDescriptionSummary) {
+            bookDescriptionSummary.textContent = data.book.descriptionSummary;
         }
-        if (dom.chapterList) {
-            dom.chapterList.innerHTML = "";
+        if (chapterList) {
+            chapterList.innerHTML = "";
             data.book.chapters.forEach(chapter => {
                 const tile = document.createElement("button");
                 tile.type = "button";
@@ -255,49 +289,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 tile.textContent = chapter.chapterNumber;
                 tile.addEventListener("click", () => {
                     ChapterStore.saveNumber(chapter.chapterNumber);
-                    const targetUrl = new URL("/web/bible/verse", window.location.origin);
-                    targetUrl.searchParams.set("translationId", state.translationId);
-                    targetUrl.searchParams.set("bookOrder", state.bookOrder);
+                    const targetUrl = new URL(ROUTES.VERSE_LIST, window.location.origin);
+                    targetUrl.searchParams.set("translationId", App.state.translationId);
+                    targetUrl.searchParams.set("bookOrder", App.state.bookOrder);
                     targetUrl.searchParams.set("chapterNumber", chapter.chapterNumber);
                     window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
                 });
-                dom.chapterList.appendChild(tile);
+                chapterList.appendChild(tile);
             });
         }
-        BookStore.saveDetail(state.translationId, state.bookOrder, data);
+        BookStore.saveDetail(App.state.translationId, App.state.bookOrder, data);
         window.scrollTo({top: 0, behavior: "smooth"});
-    };
+    },
 
-    const fetchChaptersFromAPI = async () => {
+    fetchChaptersFromAPI: async () => {
         try {
-            const response = await fetch(`/api/v1/bibles/translations/${state.translationId}/books/${state.bookOrder}/chapters`);
+            const response = await fetch(`${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/books/${App.state.bookOrder}/chapters`);
             if (!response.ok) {
                 throw new Error("데이터를 불러오는 중 오류가 발생했습니다.");
             }
             const data = await response.json();
-            renderChapters(data);
+            App.renderChapters(data);
         } catch (error) {
             alert(error.message);
         }
-    };
+    },
 
-    const navigateToBook = bookOrder => {
-        state.bookOrder = bookOrder;
-        const targetUrl = new URL("/web/bible/chapter", window.location.origin);
-        targetUrl.searchParams.set("translationId", state.translationId);
-        targetUrl.searchParams.set("bookOrder", state.bookOrder);
+    navigateToBook: bookOrder => {
+        App.state.bookOrder = bookOrder;
+        const targetUrl = new URL(ROUTES.CHAPTER_LIST, window.location.origin);
+        targetUrl.searchParams.set("translationId", App.state.translationId);
+        targetUrl.searchParams.set("bookOrder", App.state.bookOrder);
         window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
-    };
+    },
 
-    const redirectToTranslation = () => {
-        window.location.href = "/web/bible/translation";
-    };
+    redirectToTranslation: () => {
+        window.location.href = ROUTES.TRANSLATION_LIST;
+    },
 
-    const redirectToBookList = () => {
-        const bookUrl = new URL("/web/bible/book", window.location.origin);
-        bookUrl.searchParams.set("translationId", state.translationId);
+    redirectToBookList: () => {
+        const bookUrl = new URL(ROUTES.BOOK_LIST, window.location.origin);
+        bookUrl.searchParams.set("translationId", App.state.translationId);
         window.location.href = `${bookUrl.pathname}${bookUrl.search}`;
-    };
+    }
+};
 
-    init();
-});
+document.addEventListener("DOMContentLoaded", App.init);
