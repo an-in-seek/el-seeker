@@ -11,10 +11,12 @@ const API_CONFIG = {
 };
 
 const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "currentStage",
-    LAST_COMPLETED_STAGE: "lastCompletedStage",
+    CURRENT_STAGE: "quizCurrentStage",
+    LAST_COMPLETED_STAGE: "quizLastCompletedStage",
     STAGE_COUNT: "quizStageCount",
     STAGE_SCORE_PREFIX: "quizStageScore",
+    CURRENT_QUESTION_PREFIX: "quizCurrentQuestionStage",
+    CURRENT_SCORE_PREFIX: "quizCurrentScoreStage",
 });
 
 const UI_CLASSES = {
@@ -28,23 +30,84 @@ const UI_CLASSES = {
 /**
  * Service for LocalStorage operations
  */
+const SafeLocalStore = {
+    isAvailable: () => {
+        try {
+            return typeof localStorage !== "undefined";
+        } catch (error) {
+            return false;
+        }
+    },
+    get: (key) => {
+        if (!SafeLocalStore.isAvailable()) return null;
+        try {
+            return LocalStore.get(key);
+        } catch (error) {
+            return null;
+        }
+    },
+    set: (key, value) => {
+        if (!SafeLocalStore.isAvailable()) return;
+        try {
+            LocalStore.set(key, value);
+        } catch (error) {
+            // Ignore storage errors to keep quiz usable.
+        }
+    },
+    remove: (key) => {
+        if (!SafeLocalStore.isAvailable()) return;
+        try {
+            LocalStore.remove(key);
+        } catch (error) {
+            // Ignore storage errors to keep quiz usable.
+        }
+    }
+};
+
 const StorageService = {
     getStageCount: () => {
-        const count = parseInt(LocalStore.get(STORAGE_KEYS.STAGE_COUNT), 10);
+        const count = parseInt(SafeLocalStore.get(STORAGE_KEYS.STAGE_COUNT), 10);
         return Number.isNaN(count) ? null : count;
     },
     getLastCompletedStage: () => {
-        const stage = parseInt(LocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
+        const stage = parseInt(SafeLocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
         return Number.isNaN(stage) ? 0 : stage;
     },
     getCurrentStage: () => {
-        const stage = parseInt(LocalStore.get(STORAGE_KEYS.CURRENT_STAGE), 10);
+        const stage = parseInt(SafeLocalStore.get(STORAGE_KEYS.CURRENT_STAGE), 10);
         return Number.isNaN(stage) ? null : stage;
     },
-    setLastCompletedStage: (stage) => LocalStore.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, stage),
-    setCurrentStage: (stage) => LocalStore.set(STORAGE_KEYS.CURRENT_STAGE, stage),
-    setStageCount: (count) => LocalStore.set(STORAGE_KEYS.STAGE_COUNT, count),
-    setStageScore: (stage, score) => LocalStore.set(`${STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`, score)
+    setLastCompletedStage: (stage) => SafeLocalStore.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, stage),
+    setCurrentStage: (stage) => SafeLocalStore.set(STORAGE_KEYS.CURRENT_STAGE, stage),
+    setStageCount: (count) => SafeLocalStore.set(STORAGE_KEYS.STAGE_COUNT, count),
+    setStageScore: (stage, score) => SafeLocalStore.set(`${STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`, score),
+    getCurrentScore: (stage) => {
+        const storedScore = parseInt(SafeLocalStore.get(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`), 10);
+        return Number.isNaN(storedScore) ? null : storedScore;
+    },
+    setCurrentScore: (stage, score) => SafeLocalStore.set(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`, score),
+    clearCurrentScore: (stage) => SafeLocalStore.remove(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`),
+    hasCurrentQuestionIndex: (stage) => {
+        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
+        return SafeLocalStore.get(key) !== null;
+    },
+    getCurrentQuestionIndex: (stage, questionCount) => {
+        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
+        const storedIndex = parseInt(SafeLocalStore.get(key), 10);
+        if (Number.isNaN(storedIndex) || storedIndex < 1) return 0;
+        if (questionCount && storedIndex > questionCount) return 0;
+        return storedIndex - 1;
+    },
+    setCurrentQuestionIndex: (stage, index) => {
+        const parsedIndex = parseInt(index, 10);
+        if (Number.isNaN(parsedIndex)) return;
+        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
+        SafeLocalStore.set(key, parsedIndex + 1);
+    },
+    clearCurrentQuestionIndex: (stage) => {
+        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
+        SafeLocalStore.remove(key);
+    }
 };
 
 /**
@@ -220,7 +283,7 @@ const App = {
         if (storedData.rawCurrentStage === null || context.boundedCurrentStage !== context.storedCurrentStage) {
             StorageService.setCurrentStage(context.boundedCurrentStage);
         }
-        if (LocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE) === null) {
+        if (SafeLocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE) === null) {
             StorageService.setLastCompletedStage(storedData.lastCompletedStage);
         }
 
@@ -229,13 +292,20 @@ const App = {
 
         App.updateHeroLead(context);
 
+        const hasInProgressQuiz = StorageService.hasCurrentQuestionIndex(context.activeStage);
+
         if (context.isBlocked) {
             App.showAccessBlocked();
-        } else if (context.requiresModeSelection) {
+        } else if (context.requiresModeSelection && !hasInProgressQuiz) {
             App.showModeSelection(context);
         } else {
             let mode = 'record';
-            if (context.isPracticeOnly) mode = 'practice';
+            if (context.isPracticeOnly) {
+                mode = 'practice';
+            } else if (context.requiresModeSelection && hasInProgressQuiz) {
+                const storedScore = StorageService.getCurrentScore(context.activeStage);
+                mode = storedScore === null ? 'practice' : 'retry';
+            }
             App.startQuiz(mode);
         }
 
@@ -319,12 +389,22 @@ const App = {
         }
 
         App.state.questions = data.questions;
-        App.state.index = 0;
+        const hasProgress = StorageService.hasCurrentQuestionIndex(App.state.stage);
+        App.state.index = StorageService.getCurrentQuestionIndex(App.state.stage, data.questions.length);
         App.state.score = 0;
+        if (App.state.mode !== "practice") {
+            const storedScore = hasProgress ? StorageService.getCurrentScore(App.state.stage) : null;
+            App.state.score = storedScore ?? 0;
+            StorageService.setCurrentScore(App.state.stage, App.state.score);
+        }
         App.state.answered = false;
         App.state.selectedIndex = null;
 
         App.renderQuestion();
+    },
+
+    persistQuestionIndex: () => {
+        StorageService.setCurrentQuestionIndex(App.state.stage, App.state.index);
     },
 
     renderQuestion: () => {
@@ -355,6 +435,8 @@ const App = {
 
         App.state.answered = false;
         App.state.selectedIndex = null;
+
+        App.persistQuestionIndex();
         
         DomHelper.setBusy(quizPanel, false);
     },
@@ -388,6 +470,7 @@ const App = {
         App.state.answered = true;
         if (isCorrect && App.state.mode !== 'practice') {
             App.state.score++;
+            StorageService.setCurrentScore(App.state.stage, App.state.score);
         }
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
@@ -412,6 +495,8 @@ const App = {
         }
 
         DomHelper.setElementText(quizNext, index === questions.length - 1 ? "완료" : "다음 문제");
+
+        App.persistQuestionIndex();
     },
 
     nextQuestion: () => {
@@ -427,6 +512,9 @@ const App = {
     finishQuiz: () => {
         const { stage, score, questions, mode, stageCount } = App.state;
         const { quizPanel, quizComplete, quizScore, quizModeSelectButton } = App.elements;
+
+        StorageService.clearCurrentQuestionIndex(stage);
+        StorageService.setCurrentScore(stage, score);
 
         if (mode !== 'practice') {
             const nextStage = QuizLogic.calculateNextStage(stage, stageCount);

@@ -12,8 +12,8 @@ const API_CONFIG = {
 };
 
 const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "currentStage",
-    LAST_COMPLETED_STAGE: "lastCompletedStage",
+    CURRENT_STAGE: "quizCurrentStage",
+    LAST_COMPLETED_STAGE: "quizLastCompletedStage",
     STAGE_SCORE_PREFIX: "quizStageScore",
 });
 
@@ -78,6 +78,7 @@ const getStageCardProps = ({stage, questionCount, status, score, lastCompletedSt
     let meta = "진행 전";
     let route = null;
     let action = null;
+    let actions = null;
     const cssClasses = [UI_CLASSES.CARD];
 
     if (isCompleted) {
@@ -90,7 +91,9 @@ const getStageCardProps = ({stage, questionCount, status, score, lastCompletedSt
             meta = "완료";
         }
         if (stage === lastCompletedStage) {
-            action = "재도전 가능";
+            actions = ["연습 가능", "재도전 가능"];
+        } else if (stage < lastCompletedStage) {
+            action = "연습 가능";
         }
         route = `/web/game/bible-quiz?stage=${stage}`;
     } else if (isActive) {
@@ -113,6 +116,7 @@ const getStageCardProps = ({stage, questionCount, status, score, lastCompletedSt
         route,
         isClickable,
         action,
+        actions,
         cssClasses: cssClasses.join(" "),
         statusIcon: isCompleted ? "✓" : (isActive ? "▶︎" : null)
     };
@@ -154,7 +158,7 @@ const calculateFlowDirection = (index, totalItems, columns) => {
 // ==========================================
 
 const Storage = (() => {
-        const store = LocalStore;
+    const store = LocalStore;
     return {
         get: (key) => (store.get ? store.get(key) : store.getItem(key)),
         set: (key, value) => (store.set ? store.set(key, value) : store.setItem(key, String(value))),
@@ -297,11 +301,20 @@ const DomHelper = {
         button.appendChild(header);
         button.appendChild(meta);
 
-        if (props.action) {
-            const action = document.createElement("span");
-            action.className = UI_CLASSES.ACTION;
-            action.textContent = props.action;
-            button.appendChild(action);
+        const actionLabels = props.actions && props.actions.length
+            ? props.actions
+            : (props.action ? [props.action] : []);
+
+        if (actionLabels.length) {
+            const actionGroup = document.createElement("div");
+            actionGroup.className = "stage-actions";
+            actionLabels.forEach((label) => {
+                const action = document.createElement("span");
+                action.className = UI_CLASSES.ACTION;
+                action.textContent = label;
+                actionGroup.appendChild(action);
+            });
+            button.appendChild(actionGroup);
         }
 
         return button;
