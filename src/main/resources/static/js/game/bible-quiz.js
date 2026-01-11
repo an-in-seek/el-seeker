@@ -1,9 +1,6 @@
 const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
-    LAST_COMPLETED_DATE: "lastCompletedDate",
-    LAST_STAGE_SCORE: "lastStageScore",
-    LAST_STAGE_QUESTION_COUNT: "lastStageQuestionCount",
     LAST_COMPLETED_STAGE: "lastCompletedStage",
     STAGE_COUNT: "quizStageCount",
     STAGE_SCORE_PREFIX: "quizStageScore",
@@ -34,62 +31,23 @@ const normalizeStage = (stageValue, stageCount) => {
     return clampNumber(parsed, 1, stageCount);
 };
 
-const getStoredDate = () => LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
-
 const getStoredStageCount = () => {
     const count = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.STAGE_COUNT), 10);
     return Number.isNaN(count) ? null : count;
 };
 
-const getStoredScore = () => {
-    const score = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE);
-    const parsed = parseInt(score, 10);
-    return Number.isNaN(parsed) ? null : parsed;
-};
-
-const getStoredQuestionCount = () => {
-    const count = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT), 10);
-    return Number.isNaN(count) ? null : count;
-};
-
 const getStoredLastCompletedStage = () => {
     const stage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
-    return Number.isNaN(stage) ? null : stage;
+    return Number.isNaN(stage) ? 0 : stage;
 };
 
 const getStageScoreKey = stage => `${QUIZ_STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
-
-const resolveRetryStage = stageCount => {
-    const storedStage = getStoredLastCompletedStage();
-    if (storedStage) {
-        return storedStage;
-    }
-    const currentStage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE), 10);
-    if (Number.isNaN(currentStage)) {
-        return null;
-    }
-    const retryStage = Math.max(currentStage - 1, 1);
-    if (stageCount && retryStage > stageCount) {
-        return stageCount;
-    }
-    return retryStage;
-};
-
-const resetForRetry = stage => {
-    if (!stage) {
-        return;
-    }
-    LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, stage);
-    LocalStore.remove(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
-    LocalStore.remove(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE);
-    LocalStore.remove(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT);
-};
 
 const showCompletion = (quizPanel, quizComplete, quizScore, score, questionCount) => {
     quizPanel.setAttribute("aria-busy", "false");
     quizPanel.classList.add("d-none");
     if (score !== null && score !== undefined && questionCount) {
-        quizScore.textContent = `오늘 점수 ${score} / ${questionCount}`;
+        quizScore.textContent = `점수 ${score} / ${questionCount}`;
     } else {
         quizScore.textContent = "";
     }
@@ -149,34 +107,43 @@ const getQuizElements = () => {
 };
 
 const buildContext = elements => {
-    const today = getLocalDateString();
-    const storedDate = getStoredDate();
-    const storedScore = getStoredScore();
-    const storedQuestionCount = getStoredQuestionCount();
     const storedStageCount = getStoredStageCount();
+    const rawLastCompletedStage = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE);
     const lastCompletedStage = getStoredLastCompletedStage();
     const queryParams = new URLSearchParams(window.location.search);
     const requestedStage = parseInt(queryParams.get("stage"), 10);
-    const currentStage = normalizeStage(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE), storedStageCount);
+    const rawCurrentStage = LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE);
+    const storedCurrentStage = normalizeStage(rawCurrentStage, storedStageCount);
     const normalizedRequestedStage = Number.isNaN(requestedStage)
         ? null
         : normalizeStage(requestedStage, storedStageCount);
-    const activeStage = normalizedRequestedStage || currentStage;
-    const requiresModeSelection = normalizedRequestedStage !== null && normalizedRequestedStage < currentStage;
-    const canRetry = normalizedRequestedStage !== null && normalizedRequestedStage === lastCompletedStage;
+    const currentStage = lastCompletedStage >= storedCurrentStage
+        ? lastCompletedStage + 1
+        : storedCurrentStage;
+    const boundedCurrentStage = storedStageCount
+        ? clampNumber(currentStage, 1, storedStageCount)
+        : Math.max(currentStage, 1);
+    if (rawLastCompletedStage === null) {
+        LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE, lastCompletedStage);
+    }
+    if (rawCurrentStage === null || boundedCurrentStage !== storedCurrentStage) {
+        LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, boundedCurrentStage);
+    }
+    const activeStage = normalizedRequestedStage || boundedCurrentStage;
+    const requiresModeSelection = activeStage === lastCompletedStage && lastCompletedStage > 0;
+    const canRetry = requiresModeSelection;
+    const isReviewOnly = activeStage < lastCompletedStage;
+    const isBlocked = activeStage > boundedCurrentStage;
 
     return {
         elements,
-        today,
-        storedDate,
-        storedScore,
-        storedQuestionCount,
         stageCount: storedStageCount,
-        isReviewMode: false,
+        isReviewMode: isReviewOnly,
         isRetryMode: false,
+        isPlayMode: !isReviewOnly && !requiresModeSelection && !isBlocked,
         requiresModeSelection,
         canRetry,
-        hasResetForRetry: false,
+        isBlocked,
         activeStage,
         state: null
     };
@@ -191,13 +158,19 @@ const updateHeroLead = context => {
         quizHeroLead.textContent = "재도전 또는 연습 모드를 선택하세요.";
         return;
     }
+    if (context.isBlocked) {
+        quizHeroLead.textContent = "아직 열리지 않은 스테이지입니다.";
+        return;
+    }
     if (context.isReviewMode) {
         quizHeroLead.textContent = "기록에 반영되지 않는 연습 모드입니다.";
         return;
     }
     if (context.isRetryMode) {
         quizHeroLead.textContent = "마지막 완료 스테이지를 다시 도전합니다.";
+        return;
     }
+    quizHeroLead.textContent = "선택한 스테이지 퀴즈를 시작합니다.";
 };
 
 const setBusy = (context, isBusy) => {
@@ -206,6 +179,15 @@ const setBusy = (context, isBusy) => {
 
 const showModeSelection = context => {
     const {quizModeSelect, quizModeRetryButton, quizModeReviewButton, quizPanel} = context.elements;
+    if (context.isBlocked) {
+        if (quizModeSelect) {
+            quizModeSelect.classList.add("d-none");
+        }
+        if (quizPanel) {
+            quizPanel.classList.add("d-none");
+        }
+        return false;
+    }
     if (!context.requiresModeSelection || !quizModeSelect || !quizModeRetryButton || !quizModeReviewButton || !quizPanel) {
         return false;
     }
@@ -228,7 +210,7 @@ const showModeSelection = context => {
 const startQuizWithMode = (context, mode) => {
     context.isReviewMode = mode === "review";
     context.isRetryMode = mode === "retry";
-    context.hasResetForRetry = false;
+    context.isPlayMode = false;
     context.elements.quizModeSelect.classList.add("d-none");
     context.elements.quizPanel.classList.remove("d-none");
     updateHeroLead(context);
@@ -263,16 +245,29 @@ const updateProgress = context => {
 
 const showLoadError = context => {
     const stageCount = context.stageCount || 0;
-    const questionCount = context.storedQuestionCount || 0;
     setBusy(context, false);
-    context.elements.quizQuestion.textContent = "오늘의 퀴즈를 불러올 수 없습니다";
+    context.elements.quizQuestion.textContent = "퀴즈를 불러올 수 없습니다";
     context.elements.quizOptions.textContent = "잠시 후 다시 시도해주세요.";
     context.elements.quizNext.disabled = true;
     resetFeedback(context);
     context.elements.quizStage.textContent = `0 / ${stageCount}`;
-    context.elements.quizQuestionProgress.textContent = `0 / ${questionCount}`;
+    context.elements.quizQuestionProgress.textContent = "0 / 0";
     updateProgressBar(context.elements.quizStageProgress, 0, stageCount, 0);
-    updateProgressBar(context.elements.quizQuestionProgressBar, 0, questionCount, 0);
+    updateProgressBar(context.elements.quizQuestionProgressBar, 0, 0, 0);
+};
+
+const showAccessBlocked = context => {
+    setBusy(context, false);
+    context.elements.quizPanel.classList.remove("d-none");
+    context.elements.quizComplete.classList.add("d-none");
+    context.elements.quizQuestion.textContent = "아직 진행할 수 없는 스테이지입니다.";
+    context.elements.quizOptions.textContent = "현재 진행 가능한 스테이지를 선택해주세요.";
+    context.elements.quizNext.disabled = true;
+    resetFeedback(context);
+    context.elements.quizStage.textContent = "0 / 0";
+    context.elements.quizQuestionProgress.textContent = "0 / 0";
+    updateProgressBar(context.elements.quizStageProgress, 0, 0, 0);
+    updateProgressBar(context.elements.quizQuestionProgressBar, 0, 0, 0);
 };
 
 const renderQuestion = context => {
@@ -321,10 +316,6 @@ const gradeAnswer = context => {
     if (context.state.answered || context.state.selectedIndex === null) {
         return;
     }
-    if (context.isRetryMode && !context.hasResetForRetry && context.state.index === 0) {
-        resetForRetry(context.activeStage);
-        context.hasResetForRetry = true;
-    }
     context.state.answered = true;
     const current = context.state.questions[context.state.index];
     const isCorrect = context.state.selectedIndex === current.answerIndex;
@@ -368,14 +359,11 @@ const handleNext = context => {
         return;
     }
     if (context.state.index === context.state.questions.length - 1) {
-        if (!context.state.isReview) {
+        if (context.isPlayMode) {
             const nextStage = context.stageCount
                 ? Math.min(context.state.stage + 1, context.stageCount)
                 : context.state.stage + 1;
             LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, nextStage);
-            LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE, context.today);
-            LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_SCORE, context.state.score);
-            LocalStore.set(QUIZ_STORAGE_KEYS.LAST_STAGE_QUESTION_COUNT, context.state.questions.length);
             LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE, context.state.stage);
             LocalStore.set(getStageScoreKey(context.state.stage), context.state.score);
         }
@@ -386,7 +374,7 @@ const handleNext = context => {
             context.state.isReview ? null : context.state.score,
             context.state.questions.length
         );
-        if (!context.state.isReview) {
+        if (context.isPlayMode) {
             showReviewButton(context);
         }
         return;
@@ -396,15 +384,8 @@ const handleNext = context => {
 };
 
 const initializeQuiz = async context => {
-    if (!context.isReviewMode && !context.isRetryMode && context.storedDate === context.today) {
-        showCompletion(
-            context.elements.quizPanel,
-            context.elements.quizComplete,
-            context.elements.quizScore,
-            context.storedScore,
-            context.storedQuestionCount
-        );
-        showReviewButton(context);
+    if (context.isBlocked) {
+        showAccessBlocked(context);
         return;
     }
 

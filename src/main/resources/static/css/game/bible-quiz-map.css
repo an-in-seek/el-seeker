@@ -17,12 +17,6 @@
     margin-bottom: 0.75rem;
 }
 
-.quiz-map-date {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #7a879e;
-}
-
 .quiz-map-legend {
     display: flex;
     flex-wrap: wrap;
@@ -73,6 +67,11 @@
     gap: 0.5rem;
     min-height: 110px;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
+    cursor: default;
+}
+
+.stage-card.is-clickable {
+    cursor: pointer;
 }
 
 .stage-card.is-clickable:hover {
@@ -95,6 +94,7 @@
     border-color: #e1e6f0;
     background: #f7f8fb;
     color: #7a879e;
+    cursor: not-allowed;
 }
 
 .stage-card-header {

@@ -2,9 +2,6 @@ const QUIZ_API_BASE = "/api/v1/game/bible-quiz";
 
 const QUIZ_STORAGE_KEYS = Object.freeze({
     CURRENT_STAGE: "currentStage",
-    LAST_COMPLETED_DATE: "lastCompletedDate",
-    LAST_STAGE_SCORE: "lastStageScore",
-    LAST_STAGE_QUESTION_COUNT: "lastStageQuestionCount",
     LAST_COMPLETED_STAGE: "lastCompletedStage",
     STAGE_SCORE_PREFIX: "quizStageScore",
 });
@@ -23,11 +20,6 @@ const normalizeStage = (stageValue, stageCount) => {
 };
 
 const getStageScoreKey = stage => `${QUIZ_STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
-
-const getStoredLastCompletedStage = () => {
-    const stage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
-    return Number.isNaN(stage) ? null : stage;
-};
 
 const getStoredStageScore = stage => {
     const score = parseInt(LocalStore.get(getStageScoreKey(stage)), 10);
@@ -49,62 +41,57 @@ const fetchStageSummaries = async () => {
 const getQuizMapElements = () => {
     const elements = {
         stageList: document.getElementById("stageList"),
-        quizMapDate: document.getElementById("quizMapDate"),
         quizMapNote: document.getElementById("quizMapNote")
     };
     const missingRequired = [
         "stageList",
-        "quizMapDate",
         "quizMapNote"
     ].some(key => !elements[key]);
     return missingRequired ? null : elements;
 };
 
 const buildContext = elements => {
-    const today = getLocalDateString();
-    const storedDate = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_DATE);
-    const currentStage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE), 10);
-    const lastCompletedStage = getStoredLastCompletedStage();
-
+    const rawCurrentStage = LocalStore.get(QUIZ_STORAGE_KEYS.CURRENT_STAGE);
+    const currentStage = parseInt(rawCurrentStage, 10);
+    const normalizedCurrentStage = Number.isNaN(currentStage) || currentStage < 1 ? 1 : currentStage;
+    if (normalizedCurrentStage !== currentStage) {
+        LocalStore.set(QUIZ_STORAGE_KEYS.CURRENT_STAGE, 1);
+    }
+    const rawLastCompletedStage = LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE);
+    if (rawLastCompletedStage === null) {
+        LocalStore.set(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
+    }
+    const lastCompletedStage = parseInt(LocalStore.get(QUIZ_STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
     return {
         elements,
-        today,
-        storedDate,
-        currentStage,
-        lastCompletedStage,
-        canPlayToday: storedDate !== today
+        currentStage: normalizedCurrentStage,
+        lastCompletedStage: Number.isNaN(lastCompletedStage) ? 0 : lastCompletedStage
     };
 };
 
 const updateSummary = context => {
-    context.elements.quizMapDate.textContent = `오늘 ${context.today}`;
-    if (context.storedDate === context.today) {
-        context.elements.quizMapNote.textContent = "오늘의 퀴즈를 완료했습니다. 현재 스테이지는 내일부터 시작할 수 있습니다.";
-        return;
-    }
-    context.elements.quizMapNote.textContent = "현재 스테이지는 오늘의 퀴즈에서 진행됩니다.";
+    context.elements.quizMapNote.textContent = "스테이지를 선택하면 퀴즈 화면에서 모드를 고를 수 있습니다.";
 };
 
 const resolveStageStatus = (stage, currentStage) => {
     if (stage < currentStage) {
-        return "complete";
+        return "completed";
     }
     if (stage === currentStage) {
-        return "current";
+        return "active";
     }
     return "locked";
 };
 
-const resolveStageCardProps = (status, questionCount, canPlayToday, stage, stageScore, lastCompletedStage) => {
+const resolveStageCardProps = (status, questionCount, stage, stageScore, lastCompletedStage) => {
     let statusLabel = "진행 전";
     let metaText = `${questionCount}문제`;
-    let route = null;
-    let isClickable = false;
+    let route = `/web/game/bible-quiz?stage=${stage}`;
+    let isClickable = status !== "locked";
     let actionLabel = null;
     const classList = ["stage-card"];
-    const isLastCompletedStage = status === "complete" && lastCompletedStage === stage;
 
-    if (status === "complete") {
+    if (status === "completed") {
         classList.push("is-complete");
         statusLabel = "완료";
         if (stageScore !== null && questionCount > 0) {
@@ -113,25 +100,22 @@ const resolveStageCardProps = (status, questionCount, canPlayToday, stage, stage
         } else {
             metaText = "완료";
         }
-        if (isLastCompletedStage) {
-            classList.push("is-clickable");
+        if (stage === lastCompletedStage) {
             actionLabel = "재도전 가능";
-            route = `/web/game/bible-quiz?stage=${stage}`;
-            isClickable = true;
         }
-    } else if (status === "current") {
+    } else if (status === "active") {
         classList.push("is-current");
         statusLabel = "현재";
-        if (canPlayToday) {
-            classList.push("is-clickable");
-            metaText = "오늘 진행";
-            route = "/web/game/bible-quiz";
-            isClickable = true;
-        } else {
-            metaText = "내일 시작 가능";
-        }
+        metaText = "진행 가능";
     } else {
         classList.push("is-locked");
+        statusLabel = "잠김";
+        metaText = "진행 전";
+        route = null;
+    }
+
+    if (isClickable) {
+        classList.push("is-clickable");
     }
 
     return {statusLabel, metaText, route, isClickable, actionLabel, classList};
@@ -140,19 +124,18 @@ const resolveStageCardProps = (status, questionCount, canPlayToday, stage, stage
 const buildStageCardMarkup = (summary, context) => {
     const stage = summary.stage;
     const status = resolveStageStatus(stage, context.currentStage);
-    const stageScore = status === "complete" ? getStoredStageScore(stage) : null;
+    const stageScore = status === "completed" ? getStoredStageScore(stage) : null;
     const {statusLabel, metaText, route, isClickable, actionLabel, classList} = resolveStageCardProps(
         status,
         summary.questionCount,
-        context.canPlayToday,
         stage,
         stageScore,
         context.lastCompletedStage
     );
     const badgeClass = [
         "stage-status",
-        status === "complete" ? "is-complete" : "",
-        status === "current" ? "is-current" : ""
+        status === "completed" ? "is-complete" : "",
+        status === "active" ? "is-current" : ""
     ].filter(Boolean).join(" ");
     const disabledAttr = isClickable ? "" : "disabled";
     const routeAttr = route ? `data-route="${route}"` : "";
