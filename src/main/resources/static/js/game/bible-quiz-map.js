@@ -132,31 +132,108 @@ const buildStageCardMarkup = (summary, context) => {
         stageScore,
         context.lastCompletedStage
     );
+    const isCurrentStage = status === "active";
     const badgeClass = [
         "stage-status",
         status === "completed" ? "is-complete" : "",
         status === "active" ? "is-current" : ""
     ].filter(Boolean).join(" ");
+    const statusIcon = status === "completed" ? "✓" : status === "active" ? "▶︎" : "";
+    const statusIconMarkup = statusIcon
+        ? `<span class="stage-status-icon" aria-hidden="true">${statusIcon}</span>`
+        : "";
     const disabledAttr = isClickable ? "" : "disabled";
     const routeAttr = route ? `data-route="${route}"` : "";
+    const ariaCurrentAttr = isCurrentStage ? 'aria-current="step"' : "";
     const actionMarkup = actionLabel ? `<span class="stage-action">${actionLabel}</span>` : "";
+    const currentLabelMarkup = isCurrentStage
+        ? `<span class="stage-current-label">현재 스테이지</span>`
+        : "";
 
     return `
-        <button type="button" class="${classList.join(" ")}" ${disabledAttr} ${routeAttr}>
+        <button type="button" class="${classList.join(" ")}" ${disabledAttr} ${routeAttr} ${ariaCurrentAttr}>
             <div class="stage-card-header">
                 <span class="stage-number">${stage} 스테이지</span>
-                <span class="${badgeClass}">${statusLabel}</span>
+                <span class="${badgeClass}">${statusIconMarkup}${statusLabel}</span>
             </div>
             <div class="stage-meta">${metaText}</div>
+            ${currentLabelMarkup}
             ${actionMarkup}
         </button>
     `;
+};
+
+const getGridColumnCount = stageList => {
+    const template = window.getComputedStyle(stageList).gridTemplateColumns;
+    if (!template || template === "none") {
+        return 1;
+    }
+    const columns = template.split(" ").filter(Boolean).length;
+    return columns > 0 ? columns : 1;
+};
+
+const clearFlowClasses = stageCards => {
+    stageCards.forEach(card => {
+        card.classList.remove("flow-right", "flow-left", "flow-down", "flow-end");
+    });
+};
+
+const applyFlowDirections = stageList => {
+    const stageCards = Array.from(stageList.querySelectorAll(".stage-card"));
+    if (stageCards.length === 0) {
+        return;
+    }
+    clearFlowClasses(stageCards);
+    const columns = getGridColumnCount(stageList);
+    const total = stageCards.length;
+    const maxRow = Math.floor((total - 1) / columns);
+
+    stageCards.forEach((card, index) => {
+        if (index === total - 1) {
+            card.classList.add("flow-end");
+            return;
+        }
+        if (columns === 1) {
+            card.classList.add("flow-down");
+            return;
+        }
+
+        const row = Math.floor(index / columns);
+        const col = index % columns;
+        const isRowEven = row % 2 === 0;
+
+        if (isRowEven) {
+            const hasNextInRow = index + 1 < total && Math.floor((index + 1) / columns) === row;
+            if (hasNextInRow) {
+                card.classList.add("flow-right");
+                return;
+            }
+            if (row < maxRow) {
+                card.classList.add("flow-down");
+                return;
+            }
+            card.classList.add("flow-end");
+            return;
+        }
+
+        const hasPrevInRow = col > 0;
+        if (hasPrevInRow) {
+            card.classList.add("flow-left");
+            return;
+        }
+        if (row < maxRow) {
+            card.classList.add("flow-down");
+            return;
+        }
+        card.classList.add("flow-end");
+    });
 };
 
 const renderStages = (context, stageSummaries) => {
     context.elements.stageList.innerHTML = stageSummaries
         .map(summary => buildStageCardMarkup(summary, context))
         .join("");
+    applyFlowDirections(context.elements.stageList);
     context.elements.stageList.querySelectorAll("[data-route]").forEach(card => {
         card.addEventListener("click", () => {
             window.location.href = card.dataset.route;
@@ -187,4 +264,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const context = buildContext(elements);
     initializeQuizMap(context).catch(() => showLoadError(context));
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+        if (resizeTimer) {
+            window.clearTimeout(resizeTimer);
+        }
+        resizeTimer = window.setTimeout(() => {
+            applyFlowDirections(elements.stageList);
+        }, 120);
+    });
 });

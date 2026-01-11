@@ -51,12 +51,13 @@
 
 .stage-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
     margin-bottom: 1rem;
 }
 
 .stage-card {
+    position: relative;
     border-radius: 14px;
     border: 1px solid #d6deeb;
     background: #ffffff;
@@ -68,6 +69,8 @@
     min-height: 110px;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
     cursor: default;
+    --flow-color: rgba(122, 135, 158, 0.45);
+    --flow-line-style: solid;
 }
 
 .stage-card.is-clickable {
@@ -83,11 +86,14 @@
 .stage-card.is-complete {
     border-color: rgba(47, 143, 78, 0.35);
     background: rgba(47, 143, 78, 0.06);
+    --flow-color: rgba(47, 143, 78, 0.4);
 }
 
 .stage-card.is-current {
-    border-color: rgba(71, 109, 196, 0.4);
-    background: rgba(71, 109, 196, 0.08);
+    border-color: rgba(71, 109, 196, 0.65);
+    background: rgba(71, 109, 196, 0.1);
+    box-shadow: 0 10px 20px rgba(43, 78, 157, 0.15);
+    --flow-color: #2b4e9d;
 }
 
 .stage-card.is-locked {
@@ -95,6 +101,7 @@
     background: #f7f8fb;
     color: #7a879e;
     cursor: not-allowed;
+    --flow-line-style: dashed;
 }
 
 .stage-card-header {
@@ -110,6 +117,9 @@
 }
 
 .stage-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.5rem;
@@ -128,9 +138,23 @@
     color: #2b4e9d;
 }
 
+.stage-status-icon {
+    font-size: 0.8rem;
+}
+
 .stage-meta {
     font-size: 0.8rem;
     color: inherit;
+}
+
+.stage-current-label {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2b4e9d;
+    background: rgba(71, 109, 196, 0.12);
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
 }
 
 .stage-action {
@@ -146,6 +170,87 @@
 
 .quiz-map-note {
     color: #7a879e;
+}
+
+.stage-card::before,
+.stage-card::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+.stage-card.flow-right::after {
+    top: 50%;
+    right: -1.1rem;
+    width: 1.1rem;
+    height: 0;
+    border-top: 2px var(--flow-line-style) var(--flow-color);
+    transform: translateY(-50%);
+}
+
+.stage-card.flow-right::before {
+    top: 50%;
+    right: -1.45rem;
+    border-left: 8px solid var(--flow-color);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 0;
+    transform: translateY(-50%);
+}
+
+.stage-card.flow-left::after {
+    top: 50%;
+    left: -1.1rem;
+    width: 1.1rem;
+    height: 0;
+    border-top: 2px var(--flow-line-style) var(--flow-color);
+    transform: translateY(-50%);
+}
+
+.stage-card.flow-left::before {
+    top: 50%;
+    left: -1.45rem;
+    border-right: 8px solid var(--flow-color);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 0;
+    transform: translateY(-50%);
+}
+
+.stage-card.flow-down::after {
+    left: 50%;
+    bottom: -0.9rem;
+    width: 0;
+    height: 0.9rem;
+    border-left: 2px var(--flow-line-style) var(--flow-color);
+    transform: translateX(-50%);
+}
+
+.stage-card.flow-down::before {
+    left: 50%;
+    bottom: -1.35rem;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--flow-color);
+    transform: translateX(-50%);
+}
+
+.stage-card.flow-end::before,
+.stage-card.flow-end::after {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .stage-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .stage-grid {
+        grid-template-columns: repeat(4, minmax(170px, 1fr));
+    }
 }
 
 @media (max-width: 576px) {
