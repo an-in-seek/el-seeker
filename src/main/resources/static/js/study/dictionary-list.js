@@ -1,195 +1,232 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const dom = {
-        backButton: document.getElementById("topNavBackButton"),
-        pageTitleLabel: document.getElementById("pageTitleLabel"),
-        keywordInput: document.getElementById("dictionaryKeywordInput"),
-        searchForm: document.getElementById("dictionarySearchForm"),
-        searchBtn: document.getElementById("dictionarySearchBtn"),
-        clearBtn: document.getElementById("dictionaryClearBtn"),
-        resultCount: document.getElementById("dictionaryResultCount"),
-        emptyState: document.getElementById("dictionaryEmptyState"),
-        listContainer: document.getElementById("dictionaryList"),
-        scrollToTopBtn: document.getElementById("scrollToTopBtn"),
-    };
+const API_CONFIG = {
+    BASE_URL: "/api/v1/study/dictionaries"
+};
 
-    const config = {
-        scrollThreshold: 300,
-        scrollLoadOffset: 200,
-        pageSize: 50,
-    };
+const UI_CLASSES = {
+    HIDDEN: "d-none",
+    VISIBLE: "is-visible"
+};
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialKeyword = urlParams.get("keyword") ?? "";
+const CONFIG = {
+    SCROLL_THRESHOLD: 300,
+    SCROLL_LOAD_OFFSET: 200,
+    PAGE_SIZE: 50
+};
 
-    const state = {
+const DomHelper = {
+    getElements: () => {
+        const get = id => document.getElementById(id);
+        return {
+            backButton: get("topNavBackButton"),
+            pageTitleLabel: get("pageTitleLabel"),
+            keywordInput: get("dictionaryKeywordInput"),
+            searchForm: get("dictionarySearchForm"),
+            searchBtn: get("dictionarySearchBtn"),
+            clearBtn: get("dictionaryClearBtn"),
+            resultCount: get("dictionaryResultCount"),
+            emptyState: get("dictionaryEmptyState"),
+            listContainer: get("dictionaryList"),
+            scrollToTopBtn: get("scrollToTopBtn"),
+        };
+    },
+
+    setElementText: (element, text) => {
+        if (element) element.textContent = text;
+    },
+
+    setElementHtml: (element, html) => {
+        if (element) element.innerHTML = html;
+    },
+
+    toggleVisibility: (element, isVisible) => {
+        if (!element) return;
+        if (isVisible) element.classList.remove(UI_CLASSES.HIDDEN);
+        else element.classList.add(UI_CLASSES.HIDDEN);
+    },
+
+    toggleClass: (element, className, enabled) => {
+        if (!element) return;
+        element.classList.toggle(className, enabled);
+    }
+};
+
+const ApiService = {
+    fetchDictionaryPage: async ({keyword, page, size}) => {
+        const url = new URL(API_CONFIG.BASE_URL, window.location.origin);
+        if (keyword) {
+            url.searchParams.set("keyword", keyword);
+        }
+        url.searchParams.set("page", String(page));
+        url.searchParams.set("size", String(size));
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("사전 조회 실패");
+        }
+        return response.json();
+    }
+};
+
+const App = {
+    elements: null,
+    state: {
         currentPage: 0,
         hasNext: false,
         isLoading: false,
         activeKeyword: "",
-        totalCount: null,
-    };
+        totalCount: null
+    },
 
-    const init = () => {
-        updatePageTitle();
-        initBackButton();
-        initFormControls();
-        initScrollToTop();
-
-        window.addEventListener("scroll", maybeLoadNextPage, {passive: true});
-
-        if (dom.keywordInput) {
-            dom.keywordInput.value = initialKeyword;
-        }
-        startSearch(initialKeyword);
-    };
-
-    const updatePageTitle = () => {
-        if (!dom.pageTitleLabel) {
+    init: () => {
+        App.elements = DomHelper.getElements();
+        if (!App.elements.searchForm) {
             return;
         }
-        dom.pageTitleLabel.textContent = "성경 사전";
-        dom.pageTitleLabel.classList.remove("d-none");
-    };
 
-    const initBackButton = () => {
-        if (!dom.backButton) {
-            return;
+        App.initNav();
+        App.bindEvents();
+
+        const initialKeyword = new URLSearchParams(window.location.search).get("keyword") ?? "";
+        if (App.elements.keywordInput) {
+            App.elements.keywordInput.value = initialKeyword;
         }
-        dom.backButton.classList.remove("d-none");
-        dom.backButton.addEventListener("click", () => {
-            window.location.href = "/web/study";
-        });
-    };
+        App.startSearch(initialKeyword);
+    },
 
-    const initFormControls = () => {
-        if (dom.keywordInput) {
-            dom.keywordInput.focus();
-            dom.keywordInput.addEventListener("input", () => {
-                if (dom.clearBtn) {
-                    dom.clearBtn.disabled = dom.keywordInput.value.trim().length === 0;
+    initNav: () => {
+        const {pageTitleLabel, backButton} = App.elements;
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 사전";
+            pageTitleLabel.classList.remove(UI_CLASSES.HIDDEN);
+        }
+        if (backButton) {
+            backButton.classList.remove(UI_CLASSES.HIDDEN);
+            backButton.addEventListener("click", () => {
+                window.location.href = "/web/study";
+            });
+        }
+    },
+
+    bindEvents: () => {
+        const {keywordInput, clearBtn, searchForm, scrollToTopBtn} = App.elements;
+
+        if (keywordInput) {
+            keywordInput.focus();
+            keywordInput.addEventListener("input", () => {
+                if (clearBtn) {
+                    clearBtn.disabled = keywordInput.value.trim().length === 0;
                 }
             });
         }
-        if (dom.clearBtn) {
-            dom.clearBtn.disabled = dom.keywordInput?.value.trim().length === 0;
-            dom.clearBtn.addEventListener("click", () => {
-                if (dom.keywordInput) {
-                    dom.keywordInput.value = "";
-                    dom.keywordInput.focus();
+
+        if (clearBtn) {
+            clearBtn.disabled = keywordInput?.value.trim().length === 0;
+            clearBtn.addEventListener("click", () => {
+                if (keywordInput) {
+                    keywordInput.value = "";
+                    keywordInput.focus();
                 }
-                clearResults();
-                startSearch("");
+                App.clearResults();
+                App.startSearch("");
             });
         }
-        if (dom.searchForm) {
-            dom.searchForm.addEventListener("submit", event => {
+
+        if (searchForm) {
+            searchForm.addEventListener("submit", event => {
                 event.preventDefault();
-                const keyword = dom.keywordInput?.value ?? "";
-                startSearch(keyword);
+                const keyword = keywordInput?.value ?? "";
+                App.startSearch(keyword);
             });
         }
-    };
 
-    const initScrollToTop = () => {
-        if (!dom.scrollToTopBtn) {
+        if (scrollToTopBtn) {
+            scrollToTopBtn.addEventListener("click", () => {
+                window.scrollTo({top: 0, behavior: "smooth"});
+            });
+            window.addEventListener("scroll", App.updateScrollToTopVisibility, {passive: true});
+            App.updateScrollToTopVisibility();
+        }
+
+        window.addEventListener("scroll", App.maybeLoadNextPage, {passive: true});
+    },
+
+    updateScrollToTopVisibility: () => {
+        const {scrollToTopBtn} = App.elements;
+        if (!scrollToTopBtn) {
             return;
         }
-        const updateScrollToTopVisibility = () => {
-            if (window.scrollY >= config.scrollThreshold) {
-                dom.scrollToTopBtn.classList.add("is-visible");
-            } else {
-                dom.scrollToTopBtn.classList.remove("is-visible");
-            }
-        };
-        dom.scrollToTopBtn.addEventListener("click", () => {
-            window.scrollTo({top: 0, behavior: "smooth"});
-        });
-        window.addEventListener("scroll", updateScrollToTopVisibility, {passive: true});
-        updateScrollToTopVisibility();
-    };
+        const shouldShow = window.scrollY >= CONFIG.SCROLL_THRESHOLD;
+        DomHelper.toggleClass(scrollToTopBtn, UI_CLASSES.VISIBLE, shouldShow);
+    },
 
-    const setEmptyState = (message, detail) => {
-        if (dom.emptyState) {
-            dom.emptyState.innerHTML = "";
+    setEmptyState: (message, detail) => {
+        const {emptyState, listContainer} = App.elements;
+        if (emptyState) {
+            emptyState.innerHTML = "";
             const title = document.createElement("p");
             title.className = detail ? "mb-1" : "mb-0";
             title.textContent = message;
-            dom.emptyState.appendChild(title);
+            emptyState.appendChild(title);
             if (detail) {
                 const body = document.createElement("p");
                 body.className = "small mb-0";
                 body.textContent = detail;
-                dom.emptyState.appendChild(body);
+                emptyState.appendChild(body);
             }
-            dom.emptyState.classList.remove("d-none");
+            DomHelper.toggleVisibility(emptyState, true);
         }
-        if (dom.listContainer) {
-            dom.listContainer.classList.add("d-none");
-        }
-    };
+        DomHelper.toggleVisibility(listContainer, false);
+    },
 
-    const setResultsVisible = () => {
-        if (dom.emptyState) {
-            dom.emptyState.classList.add("d-none");
-        }
-        if (dom.listContainer) {
-            dom.listContainer.classList.remove("d-none");
-        }
-    };
+    setResultsVisible: () => {
+        const {emptyState, listContainer} = App.elements;
+        DomHelper.toggleVisibility(emptyState, false);
+        DomHelper.toggleVisibility(listContainer, true);
+    },
 
-    const hideEmptyState = () => {
-        if (dom.emptyState) {
-            dom.emptyState.classList.add("d-none");
-        }
-    };
+    setLoading: loading => {
+        const {searchBtn, keywordInput, clearBtn} = App.elements;
+        if (searchBtn) searchBtn.disabled = loading;
+        if (keywordInput) keywordInput.disabled = loading;
+        if (clearBtn) clearBtn.disabled = loading;
+    },
 
-    const setLoading = loading => {
-        if (dom.searchBtn) {
-            dom.searchBtn.disabled = loading;
-        }
-        if (dom.keywordInput) {
-            dom.keywordInput.disabled = loading;
-        }
-        if (dom.clearBtn) {
-            dom.clearBtn.disabled = loading;
-        }
-    };
-
-    const setLoadingState = message => {
-        if (!dom.resultCount) {
+    setLoadingState: message => {
+        const {resultCount} = App.elements;
+        if (!resultCount) {
             return;
         }
-        hideEmptyState();
-        dom.resultCount.innerHTML = `
+        DomHelper.toggleVisibility(App.elements.emptyState, false);
+        DomHelper.setElementHtml(resultCount, `
                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                 ${message}
-            `;
-    };
+            `);
+    },
 
-    const resetSearchState = () => {
-        state.currentPage = 0;
-        state.hasNext = false;
-        state.isLoading = false;
-        state.activeKeyword = "";
-        state.totalCount = null;
-    };
+    resetSearchState: () => {
+        App.state.currentPage = 0;
+        App.state.hasNext = false;
+        App.state.isLoading = false;
+        App.state.activeKeyword = "";
+        App.state.totalCount = null;
+    },
 
-    const updateResultCount = () => {
-        if (!dom.resultCount) {
+    updateResultCount: () => {
+        const {resultCount} = App.elements;
+        if (!resultCount) {
             return;
         }
-        if (state.totalCount === null) {
-            dom.resultCount.textContent = "";
+        if (App.state.totalCount === null) {
+            resultCount.textContent = "";
             return;
         }
-        if (state.activeKeyword) {
-            dom.resultCount.textContent = `"${state.activeKeyword}"에 대한 결과 ${state.totalCount}건`;
+        if (App.state.activeKeyword) {
+            resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${App.state.totalCount}건`;
         } else {
-            dom.resultCount.textContent = `성경 사전 ${state.totalCount}건`;
+            resultCount.textContent = `성경 사전 ${App.state.totalCount}건`;
         }
-    };
+    },
 
-    const createSummary = description => {
+    createSummary: description => {
         const normalized = (description ?? "").trim();
         if (!normalized) {
             return "설명이 등록되지 않았습니다.";
@@ -198,25 +235,26 @@ document.addEventListener("DOMContentLoaded", () => {
             return normalized;
         }
         return `${normalized.substring(0, 120).trimEnd()}...`;
-    };
+    },
 
-    const buildDetailLink = id => {
+    buildDetailLink: id => {
         const params = new URLSearchParams();
-        if (state.activeKeyword) {
-            params.set("keyword", state.activeKeyword);
+        if (App.state.activeKeyword) {
+            params.set("keyword", App.state.activeKeyword);
         }
         const queryString = params.toString();
         return queryString ? `/web/study/dictionary/${id}?${queryString}` : `/web/study/dictionary/${id}`;
-    };
+    },
 
-    const appendResults = items => {
-        if (!dom.listContainer) {
+    appendResults: items => {
+        const {listContainer} = App.elements;
+        if (!listContainer) {
             return;
         }
         items.forEach(item => {
             const link = document.createElement("a");
             link.className = "list-group-item list-group-item-action";
-            link.href = buildDetailLink(item.id);
+            link.href = App.buildDetailLink(item.id);
 
             const header = document.createElement("div");
             header.className = "d-flex justify-content-between align-items-center";
@@ -234,116 +272,112 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const summary = document.createElement("p");
             summary.className = "text-muted small mb-0";
-            summary.textContent = createSummary(item.description);
+            summary.textContent = App.createSummary(item.description);
 
             link.appendChild(header);
             link.appendChild(summary);
-            dom.listContainer.appendChild(link);
+            listContainer.appendChild(link);
         });
-    };
+    },
 
-    const updateUrl = () => {
+    updateUrl: () => {
         const params = new URLSearchParams();
-        if (state.activeKeyword) {
-            params.set("keyword", state.activeKeyword);
+        if (App.state.activeKeyword) {
+            params.set("keyword", App.state.activeKeyword);
         }
         const queryString = params.toString();
         const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
         history.replaceState(null, "", newUrl);
-    };
+    },
 
-    const fetchDictionaryPage = async page => {
-        if (state.isLoading || !state.hasNext) {
+    fetchDictionaryPage: async page => {
+        if (App.state.isLoading || !App.state.hasNext) {
             return;
         }
-        state.isLoading = true;
+        App.state.isLoading = true;
         if (page === 0) {
-            setLoading(true);
-            setLoadingState("검색 중...");
+            App.setLoading(true);
+            App.setLoadingState("검색 중...");
         }
         try {
-            const url = new URL("/api/v1/study/dictionaries", window.location.origin);
-            if (state.activeKeyword) {
-                url.searchParams.set("keyword", state.activeKeyword);
-            }
-            url.searchParams.set("page", String(page));
-            url.searchParams.set("size", String(config.pageSize));
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error("사전 조회 실패");
-            }
-            const data = await response.json();
+            const data = await ApiService.fetchDictionaryPage({
+                keyword: App.state.activeKeyword,
+                page,
+                size: CONFIG.PAGE_SIZE
+            });
             const items = Array.isArray(data.content) ? data.content : [];
             if (page === 0) {
                 if (typeof data.totalCount === "number") {
-                    state.totalCount = data.totalCount;
+                    App.state.totalCount = data.totalCount;
                 }
                 if (items.length === 0) {
-                    if (state.activeKeyword) {
-                        setEmptyState("다른 용어로 다시 시도해 보세요.");
+                    if (App.state.activeKeyword) {
+                        App.setEmptyState("다른 용어로 다시 시도해 보세요.");
                     } else {
-                        setEmptyState("등록된 사전 항목이 없습니다.");
+                        App.setEmptyState("등록된 사전 항목이 없습니다.");
                     }
-                    updateResultCount();
-                    state.hasNext = false;
+                    App.updateResultCount();
+                    App.state.hasNext = false;
                     return;
                 }
             }
-            setResultsVisible();
-            appendResults(items);
+            App.setResultsVisible();
+            App.appendResults(items);
             const sliceHasNext = data.hasNext === true;
             const pageHasNext = typeof data.last === "boolean" ? !data.last : false;
-            state.hasNext = sliceHasNext || pageHasNext || items.length === config.pageSize;
-            updateResultCount();
+            App.state.hasNext = sliceHasNext || pageHasNext || items.length === CONFIG.PAGE_SIZE;
+            App.updateResultCount();
         } catch (error) {
             console.error(error);
             if (page === 0) {
-                if (dom.resultCount) {
-                    dom.resultCount.textContent = "검색 중 오류가 발생했습니다.";
+                const {resultCount} = App.elements;
+                if (resultCount) {
+                    resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 }
-                setEmptyState("잠시 후 다시 시도해 주세요.");
+                App.setEmptyState("잠시 후 다시 시도해 주세요.");
             }
         } finally {
-            state.isLoading = false;
+            App.state.isLoading = false;
             if (page === 0) {
-                setLoading(false);
+                App.setLoading(false);
             }
         }
-    };
+    },
 
-    const maybeLoadNextPage = () => {
-        if (!state.hasNext || state.isLoading) {
+    maybeLoadNextPage: () => {
+        if (!App.state.hasNext || App.state.isLoading) {
             return;
         }
-        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - config.scrollLoadOffset;
+        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - CONFIG.SCROLL_LOAD_OFFSET;
         if (nearBottom) {
-            state.currentPage += 1;
-            fetchDictionaryPage(state.currentPage);
+            App.state.currentPage += 1;
+            App.fetchDictionaryPage(App.state.currentPage);
         }
-    };
+    },
 
-    const normalizeKeyword = keyword => (keyword ?? "").trim();
+    normalizeKeyword: keyword => (keyword ?? "").trim(),
 
-    const clearResults = () => {
-        if (dom.listContainer) {
-            dom.listContainer.innerHTML = "";
+    clearResults: () => {
+        const {listContainer, resultCount} = App.elements;
+        if (listContainer) {
+            listContainer.innerHTML = "";
         }
-        if (dom.resultCount) {
-            dom.resultCount.textContent = "";
+        if (resultCount) {
+            resultCount.textContent = "";
         }
-    };
+    },
 
-    const startSearch = async keyword => {
-        clearResults();
-        resetSearchState();
-        state.activeKeyword = normalizeKeyword(keyword);
-        state.hasNext = true;
-        state.currentPage = 0;
-        updateUrl();
-        setLoadingState("목록을 불러오는 중입니다.");
-        await fetchDictionaryPage(0);
-        maybeLoadNextPage();
-    };
+    startSearch: async keyword => {
+        App.clearResults();
+        App.resetSearchState();
+        App.state.activeKeyword = App.normalizeKeyword(keyword);
+        App.state.hasNext = true;
+        App.state.currentPage = 0;
+        App.updateUrl();
+        App.setLoadingState("목록을 불러오는 중입니다.");
+        await App.fetchDictionaryPage(0);
+        App.maybeLoadNextPage();
+    }
+};
 
-    init();
-});
+document.addEventListener("DOMContentLoaded", App.init);

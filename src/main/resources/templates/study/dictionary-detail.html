@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head th:replace="~{fragments/head :: head('The Bible - Bible Dictionary | 성경 사전', true, null)}"></head>
-<body>
+<body th:attr="data-back-link=${backLink}">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -29,22 +29,6 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script th:inline="javascript">
-    document.addEventListener("DOMContentLoaded", () => {
-        const backLink = /*[[${backLink}]]*/ "/web/study";
-        const backButton = document.getElementById("topNavBackButton");
-        const pageTitleLabel = document.getElementById("pageTitleLabel");
-        if (pageTitleLabel) {
-            pageTitleLabel.textContent = "성경 사전";
-            pageTitleLabel.classList.remove("d-none");
-        }
-        if (backButton) {
-            backButton.classList.remove("d-none");
-            backButton.addEventListener("click", () => {
-                window.location.href = backLink || "/web/study";
-            });
-        }
-    });
-</script>
+<script type="module" src="/js/study/dictionary-detail.js?v=2.1"></script>
 </body>
 </html>
