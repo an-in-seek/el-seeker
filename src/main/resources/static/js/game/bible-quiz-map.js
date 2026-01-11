@@ -275,13 +275,6 @@
             button.appendChild(header);
             button.appendChild(meta);
 
-            if (status === "active") {
-                const currentLabel = document.createElement("span");
-                currentLabel.className = UI_CLASSES.CURRENT_LABEL;
-                currentLabel.textContent = "현재 스테이지";
-                button.appendChild(currentLabel);
-            }
-
             if (props.action) {
                 const action = document.createElement("span");
                 action.className = UI_CLASSES.ACTION;

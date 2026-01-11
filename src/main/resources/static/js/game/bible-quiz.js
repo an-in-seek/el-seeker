@@ -54,18 +54,18 @@ const showCompletion = (quizPanel, quizComplete, quizScore, score, questionCount
     quizComplete.classList.remove("d-none");
 };
 
-const showReviewButton = context => {
+const showPracticeButton = context => {
     const {quizModeSelectButton} = context.elements;
     if (!quizModeSelectButton) {
         return;
     }
-    const reviewStage = context.state?.stage || getStoredLastCompletedStage();
-    if (!reviewStage) {
+    const practiceStage = context.state?.stage || getStoredLastCompletedStage();
+    if (!practiceStage) {
         return;
     }
     quizModeSelectButton.classList.remove("d-none");
     quizModeSelectButton.addEventListener("click", () => {
-        window.location.href = `/web/game/bible-quiz?stage=${reviewStage}`;
+        window.location.href = `/web/game/bible-quiz?stage=${practiceStage}`;
     });
 };
 
@@ -74,7 +74,8 @@ const getQuizElements = () => {
     const elements = {
         quizModeSelect: getElement("quizModeSelect"),
         quizModeRetryButton: getElement("quizModeRetryButton"),
-        quizModeReviewButton: getElement("quizModeReviewButton"),
+        quizModePracticeButton: getElement("quizModePracticeButton"),
+        quizModeNote: getElement("quizModeNote"),
         quizPanel: getElement("quizPanel"),
         quizComplete: getElement("quizComplete"),
         quizStage: getElement("quizStage"),
@@ -132,15 +133,18 @@ const buildContext = elements => {
     const activeStage = normalizedRequestedStage || boundedCurrentStage;
     const requiresModeSelection = activeStage === lastCompletedStage && lastCompletedStage > 0;
     const canRetry = requiresModeSelection;
-    const isReviewOnly = activeStage < lastCompletedStage;
+    const isPracticeOnly = activeStage < lastCompletedStage;
     const isBlocked = activeStage > boundedCurrentStage;
+    const isCompletedStage = activeStage <= lastCompletedStage && lastCompletedStage > 0;
 
     return {
         elements,
         stageCount: storedStageCount,
-        isReviewMode: isReviewOnly,
+        isPracticeMode: false,
         isRetryMode: false,
-        isPlayMode: !isReviewOnly && !requiresModeSelection && !isBlocked,
+        isRecordMode: !isPracticeOnly && !requiresModeSelection && !isBlocked,
+        isCompletedStage,
+        isPracticeOnly,
         requiresModeSelection,
         canRetry,
         isBlocked,
@@ -154,7 +158,11 @@ const updateHeroLead = context => {
     if (!quizHeroLead) {
         return;
     }
-    if (context.requiresModeSelection && !context.isReviewMode && !context.isRetryMode) {
+    if (context.isCompletedStage && !context.isPracticeMode && !context.isRetryMode) {
+        quizHeroLead.textContent = "완료된 스테이지입니다.";
+        return;
+    }
+    if (context.requiresModeSelection && !context.isPracticeMode && !context.isRetryMode) {
         quizHeroLead.textContent = "재도전 또는 연습 모드를 선택하세요.";
         return;
     }
@@ -162,7 +170,7 @@ const updateHeroLead = context => {
         quizHeroLead.textContent = "아직 열리지 않은 스테이지입니다.";
         return;
     }
-    if (context.isReviewMode) {
+    if (context.isPracticeMode) {
         quizHeroLead.textContent = "기록에 반영되지 않는 연습 모드입니다.";
         return;
     }
@@ -178,7 +186,7 @@ const setBusy = (context, isBusy) => {
 };
 
 const showModeSelection = context => {
-    const {quizModeSelect, quizModeRetryButton, quizModeReviewButton, quizPanel} = context.elements;
+    const {quizModeSelect, quizModeRetryButton, quizModePracticeButton, quizModeNote, quizPanel} = context.elements;
     if (context.isBlocked) {
         if (quizModeSelect) {
             quizModeSelect.classList.add("d-none");
@@ -188,29 +196,34 @@ const showModeSelection = context => {
         }
         return false;
     }
-    if (!context.requiresModeSelection || !quizModeSelect || !quizModeRetryButton || !quizModeReviewButton || !quizPanel) {
+    if (!context.isCompletedStage || !quizModeSelect || !quizModeRetryButton || !quizModePracticeButton || !quizPanel) {
         return false;
     }
     quizModeSelect.classList.remove("d-none");
     quizPanel.classList.add("d-none");
+    quizModeRetryButton.classList.toggle("d-none", !context.canRetry);
     quizModeRetryButton.disabled = !context.canRetry;
-    quizModeRetryButton.textContent = context.canRetry ? "재도전" : "재도전 (불가능)"
-    quizModeRetryButton.addEventListener("click", () => {
-        if (!context.canRetry) {
-            return;
-        }
-        startQuizWithMode(context, "retry");
-    });
-    quizModeReviewButton.addEventListener("click", () => {
-        startQuizWithMode(context, "review");
+    quizModeRetryButton.textContent = "재도전";
+    if (quizModeNote) {
+        quizModeNote.textContent = context.canRetry
+            ? "재도전은 기록에 반영되고, 연습은 기록에 반영되지 않습니다."
+            : "연습은 기록에 반영되지 않습니다.";
+    }
+    if (context.canRetry) {
+        quizModeRetryButton.addEventListener("click", () => {
+            startQuizWithMode(context, "retry");
+        });
+    }
+    quizModePracticeButton.addEventListener("click", () => {
+        startQuizWithMode(context, "practice");
     });
     return true;
 };
 
 const startQuizWithMode = (context, mode) => {
-    context.isReviewMode = mode === "review";
+    context.isPracticeMode = mode === "practice";
     context.isRetryMode = mode === "retry";
-    context.isPlayMode = false;
+    context.isRecordMode = context.isRetryMode;
     context.elements.quizModeSelect.classList.add("d-none");
     context.elements.quizPanel.classList.remove("d-none");
     updateHeroLead(context);
@@ -334,7 +347,7 @@ const gradeAnswer = context => {
         });
 
     if (isCorrect) {
-        if (!context.state.isReview) {
+        if (!context.state.isPractice) {
             context.state.score += 1;
         }
         context.elements.quizFeedback.textContent = "😊 잘하셨어요 정답입니다!";
@@ -359,7 +372,7 @@ const handleNext = context => {
         return;
     }
     if (context.state.index === context.state.questions.length - 1) {
-        if (context.isPlayMode) {
+        if (context.isRecordMode) {
             const nextStage = context.stageCount
                 ? Math.min(context.state.stage + 1, context.stageCount)
                 : context.state.stage + 1;
@@ -371,11 +384,11 @@ const handleNext = context => {
             context.elements.quizPanel,
             context.elements.quizComplete,
             context.elements.quizScore,
-            context.state.isReview ? null : context.state.score,
+            context.state.isPractice ? null : context.state.score,
             context.state.questions.length
         );
-        if (context.isPlayMode) {
-            showReviewButton(context);
+        if (context.isRecordMode) {
+            showPracticeButton(context);
         }
         return;
     }
@@ -407,7 +420,7 @@ const initializeQuiz = async context => {
         score: 0,
         stage: context.activeStage,
         questions: stageData.questions,
-        isReview: context.isReviewMode,
+        isPractice: context.isPracticeMode,
         selectedIndex: null
     };
 
