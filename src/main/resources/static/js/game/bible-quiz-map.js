@@ -12,16 +12,21 @@ const API_CONFIG = {
 };
 
 const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "quizCurrentStage",
-    LAST_COMPLETED_STAGE: "quizLastCompletedStage",
-    STAGE_SCORE_PREFIX: "quizStageScore",
+    CURRENT_STAGE: "quiz_current_stage",
+    LAST_COMPLETED_STAGE: "quiz_last_completed_stage",
+    STAGE_SCORE_PREFIX: "quiz_stage_score",
+    QUESTION_STATS_PREFIX: "quiz_question_stats_stage",
+    REVIEW_COUNT_PREFIX: "quiz_review_count_stage",
+    CURRENT_QUESTION_PREFIX: "quiz_current_question_stage",
+    CURRENT_SCORE_PREFIX: "quiz_current_score_stage",
+    CURRENT_REVIEW_TYPE_PREFIX: "quiz_current_review_type_stage",
+    LAST_WRONG_IDS_PREFIX: "quiz_last_wrong_ids_stage",
 });
 
 const UI_CLASSES = {
     CARD: "stage-card",
     STATUS_BADGE: "stage-status",
     ICON: "stage-status-icon",
-    ACTION: "stage-action",
     CURRENT_LABEL: "stage-current-label",
     FLOW: {
         RIGHT: "flow-right",
@@ -66,6 +71,32 @@ const calculateStageStatus = (stageNumber, currentStageNumber) => {
     return "locked";
 };
 
+const calculateAccuracy = (stats) => {
+    if (!stats || !stats.length) return 0;
+    let totalAttempts = 0;
+    let totalCorrect = 0;
+    stats.forEach((entry) => {
+        if (!entry || !entry.attempts) return;
+        totalAttempts += entry.attempts;
+        totalCorrect += entry.correct || 0;
+    });
+    if (totalAttempts === 0) return 0;
+    return Math.round((totalCorrect / totalAttempts) * 100);
+};
+
+const getMasteryLevel = (accuracy, reviewCount) => {
+    if (accuracy >= 90 && reviewCount >= 3) {
+        return {label: "완성", class: "badge-gold"};
+    }
+    if (accuracy >= 80) {
+        return {label: "숙련", class: "badge-blue"};
+    }
+    if (accuracy >= 65) {
+        return {label: "기초", class: "badge-green"};
+    }
+    return {label: "입문", class: "badge-gray"};
+};
+
 /**
  * Generates the properties needed to render a stage card.
  */
@@ -77,23 +108,16 @@ const getStageCardProps = ({stage, questionCount, status, score, lastCompletedSt
     let label = "잠김";
     let meta = "진행 전";
     let route = null;
-    let action = null;
-    let actions = null;
     const cssClasses = [UI_CLASSES.CARD];
 
     if (isCompleted) {
         cssClasses.push(UI_CLASSES.STATE.COMPLETED);
         label = "완료";
         if (score !== null && questionCount > 0) {
-            const percent = Math.round((score / questionCount) * 100);
+            const percent = questionCount > 0 ? Math.round((score / questionCount) * 100) : 0;
             meta = `점수 ${score} / ${questionCount} (${percent}%)`;
         } else {
             meta = "완료";
-        }
-        if (stage === lastCompletedStage) {
-            actions = ["연습 가능", "재도전 가능"];
-        } else if (stage < lastCompletedStage) {
-            action = "연습 가능";
         }
         route = `/web/game/bible-quiz?stage=${stage}`;
     } else if (isActive) {
@@ -115,8 +139,6 @@ const getStageCardProps = ({stage, questionCount, status, score, lastCompletedSt
         meta,
         route,
         isClickable,
-        action,
-        actions,
         cssClasses: cssClasses.join(" "),
         statusIcon: isCompleted ? "✓" : (isActive ? "▶︎" : null)
     };
@@ -172,6 +194,21 @@ const StorageService = {
         const val = parseInt(Storage.get(key), 10);
         return Number.isNaN(val) ? null : val;
     },
+    getStageStats: (stage) => {
+        const raw = Storage.get(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`);
+        if (!raw) return [];
+        try {
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== "object") return [];
+            return Object.values(parsed);
+        } catch (error) {
+            return [];
+        }
+    },
+    getReviewCount: (stage) => {
+        const count = parseInt(Storage.get(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`), 10);
+        return Number.isNaN(count) ? 0 : count;
+    },
     getCurrentStage: () => {
         const val = parseInt(Storage.get(STORAGE_KEYS.CURRENT_STAGE), 10);
         return (Number.isNaN(val) || val < 1) ? 1 : val;
@@ -193,6 +230,28 @@ const StorageService = {
         if (stored !== current) {
             StorageService.setCurrentStage(current);
         }
+    },
+    resetProgress: () => {
+        Storage.set(STORAGE_KEYS.CURRENT_STAGE, 1);
+        Storage.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
+
+        if (typeof localStorage === "undefined") return;
+
+        const prefixes = [
+            STORAGE_KEYS.CURRENT_QUESTION_PREFIX,
+            STORAGE_KEYS.CURRENT_SCORE_PREFIX,
+            STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX,
+            STORAGE_KEYS.LAST_WRONG_IDS_PREFIX
+        ];
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key) continue;
+            if (prefixes.some((prefix) => key.startsWith(`${prefix}_`))) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach((key) => Storage.remove(key));
     }
 };
 
@@ -223,7 +282,8 @@ const DomHelper = {
     getElements: () => {
         const stageList = document.getElementById("stageList");
         const quizMapNote = document.getElementById("quizMapNote");
-        return (stageList && quizMapNote) ? {stageList, quizMapNote} : null;
+        const resetProgressButton = document.getElementById("resetProgressButton");
+        return (stageList && quizMapNote) ? {stageList, quizMapNote, resetProgressButton} : null;
     },
 
     getGridColumns: (stageList) => {
@@ -294,28 +354,26 @@ const DomHelper = {
         header.appendChild(number);
         header.appendChild(badge);
 
+        let masteryBadge = null;
+        if (status === "completed") {
+            const accuracy = calculateAccuracy(StorageService.getStageStats(stage));
+            const mastery = getMasteryLevel(accuracy, StorageService.getReviewCount(stage));
+            masteryBadge = document.createElement("span");
+            masteryBadge.className = `stage-mastery-badge ${mastery.class}`;
+            masteryBadge.textContent = mastery.label;
+        }
+
         const meta = document.createElement("div");
-        meta.className = "stage-meta";
-        meta.textContent = props.meta;
+        meta.className = "stage-meta-row";
+        const metaText = document.createElement("span");
+        metaText.textContent = props.meta;
+        meta.appendChild(metaText);
+        if (masteryBadge) {
+            meta.appendChild(masteryBadge);
+        }
 
         button.appendChild(header);
         button.appendChild(meta);
-
-        const actionLabels = props.actions && props.actions.length
-            ? props.actions
-            : (props.action ? [props.action] : []);
-
-        if (actionLabels.length) {
-            const actionGroup = document.createElement("div");
-            actionGroup.className = "stage-actions";
-            actionLabels.forEach((label) => {
-                const action = document.createElement("span");
-                action.className = UI_CLASSES.ACTION;
-                action.textContent = label;
-                actionGroup.appendChild(action);
-            });
-            button.appendChild(actionGroup);
-        }
 
         return button;
     },
@@ -357,6 +415,12 @@ const DomHelper = {
             if (!target || !elements.stageList.contains(target)) return;
             window.location.href = target.dataset.route;
         });
+        if (elements.resetProgressButton) {
+            elements.resetProgressButton.addEventListener("click", () => {
+                StorageService.resetProgress();
+                window.location.href = "/web/game/bible-quiz?stage=1";
+            });
+        }
     },
 
     showError: (elements) => {
@@ -364,7 +428,7 @@ const DomHelper = {
     },
 
     showIntro: (elements) => {
-        elements.quizMapNote.textContent = "스테이지를 선택하면 퀴즈 화면에서 모드를 고를 수 있습니다.";
+        elements.quizMapNote.textContent = "스테이지를 선택하면 복습 또는 진행을 시작할 수 있습니다.";
     }
 };
 
@@ -382,7 +446,7 @@ const initNav = () => {
     if (backButton) {
         backButton.classList.remove("d-none");
         backButton.addEventListener("click", () => {
-            window.location.href = "/web/game/bible-quiz";
+            window.location.href = "/web/game";
         });
     }
 };
@@ -399,6 +463,10 @@ const App = {
             currentStage: StorageService.getCurrentStage(),
             lastCompletedStage: StorageService.getLastCompletedStage()
         };
+
+        if (elements.resetProgressButton) {
+            elements.resetProgressButton.classList.toggle("d-none", context.lastCompletedStage < 1);
+        }
 
         const stages = await ApiService.fetchStages();
         if (!stages || !stages.length) {

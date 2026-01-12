@@ -11,12 +11,16 @@ const API_CONFIG = {
 };
 
 const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "quizCurrentStage",
-    LAST_COMPLETED_STAGE: "quizLastCompletedStage",
-    STAGE_COUNT: "quizStageCount",
-    STAGE_SCORE_PREFIX: "quizStageScore",
-    CURRENT_QUESTION_PREFIX: "quizCurrentQuestionStage",
-    CURRENT_SCORE_PREFIX: "quizCurrentScoreStage",
+    CURRENT_STAGE: "quiz_current_stage",
+    LAST_COMPLETED_STAGE: "quiz_last_completed_stage",
+    STAGE_COUNT: "quiz_stage_count",
+    STAGE_SCORE_PREFIX: "quiz_stage_score",
+    CURRENT_QUESTION_PREFIX: "quiz_current_question_stage",
+    CURRENT_SCORE_PREFIX: "quiz_current_score_stage",
+    CURRENT_REVIEW_TYPE_PREFIX: "quiz_current_review_type_stage",
+    LAST_WRONG_IDS_PREFIX: "quiz_last_wrong_ids_stage",
+    QUESTION_STATS_PREFIX: "quiz_question_stats_stage",
+    REVIEW_COUNT_PREFIX: "quiz_review_count_stage",
 });
 
 const UI_CLASSES = {
@@ -87,6 +91,9 @@ const StorageService = {
     },
     setCurrentScore: (stage, score) => SafeLocalStore.set(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`, score),
     clearCurrentScore: (stage) => SafeLocalStore.remove(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`),
+    getCurrentReviewType: (stage) => SafeLocalStore.get(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`),
+    setCurrentReviewType: (stage, type) => SafeLocalStore.set(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`, type),
+    clearCurrentReviewType: (stage) => SafeLocalStore.remove(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`),
     hasCurrentQuestionIndex: (stage) => {
         const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
         return SafeLocalStore.get(key) !== null;
@@ -107,6 +114,50 @@ const StorageService = {
     clearCurrentQuestionIndex: (stage) => {
         const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
         SafeLocalStore.remove(key);
+    },
+    getLastWrongIds: (stage) => {
+        const raw = SafeLocalStore.get(`${STORAGE_KEYS.LAST_WRONG_IDS_PREFIX}_${stage}`);
+        if (!raw) return [];
+        try {
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            return [];
+        }
+    },
+    setLastWrongIds: (stage, ids) => {
+        if (!Array.isArray(ids)) return;
+        SafeLocalStore.set(`${STORAGE_KEYS.LAST_WRONG_IDS_PREFIX}_${stage}`, JSON.stringify(ids));
+    },
+    getQuestionStats: (stage) => {
+        const raw = SafeLocalStore.get(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`);
+        if (!raw) return {};
+        try {
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    },
+    setQuestionStats: (stage, stats) => {
+        SafeLocalStore.set(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`, JSON.stringify(stats));
+    },
+    updateQuestionStats: (stage, questionId, isCorrect) => {
+        const stats = StorageService.getQuestionStats(stage);
+        const key = String(questionId);
+        const current = stats[key] || {attempts: 0, correct: 0};
+        current.attempts += 1;
+        if (isCorrect) current.correct += 1;
+        stats[key] = current;
+        StorageService.setQuestionStats(stage, stats);
+    },
+    getReviewCount: (stage) => {
+        const count = parseInt(SafeLocalStore.get(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`), 10);
+        return Number.isNaN(count) ? 0 : count;
+    },
+    incrementReviewCount: (stage) => {
+        const next = StorageService.getReviewCount(stage) + 1;
+        SafeLocalStore.set(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`, next);
     }
 };
 
@@ -125,6 +176,11 @@ const ApiService = {
         }
     }
 };
+
+const ReviewModes = Object.freeze({
+    FULL: "full",
+    LAST_WRONG: "lastWrong"
+});
 
 /**
  * Pure functions for business logic
@@ -163,8 +219,7 @@ const QuizLogic = {
         const activeStage = normalizedRequestedStage || boundedCurrentStage;
 
         const isCompletedStage = activeStage <= lastCompletedStage && lastCompletedStage > 0;
-        const requiresModeSelection = activeStage === lastCompletedStage && lastCompletedStage > 0;
-        const isPracticeOnly = activeStage < lastCompletedStage;
+        const isReviewOnly = isCompletedStage;
         const isBlocked = activeStage > boundedCurrentStage;
 
         return {
@@ -172,10 +227,8 @@ const QuizLogic = {
             boundedCurrentStage,
             storedCurrentStage,
             isCompletedStage,
-            requiresModeSelection,
-            isPracticeOnly,
-            isBlocked,
-            canRetry: requiresModeSelection
+            isReviewOnly,
+            isBlocked
         };
     },
 
@@ -193,23 +246,28 @@ const DomHelper = {
     getElements: () => {
         const get = (id) => document.getElementById(id);
         return {
-            quizModeSelect: get("quizModeSelect"),
-            quizModeRetryButton: get("quizModeRetryButton"),
-            quizModePracticeButton: get("quizModePracticeButton"),
-            quizModeNote: get("quizModeNote"),
             quizPanel: get("quizPanel"),
             quizComplete: get("quizComplete"),
             quizStage: get("quizStage"),
             quizQuestionProgress: get("quizQuestionProgress"),
             quizStageProgress: get("quizStageProgress"),
             quizQuestionProgressBar: get("quizQuestionProgressBar"),
+            quizTitle: get("quizTitle"),
             quizQuestion: get("quizQuestion"),
             quizOptions: get("quizOptions"),
             quizFeedback: get("quizFeedback"),
             quizNext: get("quizNext"),
             quizScore: get("quizScore"),
-            quizModeSelectButton: get("quizModeSelectButton"),
+            quizSummary: get("quizSummary"),
+            summaryAccuracy: get("summaryAccuracy"),
+            summaryCount: get("summaryCount"),
+            summaryMastery: get("summaryMastery"),
             quizHeroLead: get("quizHeroLead"),
+            quizReviewSelect: get("quizReviewSelect"),
+            quizReviewNote: get("quizReviewNote"),
+            quizReviewFullButton: get("quizReviewFullButton"),
+            quizReviewLastWrongButton: get("quizReviewLastWrongButton"),
+            quizModeLabel: get("quizModeLabel"),
             backButton: get("topNavBackButton"),
             pageTitleLabel: get("pageTitleLabel")
         };
@@ -261,7 +319,10 @@ const App = {
         score: 0,
         answered: false,
         selectedIndex: null,
-        mode: 'record' // 'record', 'practice', 'retry'
+        mode: 'record', // 'record', 'review'
+        reviewType: ReviewModes.FULL,
+        sessionWrongIds: new Set(),
+        cachedStageData: null
     },
 
     init: () => {
@@ -296,17 +357,14 @@ const App = {
 
         if (context.isBlocked) {
             App.showAccessBlocked();
-        } else if (context.requiresModeSelection && !hasInProgressQuiz) {
-            App.showModeSelection(context);
+        } else if (context.isReviewOnly && !hasInProgressQuiz) {
+            App.showReviewSelection();
         } else {
-            let mode = 'record';
-            if (context.isPracticeOnly) {
-                mode = 'practice';
-            } else if (context.requiresModeSelection && hasInProgressQuiz) {
-                const storedScore = StorageService.getCurrentScore(context.activeStage);
-                mode = storedScore === null ? 'practice' : 'retry';
-            }
-            App.startQuiz(mode);
+            const mode = context.isReviewOnly ? "review" : "record";
+            const storedReviewType = context.isReviewOnly
+                ? StorageService.getCurrentReviewType(context.activeStage)
+                : null;
+            App.startQuiz(mode, storedReviewType);
         }
 
         App.bindEvents();
@@ -325,62 +383,149 @@ const App = {
     },
 
     updateHeroLead: (context) => {
-        const { quizHeroLead } = App.elements;
+        const { quizHeroLead, quizTitle } = App.elements;
+        if (quizTitle) {
+            DomHelper.setElementText(quizTitle, `Stage ${context.activeStage}`);
+        }
         if (!quizHeroLead) return;
 
-        let message = "선택한 스테이지 퀴즈를 시작합니다.";
-        if (context.isBlocked) message = "아직 열리지 않은 스테이지입니다.";
-        else if (context.requiresModeSelection) message = "재도전 또는 연습 모드를 선택하세요.";
-        else if (context.isPracticeOnly) message = "기록에 반영되지 않는 연습 모드입니다.";
-        else if (context.isCompletedStage) message = "완료된 스테이지입니다.";
-
-        DomHelper.setElementText(quizHeroLead, message);
+        if (context.isBlocked) {
+            DomHelper.setElementText(quizHeroLead, "아직 진행할 수 없는 스테이지입니다.");
+            quizHeroLead.classList.remove(UI_CLASSES.HIDDEN);
+        } else {
+            DomHelper.setElementText(quizHeroLead, "");
+            quizHeroLead.classList.add(UI_CLASSES.HIDDEN);
+        }
     },
 
-    showModeSelection: (context) => {
-        const { quizModeSelect, quizModeRetryButton, quizModePracticeButton, quizModeNote, quizPanel } = App.elements;
-        
-        DomHelper.toggleVisibility(quizModeSelect, true);
+    setModeLabel: (mode) => {
+        const { quizModeLabel } = App.elements;
+        if (!quizModeLabel) return;
+
+        if (mode === "review") {
+            quizModeLabel.textContent = "복습 모드";
+            quizModeLabel.classList.add("is-review");
+        } else if (mode === "record") {
+            quizModeLabel.textContent = "기록 중";
+            quizModeLabel.classList.remove("is-review");
+        } else {
+            quizModeLabel.textContent = "";
+            quizModeLabel.classList.remove("is-review");
+        }
+    },
+
+    showReviewSelection: () => {
+        const {
+            quizReviewSelect,
+            quizReviewNote,
+            quizReviewFullButton,
+            quizReviewLastWrongButton,
+            quizPanel
+        } = App.elements;
+
+        DomHelper.toggleVisibility(quizReviewSelect, true);
         DomHelper.toggleVisibility(quizPanel, false);
+        App.setModeLabel("review");
 
-        if (quizModeRetryButton) {
-            DomHelper.toggleVisibility(quizModeRetryButton, context.canRetry);
-            quizModeRetryButton.disabled = !context.canRetry;
-            quizModeRetryButton.onclick = () => App.startQuiz('retry');
+        if (quizReviewNote) {
+            DomHelper.setElementText(quizReviewNote, "복습 모드는 기록과 랭킹에 반영되지 않습니다.");
         }
 
-        if (quizModePracticeButton) {
-            quizModePracticeButton.onclick = () => App.startQuiz('practice');
+        if (quizReviewFullButton) {
+            quizReviewFullButton.onclick = () => App.startQuiz("review", ReviewModes.FULL);
+        }
+        if (quizReviewLastWrongButton) {
+            quizReviewLastWrongButton.onclick = () => App.startQuiz("review", ReviewModes.LAST_WRONG);
         }
 
-        if (quizModeNote) {
-            DomHelper.setElementText(quizModeNote, context.canRetry
-                ? "재도전은 기록에 반영되고, 연습은 기록에 반영되지 않습니다."
-                : "연습은 기록에 반영되지 않습니다.");
-        }
+        App.updateReviewButtons();
     },
 
-    startQuiz: (mode) => {
+    startQuiz: (mode, reviewType = ReviewModes.FULL) => {
         App.state.mode = mode;
+        App.state.reviewType = reviewType || ReviewModes.FULL;
         
-        const { quizHeroLead, quizModeSelect, quizPanel } = App.elements;
-        DomHelper.toggleVisibility(quizModeSelect, false);
+        const { quizHeroLead, quizPanel, quizReviewSelect } = App.elements;
+        DomHelper.toggleVisibility(quizReviewSelect, false);
         DomHelper.toggleVisibility(quizPanel, true);
+        App.setModeLabel(mode);
 
-        if (mode === 'practice') DomHelper.setElementText(quizHeroLead, "기록에 반영되지 않는 연습 모드입니다.");
-        if (mode === 'retry') DomHelper.setElementText(quizHeroLead, "마지막 완료 스테이지를 다시 도전합니다.");
+        if (mode === "review") {
+            StorageService.setCurrentReviewType(App.state.stage, App.state.reviewType);
+            DomHelper.setElementText(quizHeroLead, "기록에 반영되지 않는 복습 모드입니다.");
+        } else {
+            StorageService.clearCurrentReviewType(App.state.stage);
+        }
 
         App.loadStageData();
+    },
+
+    updateReviewButtons: async () => {
+        const {
+            quizReviewFullButton,
+            quizReviewLastWrongButton
+        } = App.elements;
+
+        if (!quizReviewFullButton || !quizReviewLastWrongButton) return;
+
+        DomHelper.setElementText(quizReviewFullButton, "확인 중...");
+        DomHelper.setElementText(quizReviewLastWrongButton, "확인 중...");
+        quizReviewFullButton.setAttribute("aria-busy", "true");
+        quizReviewLastWrongButton.setAttribute("aria-busy", "true");
+        quizReviewLastWrongButton.disabled = true;
+
+        if (App.state.cachedStageData && App.state.cachedStageData.stage !== App.state.stage) {
+            App.state.cachedStageData = null;
+        }
+
+        const data = App.state.cachedStageData
+            ? App.state.cachedStageData.data
+            : await ApiService.fetchStageData(App.state.stage);
+        if (!data || !data.questions || data.questions.length === 0) {
+            quizReviewFullButton.setAttribute("aria-busy", "false");
+            quizReviewLastWrongButton.setAttribute("aria-busy", "false");
+            return;
+        }
+
+        if (!App.state.cachedStageData) {
+            App.state.cachedStageData = {stage: App.state.stage, data};
+        }
+
+        const totalCount = data.questions.length;
+        DomHelper.setElementText(quizReviewFullButton, `복습 (${totalCount}문제)`);
+
+        const wrongIds = StorageService.getLastWrongIds(App.state.stage);
+        const wrongSet = new Set(wrongIds.map(String));
+        const lastWrongCount = data.questions.filter((question) => wrongSet.has(String(question.id))).length;
+        if (lastWrongCount > 0) {
+            DomHelper.setElementText(quizReviewLastWrongButton, `직전 오답 (${lastWrongCount}문제)`);
+            quizReviewLastWrongButton.disabled = false;
+        } else {
+            DomHelper.setElementText(quizReviewLastWrongButton, "직전 오답 없음 (완벽해요! ✨)");
+        }
+
+        quizReviewFullButton.setAttribute("aria-busy", "false");
+        quizReviewLastWrongButton.setAttribute("aria-busy", "false");
     },
 
     loadStageData: async () => {
         DomHelper.setBusy(App.elements.quizPanel, true);
         
-        const data = await ApiService.fetchStageData(App.state.stage);
+        if (App.state.cachedStageData && App.state.cachedStageData.stage !== App.state.stage) {
+            App.state.cachedStageData = null;
+        }
+
+        const data = App.state.cachedStageData
+            ? App.state.cachedStageData.data
+            : await ApiService.fetchStageData(App.state.stage);
         
         if (!data || !data.questions || data.questions.length === 0) {
             App.showError("퀴즈를 불러올 수 없습니다", "잠시 후 다시 시도해주세요.");
             return;
+        }
+
+        if (!App.state.cachedStageData) {
+            App.state.cachedStageData = {stage: App.state.stage, data};
         }
 
         if (data.stageCount) {
@@ -388,19 +533,67 @@ const App = {
             StorageService.setStageCount(data.stageCount);
         }
 
-        App.state.questions = data.questions;
+        let reviewedQuestions = App.state.mode === "review"
+            ? App.applyReviewQuestions(data.questions)
+            : data.questions;
+
+        if (reviewedQuestions.length === 0) {
+            App.state.reviewType = ReviewModes.FULL;
+            reviewedQuestions = data.questions;
+        }
+
+        App.state.questions = reviewedQuestions;
         const hasProgress = StorageService.hasCurrentQuestionIndex(App.state.stage);
-        App.state.index = StorageService.getCurrentQuestionIndex(App.state.stage, data.questions.length);
+        App.state.index = StorageService.getCurrentQuestionIndex(App.state.stage, reviewedQuestions.length);
         App.state.score = 0;
-        if (App.state.mode !== "practice") {
+        if (App.state.mode !== "review") {
             const storedScore = hasProgress ? StorageService.getCurrentScore(App.state.stage) : null;
             App.state.score = storedScore ?? 0;
             StorageService.setCurrentScore(App.state.stage, App.state.score);
         }
         App.state.answered = false;
         App.state.selectedIndex = null;
+        App.state.sessionWrongIds = new Set();
 
         App.renderQuestion();
+    },
+
+    applyReviewQuestions: (questions) => {
+        if (App.state.reviewType === ReviewModes.FULL) return questions;
+
+        if (App.state.reviewType === ReviewModes.LAST_WRONG) {
+            const wrongIds = StorageService.getLastWrongIds(App.state.stage);
+            if (!wrongIds.length) return questions;
+            const wrongSet = new Set(wrongIds.map(String));
+            const filtered = questions.filter((question) => wrongSet.has(String(question.id)));
+            return filtered.length ? filtered : questions;
+        }
+
+        return questions;
+    },
+
+    getStageAccuracy: (questions) => {
+        const stats = StorageService.getQuestionStats(App.state.stage);
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+
+        questions.forEach((question) => {
+            const entry = stats[String(question.id)];
+            if (!entry || !entry.attempts) return;
+            totalAttempts += entry.attempts;
+            totalCorrect += entry.correct;
+        });
+
+        if (totalAttempts === 0) return null;
+        return Math.round((totalCorrect / totalAttempts) * 100);
+    },
+
+    getMasteryLabel: (accuracy, reviewCount) => {
+        if (accuracy === null) return "입문";
+        if (accuracy >= 90 && reviewCount >= 3) return "완성";
+        if (accuracy >= 80) return "숙련";
+        if (accuracy >= 65) return "기초";
+        return "입문";
     },
 
     persistQuestionIndex: () => {
@@ -468,9 +661,12 @@ const App = {
         const isCorrect = selectedIndex === currentQuestion.answerIndex;
         
         App.state.answered = true;
-        if (isCorrect && App.state.mode !== 'practice') {
+        StorageService.updateQuestionStats(App.state.stage, currentQuestion.id, isCorrect);
+        if (isCorrect && App.state.mode !== 'review') {
             App.state.score++;
             StorageService.setCurrentScore(App.state.stage, App.state.score);
+        } else if (!isCorrect) {
+            App.state.sessionWrongIds.add(String(currentQuestion.id));
         }
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
@@ -511,12 +707,18 @@ const App = {
 
     finishQuiz: () => {
         const { stage, score, questions, mode, stageCount } = App.state;
-        const { quizPanel, quizComplete, quizScore, quizModeSelectButton } = App.elements;
+        const { quizPanel, quizComplete, quizScore, quizSummary, summaryAccuracy, summaryCount, summaryMastery } = App.elements;
 
         StorageService.clearCurrentQuestionIndex(stage);
-        StorageService.setCurrentScore(stage, score);
+        StorageService.setLastWrongIds(stage, Array.from(App.state.sessionWrongIds));
+        StorageService.clearCurrentReviewType(stage);
 
-        if (mode !== 'practice') {
+        if (mode === "review") {
+            StorageService.incrementReviewCount(stage);
+        }
+
+        if (mode !== 'review') {
+            StorageService.setCurrentScore(stage, score);
             const nextStage = QuizLogic.calculateNextStage(stage, stageCount);
             StorageService.setCurrentStage(nextStage);
             StorageService.setLastCompletedStage(stage);
@@ -527,17 +729,27 @@ const App = {
         DomHelper.toggleVisibility(quizPanel, false);
         DomHelper.toggleVisibility(quizComplete, true);
 
-        if (mode !== 'practice') {
+        if (mode !== 'review') {
             DomHelper.setElementText(quizScore, `점수 ${score} / ${questions.length}`);
         } else {
             DomHelper.setElementText(quizScore, "");
         }
 
-        if (mode !== 'practice' && quizModeSelectButton) {
-            DomHelper.toggleVisibility(quizModeSelectButton, true);
-            quizModeSelectButton.onclick = () => {
-                window.location.href = `/web/game/bible-quiz?stage=${stage}`;
-            };
+        if (quizSummary && summaryAccuracy && summaryCount && summaryMastery) {
+            const accuracy = App.getStageAccuracy(questions);
+            const reviewCount = StorageService.getReviewCount(stage);
+            const mastery = App.getMasteryLabel(accuracy, reviewCount);
+            const accuracyText = accuracy === null ? "-%" : `${accuracy}%`;
+
+            DomHelper.setElementText(summaryAccuracy, accuracyText);
+            DomHelper.setElementText(summaryCount, `${reviewCount}회`);
+            DomHelper.setElementText(summaryMastery, mastery);
+
+            summaryMastery.classList.remove("badge-gray", "badge-green", "badge-blue", "badge-gold");
+            if (mastery === "완성") summaryMastery.classList.add("badge-gold");
+            else if (mastery === "숙련") summaryMastery.classList.add("badge-blue");
+            else if (mastery === "기초") summaryMastery.classList.add("badge-green");
+            else summaryMastery.classList.add("badge-gray");
         }
     },
 

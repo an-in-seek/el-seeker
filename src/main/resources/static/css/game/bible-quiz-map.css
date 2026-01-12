@@ -109,10 +109,16 @@
     justify-content: space-between;
 }
 
+.stage-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .stage-number {
     font-size: 0.95rem;
     font-weight: 700;
-    color: inherit;
+    color: #2d3748;
 }
 
 .stage-status {
@@ -141,9 +147,46 @@
     font-size: 0.8rem;
 }
 
-.stage-meta {
-    font-size: 0.8rem;
-    color: inherit;
+.stage-mastery-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: #eef1f6;
+    color: #5b677a;
+}
+
+.badge-gray {
+    background: #eef1f6;
+    color: #5b677a;
+}
+
+.badge-green {
+    background: rgba(46, 146, 89, 0.18);
+    color: #1f5c39;
+}
+
+.badge-blue {
+    background: rgba(13, 110, 253, 0.1);
+    color: #2b4f8c;
+}
+
+.badge-gold {
+    background: rgba(217, 157, 46, 0.2);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    color: #7a4e12;
+}
+
+.stage-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #4a5568;
+    margin-top: 0.5rem;
+    min-height: 24px;
 }
 
 .stage-current-label {
@@ -156,23 +199,6 @@
     border-radius: 999px;
 }
 
-.stage-actions {
-    align-self: flex-start;
-    margin-top: 0.35rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-}
-
-.stage-action {
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    background: rgba(71, 109, 196, 0.15);
-    color: #2b4e9d;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
 
 .quiz-map-note {
     color: #7a879e;
