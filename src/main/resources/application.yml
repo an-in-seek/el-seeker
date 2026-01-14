@@ -31,5 +31,5 @@ springdoc:
 
 api:
   el-seeker:
-    url: ${EL_SEEKER_API_BASE_URL:http://localhost:8080}
+    base-url: ${EL_SEEKER_API_BASE_URL:http://localhost:8080}
     api-key: ${EL_SEEKER_API_KEY:TEST_API_KEY}

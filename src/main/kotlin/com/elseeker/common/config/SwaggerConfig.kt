@@ -24,7 +24,7 @@ class SwaggerConfig(
             .servers(
                 listOf<Server>(
                     Server()
-                        .url(elSeekerApiProperties.url)
+                        .url(elSeekerApiProperties.baseUrl)
                         .description("Default API Server")
                 )
             )
