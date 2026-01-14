@@ -18,7 +18,6 @@ const STORAGE_KEYS = Object.freeze({
     CURRENT_QUESTION_PREFIX: "quiz_current_question_stage",
     CURRENT_SCORE_PREFIX: "quiz_current_score_stage",
     CURRENT_REVIEW_TYPE_PREFIX: "quiz_current_review_type_stage",
-    LAST_WRONG_IDS_PREFIX: "quiz_last_wrong_ids_stage",
     QUESTION_STATS_PREFIX: "quiz_question_stats_stage",
     REVIEW_COUNT_PREFIX: "quiz_review_count_stage",
 });
@@ -115,20 +114,6 @@ const StorageService = {
         const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
         SafeLocalStore.remove(key);
     },
-    getLastWrongIds: (stage) => {
-        const raw = SafeLocalStore.get(`${STORAGE_KEYS.LAST_WRONG_IDS_PREFIX}_${stage}`);
-        if (!raw) return [];
-        try {
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (error) {
-            return [];
-        }
-    },
-    setLastWrongIds: (stage, ids) => {
-        if (!Array.isArray(ids)) return;
-        SafeLocalStore.set(`${STORAGE_KEYS.LAST_WRONG_IDS_PREFIX}_${stage}`, JSON.stringify(ids));
-    },
     getQuestionStats: (stage) => {
         const raw = SafeLocalStore.get(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`);
         if (!raw) return {};
@@ -178,8 +163,7 @@ const ApiService = {
 };
 
 const ReviewModes = Object.freeze({
-    FULL: "full",
-    LAST_WRONG: "lastWrong"
+    FULL: "full"
 });
 
 /**
@@ -199,7 +183,7 @@ const QuizLogic = {
      * Determines the initial state and mode of the quiz based on storage and URL
      */
     determineContext: (storedData, urlParams) => {
-        const { storedStageCount, lastCompletedStage, rawCurrentStage } = storedData;
+        const {storedStageCount, lastCompletedStage, rawCurrentStage} = storedData;
         const requestedStage = parseInt(urlParams.get("stage"), 10);
 
         const storedCurrentStage = QuizLogic.normalizeStage(rawCurrentStage, storedStageCount);
@@ -266,7 +250,6 @@ const DomHelper = {
             quizReviewSelect: get("quizReviewSelect"),
             quizReviewNote: get("quizReviewNote"),
             quizReviewFullButton: get("quizReviewFullButton"),
-            quizReviewLastWrongButton: get("quizReviewLastWrongButton"),
             quizModeLabel: get("quizModeLabel"),
             backButton: get("topNavBackButton"),
             pageTitleLabel: get("pageTitleLabel")
@@ -321,7 +304,6 @@ const App = {
         selectedIndex: null,
         mode: 'record', // 'record', 'review'
         reviewType: ReviewModes.FULL,
-        sessionWrongIds: new Set(),
         cachedStageData: null
     },
 
@@ -330,16 +312,16 @@ const App = {
         if (!App.elements.quizPanel) return;
 
         App.initNav();
-        
+
         const storedData = {
             storedStageCount: StorageService.getStageCount(),
             lastCompletedStage: StorageService.getLastCompletedStage(),
             rawCurrentStage: StorageService.getCurrentStage()
         };
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         const context = QuizLogic.determineContext(storedData, urlParams);
-        
+
         // Sync Storage if needed
         if (storedData.rawCurrentStage === null || context.boundedCurrentStage !== context.storedCurrentStage) {
             StorageService.setCurrentStage(context.boundedCurrentStage);
@@ -371,19 +353,19 @@ const App = {
     },
 
     initNav: () => {
-        const { backButton, pageTitleLabel } = App.elements;
+        const {backButton, pageTitleLabel} = App.elements;
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "성경 퀴즈";
             DomHelper.toggleVisibility(pageTitleLabel, true);
         }
         if (backButton) {
             DomHelper.toggleVisibility(backButton, true);
-            backButton.addEventListener("click", () => window.location.href = "/web/game");
+            backButton.addEventListener("click", () => window.location.href = "/web/game/bible-quiz/map");
         }
     },
 
     updateHeroLead: (context) => {
-        const { quizHeroLead, quizTitle } = App.elements;
+        const {quizHeroLead, quizTitle} = App.elements;
         if (quizTitle) {
             DomHelper.setElementText(quizTitle, `Stage ${context.activeStage}`);
         }
@@ -399,7 +381,7 @@ const App = {
     },
 
     setModeLabel: (mode) => {
-        const { quizModeLabel } = App.elements;
+        const {quizModeLabel} = App.elements;
         if (!quizModeLabel) return;
 
         if (mode === "review") {
@@ -419,7 +401,6 @@ const App = {
             quizReviewSelect,
             quizReviewNote,
             quizReviewFullButton,
-            quizReviewLastWrongButton,
             quizPanel
         } = App.elements;
 
@@ -434,9 +415,6 @@ const App = {
         if (quizReviewFullButton) {
             quizReviewFullButton.onclick = () => App.startQuiz("review", ReviewModes.FULL);
         }
-        if (quizReviewLastWrongButton) {
-            quizReviewLastWrongButton.onclick = () => App.startQuiz("review", ReviewModes.LAST_WRONG);
-        }
 
         App.updateReviewButtons();
     },
@@ -444,8 +422,8 @@ const App = {
     startQuiz: (mode, reviewType = ReviewModes.FULL) => {
         App.state.mode = mode;
         App.state.reviewType = reviewType || ReviewModes.FULL;
-        
-        const { quizHeroLead, quizPanel, quizReviewSelect } = App.elements;
+
+        const {quizHeroLead, quizPanel, quizReviewSelect} = App.elements;
         DomHelper.toggleVisibility(quizReviewSelect, false);
         DomHelper.toggleVisibility(quizPanel, true);
         App.setModeLabel(mode);
@@ -462,17 +440,13 @@ const App = {
 
     updateReviewButtons: async () => {
         const {
-            quizReviewFullButton,
-            quizReviewLastWrongButton
+            quizReviewFullButton
         } = App.elements;
 
-        if (!quizReviewFullButton || !quizReviewLastWrongButton) return;
+        if (!quizReviewFullButton) return;
 
         DomHelper.setElementText(quizReviewFullButton, "확인 중...");
-        DomHelper.setElementText(quizReviewLastWrongButton, "확인 중...");
         quizReviewFullButton.setAttribute("aria-busy", "true");
-        quizReviewLastWrongButton.setAttribute("aria-busy", "true");
-        quizReviewLastWrongButton.disabled = true;
 
         if (App.state.cachedStageData && App.state.cachedStageData.stage !== App.state.stage) {
             App.state.cachedStageData = null;
@@ -483,7 +457,6 @@ const App = {
             : await ApiService.fetchStageData(App.state.stage);
         if (!data || !data.questions || data.questions.length === 0) {
             quizReviewFullButton.setAttribute("aria-busy", "false");
-            quizReviewLastWrongButton.setAttribute("aria-busy", "false");
             return;
         }
 
@@ -494,23 +467,12 @@ const App = {
         const totalCount = data.questions.length;
         DomHelper.setElementText(quizReviewFullButton, `복습 (${totalCount}문제)`);
 
-        const wrongIds = StorageService.getLastWrongIds(App.state.stage);
-        const wrongSet = new Set(wrongIds.map(String));
-        const lastWrongCount = data.questions.filter((question) => wrongSet.has(String(question.id))).length;
-        if (lastWrongCount > 0) {
-            DomHelper.setElementText(quizReviewLastWrongButton, `직전 오답 (${lastWrongCount}문제)`);
-            quizReviewLastWrongButton.disabled = false;
-        } else {
-            DomHelper.setElementText(quizReviewLastWrongButton, "직전 오답 없음 (완벽해요! ✨)");
-        }
-
         quizReviewFullButton.setAttribute("aria-busy", "false");
-        quizReviewLastWrongButton.setAttribute("aria-busy", "false");
     },
 
     loadStageData: async () => {
         DomHelper.setBusy(App.elements.quizPanel, true);
-        
+
         if (App.state.cachedStageData && App.state.cachedStageData.stage !== App.state.stage) {
             App.state.cachedStageData = null;
         }
@@ -518,7 +480,7 @@ const App = {
         const data = App.state.cachedStageData
             ? App.state.cachedStageData.data
             : await ApiService.fetchStageData(App.state.stage);
-        
+
         if (!data || !data.questions || data.questions.length === 0) {
             App.showError("퀴즈를 불러올 수 없습니다", "잠시 후 다시 시도해주세요.");
             return;
@@ -553,22 +515,11 @@ const App = {
         }
         App.state.answered = false;
         App.state.selectedIndex = null;
-        App.state.sessionWrongIds = new Set();
 
         App.renderQuestion();
     },
 
     applyReviewQuestions: (questions) => {
-        if (App.state.reviewType === ReviewModes.FULL) return questions;
-
-        if (App.state.reviewType === ReviewModes.LAST_WRONG) {
-            const wrongIds = StorageService.getLastWrongIds(App.state.stage);
-            if (!wrongIds.length) return questions;
-            const wrongSet = new Set(wrongIds.map(String));
-            const filtered = questions.filter((question) => wrongSet.has(String(question.id)));
-            return filtered.length ? filtered : questions;
-        }
-
         return questions;
     },
 
@@ -601,14 +552,24 @@ const App = {
     },
 
     renderQuestion: () => {
-        const { questions, index, stage, stageCount } = App.state;
+        const {questions, index, stage, stageCount} = App.state;
         const currentQuestion = questions[index];
-        const { quizQuestion, quizOptions, quizNext, quizStage, quizQuestionProgress, quizStageProgress, quizQuestionProgressBar, quizPanel, quizFeedback } = App.elements;
+        const {
+            quizQuestion,
+            quizOptions,
+            quizNext,
+            quizStage,
+            quizQuestionProgress,
+            quizStageProgress,
+            quizQuestionProgressBar,
+            quizPanel,
+            quizFeedback
+        } = App.elements;
 
         DomHelper.setBusy(quizPanel, true);
 
         DomHelper.setElementText(quizQuestion, currentQuestion.question);
-        
+
         quizOptions.innerHTML = "";
         currentQuestion.options.forEach((opt, idx) => {
             const btn = DomHelper.createOptionButton(opt, () => App.selectOption(idx));
@@ -617,7 +578,7 @@ const App = {
 
         DomHelper.setElementText(quizFeedback, "");
         quizFeedback.classList.remove(UI_CLASSES.CORRECT, UI_CLASSES.WRONG);
-        
+
         quizNext.disabled = true;
         DomHelper.setElementText(quizNext, "정답 확인");
 
@@ -630,20 +591,20 @@ const App = {
         App.state.selectedIndex = null;
 
         App.persistQuestionIndex();
-        
+
         DomHelper.setBusy(quizPanel, false);
     },
 
     selectOption: (index) => {
         if (App.state.answered) return;
-        
+
         App.state.selectedIndex = index;
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
         buttons.forEach((btn, idx) => {
             if (idx === index) btn.classList.add(UI_CLASSES.SELECTED);
             else btn.classList.remove(UI_CLASSES.SELECTED);
         });
-        
+
         App.elements.quizNext.disabled = false;
     },
 
@@ -656,17 +617,15 @@ const App = {
     },
 
     gradeAnswer: () => {
-        const { questions, index, selectedIndex } = App.state;
+        const {questions, index, selectedIndex} = App.state;
         const currentQuestion = questions[index];
         const isCorrect = selectedIndex === currentQuestion.answerIndex;
-        
+
         App.state.answered = true;
         StorageService.updateQuestionStats(App.state.stage, currentQuestion.id, isCorrect);
         if (isCorrect && App.state.mode !== 'review') {
             App.state.score++;
             StorageService.setCurrentScore(App.state.stage, App.state.score);
-        } else if (!isCorrect) {
-            App.state.sessionWrongIds.add(String(currentQuestion.id));
         }
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
@@ -681,7 +640,7 @@ const App = {
             }
         });
 
-        const { quizFeedback, quizNext } = App.elements;
+        const {quizFeedback, quizNext} = App.elements;
         if (isCorrect) {
             DomHelper.setElementText(quizFeedback, "😊 잘하셨어요 정답입니다!");
             quizFeedback.classList.add(UI_CLASSES.CORRECT);
@@ -696,7 +655,7 @@ const App = {
     },
 
     nextQuestion: () => {
-        const { index, questions } = App.state;
+        const {index, questions} = App.state;
         if (index < questions.length - 1) {
             App.state.index++;
             App.renderQuestion();
@@ -706,11 +665,10 @@ const App = {
     },
 
     finishQuiz: () => {
-        const { stage, score, questions, mode, stageCount } = App.state;
-        const { quizPanel, quizComplete, quizScore, quizSummary, summaryAccuracy, summaryCount, summaryMastery } = App.elements;
+        const {stage, score, questions, mode, stageCount} = App.state;
+        const {quizPanel, quizComplete, quizScore, quizSummary, summaryAccuracy, summaryCount, summaryMastery} = App.elements;
 
         StorageService.clearCurrentQuestionIndex(stage);
-        StorageService.setLastWrongIds(stage, Array.from(App.state.sessionWrongIds));
         StorageService.clearCurrentReviewType(stage);
 
         if (mode === "review") {
@@ -754,12 +712,21 @@ const App = {
     },
 
     showError: (title, message) => {
-        const { quizQuestion, quizOptions, quizNext, quizPanel, quizStageProgress, quizQuestionProgressBar, quizStage, quizQuestionProgress: quizQuestionProgressText } = App.elements;
+        const {
+            quizQuestion,
+            quizOptions,
+            quizNext,
+            quizPanel,
+            quizStageProgress,
+            quizQuestionProgressBar,
+            quizStage,
+            quizQuestionProgress: quizQuestionProgressText
+        } = App.elements;
         DomHelper.setBusy(quizPanel, false);
         DomHelper.setElementText(quizQuestion, title);
         DomHelper.setElementText(quizOptions, message);
         quizNext.disabled = true;
-        
+
         DomHelper.setElementText(quizStage, "0 / 0");
         DomHelper.setElementText(quizQuestionProgressText, "0 / 0");
         DomHelper.updateProgressBar(quizStageProgress, 0, 0, 0);
@@ -767,15 +734,25 @@ const App = {
     },
 
     showAccessBlocked: () => {
-        const { quizPanel, quizComplete, quizQuestion, quizOptions, quizNext, quizStageProgress, quizQuestionProgressBar, quizStage, quizQuestionProgress: quizQuestionProgressText } = App.elements;
+        const {
+            quizPanel,
+            quizComplete,
+            quizQuestion,
+            quizOptions,
+            quizNext,
+            quizStageProgress,
+            quizQuestionProgressBar,
+            quizStage,
+            quizQuestionProgress: quizQuestionProgressText
+        } = App.elements;
         DomHelper.setBusy(quizPanel, false);
         DomHelper.toggleVisibility(quizPanel, true);
         DomHelper.toggleVisibility(quizComplete, false);
-        
+
         DomHelper.setElementText(quizQuestion, "아직 진행할 수 없는 스테이지입니다.");
         DomHelper.setElementText(quizOptions, "현재 진행 가능한 스테이지를 선택해주세요.");
         quizNext.disabled = true;
-        
+
         DomHelper.setElementText(quizStage, "0 / 0");
         DomHelper.setElementText(quizQuestionProgressText, "0 / 0");
         DomHelper.updateProgressBar(quizStageProgress, 0, 0, 0);
@@ -783,7 +760,7 @@ const App = {
     },
 
     bindEvents: () => {
-        const { quizNext } = App.elements;
+        const {quizNext} = App.elements;
         if (quizNext) {
             quizNext.addEventListener("click", App.handleNext);
         }
