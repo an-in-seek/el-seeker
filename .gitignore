@@ -39,3 +39,6 @@ out/
 ### Kotlin ###
 .kotlin
 /gradle/wrapper/gradle-wrapper.jar
+
+### Env ###
+.env
