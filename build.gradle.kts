@@ -43,7 +43,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
 
     // DB
-    runtimeOnly("com.h2database:h2")
+    implementation("org.postgresql:postgresql")
 
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
