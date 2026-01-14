@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class SwaggerConfig(
-    private val theBibleApiProperties: TheBibleApiProperties
+    private val elSeekerApiProperties: ElSeekerApiProperties
 ) {
 
     @Bean
@@ -24,7 +24,7 @@ class SwaggerConfig(
             .servers(
                 listOf<Server>(
                     Server()
-                        .url(theBibleApiProperties.url)
+                        .url(elSeekerApiProperties.url)
                         .description("Default API Server")
                 )
             )
