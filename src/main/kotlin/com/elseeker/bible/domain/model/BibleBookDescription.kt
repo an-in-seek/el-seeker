@@ -28,23 +28,22 @@ class BibleBookDescription(
     @Column(name = "language_code", nullable = false, length = 4)
     val languageCode: LanguageCode,
 
-    @Column(nullable = false)
+    @Column(name = "summary", nullable = false)
     val summary: String,
 
-    @Column(nullable = false)
+    @Column(name = "author", nullable = false)
     val author: String,
 
-    @Column(nullable = false)
+    @Column(name = "written_year", nullable = false)
     val writtenYear: String,
 
-    @Column(nullable = false)
+    @Column(name = "historical_period", nullable = false)
     val historicalPeriod: String,
 
-    @Column(nullable = false)
+    @Column(name = "background", nullable = false)
     val background: String,
 
-    @Lob
-    @Column(nullable = false)
+    @Column(name = "content", nullable = false)
     val content: String
 )
 

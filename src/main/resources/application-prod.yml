@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: ${spring.application.name}-${spring.profiles.active}-hikari-pool
+      maximum-pool-size: 10               # 2 vCPU에서 p99 동시성 대응 + 여유 (p99란? 전체 요청 중 가장 느린 1% 요청의 응답 속도)
+      minimum-idle: 10                    # 트래픽 급증 대응을 위해 maximum-pool-size과 동일하게 설정
+      connection-timeout: 3000            # UX 요구사항 (3초 내 빠른 실패 처리)
+      validation-timeout: 2000            # connection-timeout보다 짧게 설정
+      max-lifetime: 600000                # connection의 최대 유지시간: 10분
+      idle-timeout: 0                     # 유휴(Idle) 커넥션을 강제로 닫지 않도록 비활성화 함 (불필요한 churn 방지)
+      keepalive-time: 290000              # 유휴(Idle) 커넥션이 살아있는지 4분 50초 간격으로 검사하여 조기에 감지 (max-lifetime보다 작게 설정)
+      leak-detection-threshold: 6000      # p95 쿼리 지연(50ms)의 120배, 오탐 최소화
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
