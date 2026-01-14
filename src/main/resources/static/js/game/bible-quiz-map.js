@@ -417,6 +417,7 @@ const DomHelper = {
         });
         if (elements.resetProgressButton) {
             elements.resetProgressButton.addEventListener("click", () => {
+                if (!confirm("모든 스테이지 정보가 초기화됩니다. 정말 진행하시겠습니까?")) return;
                 StorageService.resetProgress();
                 window.location.href = "/web/game/bible-quiz?stage=1";
             });
