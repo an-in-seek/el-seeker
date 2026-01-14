@@ -251,6 +251,7 @@ const DomHelper = {
             quizReviewNote: get("quizReviewNote"),
             quizReviewFullButton: get("quizReviewFullButton"),
             quizModeLabel: get("quizModeLabel"),
+            quizNextStageButton: get("quizNextStageButton"),
             backButton: get("topNavBackButton"),
             pageTitleLabel: get("pageTitleLabel")
         };
@@ -666,7 +667,16 @@ const App = {
 
     finishQuiz: () => {
         const {stage, score, questions, mode, stageCount} = App.state;
-        const {quizPanel, quizComplete, quizScore, quizSummary, summaryAccuracy, summaryCount, summaryMastery} = App.elements;
+        const {
+            quizPanel,
+            quizComplete,
+            quizScore,
+            quizSummary,
+            summaryAccuracy,
+            summaryCount,
+            summaryMastery,
+            quizNextStageButton
+        } = App.elements;
 
         StorageService.clearCurrentQuestionIndex(stage);
         StorageService.clearCurrentReviewType(stage);
@@ -681,6 +691,11 @@ const App = {
             StorageService.setCurrentStage(nextStage);
             StorageService.setLastCompletedStage(stage);
             StorageService.setStageScore(stage, score);
+        }
+
+        if (quizNextStageButton) {
+            const nextStage = QuizLogic.calculateNextStage(stage, stageCount);
+            quizNextStageButton.href = `/web/game/bible-quiz?stage=${nextStage}`;
         }
 
         DomHelper.setBusy(quizPanel, false);
