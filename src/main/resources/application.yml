@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: el-seeker
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET:GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
   jpa:
     open-in-view: false
     hibernate:
@@ -12,6 +23,15 @@ spring:
       hibernate:
         show_sql: false
         format_sql: false
+
+el-seeker:
+  jwt:
+    secret: ${JWT_SECRET_BASE64}
+    access-token-ttl: 1h
+    refresh-token-ttl: 14d
+  api:
+    base-url: ${EL_SEEKER_API_BASE_URL:http://localhost:8080}
+    api-key: ${EL_SEEKER_API_KEY:TEST_API_KEY}
 
 springdoc:
   api-docs:
@@ -28,8 +48,3 @@ springdoc:
   cache:
     disabled: true
   model-and-view-allowed: true
-
-api:
-  el-seeker:
-    base-url: ${EL_SEEKER_API_BASE_URL:http://localhost:8080}
-    api-key: ${EL_SEEKER_API_KEY:TEST_API_KEY}
