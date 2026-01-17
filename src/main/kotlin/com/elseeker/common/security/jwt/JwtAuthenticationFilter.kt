@@ -21,17 +21,15 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         val token = jwtProvider.resolveAccessToken(request)
-
         // 토큰이 존재하면 파싱 시도 (파싱 성공 시 claims 반환, 실패 시 null)
         if (!token.isNullOrBlank()) {
             val claims = jwtProvider.resolveClaims(token)
-
             if (claims != null) {
-                val userId = claims.subject.toLong()
+                val memberUid = claims.subject
                 val email = claims["email"]?.toString().orEmpty()
                 val role = claims["role"]?.toString() ?: "USER"
 
-                val principal = JwtPrincipal(userId, email, role)
+                val principal = JwtPrincipal(memberUid, email, role)
                 val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
 
                 val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)

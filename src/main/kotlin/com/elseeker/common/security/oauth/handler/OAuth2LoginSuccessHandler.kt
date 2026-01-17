@@ -43,14 +43,14 @@ class OAuth2LoginSuccessHandler(
         // CustomOAuth2UserService에서 설정한 속성들을 가져옵니다.
         val email = oAuth2User.attributes["email"] as? String
             ?: throw IllegalStateException("OAuth2 속성에서 이메일을 찾을 수 없습니다.")
-        val userId = oAuth2User.attributes["userId"] as? Long
+        val memberUid = oAuth2User.attributes["memberUid"] as? String
             ?: throw IllegalStateException("OAuth2 속성에서 사용자 ID를 찾을 수 없습니다.")
         val role = oAuth2User.attributes["role"] as? String
             ?: throw IllegalStateException("OAuth2 속성에서 사용자 권한을 찾을 수 없습니다.")
 
         // 1. JWT 토큰 생성 (Access Token, Refresh Token)
-        val accessToken = jwtProvider.generateAccessToken(userId, email, role)
-        val refreshToken = jwtProvider.generateRefreshToken(userId)
+        val accessToken = jwtProvider.generateAccessToken(memberUid, email, role)
+        val refreshToken = jwtProvider.generateRefreshToken(memberUid)
 
         // 2. 웹 클라이언트를 위한 쿠키 설정 (HttpOnly)
         addCookie(response, JwtProvider.Companion.ACCESS_TOKEN_COOKIE_NAME, accessToken, properties.jwt.accessTokenTtl)

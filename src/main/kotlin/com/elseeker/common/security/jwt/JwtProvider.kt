@@ -23,12 +23,12 @@ class JwtProvider(
         .verifyWith(secretKey)
         .build()
 
-    fun generateAccessToken(userId: Long, email: String, role: String): String {
+    fun generateAccessToken(memberUid: String, email: String, role: String): String {
         val now = Instant.now()
         val expiry = now.plusSeconds(elSeekerProperties.jwt.accessTokenTtl.seconds)
 
         return Jwts.builder()
-            .subject(userId.toString())
+            .subject(memberUid)
             .claim("email", email)
             .claim("role", role)
             .issuedAt(Date.from(now))
@@ -37,12 +37,11 @@ class JwtProvider(
             .compact()
     }
 
-    fun generateRefreshToken(userId: Long): String {
+    fun generateRefreshToken(memberUid: String): String {
         val now = Instant.now()
         val expiry = now.plusSeconds(elSeekerProperties.jwt.refreshTokenTtl.seconds)
-
         return Jwts.builder()
-            .subject(userId.toString())
+            .subject(memberUid)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiry))
             .signWith(secretKey, Jwts.SIG.HS256)
@@ -54,7 +53,6 @@ class JwtProvider(
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7)
         }
-
         return request.cookies
             ?.firstOrNull { it.name == ACCESS_TOKEN_COOKIE_NAME }
             ?.value

@@ -55,12 +55,12 @@ class CustomOAuth2UserService(
                 profileImageUrl = userInfo.imageUrl
             )
         val savedMember = memberRepository.save(member)
-        val savedMemberId = savedMember.id ?: throwError(ErrorType.MEMBER_ID_MISSING)
+        val savedMemberUid = savedMember.uid
 
-        // 4. 기존 attributes에 내부 시스템용 데이터(userId, role) 추가
-        // 주의: Handler에서 attributes["userId"] 등으로 접근하므로 반드시 포함시켜야 함
+        // 4. 기존 attributes에 내부 시스템용 데이터(memberUid, role) 추가
+        // 주의: Handler에서 attributes["memberUid"] 등으로 접근하므로 반드시 포함시켜야 함
         val enrichedAttributes = HashMap<String, Any>(oAuth2User.attributes)
-        enrichedAttributes["userId"] = savedMemberId
+        enrichedAttributes["memberUid"] = savedMemberUid.toString()
         enrichedAttributes["role"] = savedMember.memberRole.name
         enrichedAttributes["email"] = savedMember.email // Provider 구조에 따라 최상위에 없을 수 있으므로 명시적 추가
 
