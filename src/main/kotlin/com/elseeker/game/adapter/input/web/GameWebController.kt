@@ -1,5 +1,6 @@
 package com.elseeker.game.adapter.input.web
 
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,12 +15,21 @@ class GameWebController {
     }
 
     @GetMapping("/bible-quiz")
-    fun showBibleQuiz(): String {
+    fun showBibleQuiz(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/game/bible-quiz")?.let { return it }
         return "game/bible-quiz"
     }
 
     @GetMapping("/bible-quiz/map")
-    fun showBibleQuizMap(): String {
+    fun showBibleQuizMap(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/game/bible-quiz/map")?.let { return it }
         return "game/bible-quiz-map"
+    }
+
+    private fun redirectIfUnauthenticated(authentication: Authentication?, returnUrl: String): String? {
+        if (authentication == null || !authentication.isAuthenticated || authentication.principal == "anonymousUser") {
+            return "redirect:/login?returnUrl=$returnUrl"
+        }
+        return null
     }
 }

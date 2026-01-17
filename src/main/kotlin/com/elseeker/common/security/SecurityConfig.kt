@@ -11,11 +11,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import jakarta.servlet.http.HttpServletRequest
 
 @Configuration
 @EnableWebSecurity
@@ -49,10 +51,18 @@ class SecurityConfig(
                 auth.requestMatchers(
                     "/",
                     "/oauth2/**",
+                    "/login",
                     "/login/**",
                     "/error",
-                    "/api/v1/**"
+                    "/api/auth/**",
+                    "/api/v1/**",
+                    "/web/game"
                 ).permitAll()
+                    // 게임 영역은 서버에서 인증을 강제합니다. (UX용 JS는 보조 역할)
+                    .requestMatchers(
+                        "/web/game/**",
+                        "/game/**",
+                    ).authenticated()
                     // 정적 리소스
                     .requestMatchers(
                         "/favicon.ico",
@@ -60,8 +70,9 @@ class SecurityConfig(
                         "/js/**",
                         "/images/**",
                         "/webjars/**",
-                        "/web/**",
                     ).permitAll()
+                    // 그 외 공개 SSR 페이지
+                    .requestMatchers("/web/**").permitAll()
                     .anyRequest().authenticated()
             }
 
@@ -77,12 +88,26 @@ class SecurityConfig(
             // 7. JWT 필터 추가 (UsernamePasswordAuthenticationFilter 앞단에 배치)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-            // 8. 예외 처리 (인증 실패 시 로그인 폼 리다이렉트 대신 401 응답)
+            // 8. 예외 처리 (SSR 페이지는 로그인으로, API는 401을 반환)
             .exceptionHandling {
-                it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                it.authenticationEntryPoint { request, response, _ ->
+                    val acceptHeader = request.getHeader("Accept").orEmpty()
+                    val isHtmlRequest = acceptHeader.contains("text/html")
+                    if (isHtmlRequest && request.requestURI.startsWith("/web/")) {
+                        val returnUrl = URLEncoder.encode(buildReturnUrl(request), StandardCharsets.UTF_8)
+                        response.sendRedirect("/login?returnUrl=$returnUrl")
+                    } else {
+                        response.sendError(HttpStatus.UNAUTHORIZED.value())
+                    }
+                }
             }
 
         return http.build()
+    }
+
+    private fun buildReturnUrl(request: HttpServletRequest): String {
+        val query = request.queryString?.let { "?$it" }.orEmpty()
+        return "${request.requestURI}$query"
     }
 
     /**

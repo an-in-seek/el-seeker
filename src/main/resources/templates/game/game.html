@@ -6,6 +6,7 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
+    <div id="authErrorMessage" class="alert alert-warning d-none" role="alert"></div>
     <section class="game-hero page-hero" aria-labelledby="gameListTitle">
         <div class="game-hero-content page-hero-content">
             <p class="game-hero-eyebrow page-hero-eyebrow">즐겁게 배우는 성경</p>
@@ -71,8 +72,24 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script>
+<script type="module">
+    import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
+
     document.addEventListener("DOMContentLoaded", () => {
+        const authErrorMessage = document.getElementById("authErrorMessage");
+
+        const redirectToLogin = (returnUrl) => {
+            window.location.replace(buildLoginRedirectUrl(returnUrl));
+        };
+
+        const ensureAuthenticated = async (returnUrl, onAuthenticated) => {
+            await checkAuthStatus({
+                onAuthenticated,
+                onUnauthenticated: () => redirectToLogin(returnUrl),
+                onError: () => showAuthError(authErrorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."),
+            });
+        };
+
         const gameList = document.querySelector(".game-list");
         if (gameList) {
             gameList.addEventListener("click", (event) => {
@@ -85,7 +102,12 @@
                     return;
                 }
                 if (card.dataset.gameKey === "bible-quiz" && card.dataset.gameRoute) {
-                    window.location.href = card.dataset.gameRoute;
+                    const gameRoute = card.dataset.gameRoute;
+                    event.preventDefault();
+                    // 메뉴 클릭 시에도 서버 인증을 확인합니다.
+                    ensureAuthenticated(gameRoute, () => {
+                        window.location.href = gameRoute;
+                    });
                 }
             });
         }
