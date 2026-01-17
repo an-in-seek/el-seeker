@@ -1,6 +1,6 @@
 // /js/auth/auth-check.js
 
-const AUTH_ME_ENDPOINT = "/api/auth/me";
+const AUTH_ME_ENDPOINT = "/api/v1/auth/me";
 
 const isOkStatus = (response) => response && response.status === 200;
 
@@ -23,10 +23,10 @@ export const showAuthError = (container, message) => {
 };
 
 export const checkAuthStatus = async ({
-    onAuthenticated,
-    onUnauthenticated,
-    onError,
-} = {}) => {
+                                          onAuthenticated,
+                                          onUnauthenticated,
+                                          onError,
+                                      } = {}) => {
     try {
         const response = await fetch(AUTH_ME_ENDPOINT, {
             method: "GET",

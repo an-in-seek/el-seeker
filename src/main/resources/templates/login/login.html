@@ -68,12 +68,23 @@
         const authErrorMessage = document.getElementById("authErrorMessage");
         const params = new URLSearchParams(window.location.search);
         const returnUrl = params.get("returnUrl");
+        const safeReturnUrl =
+            returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : null;
         const fallbackUrl = "/web/game";
+
+        const socialLoginLinks = document.querySelectorAll(".social-login-button[href^='/oauth2/authorization/']");
+        if (safeReturnUrl) {
+            socialLoginLinks.forEach((link) => {
+                const url = new URL(link.getAttribute("href"), window.location.origin);
+                url.searchParams.set("returnUrl", safeReturnUrl);
+                link.setAttribute("href", `${url.pathname}${url.search}`);
+            });
+        }
 
         // 로그인 페이지 접근 시 이미 인증된 사용자는 바로 이동합니다.
         checkAuthStatus({
             onAuthenticated: () => {
-                window.location.replace(returnUrl || fallbackUrl);
+                window.location.replace(safeReturnUrl || fallbackUrl);
             },
             onUnauthenticated: () => {
                 // 로그인 UI는 비로그인 사용자에게만 노출됩니다.

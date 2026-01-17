@@ -1,5 +1,6 @@
-package com.elseeker.common.adapter.input.api
+package com.elseeker.auth.adapter.input.api
 
+import com.elseeker.auth.adapter.input.api.response.AuthMeResponse
 import com.elseeker.common.security.jwt.JwtPrincipal
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 class AuthApiController {
 
     @GetMapping("/me")
@@ -20,21 +21,5 @@ class AuthApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
         return ResponseEntity.ok(AuthMeResponse.from(principal))
-    }
-}
-
-data class AuthMeResponse(
-    val memberUid: String,
-    val email: String,
-    val role: String,
-) {
-    companion object {
-        fun from(principal: JwtPrincipal): AuthMeResponse {
-            return AuthMeResponse(
-                memberUid = principal.memberUid,
-                email = principal.email,
-                role = principal.role,
-            )
-        }
     }
 }

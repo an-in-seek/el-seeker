@@ -2,6 +2,7 @@ package com.elseeker.common.security.oauth.handler
 
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtProvider
+import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
@@ -30,7 +31,8 @@ import java.time.Duration
 @Component
 class OAuth2LoginSuccessHandler(
     private val jwtProvider: JwtProvider,
-    private val properties: ElSeekerProperties
+    private val properties: ElSeekerProperties,
+    private val authorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository,
 ) : SimpleUrlAuthenticationSuccessHandler() {
 
     /**
@@ -63,8 +65,10 @@ class OAuth2LoginSuccessHandler(
         addCookie(response, JwtProvider.Companion.REFRESH_TOKEN_COOKIE_NAME, refreshToken, properties.jwt.refreshTokenTtl)
 
         // 3. 응답 처리 (현재 웹 전용)
-        // [비즈니스 로직]: 현재는 모든 요청을 웹으로 간주하여 루트("/")로 리다이렉트합니다.
-        redirectStrategy.sendRedirect(request, response, "/")
+        val returnUrl = authorizationRequestRepository.getRedirectUriFromCookie(request)
+        val safeReturnUrl = returnUrl?.takeIf { it.startsWith("/") && !it.startsWith("//") }
+        authorizationRequestRepository.removeAuthorizationRequestCookies(request, response)
+        redirectStrategy.sendRedirect(request, response, safeReturnUrl ?: "/")
 
         /*
          * TODO: 모바일 클라이언트 확장 시 고려 사항

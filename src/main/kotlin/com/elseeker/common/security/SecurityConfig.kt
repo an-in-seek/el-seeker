@@ -3,7 +3,9 @@ package com.elseeker.common.security
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtAuthenticationFilter
 import com.elseeker.common.security.oauth.handler.OAuth2LoginSuccessHandler
+import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
 import com.elseeker.common.security.oauth.service.CustomOAuth2UserService
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -17,13 +19,13 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import jakarta.servlet.http.HttpServletRequest
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val oAuth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
+    private val authorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val elSeekerProperties: ElSeekerProperties,
 ) {
@@ -54,7 +56,6 @@ class SecurityConfig(
                     "/login",
                     "/login/**",
                     "/error",
-                    "/api/auth/**",
                     "/api/v1/**",
                     "/web/game"
                 ).permitAll()
@@ -78,6 +79,9 @@ class SecurityConfig(
 
             // 6. OAuth2 로그인 설정
             .oauth2Login { oauth2 ->
+                oauth2.authorizationEndpoint { authorizationEndpoint ->
+                    authorizationEndpoint.authorizationRequestRepository(authorizationRequestRepository)
+                }
                 oauth2.userInfoEndpoint { userInfo ->
                     userInfo.userService(customOAuth2UserService)
                 }

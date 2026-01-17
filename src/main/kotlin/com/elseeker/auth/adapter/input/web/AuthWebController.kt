@@ -1,4 +1,4 @@
-package com.elseeker.common.adapter.input.web
+package com.elseeker.auth.adapter.input.web
 
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
