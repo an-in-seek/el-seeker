@@ -2,23 +2,30 @@ package com.elseeker.common.security.oauth.handler
 
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtProvider
-import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
+import org.springframework.http.ResponseCookie
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import org.springframework.web.util.UriComponentsBuilder
 import java.time.Duration
 
 /**
  * OAuth2 로그인 성공 핸들러.
  *
- * OAuth2 인증 성공 시 다음 작업을 수행합니다:
- * 1. JWT Access Token 및 Refresh Token 생성.
- * 2. 웹 클라이언트를 위해 HttpOnly 쿠키로 토큰 설정.
- * 3. 모바일 클라이언트를 위해 토큰을 쿼리 파라미터에 포함하여 루트 경로로 리다이렉트.
+ * [웹 기준 동작]
+ * 1. 인증된 사용자 정보를 기반으로 JWT Access / Refresh Token을 생성합니다.
+ * 2. 두 토큰을 HttpOnly + Secure 쿠키로 설정합니다.
+ * 3. 토큰을 노출하지 않고 루트("/")로 리다이렉트합니다.
+ *
+ * ⚠️ 보안 원칙
+ * - JWT를 URL(Query / Fragment)로 전달하지 않습니다.
+ * - JWT는 JavaScript에서 접근할 수 없습니다.
+ *
+ * 모바일 클라이언트 대응은 추후 확장을 전제로 하며,
+ * 현재 구현은 웹 클라이언트 전용입니다.
  */
 @Component
 class OAuth2LoginSuccessHandler(
@@ -27,11 +34,10 @@ class OAuth2LoginSuccessHandler(
 ) : SimpleUrlAuthenticationSuccessHandler() {
 
     /**
-     * 사용자가 성공적으로 인증되었을 때 호출됩니다.
+     * OAuth2 인증이 성공했을 때 호출됩니다.
      *
-     * @param request 인증 성공을 유발한 요청
-     * @param response 응답 객체
-     * @param authentication 인증 과정에서 생성된 인증 객체
+     * - CustomOAuth2UserService에서 주입한 사용자 속성을 사용합니다.
+     * - 인증 성공 시점에서만 토큰을 발급합니다.
      */
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
@@ -40,7 +46,7 @@ class OAuth2LoginSuccessHandler(
     ) {
         val oAuth2User = authentication.principal as OAuth2User
 
-        // CustomOAuth2UserService에서 설정한 속성들을 가져옵니다.
+        // OAuth2User에 매핑된 사용자 식별 정보 추출
         val email = oAuth2User.attributes["email"] as? String
             ?: throw IllegalStateException("OAuth2 속성에서 이메일을 찾을 수 없습니다.")
         val memberUid = oAuth2User.attributes["memberUid"] as? String
@@ -52,33 +58,53 @@ class OAuth2LoginSuccessHandler(
         val accessToken = jwtProvider.generateAccessToken(memberUid, email, role)
         val refreshToken = jwtProvider.generateRefreshToken(memberUid)
 
-        // 2. 웹 클라이언트를 위한 쿠키 설정 (HttpOnly)
+        // 2. 웹 클라이언트를 위한 쿠키 설정 (HttpOnly, SameSite=Lax)
         addCookie(response, JwtProvider.Companion.ACCESS_TOKEN_COOKIE_NAME, accessToken, properties.jwt.accessTokenTtl)
         addCookie(response, JwtProvider.Companion.REFRESH_TOKEN_COOKIE_NAME, refreshToken, properties.jwt.refreshTokenTtl)
 
-        // 3. 모바일 클라이언트를 위한 리다이렉트 설정 (쿼리 파라미터로 토큰 전달)
-        val targetUrl = UriComponentsBuilder.fromUriString("/")
-            .queryParam("accessToken", accessToken)
-            .queryParam("refreshToken", refreshToken)
-            .build().toUriString()
+        // 3. 응답 처리 (현재 웹 전용)
+        // [비즈니스 로직]: 현재는 모든 요청을 웹으로 간주하여 루트("/")로 리다이렉트합니다.
+        redirectStrategy.sendRedirect(request, response, "/")
 
-        redirectStrategy.sendRedirect(request, response, targetUrl)
+        /*
+         * TODO: 모바일 클라이언트 확장 시 고려 사항
+         *
+         * 1. 클라이언트 구분
+         * - OAuth2 인가 요청 시 client_type(web/mobile)을 AuthorizationRequest에 저장
+         * - CustomAuthorizationRequestRepository를 통해 안전하게 복원
+         *
+         * 2. 토큰 전달 방식
+         * - JWT를 URL로 전달하는 방식은 절대 금지
+         * - RDB 기반 1회성 Authorization Code 발급 후
+         *   앱에서 POST /api/v1/auth/exchange 호출로 토큰 교환
+         *
+         * 3. Redirect URI
+         * - 웹: /
+         * - 앱: 커스텀 스킴 또는 App/Universal Links 사용
+         */
     }
 
     /**
-     * HttpOnly 쿠키를 추가하는 헬퍼 메서드입니다.
+     * HttpOnly 쿠키를 설정합니다.
      *
      * @param response HttpServletResponse 객체
      * @param name 쿠키 이름
      * @param value 쿠키 값
      * @param maxAge 쿠키 유효 기간
      */
-    private fun addCookie(response: HttpServletResponse, name: String, value: String, maxAge: Duration) {
-        val cookie = Cookie(name, value)
-        cookie.isHttpOnly = true
-        cookie.path = "/"
-        cookie.maxAge = maxAge.seconds.toInt()
-        // cookie.secure = true // 프로덕션 환경에서는 활성화 필요
-        response.addCookie(cookie)
+    private fun addCookie(
+        response: HttpServletResponse,
+        name: String,
+        value: String,
+        maxAge: Duration,
+    ) {
+        val cookie = ResponseCookie.from(name, value)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(maxAge.seconds)
+            .sameSite("Lax") // CSRF 방어 핵심
+            .build()
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
 }
