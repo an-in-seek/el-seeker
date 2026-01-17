@@ -24,7 +24,7 @@ object CookieUtils {
             .secure(secure)
             .path("/")
             .maxAge(maxAgeSeconds)
-            .sameSite("Lax")
+            .sameSite(if (secure) "None" else "Lax")
             .build()
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
@@ -39,7 +39,7 @@ object CookieUtils {
             .secure(secure)
             .path("/")
             .maxAge(0)
-            .sameSite("Lax")
+            .sameSite(if (secure) "None" else "Lax")
             .build()
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
