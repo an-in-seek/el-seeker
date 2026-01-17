@@ -12,6 +12,8 @@ enum class ErrorType(
     INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 요청 파라미터입니다.", LogLevel.INFO),
     PROVIDER_MISMATCH(HttpStatus.BAD_REQUEST, "해당 계정은 이미 가입되어 있습니다.", LogLevel.INFO),
     PROVIDER_USER_ID_MISMATCH(HttpStatus.BAD_REQUEST, "이미 가입된 계정과 사용자 식별자가 일치하지 않습니다.", LogLevel.INFO),
+    OAUTH_EMAIL_MISSING(HttpStatus.BAD_REQUEST, "소셜 로그인 이메일 정보를 찾을 수 없습니다.", LogLevel.INFO),
+    OAUTH_PROVIDER_USER_ID_MISSING(HttpStatus.BAD_REQUEST, "소셜 로그인 사용자 식별 정보를 찾을 수 없습니다.", LogLevel.INFO),
 
     // 404
     TRANSLATION_NOT_FOUND(HttpStatus.NOT_FOUND, "번역본을 찾을 수 없습니다.", LogLevel.WARN),

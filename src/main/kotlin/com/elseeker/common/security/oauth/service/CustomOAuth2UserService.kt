@@ -1,5 +1,7 @@
 package com.elseeker.common.security.oauth.service
 
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
@@ -28,10 +30,10 @@ class CustomOAuth2UserService(
 
         // 2. 이메일 검증 (필수 값인 경우)
         if (userInfo.email.isBlank()) {
-            throw IllegalArgumentException("${provider.registrationId} 로그인에서 이메일 정보를 찾을 수 없습니다.")
+            throwError(ErrorType.OAUTH_EMAIL_MISSING, provider.registrationId)
         }
         if (userInfo.providerUserId.isBlank()) {
-            throw IllegalArgumentException("${provider.registrationId} 로그인에서 사용자 식별 정보를 찾을 수 없습니다.")
+            throwError(ErrorType.OAUTH_PROVIDER_USER_ID_MISSING, provider.registrationId)
         }
 
         // 3. 사용자 저장 또는 업데이트
