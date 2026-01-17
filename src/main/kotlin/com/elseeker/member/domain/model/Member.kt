@@ -8,14 +8,21 @@ import com.elseeker.member.domain.vo.OAuthProvider
 import com.elseeker.member.domain.vo.OAuthProviderConverter
 import jakarta.persistence.*
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.util.*
 
 @Entity
 @Table(
     name = "member",
-    indexes = [Index(name = "idx_member_email", columnList = "email")]
+    indexes = [
+        Index(name = "idx_member_email", columnList = "email"),
+        Index(name = "idx_member_uuid", columnList = "uuid")
+    ]
 )
 @EntityListeners(AuditingEntityListener::class)
 class Member(
+
+    @Column(nullable = false, unique = true, columnDefinition = "uuid default gen_random_uuid()")
+    var uid: UUID = UUID.randomUUID(),
 
     @Column(nullable = false, length = 255, unique = true)
     var email: String,
