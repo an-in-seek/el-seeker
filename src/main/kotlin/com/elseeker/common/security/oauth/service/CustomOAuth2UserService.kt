@@ -1,9 +1,9 @@
 package com.elseeker.common.security.oauth.service
 
-import com.elseeker.common.adapter.output.jpa.UserRepository
-import com.elseeker.common.domain.model.User
-import com.elseeker.common.domain.model.UserRole
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
+import com.elseeker.member.adapter.output.jpa.MemberRepository
+import com.elseeker.member.domain.model.Member
+import com.elseeker.member.domain.vo.MemberRole
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CustomOAuth2UserService(
-    private val userRepository: UserRepository
+    private val memberRepository: MemberRepository
 ) : DefaultOAuth2UserService() {
 
     @Transactional
@@ -31,29 +31,29 @@ class CustomOAuth2UserService(
         }
 
         // 3. 사용자 저장 또는 업데이트
-        val savedUser = userRepository.findByEmail(userInfo.email)?.apply {
-            this.name = userInfo.name
+        val savedUser = memberRepository.findByEmail(userInfo.email)?.apply {
+            this.nickname = userInfo.name
             this.provider = userInfo.provider
-            this.providerId = userInfo.providerId
+            this.providerUserId = userInfo.providerUserId
             // 필요 시 프로필 이미지 업데이트 로직 추가
-        } ?: User(
+        } ?: Member(
             email = userInfo.email,
-            name = userInfo.name,
-            role = UserRole.USER,
+            nickname = userInfo.name,
+            memberRole = MemberRole.USER,
             provider = userInfo.provider,
-            providerId = userInfo.providerId
+            providerUserId = userInfo.providerUserId
         )
 
-        val user = userRepository.save(savedUser)
+        val user = memberRepository.save(savedUser)
 
         // 4. 기존 attributes에 내부 시스템용 데이터(userId, role) 추가
         // 주의: Handler에서 attributes["userId"] 등으로 접근하므로 반드시 포함시켜야 함
         val enrichedAttributes = HashMap<String, Any>(oAuth2User.attributes)
         enrichedAttributes["userId"] = requireNotNull(user.id) { "User ID must not be null after save" }
-        enrichedAttributes["role"] = user.role.name
+        enrichedAttributes["role"] = user.memberRole.name
         enrichedAttributes["email"] = user.email // Provider 구조에 따라 최상위에 없을 수 있으므로 명시적 추가
 
-        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.memberRole.name}"))
 
         // 5. UserInfoEndpoint의 userNameAttributeName 가져오기
         // (Google은 "sub", Naver는 "response", Kakao는 "id" 등이 될 수 있음)

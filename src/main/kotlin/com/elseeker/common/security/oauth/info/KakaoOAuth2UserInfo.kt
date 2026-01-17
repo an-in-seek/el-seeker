@@ -12,7 +12,7 @@ class KakaoOAuth2UserInfo(
         kakaoAccount["profile"] as? Map<String, Any> ?: emptyMap()
     }
 
-    override val providerId: String
+    override val providerUserId: String
         get() = attributes["id"].toString()
 
     override val provider: String

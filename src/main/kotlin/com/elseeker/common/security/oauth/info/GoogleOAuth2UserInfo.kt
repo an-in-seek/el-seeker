@@ -4,7 +4,8 @@ package com.elseeker.common.security.oauth.info
 class GoogleOAuth2UserInfo(
     override val attributes: Map<String, Any>
 ) : OAuth2UserInfo {
-    override val providerId: String
+
+    override val providerUserId: String
         get() = attributes["sub"] as String
 
     override val provider: String

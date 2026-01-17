@@ -8,7 +8,7 @@ class NaverOAuth2UserInfo(
         attributes["response"] as? Map<String, Any> ?: emptyMap()
     }
 
-    override val providerId: String
+    override val providerUserId: String
         get() = response["id"] as String
 
     override val provider: String
