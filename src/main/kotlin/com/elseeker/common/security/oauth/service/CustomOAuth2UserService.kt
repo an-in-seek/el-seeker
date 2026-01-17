@@ -57,8 +57,7 @@ class CustomOAuth2UserService(
 
         // 5. UserInfoEndpoint의 userNameAttributeName 가져오기
         // (Google은 "sub", Naver는 "response", Kakao는 "id" 등이 될 수 있음)
-        val userNameAttributeName = userRequest.clientRegistration
-            .providerDetails.userInfoEndpoint.userNameAttributeName
+        val userNameAttributeName = userRequest.clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName
 
         return DefaultOAuth2User(authorities, enrichedAttributes, userNameAttributeName)
     }

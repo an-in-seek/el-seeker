@@ -1,0 +1,288 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Playfair+Display:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap");
+
+.login-page {
+    --ink: #0c1b2a;
+    --ink-soft: #4a5568;
+    --mist: #f5efe6;
+    --sun: #f0b858;
+    --sea: #1f7f7b;
+    --rose: #d6725b;
+    --glass: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, #fdfbf7 0%, #f4efe9 100%);
+    color: var(--ink);
+    font-family: "Manrope", "Noto Sans KR", sans-serif;
+    min-height: 100vh;
+    min-height: 100svh;
+    position: relative;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-page,
+.login-page * {
+    box-sizing: border-box;
+}
+
+.login-shell {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem; /* 좌우 패딩 확보 */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.login-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); /* minmax로 오버플로우 방지 */
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto; /* 중앙 정렬 보장 */
+    box-sizing: border-box;
+}
+
+/* Hero Section */
+.login-hero {
+    animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-brand {
+    display: inline-block;
+    margin-bottom: 1rem;
+    transition: opacity 0.2s;
+}
+
+.login-brand:hover {
+    opacity: 0.8;
+}
+
+.login-brand-logo {
+    height: 64px;
+    width: auto;
+}
+
+.login-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--sea);
+    margin-bottom: 1rem;
+}
+
+.login-title {
+    font-family: "Playfair Display", "Noto Sans KR", serif;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    line-height: 1.2;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* Login Card */
+.login-card {
+    background: var(--glass);
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 20px 40px -4px rgba(12, 27, 42, 0.08);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    width: 100%; /* 부모 그리드 셀 꽉 채우기 */
+}
+
+.login-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+}
+
+.login-card-text {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Social Buttons */
+.social-login-grid {
+    display: grid;
+    gap: 0.875rem;
+}
+
+.social-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Google */
+.social-login-button.google {
+    background: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.social-login-button.google:hover {
+    background: #f8f9fa;
+    border-color: #d2e3fc;
+    box-shadow: 0 1px 3px rgba(66, 133, 244, 0.1);
+}
+
+/* Naver */
+.social-login-button.naver {
+    background: #03c75a;
+    color: #ffffff;
+    border: 1px solid transparent;
+}
+
+.social-login-button.naver:hover {
+    background: #02b351;
+    box-shadow: 0 4px 12px rgba(3, 199, 90, 0.25);
+}
+
+/* Kakao */
+.social-login-button.kakao {
+    background: #fee500;
+    color: #000000;
+    border: 1px solid transparent;
+}
+
+.social-login-button.kakao:hover {
+    background: #fdd835;
+    box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3);
+}
+
+/* Meta & Skip */
+.login-meta {
+    margin-top: 1.75rem;
+    font-size: 0.8125rem;
+    color: #718096;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.login-meta a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-decoration-color: rgba(74, 85, 104, 0.3);
+    text-underline-offset: 2px;
+}
+
+.login-meta a:hover {
+    color: var(--ink);
+    text-decoration-color: var(--ink);
+}
+
+.login-skip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.login-skip:hover {
+    color: var(--sea);
+}
+
+.login-skip svg {
+    transition: transform 0.2s;
+}
+
+.login-skip:hover svg {
+    transform: translateX(4px);
+}
+
+/* Animations */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-hero,
+    .login-card {
+        animation: none;
+    }
+
+    .login-brand,
+    .social-login-button,
+    .login-skip {
+        transition: none;
+    }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .login-grid {
+        grid-template-columns: 1fr; /* 단일 컬럼으로 변경 */
+        gap: 1.2rem;
+        max-width: 480px; /* 카드 너비 제한 */
+    }
+
+    .login-hero {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .login-lead {
+        margin: 0 auto;
+    }
+
+    .login-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-shell {
+        padding: 1.5rem 1rem; /* 모바일 패딩 축소 */
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-title {
+        font-size: 2rem;
+    }
+}
