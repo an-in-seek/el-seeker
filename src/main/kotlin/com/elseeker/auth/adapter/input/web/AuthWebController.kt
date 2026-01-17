@@ -1,5 +1,9 @@
 package com.elseeker.auth.adapter.input.web
 
+import com.elseeker.common.security.jwt.JwtProvider
+import com.elseeker.common.security.oauth.util.CookieUtils
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,5 +23,17 @@ class AuthWebController {
             return "redirect:${safeReturnUrl ?: "/web/game"}"
         }
         return "login/login"
+    }
+
+    @GetMapping("/web/auth/logout")
+    fun logout(
+        @RequestParam(required = false) returnUrl: String?,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): String {
+        CookieUtils.deleteCookie(response, JwtProvider.ACCESS_TOKEN_COOKIE_NAME, request.isSecure)
+        CookieUtils.deleteCookie(response, JwtProvider.REFRESH_TOKEN_COOKIE_NAME, request.isSecure)
+        val safeReturnUrl = returnUrl?.takeIf { it.startsWith("/") && !it.startsWith("//") }
+        return "redirect:${safeReturnUrl ?: "/"}"
     }
 }

@@ -55,6 +55,8 @@ class SecurityConfig(
                     "/oauth2/**",
                     "/web/auth/login",
                     "/web/auth/login/**",
+                    "/web/auth/logout",
+                    "/web/auth/logout/**",
                     "/error",
                     "/api/v1/**",
                     "/web/game"

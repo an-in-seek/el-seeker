@@ -27,14 +27,32 @@
                     </a>
                 </div>
 
-                <a id="topNavSearchLink"
-                   href="/web/bible/search"
-                   class="top-nav-search-button top-nav-btn btn btn-outline-secondary d-none"
-                   role="button"
-                   aria-label="본문 검색"
-                   title="본문 검색">
-                    🔍
-                </a>
+                <div class="top-nav-right">
+                    <a id="topNavSearchLink"
+                       href="/web/bible/search"
+                       class="top-nav-search-button top-nav-btn btn btn-outline-secondary d-none"
+                       role="button"
+                       aria-label="본문 검색"
+                       title="본문 검색">
+                        🔍
+                    </a>
+                    <a id="topNavLoginLink"
+                       href="/web/auth/login"
+                       class="top-nav-auth-button top-nav-btn btn btn-outline-secondary d-none"
+                       role="button"
+                       aria-label="로그인"
+                       title="로그인">
+                        🔐로그인
+                    </a>
+                    <a id="topNavLogoutLink"
+                       href="/web/auth/logout"
+                       class="top-nav-auth-button top-nav-btn btn btn-outline-secondary d-none"
+                       role="button"
+                       aria-label="로그아웃"
+                       title="로그아웃">
+                        🔓로그아웃
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -44,4 +62,27 @@
             </div>
         </div>
     </nav>
+    <script type="module">
+        import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginLink = document.getElementById("topNavLoginLink");
+            const logoutLink = document.getElementById("topNavLogoutLink");
+            if (!loginLink || !logoutLink) {
+                return;
+            }
+            const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            loginLink.href = buildLoginRedirectUrl(returnUrl);
+            logoutLink.href = `/web/auth/logout?returnUrl=${encodeURIComponent(returnUrl)}`;
+
+            checkAuthStatus({
+                onAuthenticated: () => {
+                    logoutLink.classList.remove("d-none");
+                },
+                onUnauthenticated: () => {
+                    loginLink.classList.remove("d-none");
+                },
+            });
+        });
+    </script>
 </header>

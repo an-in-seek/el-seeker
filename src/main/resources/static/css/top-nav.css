@@ -33,6 +33,12 @@
     gap: 0.5rem;
 }
 
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .top-nav-btn {
     height: 44px;
     display: inline-flex;
@@ -88,6 +94,18 @@
     border-radius: 0.375rem;
     text-decoration: none;
     transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.top-nav-auth-button {
+    min-width: 90px;
+    max-width: 90px;
+    flex: 0 0 90px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .top-nav-title {
