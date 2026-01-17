@@ -3,15 +3,13 @@ package com.elseeker.common.security.oauth.handler
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtProvider
 import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
+import com.elseeker.common.security.oauth.util.CookieUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.HttpHeaders
-import org.springframework.http.ResponseCookie
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import java.time.Duration
 
 /**
  * OAuth2 로그인 성공 핸들러.
@@ -61,8 +59,20 @@ class OAuth2LoginSuccessHandler(
         val refreshToken = jwtProvider.generateRefreshToken(memberUid)
 
         // 2. 웹 클라이언트를 위한 쿠키 설정 (HttpOnly, SameSite=Lax)
-        addCookie(response, JwtProvider.Companion.ACCESS_TOKEN_COOKIE_NAME, accessToken, properties.jwt.accessTokenTtl)
-        addCookie(response, JwtProvider.Companion.REFRESH_TOKEN_COOKIE_NAME, refreshToken, properties.jwt.refreshTokenTtl)
+        CookieUtils.addCookie(
+            response,
+            JwtProvider.Companion.ACCESS_TOKEN_COOKIE_NAME,
+            accessToken,
+            properties.jwt.accessTokenTtl.seconds,
+            request.isSecure,
+        )
+        CookieUtils.addCookie(
+            response,
+            JwtProvider.Companion.REFRESH_TOKEN_COOKIE_NAME,
+            refreshToken,
+            properties.jwt.refreshTokenTtl.seconds,
+            request.isSecure,
+        )
 
         // 3. 응답 처리 (현재 웹 전용)
         val returnUrl = authorizationRequestRepository.getRedirectUriFromCookie(request)
@@ -87,28 +97,5 @@ class OAuth2LoginSuccessHandler(
          * - 앱: 커스텀 스킴 또는 App/Universal Links 사용
          */
     }
-
-    /**
-     * HttpOnly 쿠키를 설정합니다.
-     *
-     * @param response HttpServletResponse 객체
-     * @param name 쿠키 이름
-     * @param value 쿠키 값
-     * @param maxAge 쿠키 유효 기간
-     */
-    private fun addCookie(
-        response: HttpServletResponse,
-        name: String,
-        value: String,
-        maxAge: Duration,
-    ) {
-        val cookie = ResponseCookie.from(name, value)
-            .httpOnly(true)
-            .secure(true)
-            .path("/")
-            .maxAge(maxAge.seconds)
-            .sameSite("Lax") // CSRF 방어 핵심
-            .build()
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
-    }
+    
 }
