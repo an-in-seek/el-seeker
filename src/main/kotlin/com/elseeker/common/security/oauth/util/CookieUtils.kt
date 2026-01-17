@@ -8,6 +8,9 @@ import org.springframework.http.ResponseCookie
 
 object CookieUtils {
 
+    // 보안 강화를 위해 SameSite 기본값은 Lax로 고정합니다.
+    private const val DEFAULT_SAME_SITE = "Lax"
+
     fun getCookie(request: HttpServletRequest, name: String): Cookie? {
         return request.cookies?.firstOrNull { it.name == name }
     }
@@ -24,7 +27,7 @@ object CookieUtils {
             .secure(secure)
             .path("/")
             .maxAge(maxAgeSeconds)
-            .sameSite(if (secure) "None" else "Lax")
+            .sameSite(DEFAULT_SAME_SITE)
             .build()
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
@@ -39,7 +42,7 @@ object CookieUtils {
             .secure(secure)
             .path("/")
             .maxAge(0)
-            .sameSite(if (secure) "None" else "Lax")
+            .sameSite(DEFAULT_SAME_SITE)
             .build()
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
     }
