@@ -1,5 +1,7 @@
 package com.elseeker.common.security.oauth.info
 
+import com.elseeker.member.domain.vo.OAuthProvider
+
 // Naver 구현체 (네이버는 'response'라는 키 안에 실제 정보가 담겨 있음)
 class NaverOAuth2UserInfo(
     override val attributes: Map<String, Any>
@@ -11,14 +13,16 @@ class NaverOAuth2UserInfo(
     override val providerUserId: String
         get() = response["id"] as String
 
-    override val provider: String
-        get() = "naver"
+    override val provider: OAuthProvider
+        get() = OAuthProvider.NAVER
 
     override val email: String
-        get() = response["email"] as String
+        get() = response["email"] as? String ?: ""
 
     override val name: String
-        get() = response["name"] as String
+        get() = response["name"] as? String
+            ?: response["nickname"] as? String
+            ?: "Unknown"
 
     override val imageUrl: String?
         get() = response["profile_image"] as? String

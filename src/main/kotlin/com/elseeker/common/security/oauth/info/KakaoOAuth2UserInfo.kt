@@ -1,5 +1,7 @@
 package com.elseeker.common.security.oauth.info
 
+import com.elseeker.member.domain.vo.OAuthProvider
+
 // Kakao 구현체 (카카오는 구조가 다소 복잡함: id는 최상위, 정보는 kakao_account 내부에 존재)
 class KakaoOAuth2UserInfo(
     override val attributes: Map<String, Any>
@@ -15,8 +17,8 @@ class KakaoOAuth2UserInfo(
     override val providerUserId: String
         get() = attributes["id"].toString()
 
-    override val provider: String
-        get() = "kakao"
+    override val provider: OAuthProvider
+        get() = OAuthProvider.KAKAO
 
     override val email: String
         get() = kakaoAccount["email"] as? String ?: "" // 카카오는 이메일 제공 동의가 선택일 수 있음

@@ -1,5 +1,7 @@
 package com.elseeker.common.security.oauth.info
 
+import com.elseeker.member.domain.vo.OAuthProvider
+
 // Google 구현체
 class GoogleOAuth2UserInfo(
     override val attributes: Map<String, Any>
@@ -8,8 +10,8 @@ class GoogleOAuth2UserInfo(
     override val providerUserId: String
         get() = attributes["sub"] as String
 
-    override val provider: String
-        get() = "google"
+    override val provider: OAuthProvider
+        get() = OAuthProvider.GOOGLE
 
     override val email: String
         get() = attributes["email"] as String
