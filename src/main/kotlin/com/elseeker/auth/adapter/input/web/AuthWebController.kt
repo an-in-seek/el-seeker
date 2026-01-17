@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam
 @Controller
 class AuthWebController {
 
-    @GetMapping("/login")
+    @GetMapping("/web/auth/login")
     fun showLogin(
         @RequestParam(required = false) returnUrl: String?,
         authentication: Authentication?

@@ -7,9 +7,10 @@ const isOkStatus = (response) => response && response.status === 200;
 const isUnauthorized = (response) => response && response.status === 401;
 
 export const buildLoginRedirectUrl = (returnUrl) => {
-    const loginUrl = new URL("/login", window.location.origin);
-    if (returnUrl) {
-        loginUrl.searchParams.set("returnUrl", returnUrl);
+    const targetReturnUrl = returnUrl || `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const loginUrl = new URL("/web/auth/login", window.location.origin);
+    if (targetReturnUrl) {
+        loginUrl.searchParams.set("returnUrl", targetReturnUrl);
     }
     return loginUrl.toString();
 };

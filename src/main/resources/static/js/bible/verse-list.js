@@ -1,4 +1,5 @@
 import {BookStore, ChapterStore, LastReadStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
+import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
 
 const UI_CLASSES = {
     HIDDEN: "d-none"
@@ -43,6 +44,12 @@ const App = {
         chapterNumber: null,
         verseNumber: null,
         fromSearch: false
+    },
+    memoAuth: {
+        checked: false,
+        allowed: false,
+        checking: false,
+        redirected: false
     },
 
     init: async () => {
@@ -160,6 +167,8 @@ const App = {
         }
         if (verseTable) {
             verseTable.addEventListener("click", App.handleVerseClick);
+            verseTable.addEventListener("keydown", App.handleMemoInputAttempt);
+            verseTable.addEventListener("beforeinput", App.handleMemoInputAttempt);
         }
     },
 
@@ -389,6 +398,55 @@ const App = {
         }
         App.toggleMemo(verseNum);
         App.applyVerseHighlight(verseNum);
+    },
+
+    handleMemoInputAttempt: event => {
+        if (!App.isMemoInputTarget(event.target)) {
+            return;
+        }
+        if (App.memoAuth.allowed) {
+            return;
+        }
+        if (App.memoAuth.checked) {
+            event.preventDefault();
+            return;
+        }
+        if (App.memoAuth.checking) {
+            event.preventDefault();
+            return;
+        }
+        event.preventDefault();
+        App.checkMemoAuth();
+    },
+
+    isMemoInputTarget: target => target
+        && (target.matches("textarea[id^='memo-input-']") || target.matches("input[id^='memo-input-']")),
+
+    checkMemoAuth: () => {
+        App.memoAuth.checking = true;
+        checkAuthStatus({
+            onAuthenticated: () => {
+                App.memoAuth.checked = true;
+                App.memoAuth.allowed = true;
+                App.memoAuth.checking = false;
+            },
+            onUnauthenticated: () => {
+                App.memoAuth.checked = true;
+                App.memoAuth.allowed = false;
+                App.memoAuth.checking = false;
+                if (App.memoAuth.redirected) {
+                    return;
+                }
+                App.memoAuth.redirected = true;
+                alert("메모 기능은 로그인 후 사용할 수 있습니다.");
+                window.location.href = buildLoginRedirectUrl();
+            },
+            onError: () => {
+                App.memoAuth.checked = true;
+                App.memoAuth.allowed = false;
+                App.memoAuth.checking = false;
+            }
+        });
     },
 
     toggleMemo: verseNum => {

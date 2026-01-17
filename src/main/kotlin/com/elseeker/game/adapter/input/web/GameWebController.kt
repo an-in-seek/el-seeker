@@ -28,7 +28,7 @@ class GameWebController {
 
     private fun redirectIfUnauthenticated(authentication: Authentication?, returnUrl: String): String? {
         if (authentication == null || !authentication.isAuthenticated || authentication.principal == "anonymousUser") {
-            return "redirect:/login?returnUrl=$returnUrl"
+            return "redirect:/web/auth/login?returnUrl=$returnUrl"
         }
         return null
     }

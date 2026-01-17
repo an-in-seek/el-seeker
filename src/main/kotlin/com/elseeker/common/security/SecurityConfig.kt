@@ -53,8 +53,8 @@ class SecurityConfig(
                 auth.requestMatchers(
                     "/",
                     "/oauth2/**",
-                    "/login",
-                    "/login/**",
+                    "/web/auth/login",
+                    "/web/auth/login/**",
                     "/error",
                     "/api/v1/**",
                     "/web/game"
@@ -99,7 +99,7 @@ class SecurityConfig(
                     val isHtmlRequest = acceptHeader.contains("text/html")
                     if (isHtmlRequest && request.requestURI.startsWith("/web/")) {
                         val returnUrl = URLEncoder.encode(buildReturnUrl(request), StandardCharsets.UTF_8)
-                        response.sendRedirect("/login?returnUrl=$returnUrl")
+                        response.sendRedirect("/web/auth/login?returnUrl=$returnUrl")
                     } else {
                         response.sendError(HttpStatus.UNAUTHORIZED.value())
                     }
