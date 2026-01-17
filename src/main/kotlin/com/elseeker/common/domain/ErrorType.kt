@@ -14,6 +14,7 @@ enum class ErrorType(
     PROVIDER_USER_ID_MISMATCH(HttpStatus.BAD_REQUEST, "이미 가입된 계정과 사용자 식별자가 일치하지 않습니다.", LogLevel.INFO),
     OAUTH_EMAIL_MISSING(HttpStatus.BAD_REQUEST, "소셜 로그인 이메일 정보를 찾을 수 없습니다.", LogLevel.INFO),
     OAUTH_PROVIDER_USER_ID_MISSING(HttpStatus.BAD_REQUEST, "소셜 로그인 사용자 식별 정보를 찾을 수 없습니다.", LogLevel.INFO),
+    MEMBER_ID_MISSING(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 식별 정보가 없습니다.", LogLevel.ERROR),
 
     // 404
     TRANSLATION_NOT_FOUND(HttpStatus.NOT_FOUND, "번역본을 찾을 수 없습니다.", LogLevel.WARN),
