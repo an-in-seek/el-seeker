@@ -36,22 +36,49 @@
                        title="본문 검색">
                         🔍
                     </a>
-                    <a id="topNavLoginLink"
-                       href="/web/auth/login"
-                       class="top-nav-auth-button top-nav-btn btn btn-outline-secondary d-none"
-                       role="button"
-                       aria-label="로그인"
-                       title="로그인">
-                        🔐
-                    </a>
-                    <a id="topNavLogoutLink"
-                       href="/web/auth/logout"
-                       class="top-nav-auth-button top-nav-btn btn btn-outline-secondary d-none"
-                       role="button"
-                       aria-label="로그아웃"
-                       title="로그아웃">
-                        🔓
-                    </a>
+                    <div class="top-nav-account">
+                        <button id="topNavAccountButton"
+                                type="button"
+                                class="top-nav-account-button top-nav-btn btn btn-outline-secondary"
+                                aria-label="계정 메뉴"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            👤
+                        </button>
+                        <div id="topNavAccountMenu"
+                             class="top-nav-account-menu d-none"
+                             role="menu"
+                             aria-label="계정 메뉴">
+                            <a id="topNavLoginLink"
+                               href="/web/auth/login"
+                               class="top-nav-account-item d-none"
+                               role="menuitem">
+                                로그인
+                            </a>
+                            <a id="topNavMyPageLink"
+                               href="/web/member/mypage"
+                               class="top-nav-account-item d-none"
+                               role="menuitem">
+                                마이페이지
+                            </a>
+                            <div id="topNavAccountDivider"
+                                 class="top-nav-account-divider d-none"
+                                 role="separator"
+                                 aria-orientation="horizontal"></div>
+                            <a id="topNavLogoutLink"
+                               href="/web/auth/logout"
+                               class="top-nav-account-item d-none"
+                               role="menuitem">
+                                로그아웃
+                            </a>
+                            <a id="topNavWithdrawLink"
+                               href="/web/member/withdraw"
+                               class="top-nav-account-item d-none"
+                               role="menuitem">
+                                회원탈퇴
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -68,7 +95,12 @@
         document.addEventListener("DOMContentLoaded", () => {
             const loginLink = document.getElementById("topNavLoginLink");
             const logoutLink = document.getElementById("topNavLogoutLink");
-            if (!loginLink || !logoutLink) {
+            const withdrawLink = document.getElementById("topNavWithdrawLink");
+            const myPageLink = document.getElementById("topNavMyPageLink");
+            const accountDivider = document.getElementById("topNavAccountDivider");
+            const accountButton = document.getElementById("topNavAccountButton");
+            const accountMenu = document.getElementById("topNavAccountMenu");
+            if (!loginLink || !logoutLink || !withdrawLink || !myPageLink || !accountDivider || !accountButton || !accountMenu) {
                 return;
             }
             const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -78,10 +110,58 @@
             checkAuthStatus({
                 onAuthenticated: () => {
                     logoutLink.classList.remove("d-none");
+                    myPageLink.classList.remove("d-none");
+                    withdrawLink.classList.remove("d-none");
+                    accountDivider.classList.remove("d-none");
                 },
                 onUnauthenticated: () => {
                     loginLink.classList.remove("d-none");
                 },
+            });
+
+            const closeAccountMenu = () => {
+                accountMenu.classList.add("d-none");
+                accountButton.setAttribute("aria-expanded", "false");
+            };
+
+            const openAccountMenu = () => {
+                accountMenu.classList.remove("d-none");
+                accountButton.setAttribute("aria-expanded", "true");
+            };
+
+            accountButton.addEventListener("click", () => {
+                if (accountMenu.classList.contains("d-none")) {
+                    openAccountMenu();
+                } else {
+                    closeAccountMenu();
+                }
+            });
+
+            accountButton.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    openAccountMenu();
+                    const firstItem = accountMenu.querySelector(".top-nav-account-item:not(.d-none)");
+                    if (firstItem) {
+                        firstItem.focus();
+                    }
+                }
+            });
+
+            accountMenu.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    closeAccountMenu();
+                    accountButton.focus();
+                }
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!accountMenu.classList.contains("d-none") &&
+                    !accountMenu.contains(event.target) &&
+                    !accountButton.contains(event.target)) {
+                    closeAccountMenu();
+                }
             });
         });
     </script>

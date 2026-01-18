@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('The Bible | 회원탈퇴', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/member/withdraw.css?v=2.1')}"></head>
+<body class="has-fixed-nav">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper withdraw-page">
+    <section class="page-hero withdraw-hero" aria-labelledby="withdrawTitle">
+        <div class="page-hero-content">
+            <p class="page-hero-lead">계정 삭제 전 중요한 내용을 확인해 주세요. 탈퇴는 즉시 처리되며 복구할 수 없습니다.</p>
+        </div>
+    </section>
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <article class="card card-panel card-soft h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">탈퇴 전 확인 사항</h2>
+                    <ul class="withdraw-checklist">
+                        <li>
+                            <span class="withdraw-check-icon" aria-hidden="true">•</span>
+                            <div>
+                                <strong>학습 기록과 개인 메모</strong>
+                                <p class="text-muted mb-0">저장된 학습 기록과 메모는 탈퇴 즉시 삭제됩니다.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="withdraw-check-icon" aria-hidden="true">•</span>
+                            <div>
+                                <strong>연동된 소셜 계정</strong>
+                                <p class="text-muted mb-0">Google, Kakao 등 소셜 로그인 연결이 즉시 해제됩니다.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="withdraw-check-icon" aria-hidden="true">•</span>
+                            <div>
+                                <strong>학습 서비스 이용 제한</strong>
+                                <p class="text-muted mb-0">탈퇴 후에는 퀴즈 진행, 사전 저장 등 로그인 기능을 이용할 수 없습니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <article class="card card-panel card-soft withdraw-action-card">
+                <div class="card-body">
+                    <h2 class="h5 mb-2">탈퇴 진행</h2>
+                    <p class="text-muted small">탈퇴는 즉시 처리됩니다. 실행 전 반드시 내용을 확인해 주세요.</p>
+                    <div class="form-check withdraw-confirm">
+                        <input class="form-check-input" type="checkbox" id="withdrawConfirmCheckbox">
+                        <label class="form-check-label" for="withdrawConfirmCheckbox">
+                            위 내용을 모두 확인했습니다.
+                        </label>
+                    </div>
+                    <div class="withdraw-actions">
+                        <a class="btn btn-outline-secondary" href="/">돌아가기</a>
+                        <a id="withdrawRequestLink"
+                           class="btn btn-danger disabled"
+                           href="#"
+                           role="button"
+                           aria-disabled="true"
+                           tabindex="-1">
+                            회원탈퇴하기
+                        </a>
+                    </div>
+                    <div id="withdrawErrorMessage" class="alert alert-warning d-none" role="alert"></div>
+                    <p id="withdrawActionHint" class="text-muted small mb-0">
+                        확인 체크 후 탈퇴 버튼이 활성화됩니다.
+                    </p>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script type="module">
+    import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "회원탈퇴";
+            pageTitleLabel.classList.remove("d-none");
+        }
+
+        const confirmCheckbox = document.getElementById("withdrawConfirmCheckbox");
+        const requestLink = document.getElementById("withdrawRequestLink");
+        const actionHint = document.getElementById("withdrawActionHint");
+        const errorMessage = document.getElementById("withdrawErrorMessage");
+        let memberUid = null;
+
+        if (!confirmCheckbox || !requestLink || !actionHint || !errorMessage) {
+            return;
+        }
+
+        const redirectToLogin = () => {
+            window.location.replace(buildLoginRedirectUrl());
+        };
+
+        checkAuthStatus({
+            onAuthenticated: (data) => {
+                memberUid = data?.memberUid || null;
+            },
+            onUnauthenticated: redirectToLogin,
+            onError: () => showAuthError(errorMessage, "인증 정보를 확인할 수 없습니다. 다시 시도해 주세요."),
+        });
+
+        const updateActionState = () => {
+            if (confirmCheckbox.checked) {
+                requestLink.classList.remove("disabled");
+                requestLink.setAttribute("aria-disabled", "false");
+                requestLink.removeAttribute("tabindex");
+                actionHint.textContent = "탈퇴 버튼을 누르면 즉시 처리됩니다.";
+            } else {
+                requestLink.classList.add("disabled");
+                requestLink.setAttribute("aria-disabled", "true");
+                requestLink.setAttribute("tabindex", "-1");
+                actionHint.textContent = "확인 체크 후 탈퇴 버튼이 활성화됩니다.";
+            }
+        };
+
+        confirmCheckbox.addEventListener("change", updateActionState);
+        requestLink.addEventListener("click", async (event) => {
+            event.preventDefault();
+            if (!confirmCheckbox.checked) {
+                return;
+            }
+            if (!memberUid) {
+                showAuthError(errorMessage, "회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
+                return;
+            }
+            const confirmed = window.confirm("탈퇴 후에는 복구할 수 없습니다. 회원탈퇴를 진행할까요?");
+            if (!confirmed) {
+                return;
+            }
+            requestLink.classList.add("disabled");
+            requestLink.setAttribute("aria-disabled", "true");
+
+            try {
+                const response = await fetch(`/api/v1/members/${memberUid}`, {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
+                if (response.status === 204) {
+                    window.location.replace("/web/auth/logout?returnUrl=/web/member/withdraw/complete");
+                    return;
+                }
+
+                if (response.status === 401) {
+                    redirectToLogin();
+                    return;
+                }
+
+                if (response.status === 403) {
+                    showAuthError(errorMessage, "회원 정보가 일치하지 않습니다. 다시 로그인해 주세요.");
+                    return;
+                }
+
+                showAuthError(errorMessage, "회원탈퇴 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            } catch (error) {
+                showAuthError(errorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            } finally {
+                if (confirmCheckbox.checked) {
+                    requestLink.classList.remove("disabled");
+                    requestLink.setAttribute("aria-disabled", "false");
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -96,7 +96,13 @@
     transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 
-.top-nav-auth-button {
+.top-nav-account {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.top-nav-account-button {
     min-width: 44px;
     max-width: 44px;
     flex: 0 0 44px;
@@ -104,8 +110,42 @@
     font-size: 1rem;
     line-height: 1.5;
     border-radius: 0.375rem;
+}
+
+.top-nav-account-menu {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    min-width: 140px;
+    padding: 0.35rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d6d8db;
+    background: #fff;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+    z-index: 1040;
+}
+
+.top-nav-account-item {
+    display: block;
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.4rem;
+    color: #212529;
     text-decoration: none;
-    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.top-nav-account-item:hover,
+.top-nav-account-item:focus {
+    background: #f1f3f5;
+    color: #212529;
+    outline: none;
+}
+
+.top-nav-account-divider {
+    height: 1px;
+    margin: 0.25rem 0.15rem;
+    background: #e2e6ea;
 }
 
 .top-nav-title {

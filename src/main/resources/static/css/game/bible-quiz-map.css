@@ -22,7 +22,7 @@
     flex-direction: column;
     gap: 0.45rem;
     flex: 1;
-    min-width: 0;
+    width: 100%;
 }
 
 .quiz-map-summary-title {
