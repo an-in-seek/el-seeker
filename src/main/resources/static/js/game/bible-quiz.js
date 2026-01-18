@@ -87,9 +87,7 @@ const DomHelper = {
         return {
             quizPanel: get("quizPanel"),
             quizComplete: get("quizComplete"),
-            quizStage: get("quizStage"),
             quizQuestionProgress: get("quizQuestionProgress"),
-            quizStageProgress: get("quizStageProgress"),
             quizQuestionProgressBar: get("quizQuestionProgressBar"),
             quizTitle: get("quizTitle"),
             quizQuestion: get("quizQuestion"),
@@ -98,9 +96,9 @@ const DomHelper = {
             quizNext: get("quizNext"),
             quizScore: get("quizScore"),
             quizSummary: get("quizSummary"),
+            summaryAccuracyStat: get("summaryAccuracyStat"),
             summaryAccuracy: get("summaryAccuracy"),
             summaryCount: get("summaryCount"),
-            summaryMastery: get("summaryMastery"),
             quizHeroLead: get("quizHeroLead"),
             quizReviewSelect: get("quizReviewSelect"),
             quizReviewNote: get("quizReviewNote"),
@@ -152,7 +150,6 @@ const App = {
     elements: null,
     state: {
         stage: 0,
-        stageCount: 0,
         questions: [],
         index: 0,
         score: 0,
@@ -181,7 +178,6 @@ const App = {
         }
 
         App.state.stage = data.stage;
-        App.state.stageCount = data.stageCount;
         App.state.cachedStageData = {stage: data.stage, data};
 
         const context = data.context;
@@ -344,10 +340,6 @@ const App = {
             App.state.cachedStageData = {stage: App.state.stage, data};
         }
 
-        if (data.stageCount) {
-            App.state.stageCount = data.stageCount;
-        }
-
         let reviewedQuestions = App.state.mode === "review"
             ? App.applyReviewQuestions(data.questions)
             : data.questions;
@@ -378,15 +370,13 @@ const App = {
     },
 
     renderQuestion: () => {
-        const {questions, index, stage, stageCount} = App.state;
+        const {questions, index} = App.state;
         const currentQuestion = questions[index];
         const {
             quizQuestion,
             quizOptions,
             quizNext,
-            quizStage,
             quizQuestionProgress,
-            quizStageProgress,
             quizQuestionProgressBar,
             quizPanel,
             quizFeedback
@@ -408,9 +398,7 @@ const App = {
         quizNext.disabled = true;
         DomHelper.setElementText(quizNext, "정답 확인");
 
-        DomHelper.setElementText(quizStage, `${stage} / ${stageCount || stage}`);
         DomHelper.setElementText(quizQuestionProgress, `${index + 1} / ${questions.length}`);
-        DomHelper.updateProgressBar(quizStageProgress, stage, stageCount || stage);
         DomHelper.updateProgressBar(quizQuestionProgressBar, index + 1, questions.length);
 
         App.state.answered = false;
@@ -467,6 +455,8 @@ const App = {
         App.state.answered = true;
         if (App.state.mode !== "review") {
             App.state.score = response.currentScore ?? App.state.score;
+        } else if (isCorrect) {
+            App.state.score += 1;
         }
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
@@ -511,9 +501,9 @@ const App = {
             quizComplete,
             quizScore,
             quizSummary,
+            summaryAccuracyStat,
             summaryAccuracy,
             summaryCount,
-            summaryMastery,
             quizNextStageButton
         } = App.elements;
 
@@ -531,23 +521,16 @@ const App = {
         DomHelper.toggleVisibility(quizPanel, false);
         DomHelper.toggleVisibility(quizComplete, true);
 
-        if (mode !== 'review') {
-            DomHelper.setElementText(quizScore, `점수 ${score} / ${questions.length}`);
-        } else {
-            DomHelper.setElementText(quizScore, "");
-        }
+        DomHelper.setElementText(quizScore, `점수 ${score} / ${questions.length}`);
+        DomHelper.toggleVisibility(quizSummary, true);
+        DomHelper.toggleVisibility(summaryAccuracyStat, mode !== "review");
 
-        if (quizSummary && summaryAccuracy && summaryCount && summaryMastery && completion) {
-            const accuracyText = completion.accuracy === null ? "-%" : `${completion.accuracy}%`;
-
-            DomHelper.setElementText(summaryAccuracy, accuracyText);
-            DomHelper.setElementText(summaryCount, `${completion.reviewCount}회`);
-            DomHelper.setElementText(summaryMastery, completion.masteryLabel);
-
-            summaryMastery.classList.remove("badge-gray", "badge-green", "badge-blue", "badge-gold");
-            if (completion.masteryClass) {
-                summaryMastery.classList.add(completion.masteryClass);
+        if (quizSummary && summaryAccuracy && summaryCount && completion) {
+            if (mode !== "review") {
+                const accuracyText = completion.accuracy === null ? "-%" : `${completion.accuracy}%`;
+                DomHelper.setElementText(summaryAccuracy, accuracyText);
             }
+            DomHelper.setElementText(summaryCount, `${completion.reviewCount}회`);
         }
     },
 
@@ -557,9 +540,7 @@ const App = {
             quizOptions,
             quizNext,
             quizPanel,
-            quizStageProgress,
             quizQuestionProgressBar,
-            quizStage,
             quizQuestionProgress: quizQuestionProgressText
         } = App.elements;
         DomHelper.setBusy(quizPanel, false);
@@ -567,9 +548,7 @@ const App = {
         DomHelper.setElementText(quizOptions, message);
         quizNext.disabled = true;
 
-        DomHelper.setElementText(quizStage, "0 / 0");
         DomHelper.setElementText(quizQuestionProgressText, "0 / 0");
-        DomHelper.updateProgressBar(quizStageProgress, 0, 0, 0);
         DomHelper.updateProgressBar(quizQuestionProgressBar, 0, 0, 0);
     },
 
@@ -580,9 +559,7 @@ const App = {
             quizQuestion,
             quizOptions,
             quizNext,
-            quizStageProgress,
             quizQuestionProgressBar,
-            quizStage,
             quizQuestionProgress: quizQuestionProgressText
         } = App.elements;
         DomHelper.setBusy(quizPanel, false);
@@ -593,9 +570,7 @@ const App = {
         DomHelper.setElementText(quizOptions, "현재 진행 가능한 스테이지를 선택해주세요.");
         quizNext.disabled = true;
 
-        DomHelper.setElementText(quizStage, "0 / 0");
         DomHelper.setElementText(quizQuestionProgressText, "0 / 0");
-        DomHelper.updateProgressBar(quizStageProgress, 0, 0, 0);
         DomHelper.updateProgressBar(quizQuestionProgressBar, 0, 0, 0);
     },
 

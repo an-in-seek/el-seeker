@@ -13,9 +13,7 @@ data class QuizStageSummaryResponse(
     val status: String,
     val score: Int?,
     val accuracy: Int?,
-    val reviewCount: Int,
-    val masteryLabel: String,
-    val masteryClass: String
+    val reviewCount: Int
 )
 
 data class QuizStageStartRequest(
@@ -45,7 +43,5 @@ data class QuizStageCompleteRequest(
 data class QuizStageCompleteResponse(
     val nextStage: Int,
     val accuracy: Int?,
-    val reviewCount: Int,
-    val masteryLabel: String,
-    val masteryClass: String
+    val reviewCount: Int
 )

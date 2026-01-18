@@ -62,16 +62,13 @@ class QuizStageService(
             val accuracySummary = accuracySummaries[stageNumber]
             val accuracy = accuracySummary?.let { calculateAccuracy(it.attempts, it.correct) }
             val reviewCount = stageProgress?.reviewCount ?: 0
-            val mastery = getMasteryLevel(accuracy, reviewCount)
             QuizStageSummaryResponse(
                 stage = stageNumber,
                 questionCount = summary.questionCount.toInt(),
                 status = status,
                 score = score,
                 accuracy = accuracy,
-                reviewCount = reviewCount,
-                masteryLabel = mastery.label,
-                masteryClass = mastery.cssClass
+                reviewCount = reviewCount
             )
         }
 
@@ -118,12 +115,14 @@ class QuizStageService(
         val isDuplicate = currentIndex != null && request.questionIndex < currentIndex
 
         if (!isDuplicate) {
-            val stat = quizQuestionStatRepository.findByMemberAndQuestionId(member, question.id!!)
-                ?: QuizQuestionStat(member = member, question = question)
+            if (request.mode != "review") {
+                val stat = quizQuestionStatRepository.findByMemberAndQuestionId(member, question.id!!)
+                    ?: QuizQuestionStat(member = member, question = question)
 
-            stat.attempts += 1
-            if (isCorrect) stat.correct += 1
-            quizQuestionStatRepository.save(stat)
+                stat.attempts += 1
+                if (isCorrect) stat.correct += 1
+                quizQuestionStatRepository.save(stat)
+            }
 
             stageProgress.currentQuestionIndex = request.questionIndex + 1
 
@@ -164,16 +163,13 @@ class QuizStageService(
         stageProgress.currentScore = null
         stageProgress.currentReviewType = null
 
-        val accuracy = getStageAccuracy(member, stageNumber)
-        val mastery = getMasteryLevel(accuracy, stageProgress.reviewCount)
+        val accuracy = if (request.mode == "review") null else getStageAccuracy(member, stageNumber)
         val nextStage = calculateNextStage(stageNumber, stageCount)
 
         return QuizStageCompleteResponse(
             nextStage = nextStage,
             accuracy = accuracy,
-            reviewCount = stageProgress.reviewCount,
-            masteryLabel = mastery.label,
-            masteryClass = mastery.cssClass
+            reviewCount = stageProgress.reviewCount
         )
     }
 
@@ -282,21 +278,4 @@ class QuizStageService(
         return ((correct.toDouble() / attempts.toDouble()) * 100).roundToInt()
     }
 
-    private fun getMasteryLevel(accuracy: Int?, reviewCount: Int): MasteryLevel {
-        if (accuracy != null && accuracy >= 90 && reviewCount >= 3) {
-            return MasteryLevel("완성", "badge-gold")
-        }
-        if (accuracy != null && accuracy >= 80) {
-            return MasteryLevel("숙련", "badge-blue")
-        }
-        if (accuracy != null && accuracy >= 65) {
-            return MasteryLevel("기초", "badge-green")
-        }
-        return MasteryLevel("입문", "badge-gray")
-    }
-
-    private data class MasteryLevel(
-        val label: String,
-        val cssClass: String
-    )
 }

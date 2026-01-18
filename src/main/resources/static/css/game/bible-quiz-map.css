@@ -201,38 +201,6 @@
     font-size: 0.8rem;
 }
 
-.stage-mastery-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: #eef1f6;
-    color: #5b677a;
-}
-
-.badge-gray {
-    background: #eef1f6;
-    color: #5b677a;
-}
-
-.badge-green {
-    background: rgba(46, 146, 89, 0.18);
-    color: #1f5c39;
-}
-
-.badge-blue {
-    background: rgba(13, 110, 253, 0.1);
-    color: #2b4f8c;
-}
-
-.badge-gold {
-    background: rgba(217, 157, 46, 0.2);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    color: #7a4e12;
-}
-
 .stage-meta-row {
     display: flex;
     align-items: center;

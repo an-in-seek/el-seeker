@@ -189,7 +189,7 @@ const DomHelper = {
     },
 
     createCardElement: (summary) => {
-        const {stage, questionCount, status, score, masteryLabel, masteryClass} = summary;
+        const {stage, questionCount, status, score} = summary;
 
         const props = getStageCardProps({
             stage,
@@ -233,21 +233,11 @@ const DomHelper = {
         header.appendChild(number);
         header.appendChild(badge);
 
-        let masteryBadge = null;
-        if (status === "completed" && masteryLabel && masteryClass) {
-            masteryBadge = document.createElement("span");
-            masteryBadge.className = `stage-mastery-badge ${masteryClass}`;
-            masteryBadge.textContent = masteryLabel;
-        }
-
         const meta = document.createElement("div");
         meta.className = "stage-meta-row";
         const metaText = document.createElement("span");
         metaText.textContent = props.meta;
         meta.appendChild(metaText);
-        if (masteryBadge) {
-            meta.appendChild(masteryBadge);
-        }
 
         button.appendChild(header);
         button.appendChild(meta);
