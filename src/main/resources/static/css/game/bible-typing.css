@@ -51,6 +51,13 @@
     background-color: #fff;
 }
 
+.typing-selection-bar .form-select:disabled {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
 /* Status Bar */
 .typing-status-bar {
     background: #ffffff;

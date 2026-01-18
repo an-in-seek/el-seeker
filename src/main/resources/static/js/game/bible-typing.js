@@ -1,6 +1,7 @@
 const apiBase = "/api/v1/bible";
 const sessionApi = "/api/v1/game/bible-typing/sessions";
 const resumeApi = "/api/v1/game/bible-typing/verse-results";
+const FIXED_TRANSLATION_CODE = "KRV";
 
 const elements = {
     translationSelect: document.getElementById("typingTranslationSelect"),
@@ -21,7 +22,8 @@ const elements = {
     elapsedTime: document.getElementById("typingElapsedTime"),
     sessionSummary: document.getElementById("typingSessionSummary"),
     sessionSummaryText: document.getElementById("typingSessionSummaryText"),
-    ariaStatus: document.getElementById("typingAriaStatus")
+    ariaStatus: document.getElementById("typingAriaStatus"),
+    backButton: document.getElementById("topNavBackButton")
 };
 
 const state = {
@@ -263,11 +265,11 @@ const activateVerse = (index) => {
         if (!input) return;
         const isActive = rowIndex === index;
         row.classList.toggle("is-active", isActive);
-        const isEnabled = isActive && state.practiceStarted;
+        const verseState = state.verseStates[rowIndex];
+        const isEnabled = isActive && state.practiceStarted && !verseState?.completed;
         input.disabled = !isEnabled;
         input.readOnly = !isEnabled;
         if (isEnabled) {
-            const verseState = state.verseStates[index];
             ensureTokenized(row, verseState.normalizedText);
             updateTokenClasses(row, verseState.normalizedText, verseState.normalizedTyped);
         }
@@ -465,16 +467,26 @@ const loadSelections = async () => {
         return null;
     }
     const params = getQueryParams();
-    let translationId = params.translationId ?? state.translations[0].id;
+    const fixedTranslation = state.translations.find((item) => item.code === FIXED_TRANSLATION_CODE);
+    let translationId = fixedTranslation?.id ?? params.translationId ?? state.translations[0].id;
     if (!state.translations.some((item) => item.id === translationId)) {
         translationId = state.translations[0].id;
     }
 
     clearChildren(elements.translationSelect);
-    state.translations.forEach((item) => {
-        elements.translationSelect.appendChild(createOption(item.id, `${item.name} (${item.code})`));
-    });
-    elements.translationSelect.value = String(translationId);
+    if (fixedTranslation) {
+        elements.translationSelect.appendChild(
+            createOption(fixedTranslation.id, `${fixedTranslation.name} (${fixedTranslation.code})`)
+        );
+        elements.translationSelect.value = String(fixedTranslation.id);
+        elements.translationSelect.disabled = true;
+    } else {
+        state.translations.forEach((item) => {
+            elements.translationSelect.appendChild(createOption(item.id, `${item.name} (${item.code})`));
+        });
+        elements.translationSelect.value = String(translationId);
+        elements.translationSelect.disabled = false;
+    }
 
     state.books = await fetchJson(`${apiBase}/books?translationId=${translationId}`);
     if (state.books.length === 0) {
@@ -647,9 +659,12 @@ const applyResumeProgress = (progress, selection) => {
     });
 
     const firstIncomplete = state.verseStates.findIndex((verse) => !verse.completed);
-    state.currentIndex = firstIncomplete === -1 ? state.verseStates.length - 1 : firstIncomplete;
-    state.practiceStarted = true;
-    if (elements.verseStatus) elements.verseStatus.textContent = "이어하기";
+    const allCompleted = firstIncomplete === -1 && state.verseStates.length > 0;
+    state.currentIndex = allCompleted ? state.verseStates.length - 1 : firstIncomplete;
+    state.practiceStarted = !allCompleted;
+    if (elements.verseStatus) {
+        elements.verseStatus.textContent = allCompleted ? "완료" : "이어하기";
+    }
 
     const rows = elements.verseList.querySelectorAll(".typing-verse-row");
     rows.forEach((row, index) => {
@@ -673,10 +688,12 @@ const applyResumeProgress = (progress, selection) => {
         }
     });
 
-    activateVerse(state.currentIndex);
-    requestAnimationFrame(() => {
-        focusVerseInput(state.currentIndex);
-    });
+    if (!allCompleted) {
+        activateVerse(state.currentIndex);
+        requestAnimationFrame(() => {
+            focusVerseInput(state.currentIndex);
+        });
+    }
     updateMetrics();
     return true;
 };
@@ -772,6 +789,12 @@ const bindEvents = () => {
 
 const initialize = async () => {
     try {
+        if (elements.backButton) {
+            elements.backButton.classList.remove("d-none");
+            elements.backButton.addEventListener("click", () => {
+                window.location.href = "/web/game";
+            });
+        }
         const selection = await loadSelections();
         if (!selection) return;
         await loadVerses(selection);
