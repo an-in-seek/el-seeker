@@ -282,8 +282,22 @@ const DomHelper = {
     getElements: () => {
         const stageList = document.getElementById("stageList");
         const quizMapNote = document.getElementById("quizMapNote");
+        const quizMapTotal = document.getElementById("quizMapTotal");
+        const quizMapProgress = document.getElementById("quizMapProgress");
+        const quizMapProgressBar = document.getElementById("quizMapProgressBar");
+        const quizMapProgressFill = document.getElementById("quizMapProgressFill");
         const resetProgressButton = document.getElementById("resetProgressButton");
-        return (stageList && quizMapNote) ? {stageList, quizMapNote, resetProgressButton} : null;
+        return (stageList && quizMapNote)
+            ? {
+                stageList,
+                quizMapNote,
+                quizMapTotal,
+                quizMapProgress,
+                quizMapProgressBar,
+                quizMapProgressFill,
+                resetProgressButton
+            }
+            : null;
     },
 
     getGridColumns: (stageList) => {
@@ -430,6 +444,27 @@ const DomHelper = {
 
     showIntro: (elements) => {
         elements.quizMapNote.textContent = "스테이지를 선택하면 복습 또는 진행을 시작할 수 있습니다.";
+    },
+
+    updateSummary: (elements, context, totalStages) => {
+        const completed = Math.max(0, Math.min(context.lastCompletedStage, totalStages));
+        const progressPercent = totalStages > 0 ? Math.round((completed / totalStages) * 100) : 0;
+
+        if (elements.quizMapTotal) {
+            elements.quizMapTotal.textContent = `총 ${totalStages} 스테이지`;
+        }
+
+        if (elements.quizMapProgress) {
+            elements.quizMapProgress.textContent = `진행 ${completed} / ${totalStages} (${progressPercent}%)`;
+        }
+
+        if (elements.quizMapProgressBar) {
+            elements.quizMapProgressBar.setAttribute("aria-valuenow", String(progressPercent));
+        }
+
+        if (elements.quizMapProgressFill) {
+            elements.quizMapProgressFill.style.width = `${progressPercent}%`;
+        }
     }
 };
 
@@ -474,6 +509,8 @@ const App = {
             DomHelper.showError(elements);
             return;
         }
+
+        DomHelper.updateSummary(elements, context, stages.length);
 
         const state = {
             columns: DomHelper.getGridColumns(elements.stageList),

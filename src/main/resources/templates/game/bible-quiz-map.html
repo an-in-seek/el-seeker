@@ -6,28 +6,24 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
-    <section class="quiz-map-hero page-hero" aria-labelledby="quizMapTitle">
-        <div class="quiz-map-hero-content page-hero-content">
-            <p class="quiz-map-eyebrow page-hero-eyebrow">성경 퀴즈 진행 현황</p>
-            <h2 id="quizMapTitle" class="quiz-map-title page-hero-title">스테이지를 한눈에 확인하세요</h2>
-            <p class="quiz-map-lead page-hero-lead">완료된 스테이지는 복습할 수 있고, 현재 스테이지를 이어서 진행할 수 있습니다.</p>
-            <div class="flex-wrap gap-2 mt-2"></div>
-        </div>
-    </section>
-
     <section class="quiz-map-card card card-panel card-soft" aria-live="polite">
         <div class="card-body">
             <div class="quiz-map-summary">
-                <span class="quiz-map-total">총 10 스테이지</span>
-                <button class="btn btn-outline-secondary btn-sm d-none" id="resetProgressButton" type="button">처음부터 다시 복습하기</button>
+                <div class="quiz-map-summary-main">
+                    <div class="quiz-map-summary-title">성경 퀴즈 로드맵</div>
+                    <div class="quiz-map-summary-meta">
+                        <span class="quiz-map-total" id="quizMapTotal">총 10 스테이지</span>
+                        <span class="quiz-map-progress" id="quizMapProgress">진행 0 / 10 (0%)</span>
+                    </div>
+                    <div class="quiz-map-progress-bar" id="quizMapProgressBar" role="progressbar" aria-label="진행률" aria-valuenow="0" aria-valuemin="0"
+                         aria-valuemax="100">
+                        <span class="quiz-map-progress-fill" id="quizMapProgressFill" style="width: 0%"></span>
+                    </div>
+                </div>
+                <button class="btn btn-outline-warning btn-sm quiz-map-reset d-none" id="resetProgressButton" type="button">처음부터 다시 복습하기</button>
             </div>
-            <div class="quiz-map-legend">
-                <span class="legend-item legend-complete">완료</span>
-                <span class="legend-item legend-current">현재</span>
-                <span class="legend-item legend-locked">잠김</span>
-            </div>
-            <div class="stage-grid" id="stageList" data-snake-columns="2"></div>
             <p class="quiz-map-note text-muted small mb-0" id="quizMapNote"></p>
+            <div class="stage-grid" id="stageList" data-snake-columns="2"></div>
         </div>
     </section>
 </main>
