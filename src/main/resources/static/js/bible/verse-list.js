@@ -6,7 +6,8 @@ const UI_CLASSES = {
 };
 
 const API_CONFIG = {
-    TRANSLATIONS: "/api/v1/bibles/translations"
+    TRANSLATIONS: "/api/v1/bibles/translations",
+    MEMOS_BASE: "/api/v1/bibles/translations"
 };
 
 const ROUTES = {
@@ -51,6 +52,7 @@ const App = {
         checking: false,
         redirected: false
     },
+    memoCache: new Map(),
 
     init: async () => {
         App.elements = DomHelper.getElements();
@@ -292,6 +294,7 @@ const App = {
             }
             const data = await response.json();
             App.updateStateFromChapter(data);
+            App.memoCache = await App.fetchMemosForChapter();
             App.updateVerseUrl();
             App.renderChapter(data);
         } catch (error) {
@@ -360,8 +363,8 @@ const App = {
 
     renderVerseRow: verse => {
         const v = verse.verseNumber;
-        const memoKey = App.buildMemoKey(v);
-        const hasMemo = !!localStorage.getItem(memoKey);
+        const memo = App.memoCache.get(String(v));
+        const hasMemo = memo && memo.content;
         const verseClass = hasMemo ? "verse-text text-body verse-has-memo" : "verse-text text-body";
         return `
             <tr>
@@ -382,18 +385,18 @@ const App = {
           `;
     },
 
-    handleVerseClick: event => {
+    handleVerseClick: async event => {
         const verseEl = event.target.closest("[data-verse]");
         if (!verseEl) {
             return;
         }
         const verseNum = verseEl.getAttribute("data-verse");
         if (event.target.classList.contains("memo-save-btn")) {
-            App.saveMemo(verseNum);
+            await App.saveMemo(verseNum);
             return;
         }
         if (event.target.classList.contains("memo-delete-btn")) {
-            App.deleteMemo(verseNum);
+            await App.deleteMemo(verseNum);
             return;
         }
         App.toggleMemo(verseNum);
@@ -461,8 +464,8 @@ const App = {
 
         const textarea = document.getElementById(`memo-input-${verseNum}`);
         if (textarea) {
-            const key = App.buildMemoKey(verseNum);
-            textarea.value = localStorage.getItem(key) || "";
+            const memo = App.memoCache.get(String(verseNum));
+            textarea.value = memo ? memo.content : "";
         }
     },
 
@@ -477,7 +480,11 @@ const App = {
         });
     },
 
-    saveMemo: verseNum => {
+    saveMemo: async verseNum => {
+        if (!App.memoAuth.allowed) {
+            App.checkMemoAuth();
+            return;
+        }
         const textarea = document.getElementById(`memo-input-${verseNum}`);
         if (!textarea) {
             App.showAlert("메모 입력란을 찾을 수 없습니다", "danger");
@@ -487,29 +494,102 @@ const App = {
         if (!value) {
             return;
         }
-        const key = App.buildMemoKey(verseNum);
-        localStorage.setItem(key, value);
-        const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
-        if (verseTextEl) {
-            verseTextEl.classList.add("verse-has-memo");
+        try {
+            const response = await fetch(App.buildMemoUrl(verseNum), {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify({
+                    content: value
+                })
+            });
+            if (response.status === 401) {
+                App.checkMemoAuth();
+                return;
+            }
+            if (!response.ok) {
+                throw new Error("메모 저장 실패");
+            }
+            const memo = await response.json();
+            App.memoCache.set(String(verseNum), memo);
+            const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+            if (verseTextEl) {
+                verseTextEl.classList.add("verse-has-memo");
+            }
+            App.toggleMemo(verseNum);
+            App.applyVerseHighlight(verseNum);
+        } catch (error) {
+            App.showAlert("메모 저장 중 오류가 발생했습니다.", "danger");
+            console.error(error);
         }
-        App.toggleMemo(verseNum);
-        App.applyVerseHighlight(verseNum);
     },
 
-    deleteMemo: verseNum => {
-        const key = App.buildMemoKey(verseNum);
-        localStorage.removeItem(key);
-        const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
-        if (verseTextEl) {
-            verseTextEl.classList.remove("verse-has-memo");
+    deleteMemo: async verseNum => {
+        if (!App.memoAuth.allowed) {
+            App.checkMemoAuth();
+            return;
         }
-        App.toggleMemo(verseNum);
-        App.applyVerseHighlight(verseNum);
+        try {
+            const response = await fetch(App.buildMemoUrl(verseNum), {
+                method: "DELETE",
+                credentials: "include"
+            });
+            if (response.status === 401) {
+                App.checkMemoAuth();
+                return;
+            }
+            if (!response.ok) {
+                throw new Error("메모 삭제 실패");
+            }
+            App.memoCache.delete(String(verseNum));
+            const verseTextEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+            if (verseTextEl) {
+                verseTextEl.classList.remove("verse-has-memo");
+            }
+            App.toggleMemo(verseNum);
+            App.applyVerseHighlight(verseNum);
+        } catch (error) {
+            App.showAlert("메모 삭제 중 오류가 발생했습니다.", "danger");
+            console.error(error);
+        }
     },
 
-    buildMemoKey: verseNum =>
-        `memo_${App.state.translationId}_${App.state.bookOrder}_${App.state.chapterNumber}_${verseNum}`,
+    fetchMemosForChapter: async () => {
+        const url = new URL(App.buildChapterMemoUrl(), window.location.origin);
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json"
+                }
+            });
+            if (response.status === 401) {
+                App.memoAuth.checked = false;
+                App.memoAuth.allowed = false;
+                return new Map();
+            }
+            if (!response.ok) {
+                throw new Error("메모 조회 실패");
+            }
+            const data = await response.json();
+            App.memoAuth.checked = true;
+            App.memoAuth.allowed = true;
+            return new Map(data.map(item => [String(item.verseNumber), item]));
+        } catch (error) {
+            console.warn(error.message);
+            return new Map();
+        }
+    },
+
+    buildChapterMemoUrl: () =>
+        `${API_CONFIG.MEMOS_BASE}/${App.state.translationId}/books/${App.state.bookOrder}/chapters/${App.state.chapterNumber}/memos`,
+
+    buildMemoUrl: verseNum =>
+        `${API_CONFIG.MEMOS_BASE}/${App.state.translationId}/books/${App.state.bookOrder}/chapters/${App.state.chapterNumber}/verses/${parseInt(verseNum, 10)}/memo`,
 
     showAlert: (message, type = "success") => {
         alert(`${type}: ` + message);

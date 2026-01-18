@@ -51,6 +51,10 @@ class SecurityConfig(
             // 5. 요청 권한 관리
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(
+                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos",
+                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo"
+                ).authenticated()
+                    .requestMatchers(
                     "/",
                     "/error",
                     "/oauth2/**",

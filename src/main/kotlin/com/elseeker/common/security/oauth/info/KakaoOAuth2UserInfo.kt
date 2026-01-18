@@ -24,7 +24,7 @@ class KakaoOAuth2UserInfo(
         get() = kakaoAccount["email"] as? String ?: "" // 카카오는 이메일 제공 동의가 선택일 수 있음
 
     override val name: String
-        get() = profile["nickname"] as? String ?: "Unknown"
+        get() = profile["nickname"] as? String ?: ""
 
     override val imageUrl: String?
         get() = profile["profile_image_url"] as? String

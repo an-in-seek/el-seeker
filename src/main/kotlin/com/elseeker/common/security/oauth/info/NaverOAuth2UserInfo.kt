@@ -22,7 +22,7 @@ class NaverOAuth2UserInfo(
     override val name: String
         get() = response["name"] as? String
             ?: response["nickname"] as? String
-            ?: "Unknown"
+            ?: ""
 
     override val imageUrl: String?
         get() = response["profile_image"] as? String
