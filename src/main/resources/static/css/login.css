@@ -55,7 +55,7 @@
 
 .login-brand {
     display: inline-block;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
     transition: opacity 0.2s;
 }
 
@@ -64,8 +64,8 @@
 }
 
 .login-brand-logo {
-    height: 64px;
-    width: auto;
+    height: auto;
+    width: 130px;
 }
 
 .login-eyebrow {
