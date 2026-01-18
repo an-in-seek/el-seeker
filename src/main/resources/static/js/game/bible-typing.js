@@ -22,7 +22,6 @@ const elements = {
     elapsedTime: document.getElementById("typingElapsedTime"),
     sessionSummary: document.getElementById("typingSessionSummary"),
     sessionSummaryText: document.getElementById("typingSessionSummaryText"),
-    ariaStatus: document.getElementById("typingAriaStatus"),
     backButton: document.getElementById("topNavBackButton")
 };
 
@@ -169,9 +168,6 @@ const updateMetrics = () => {
     if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}`;
     if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
 
-    if (elements.ariaStatus) {
-        elements.ariaStatus.textContent = `진행률 ${progress}%, 정확도 ${accuracyValue}%, 속도 ${cpmValue} CPM`;
-    }
 };
 
 const resetSessionState = () => {
