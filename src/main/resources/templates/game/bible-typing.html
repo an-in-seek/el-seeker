@@ -1,142 +1,115 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('ElSeeker | 성경 타자', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-typing.css?v=1.3')}"></head>
+<head th:replace="~{fragments/head :: head('ElSeeker | 성경 타자', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-typing.css?v=1.4')}"></head>
 <body class="has-fixed-nav typing-page">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper py-4">
-    <!-- Hero Section: 간소화됨 -->
-    <section class="typing-hero mb-5 text-center" aria-labelledby="typingHeroTitle">
-        <div class="typing-hero-content mx-auto" style="max-width: 700px;">
-            <span class="typing-kicker">Bible Typing Studio</span>
-            <h1 id="typingHeroTitle" class="typing-hero-title">성경 타자 스튜디오</h1>
-            <p class="typing-hero-lead">
-                말씀을 리듬감 있게 입력하며 묵상과 집중을 동시에 훈련합니다.<br class="d-none d-md-inline">
-                오늘의 기록을 쌓아 나만의 성경 타자 루틴을 만들어보세요.
-            </p>
-            <div class="typing-hero-actions justify-content-center">
-                <button type="button" class="btn btn-dark" id="typingStartBtn">연습 시작</button>
-                <button type="button" class="btn btn-outline-dark" id="typingEndBtn">세션 종료</button>
-            </div>
-            <div class="typing-hero-chips justify-content-center" id="typingHeroChips">
-                <span>정확도 목표 95%</span>
-                <span id="typingHeroVerseCount">구절 0개</span>
-            </div>
+    <!-- Hero: 타이틀만 심플하게 남김 -->
+    <div class="text-center mb-5">
+        <span class="typing-kicker">Bible Typing Studio</span>
+        <h1 class="typing-hero-title mb-3">성경 타자 스튜디오</h1>
+        <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-dark px-4 rounded-pill" id="typingStartBtn">연습 시작</button>
+            <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" id="typingEndBtn">종료</button>
         </div>
-    </section>
+    </div>
 
-    <!-- Workbench Section: 메인 기능 -->
-    <section class="typing-workbench mb-5" aria-labelledby="typingWorkbenchTitle">
-        <div class="typing-workbench-head mb-4">
-            <div>
-                <p class="typing-section-kicker">Typing Session</p>
-                <h2 id="typingWorkbenchTitle" class="typing-section-title h3">오늘의 타자 세션</h2>
-            </div>
-            <div class="typing-session-status" id="typingSessionStatus">
-                <span class="typing-status-dot"></span>
-                <span id="typingSessionStatusText">준비 중</span>
-            </div>
-        </div>
+    <!-- Main Workspace: 중앙 집중형 1단 레이아웃 -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-9">
 
-        <div class="typing-selection mb-4">
-            <div class="typing-select">
-                <label for="typingTranslationSelect" class="form-label">번역본</label>
-                <select id="typingTranslationSelect" class="form-select"></select>
-            </div>
-            <div class="typing-select">
-                <label for="typingBookSelect" class="form-label">책</label>
-                <select id="typingBookSelect" class="form-select"></select>
-            </div>
-            <div class="typing-select">
-                <label for="typingChapterSelect" class="form-label">장</label>
-                <select id="typingChapterSelect" class="form-select"></select>
-            </div>
-            <div class="typing-toggle">
-                <label class="form-label d-block">&nbsp;</label>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="typingIgnorePunctuation">
-                    <label class="form-check-label small" for="typingIgnorePunctuation">문장부호 무시</label>
-                </div>
-            </div>
-        </div>
-
-        <div id="typingMessage" class="alert alert-warning d-none mb-4" role="alert"></div>
-
-        <div class="row g-4 align-items-start">
-            <div class="col-12 col-lg-8">
-                <div class="typing-card typing-verse-card h-100">
-                    <div class="typing-card-head">
-                        <div>
-                            <p class="typing-card-label">말씀 구절</p>
-                            <h3 class="typing-card-title" id="typingVerseHeader">선택한 구절</h3>
-                        </div>
-                        <span class="typing-card-badge" id="typingVerseStatus">대기</span>
+            <!-- 1. Selection Bar: 옵션 선택 -->
+            <div class="typing-selection-bar mb-4">
+                <div class="row g-2 align-items-center">
+                    <div class="col-12 col-md-3">
+                        <select id="typingTranslationSelect" class="form-select form-select-sm" aria-label="번역본"></select>
                     </div>
-                    <div class="typing-progress mb-3">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span>진행도</span>
-                            <span id="typingProgressText">0%</span>
-                        </div>
-                        <div class="typing-progress-track">
-                            <span id="typingProgressBar" style="width: 0%;"></span>
-                        </div>
+                    <div class="col-12 col-md-3">
+                        <select id="typingBookSelect" class="form-select form-select-sm" aria-label="책"></select>
                     </div>
-                    <div id="typingVerseList" class="typing-verse-list"></div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-4">
-                <div class="typing-card typing-summary h-100">
-                    <div class="typing-summary-head">
-                        <div>
-                            <p class="typing-card-label">세션 요약</p>
-                            <h3 class="typing-card-title">실시간 지표</h3>
-                        </div>
-                        <span class="typing-summary-pill" id="typingSummaryPill">준비</span>
+                    <div class="col-12 col-md-3">
+                        <select id="typingChapterSelect" class="form-select form-select-sm" aria-label="장"></select>
                     </div>
-                    <div class="typing-summary-grid">
-                        <div class="typing-summary-item">
-                            <p>타자 속도</p>
-                            <strong id="typingCpm">0</strong>
-                            <span>CPM</span>
+                    <div class="col-12 col-md-3 text-md-end">
+                        <div class="form-check form-switch d-inline-block mb-0">
+                            <input class="form-check-input" type="checkbox" id="typingIgnorePunctuation">
+                            <label class="form-check-label small text-muted" for="typingIgnorePunctuation">문장부호 무시</label>
                         </div>
-                        <div class="typing-summary-item">
-                            <p>정확도</p>
-                            <strong id="typingAccuracy">0%</strong>
-                            <span id="typingAccuracyDetail">진행 중</span>
-                        </div>
-                        <div class="typing-summary-item">
-                            <p>완료 구절</p>
-                            <strong id="typingCompletedCount">0</strong>
-                            <span id="typingTotalCount">/ 0</span>
-                        </div>
-                        <div class="typing-summary-item">
-                            <p>세션 시간</p>
-                            <strong id="typingElapsedTime">00:00</strong>
-                            <span>누적</span>
-                        </div>
-                    </div>
-                    <div class="typing-summary-tags mt-3" id="typingSummaryTags">
-                        <span>구절 암송</span>
-                        <span>호흡 조절</span>
-                        <span>반복 학습</span>
-                    </div>
-
-                    <div id="typingSessionSummary" class="typing-card typing-session-summary d-none mt-4">
-                        <p class="typing-card-label">세션 완료</p>
-                        <h3 class="typing-card-title h5">오늘의 기록이 저장되었습니다</h3>
-                        <p class="text-muted small mb-0" id="typingSessionSummaryText">세션이 종료되면 요약이 표시됩니다.</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="typingAriaStatus" class="visually-hidden" aria-live="polite"></div>
-    </section>
+            <!-- 2. Status Bar: 실시간 지표 통합 -->
+            <div class="typing-status-bar mb-3">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <!-- 왼쪽: 진행률 -->
+                    <div class="d-flex align-items-center gap-3 flex-grow-1 me-4">
+                        <div class="d-flex flex-column">
+                            <span class="status-label">진행률</span>
+                            <strong class="status-value" id="typingProgressText">0%</strong>
+                        </div>
+                        <div class="progress flex-grow-1" style="height: 6px;">
+                            <div id="typingProgressBar" class="progress-bar bg-teal" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽: 핵심 지표 -->
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="status-item">
+                            <span class="status-label">속도</span>
+                            <strong class="status-value"><span id="typingCpm">0</span> <small class="text-muted fw-normal">CPM</small></strong>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">정확도</span>
+                            <strong class="status-value"><span id="typingAccuracy">0</span>%</strong>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">시간</span>
+                            <strong class="status-value" id="typingElapsedTime">00:00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="typingMessage" class="alert alert-warning d-none mb-3" role="alert"></div>
+
+            <!-- 3. Verse Card: 입력 영역 -->
+            <div class="typing-card typing-verse-card">
+                <div class="typing-card-head border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="h5 fw-bold mb-0" id="typingVerseHeader">선택한 구절</h3>
+                        <span class="badge bg-light text-dark border" id="typingVerseStatus">대기</span>
+                    </div>
+                </div>
+
+                <div id="typingVerseList" class="typing-verse-list"></div>
+            </div>
+
+            <!-- Session Summary (Hidden by default) -->
+            <div id="typingSessionSummary" class="alert alert-success mt-4 d-none text-center" role="alert">
+                <h4 class="alert-heading h6 fw-bold">세션 기록 저장 완료</h4>
+                <p class="mb-0 small" id="typingSessionSummaryText">오늘의 기록이 저장되었습니다.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hidden Elements for JS Compatibility (삭제된 요소들의 ID만 유지하여 JS 에러 방지) -->
+    <div class="d-none">
+        <span id="typingSummaryPill"></span>
+        <span id="typingAccuracyDetail"></span>
+        <span id="typingCompletedCount"></span>
+        <span id="typingTotalCount"></span>
+        <span id="typingHeroVerseCount"></span>
+        <span id="typingSessionStatusText"></span>
+        <div id="typingAriaStatus"></div>
+    </div>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/game/bible-typing.js?v=1.1"></script>
+<script type="module" src="/js/game/bible-typing.js?v=1.2"></script>
 </body>
 </html>

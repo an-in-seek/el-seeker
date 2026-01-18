@@ -14,15 +14,9 @@ const elements = {
     verseStatus: document.getElementById("typingVerseStatus"),
     progressText: document.getElementById("typingProgressText"),
     progressBar: document.getElementById("typingProgressBar"),
-    summaryPill: document.getElementById("typingSummaryPill"),
     cpm: document.getElementById("typingCpm"),
     accuracy: document.getElementById("typingAccuracy"),
-    accuracyDetail: document.getElementById("typingAccuracyDetail"),
-    completedCount: document.getElementById("typingCompletedCount"),
-    totalCount: document.getElementById("typingTotalCount"),
     elapsedTime: document.getElementById("typingElapsedTime"),
-    heroVerseCount: document.getElementById("typingHeroVerseCount"),
-    sessionStatusText: document.getElementById("typingSessionStatusText"),
     sessionSummary: document.getElementById("typingSessionSummary"),
     sessionSummaryText: document.getElementById("typingSessionSummaryText"),
     ariaStatus: document.getElementById("typingAriaStatus")
@@ -118,11 +112,6 @@ const clearChildren = (element) => {
     }
 };
 
-const setSessionStatus = (text) => {
-    if (!elements.sessionStatusText) return;
-    elements.sessionStatusText.textContent = text;
-};
-
 const formatDuration = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remaining = seconds % 60;
@@ -147,14 +136,8 @@ const updateMetrics = () => {
     if (elements.progressText) elements.progressText.textContent = `${progress}%`;
     if (elements.progressBar) elements.progressBar.style.width = `${progress}%`;
     if (elements.cpm) elements.cpm.textContent = `${cpmValue}`;
-    if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}%`;
-    if (elements.accuracyDetail) {
-        elements.accuracyDetail.textContent = state.totalTyped === 0 ? "진행 중" : `입력 ${state.totalTyped}자`;
-    }
-    if (elements.completedCount) elements.completedCount.textContent = `${completedVerses}`;
-    if (elements.totalCount) elements.totalCount.textContent = `/ ${totalVerses}`;
+    if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}`;
     if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
-    if (elements.heroVerseCount) elements.heroVerseCount.textContent = `구절 ${totalVerses}개`;
 
     if (elements.ariaStatus) {
         elements.ariaStatus.textContent = `진행률 ${progress}%, 정확도 ${accuracyValue}%, 속도 ${cpmValue} CPM`;
@@ -183,9 +166,7 @@ const resetSessionState = () => {
         clearInterval(state.timerId);
         state.timerId = null;
     }
-    if (elements.summaryPill) elements.summaryPill.textContent = "준비";
     if (elements.verseStatus) elements.verseStatus.textContent = "대기";
-    setSessionStatus("준비 중");
     if (elements.sessionSummary) elements.sessionSummary.classList.add("d-none");
     updateMetrics();
 };
@@ -318,9 +299,7 @@ const handleInput = (event) => {
     if (normalizedInput.length > 0 && !state.sessionActive) {
         state.sessionActive = true;
         state.startedAt = new Date();
-        if (elements.summaryPill) elements.summaryPill.textContent = "진행 중";
         if (elements.verseStatus) elements.verseStatus.textContent = "진행 중";
-        setSessionStatus("진행 중");
         state.timerId = setInterval(updateMetrics, 1000);
     }
 
@@ -464,8 +443,6 @@ const startSession = () => {
     if (state.verses.length === 0) return;
     state.practiceStarted = true;
     if (elements.verseStatus) elements.verseStatus.textContent = "입력 준비";
-    if (elements.summaryPill) elements.summaryPill.textContent = "준비 완료";
-    setSessionStatus("입력 준비");
     activateVerse(state.currentIndex);
     focusVerseInput(state.currentIndex);
 };
@@ -529,9 +506,7 @@ const endSession = async (completed) => {
         clearInterval(state.timerId);
         state.timerId = null;
     }
-    if (elements.summaryPill) elements.summaryPill.textContent = completed ? "완료" : "종료";
     if (elements.verseStatus) elements.verseStatus.textContent = completed ? "완료" : "종료";
-    setSessionStatus(completed ? "완료" : "종료");
     updateMetrics();
 
     if (elements.sessionSummary) {
