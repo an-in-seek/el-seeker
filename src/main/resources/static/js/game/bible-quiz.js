@@ -368,7 +368,7 @@ const App = {
     updateHeroLead: (context) => {
         const {quizHeroLead, quizTitle} = App.elements;
         if (quizTitle) {
-            DomHelper.setElementText(quizTitle, `Stage ${context.activeStage}`);
+            DomHelper.setElementText(quizTitle, `STAGE ${context.activeStage}`);
         }
         if (!quizHeroLead) return;
 
