@@ -10,11 +10,9 @@
     padding-bottom: 3rem !important;
 }
 
+/* Hero Section Simplified */
 .typing-hero {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2.5rem;
-    padding: 3rem;
+    padding: 3rem 1.5rem;
     border-radius: 1.5rem;
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -24,7 +22,7 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.typing-hero-text {
+.typing-hero-content {
     position: relative;
     z-index: 1;
 }
@@ -95,112 +93,9 @@
     color: #475569;
 }
 
-.typing-hero-panel {
-    display: grid;
-    gap: 1rem;
-    position: relative;
-    z-index: 1;
-}
-
-.typing-panel-card {
-    padding: 1.5rem;
-    border-radius: 1rem;
-    background: #0f172a;
-    color: #f8fafc;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    animation: typing-rise 0.9s ease-out both;
-}
-
-.typing-panel-card-alt {
-    background: #ffffff;
-    color: #0f172a;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    animation-delay: 0.15s;
-}
-
-.typing-panel-label {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: inherit;
-    opacity: 0.7;
-    margin-bottom: 0.5rem;
-}
-
-.typing-panel-title {
-    font-family: "Fraunces", "Noto Serif KR", serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-
-.typing-panel-sub {
-    margin-bottom: 1.25rem;
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-.typing-panel-metrics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.typing-panel-card-alt .typing-panel-metrics {
-    border-top-color: #e2e8f0;
-}
-
-.typing-panel-metrics p {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-    opacity: 0.6;
-}
-
-.typing-panel-metrics strong {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-.typing-panel-metrics span {
-    font-size: 0.75rem;
-    opacity: 0.6;
-}
-
-.typing-panel-progress {
-    display: grid;
-    gap: 0.5rem;
-}
-
-.typing-progress-track {
-    height: 8px;
-    border-radius: 999px;
-    background: #e2e8f0;
-    overflow: hidden;
-}
-
-.typing-progress-track span {
-    display: block;
-    height: 100%;
-    background: #0f766e;
-    border-radius: 999px;
-    transition: width 0.3s ease;
-}
-
-.typing-panel-footnote {
-    font-size: 0.8rem;
-    color: #64748b;
-    text-align: right;
-}
-
+/* Workbench Section */
 .typing-workbench {
-    margin-top: 3rem;
+    margin-top: 2rem;
     display: grid;
     gap: 1.5rem;
 }
@@ -250,6 +145,7 @@
     background: #22c55e;
 }
 
+/* Cards */
 .typing-card {
     background: #ffffff;
     border-radius: 1rem;
@@ -291,6 +187,7 @@
     font-weight: 600;
 }
 
+/* Verse List */
 .typing-verse-list {
     display: grid;
     gap: 1rem;
@@ -340,8 +237,6 @@
 
 .typing-verse-content {
     flex: 1;
-    white-space: pre-wrap;
-    word-break: break-word;
 }
 
 .typing-verse-input {
@@ -368,6 +263,7 @@
     border-color: #e2e8f0;
 }
 
+/* Tokens */
 .typing-token {
     display: inline;
     border-radius: 2px;
@@ -388,10 +284,7 @@
     background: #fee2e2;
 }
 
-.typing-token.is-ignored {
-    color: #94a3b8;
-}
-
+/* Progress */
 .typing-progress {
     display: grid;
     gap: 0.5rem;
@@ -404,6 +297,22 @@
     font-weight: 500;
 }
 
+.typing-progress-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.typing-progress-track span {
+    display: block;
+    height: 100%;
+    background: #0f766e;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+/* Summary */
 .typing-summary {
     display: grid;
     gap: 1.5rem;
@@ -473,57 +382,7 @@
     color: #475569;
 }
 
-.typing-modes {
-    margin-top: 3rem;
-    display: grid;
-    gap: 1.5rem;
-}
-
-.typing-mode-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-}
-
-.typing-mode-card {
-    padding: 1.5rem;
-    border-radius: 1rem;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    display: grid;
-    gap: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.typing-mode-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.typing-mode-card h3 {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #0f172a;
-}
-
-.typing-mode-card p {
-    color: #64748b;
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.typing-mode-card span {
-    justify-self: start;
-    padding: 0.25rem 0.6rem;
-    border-radius: 0.375rem;
-    background: #f0fdfa;
-    color: #0f766e;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
+/* Selection */
 .typing-selection {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -591,9 +450,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .typing-hero,
-    .typing-card,
-    .typing-panel-card,
-    .typing-mode-card {
+    .typing-card {
         animation: none;
         transition: none;
     }
@@ -604,8 +461,7 @@
         padding: 2rem 1.5rem;
     }
 
-    .typing-card,
-    .typing-panel-card {
+    .typing-card {
         padding: 1.25rem;
     }
 

@@ -21,14 +21,6 @@ const elements = {
     completedCount: document.getElementById("typingCompletedCount"),
     totalCount: document.getElementById("typingTotalCount"),
     elapsedTime: document.getElementById("typingElapsedTime"),
-    heroTitle: document.getElementById("typingHeroTitleText"),
-    heroSubtitle: document.getElementById("typingHeroSubtitle"),
-    heroCpm: document.getElementById("typingHeroCpm"),
-    heroAccuracy: document.getElementById("typingHeroAccuracy"),
-    heroAccuracyNote: document.getElementById("typingHeroAccuracyNote"),
-    heroProgressBar: document.getElementById("typingHeroProgressBar"),
-    heroProgressText: document.getElementById("typingHeroProgressText"),
-    heroSessionTime: document.getElementById("typingHeroSessionTime"),
     heroVerseCount: document.getElementById("typingHeroVerseCount"),
     sessionStatusText: document.getElementById("typingSessionStatusText"),
     sessionSummary: document.getElementById("typingSessionSummary"),
@@ -46,8 +38,6 @@ const state = {
     currentIndex: 0,
     sessionActive: false,
     practiceStarted: false,
-    sessionKey: null,
-    transitioning: false,
     startedAt: null,
     endedAt: null,
     totalTyped: 0,
@@ -55,7 +45,7 @@ const state = {
     timerId: null
 };
 
-const punctuationChars = new Set([",", ".", "!", "?", ";", ":", "\"", "'", "“", "”", "‘", "’", "(", ")", "{", "}", "[", "]", "—", "-"]);
+const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
 
 const fetchJson = async (url) => {
     const response = await fetch(url, {credentials: "same-origin"});
@@ -107,53 +97,12 @@ const updateQueryParams = (params, replace = false) => {
     }
 };
 
-const normalizeWithMap = (text, ignorePunctuation) => {
-    const normalizedChars = [];
-    const indexMap = [];
-    let prevWasSpace = false;
-
-    for (let i = 0; i < text.length; i += 1) {
-        let char = text[i];
-        if (char === "\r") continue;
-        if (char === "\n") char = " ";
-        const isSpace = /\s/.test(char);
-        if (ignorePunctuation && punctuationChars.has(char)) {
-            continue;
-        }
-        if (isSpace) {
-            if (prevWasSpace) continue;
-            char = " ";
-        }
-        normalizedChars.push(char);
-        indexMap.push(i);
-        prevWasSpace = isSpace;
+const normalizeText = (text, ignorePunctuation) => {
+    let normalized = text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
+    if (ignorePunctuation) {
+        normalized = normalized.replace(punctuationRegex, "");
     }
-
-    while (normalizedChars.length > 0 && normalizedChars[0] === " ") {
-        normalizedChars.shift();
-        indexMap.shift();
-    }
-    while (normalizedChars.length > 0 && normalizedChars[normalizedChars.length - 1] === " ") {
-        normalizedChars.pop();
-        indexMap.pop();
-    }
-
-    return {
-        normalized: normalizedChars.join(""),
-        indexMap
-    };
-};
-
-const normalizeInput = (text, ignorePunctuation) => normalizeWithMap(text, ignorePunctuation).normalized;
-
-const createSessionKey = () => {
-    if (state.sessionKey) return state.sessionKey;
-    if (window.crypto?.randomUUID) {
-        state.sessionKey = window.crypto.randomUUID();
-    } else {
-        state.sessionKey = `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-    return state.sessionKey;
+    return normalized;
 };
 
 const createOption = (value, label) => {
@@ -197,22 +146,14 @@ const updateMetrics = () => {
 
     if (elements.progressText) elements.progressText.textContent = `${progress}%`;
     if (elements.progressBar) elements.progressBar.style.width = `${progress}%`;
-    if (elements.heroProgressBar) elements.heroProgressBar.style.width = `${progress}%`;
-    if (elements.heroProgressText) elements.heroProgressText.textContent = `진행률 ${progress}%`;
     if (elements.cpm) elements.cpm.textContent = `${cpmValue}`;
-    if (elements.heroCpm) elements.heroCpm.textContent = `${cpmValue}`;
     if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}%`;
-    if (elements.heroAccuracy) elements.heroAccuracy.textContent = `${accuracyValue}%`;
     if (elements.accuracyDetail) {
         elements.accuracyDetail.textContent = state.totalTyped === 0 ? "진행 중" : `입력 ${state.totalTyped}자`;
-    }
-    if (elements.heroAccuracyNote) {
-        elements.heroAccuracyNote.textContent = state.totalTyped === 0 ? "진행 중" : `입력 ${state.totalTyped}자`;
     }
     if (elements.completedCount) elements.completedCount.textContent = `${completedVerses}`;
     if (elements.totalCount) elements.totalCount.textContent = `/ ${totalVerses}`;
     if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
-    if (elements.heroSessionTime) elements.heroSessionTime.textContent = formatDuration(elapsedSeconds);
     if (elements.heroVerseCount) elements.heroVerseCount.textContent = `구절 ${totalVerses}개`;
 
     if (elements.ariaStatus) {
@@ -223,26 +164,20 @@ const updateMetrics = () => {
 const resetSessionState = () => {
     state.sessionActive = false;
     state.practiceStarted = false;
-    state.sessionKey = null;
     state.startedAt = null;
     state.endedAt = null;
     state.currentIndex = 0;
     state.totalTyped = 0;
     state.totalCorrect = 0;
-    state.verseStates = state.verses.map((verse) => {
-        const normalized = normalizeWithMap(verse.text, elements.ignorePunctuation?.checked);
-        return {
-            verseNumber: verse.verseNumber,
-            originalText: verse.text,
-            normalizedText: normalized.normalized,
-        indexMap: normalized.indexMap,
+    state.verseStates = state.verses.map((verse) => ({
+        verseNumber: verse.verseNumber,
+        originalText: verse.text,
+        normalizedText: normalizeText(verse.text, elements.ignorePunctuation?.checked),
         typedText: "",
         normalizedTyped: "",
         correctCount: 0,
-        saved: false,
         completed: false
-    };
-    });
+    }));
     state.tokenMap.clear();
     if (state.timerId) {
         clearInterval(state.timerId);
@@ -255,12 +190,12 @@ const resetSessionState = () => {
     updateMetrics();
 };
 
-const ensureTokenized = (row, verseState) => {
+const ensureTokenized = (row, normalizedText) => {
     const content = row.querySelector(".typing-verse-content");
     if (!content || row.dataset.tokenized === "true") return;
     clearChildren(content);
     const tokens = [];
-    for (const char of verseState.originalText) {
+    for (const char of normalizedText) {
         const span = document.createElement("span");
         span.className = "typing-token";
         span.textContent = char;
@@ -278,85 +213,22 @@ const ensureTokenized = (row, verseState) => {
     row.dataset.tokenized = "true";
 };
 
-const updateIgnoredTokens = (row, verseState) => {
-    const tokens = state.tokenMap.get(row.dataset.index);
-    if (!tokens) return;
-    const compareIndexSet = new Set(verseState.indexMap);
-    tokens.forEach((token, index) => {
-        token.classList.toggle("is-ignored", !compareIndexSet.has(index));
-    });
-};
-
-const updateRowDisplay = (row, verseState, isActive) => {
-    if (!state.tokenMap.get(row.dataset.index)) {
-        ensureTokenized(row, verseState);
-    }
-    updateIgnoredTokens(row, verseState);
-    updateTokenClasses(row, verseState, verseState.normalizedTyped);
-    row.classList.toggle("is-complete", verseState.completed);
-    row.classList.toggle("is-active", isActive);
-};
-
-const getVisibleRowIndexes = () => {
-    if (!elements.verseList) return new Set();
-    const visibleIndexes = new Set();
-    const containerRect = elements.verseList.getBoundingClientRect();
-    const rows = elements.verseList.querySelectorAll(".typing-verse-row");
-    rows.forEach((row, index) => {
-        const rect = row.getBoundingClientRect();
-        const isVisible = rect.bottom >= containerRect.top && rect.top <= containerRect.bottom;
-        if (isVisible) {
-            visibleIndexes.add(index);
-        }
-    });
-    return visibleIndexes;
-};
-
-let pendingVisibleUpdate = false;
-const scheduleVisibleUpdate = () => {
-    if (pendingVisibleUpdate) return;
-    pendingVisibleUpdate = true;
-    requestAnimationFrame(() => {
-        pendingVisibleUpdate = false;
-        const visibleIndexes = getVisibleRowIndexes();
-        const rows = elements.verseList.querySelectorAll(".typing-verse-row");
-        rows.forEach((row, index) => {
-            if (!visibleIndexes.has(index)) return;
-            const verseState = state.verseStates[index];
-            if (!verseState) return;
-            const isActive = index === state.currentIndex && state.practiceStarted;
-            updateRowDisplay(row, verseState, isActive);
-        });
-    });
-};
-
-const updateTokenClasses = (row, verseState, normalizedInput) => {
+const updateTokenClasses = (row, normalizedText, normalizedInput) => {
     const tokens = state.tokenMap.get(row.dataset.index);
     if (!tokens) return;
     const inputLength = normalizedInput.length;
-    const normalizedText = verseState.normalizedText;
-    const indexMap = verseState.indexMap;
-
-    tokens.forEach((token) => {
+    tokens.forEach((token, index) => {
         token.classList.remove("is-correct", "is-current", "is-incorrect");
+        if (index < inputLength) {
+            if (normalizedInput[index] === normalizedText[index]) {
+                token.classList.add("is-correct");
+            } else {
+                token.classList.add("is-incorrect");
+            }
+        } else if (index === inputLength) {
+            token.classList.add("is-current");
+        }
     });
-
-    for (let i = 0; i < Math.min(inputLength, normalizedText.length); i += 1) {
-        const tokenIndex = indexMap[i];
-        if (tokenIndex === undefined) continue;
-        if (normalizedInput[i] === normalizedText[i]) {
-            tokens[tokenIndex]?.classList.add("is-correct");
-        } else {
-            tokens[tokenIndex]?.classList.add("is-incorrect");
-        }
-    }
-
-    if (inputLength < normalizedText.length) {
-        const currentTokenIndex = indexMap[inputLength];
-        if (currentTokenIndex !== undefined) {
-            tokens[currentTokenIndex]?.classList.add("is-current");
-        }
-    }
 };
 
 const countCorrectChars = (normalizedText, normalizedInput) => {
@@ -375,14 +247,15 @@ const activateVerse = (index) => {
     verseRows.forEach((row, rowIndex) => {
         const input = row.querySelector(".typing-verse-input");
         if (!input) return;
-        const isActive = rowIndex === index && state.practiceStarted;
+        const isActive = rowIndex === index;
+        row.classList.toggle("is-active", isActive);
         const isEnabled = isActive && state.practiceStarted;
         input.disabled = !isEnabled;
         input.readOnly = !isEnabled;
-        row.classList.toggle("is-active", isActive);
         if (isEnabled) {
             const verseState = state.verseStates[index];
-            updateRowDisplay(row, verseState, true);
+            ensureTokenized(row, verseState.normalizedText);
+            updateTokenClasses(row, verseState.normalizedText, verseState.normalizedTyped);
         }
     });
 };
@@ -405,28 +278,15 @@ const handleVerseComplete = (index) => {
         row.classList.add("is-complete");
         const input = row.querySelector(".typing-verse-input");
         if (input) input.disabled = true;
-        updateTokenClasses(row, verseState, verseState.normalizedText);
+        updateTokenClasses(row, verseState.normalizedText, verseState.normalizedText);
     }
     if (index + 1 < state.verseStates.length) {
         state.currentIndex = index + 1;
         activateVerse(state.currentIndex);
-        const nextIndex = state.currentIndex;
-        const currentInput = row?.querySelector(".typing-verse-input");
-        state.transitioning = true;
-        if (currentInput) {
-            currentInput.disabled = true;
-            currentInput.blur();
-        }
-        setTimeout(() => {
-            focusVerseInput(nextIndex);
-            state.transitioning = false;
-        }, 0);
+        focusVerseInput(state.currentIndex);
     } else {
         endSession(true);
     }
-    saveVerseProgress(verseState).catch(() => {
-        showMessage("구절 기록 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-    });
 };
 
 const handleInput = (event) => {
@@ -437,7 +297,7 @@ const handleInput = (event) => {
 
     const verseState = state.verseStates[index];
     const ignorePunctuation = elements.ignorePunctuation?.checked;
-    const normalizedInput = normalizeInput(target.value, ignorePunctuation);
+    const normalizedInput = normalizeText(target.value, ignorePunctuation);
     const normalizedText = verseState.normalizedText;
     const correctCount = countCorrectChars(normalizedText, normalizedInput);
 
@@ -450,7 +310,7 @@ const handleInput = (event) => {
 
     const row = elements.verseList.querySelector(`.typing-verse-row[data-index="${index}"]`);
     if (row) {
-        updateTokenClasses(row, verseState, normalizedInput);
+        updateTokenClasses(row, normalizedText, normalizedInput);
     }
 
     updateMetrics();
@@ -458,7 +318,6 @@ const handleInput = (event) => {
     if (normalizedInput.length > 0 && !state.sessionActive) {
         state.sessionActive = true;
         state.startedAt = new Date();
-        createSessionKey();
         if (elements.summaryPill) elements.summaryPill.textContent = "진행 중";
         if (elements.verseStatus) elements.verseStatus.textContent = "진행 중";
         setSessionStatus("진행 중");
@@ -501,77 +360,12 @@ const renderVerses = () => {
         input.dataset.index = String(index);
         input.setAttribute("aria-label", `${verse.verseNumber}절 입력`);
         input.addEventListener("input", handleInput);
-        input.addEventListener("keydown", (event) => {
-            if (state.transitioning) {
-                event.preventDefault();
-            }
-        });
 
         row.appendChild(textLine);
         row.appendChild(input);
         elements.verseList.appendChild(row);
     });
     activateVerse(state.currentIndex);
-};
-
-const reapplyNormalization = () => {
-    const ignorePunctuation = elements.ignorePunctuation?.checked;
-    let totalTyped = 0;
-    let totalCorrect = 0;
-    const previousStates = state.verseStates.map((verse) => ({
-        completed: verse.completed
-    }));
-
-    state.verseStates = state.verseStates.map((verse) => {
-        const normalized = normalizeWithMap(verse.originalText, ignorePunctuation);
-        const normalizedTyped = normalizeInput(verse.typedText, ignorePunctuation);
-        const correctCount = countCorrectChars(normalized.normalized, normalizedTyped);
-        totalTyped += normalizedTyped.length;
-        totalCorrect += correctCount;
-        return {
-            ...verse,
-            normalizedText: normalized.normalized,
-            indexMap: normalized.indexMap,
-            normalizedTyped,
-            correctCount,
-            saved: verse.saved ?? false,
-            completed: normalizedTyped === normalized.normalized
-        };
-    });
-
-    state.totalTyped = totalTyped;
-    state.totalCorrect = totalCorrect;
-
-    const firstIncomplete = state.verseStates.findIndex((verse) => !verse.completed);
-    const prevCurrentIndex = state.currentIndex;
-    if (firstIncomplete !== -1) {
-        state.currentIndex = firstIncomplete;
-    } else if (state.verseStates.length > 0) {
-        state.currentIndex = state.verseStates.length - 1;
-    }
-
-    const rows = elements.verseList.querySelectorAll(".typing-verse-row");
-    const visibleIndexes = getVisibleRowIndexes();
-    rows.forEach((row, index) => {
-        const verseState = state.verseStates[index];
-        if (!verseState) return;
-        const completionChanged = previousStates[index]?.completed !== verseState.completed;
-        const shouldUpdate = completionChanged
-            || index === state.currentIndex
-            || index === prevCurrentIndex
-            || visibleIndexes.has(index);
-        if (!shouldUpdate) return;
-        updateRowDisplay(row, verseState, index === state.currentIndex && state.practiceStarted);
-    });
-
-    if (elements.sessionSummary && state.verseStates.some((verse) => !verse.completed)) {
-        elements.sessionSummary.classList.add("d-none");
-    }
-
-    if (state.practiceStarted) {
-        activateVerse(state.currentIndex);
-    }
-    updateMetrics();
 };
 
 const updateHeader = () => {
@@ -582,8 +376,6 @@ const updateHeader = () => {
     const title = book && chapterNumber ? `${book.name} ${chapterNumber}장` : "선택한 구절";
     const subTitle = translation ? `${translation.name} (${translation.code})` : "번역본 선택";
     if (elements.verseHeader) elements.verseHeader.textContent = `${title} · ${subTitle}`;
-    if (elements.heroTitle) elements.heroTitle.textContent = title;
-    if (elements.heroSubtitle) elements.heroSubtitle.textContent = subTitle;
 };
 
 const loadSelections = async () => {
@@ -671,7 +463,6 @@ const loadVerses = async (selection) => {
 const startSession = () => {
     if (state.verses.length === 0) return;
     state.practiceStarted = true;
-    createSessionKey();
     if (elements.verseStatus) elements.verseStatus.textContent = "입력 준비";
     if (elements.summaryPill) elements.summaryPill.textContent = "준비 완료";
     setSessionStatus("입력 준비");
@@ -686,7 +477,6 @@ const formatLocalDateTime = (date) => {
 
 const saveSession = async () => {
     if (!state.startedAt) return;
-    const sessionKey = createSessionKey();
     const params = getQueryParams();
     const totalVerses = state.verseStates.length;
     const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
@@ -696,7 +486,6 @@ const saveSession = async () => {
     const cpmValue = elapsedMinutes > 0 ? state.totalTyped / elapsedMinutes : 0;
 
     const payload = {
-        sessionKey,
         translationId: params.translationId,
         bookOrder: params.bookOrder,
         chapterNumber: params.chapterNumber,
@@ -724,32 +513,6 @@ const saveSession = async () => {
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
-};
-
-const saveVerseProgress = async (verseState) => {
-    if (verseState.saved) return;
-    const params = getQueryParams();
-    const payload = {
-        sessionKey: createSessionKey(),
-        translationId: params.translationId,
-        bookOrder: params.bookOrder,
-        chapterNumber: params.chapterNumber,
-        verseNumber: verseState.verseNumber,
-        originalText: verseState.originalText,
-        typedText: verseState.typedText,
-        accuracy: verseState.normalizedTyped.length === 0
-            ? 0
-            : Number(((verseState.correctCount / verseState.normalizedTyped.length) * 100).toFixed(2)),
-        completed: verseState.completed
-    };
-
-    await fetch("/api/v1/game/bible-typing/verse-results", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload),
-        credentials: "same-origin"
-    });
-    verseState.saved = true;
 };
 
 const endSession = async (completed) => {
@@ -814,7 +577,8 @@ const bindEvents = () => {
     });
 
     elements.ignorePunctuation?.addEventListener("change", () => {
-        reapplyNormalization();
+        resetSessionState();
+        renderVerses();
     });
 
     elements.startBtn?.addEventListener("click", () => {
@@ -823,10 +587,6 @@ const bindEvents = () => {
 
     elements.endBtn?.addEventListener("click", () => {
         endSession(false);
-    });
-
-    elements.verseList?.addEventListener("scroll", () => {
-        scheduleVisibleUpdate();
     });
 };
 

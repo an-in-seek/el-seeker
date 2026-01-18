@@ -1,61 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('ElSeeker | 성경 타자', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-typing.css?v=1.2')}"></head>
+<head th:replace="~{fragments/head :: head('ElSeeker | 성경 타자', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-typing.css?v=1.3')}"></head>
 <body class="has-fixed-nav typing-page">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper py-4">
-    <section class="typing-hero mb-5" aria-labelledby="typingHeroTitle">
-        <div class="typing-hero-text">
+    <!-- Hero Section: 간소화됨 -->
+    <section class="typing-hero mb-5 text-center" aria-labelledby="typingHeroTitle">
+        <div class="typing-hero-content mx-auto" style="max-width: 700px;">
             <span class="typing-kicker">Bible Typing Studio</span>
             <h1 id="typingHeroTitle" class="typing-hero-title">성경 타자 스튜디오</h1>
             <p class="typing-hero-lead">
                 말씀을 리듬감 있게 입력하며 묵상과 집중을 동시에 훈련합니다.<br class="d-none d-md-inline">
                 오늘의 기록을 쌓아 나만의 성경 타자 루틴을 만들어보세요.
             </p>
-            <div class="typing-hero-actions">
+            <div class="typing-hero-actions justify-content-center">
                 <button type="button" class="btn btn-dark" id="typingStartBtn">연습 시작</button>
                 <button type="button" class="btn btn-outline-dark" id="typingEndBtn">세션 종료</button>
             </div>
-            <div class="typing-hero-chips" id="typingHeroChips">
+            <div class="typing-hero-chips justify-content-center" id="typingHeroChips">
                 <span>정확도 목표 95%</span>
                 <span id="typingHeroVerseCount">구절 0개</span>
-                <span id="typingHeroStreak">연속 0일</span>
-            </div>
-        </div>
-        <div class="typing-hero-panel">
-            <div class="typing-panel-card">
-                <p class="typing-panel-label">오늘의 리듬</p>
-                <h2 class="typing-panel-title" id="typingHeroTitleText">-</h2>
-                <p class="typing-panel-sub" id="typingHeroSubtitle">선택한 구절을 준비 중입니다.</p>
-                <div class="typing-panel-metrics">
-                    <div>
-                        <p>속도</p>
-                        <strong id="typingHeroCpm">0</strong>
-                        <span>CPM</span>
-                    </div>
-                    <div>
-                        <p>정확도</p>
-                        <strong id="typingHeroAccuracy">0%</strong>
-                        <span id="typingHeroAccuracyNote">진행 중</span>
-                    </div>
-                </div>
-            </div>
-            <div class="typing-panel-card typing-panel-card-alt">
-                <p class="typing-panel-label">이번 주 스택</p>
-                <h3 class="typing-panel-title" id="typingHeroSessionTime">00:00</h3>
-                <p class="typing-panel-sub">세션 누적 시간</p>
-                <div class="typing-panel-progress">
-                    <div class="typing-progress-track">
-                        <span id="typingHeroProgressBar" style="width: 0%;"></span>
-                    </div>
-                    <span class="typing-panel-footnote" id="typingHeroProgressText">진행률 0%</span>
-                </div>
             </div>
         </div>
     </section>
 
+    <!-- Workbench Section: 메인 기능 -->
     <section class="typing-workbench mb-5" aria-labelledby="typingWorkbenchTitle">
         <div class="typing-workbench-head mb-4">
             <div>
@@ -93,7 +64,7 @@
         <div id="typingMessage" class="alert alert-warning d-none mb-4" role="alert"></div>
 
         <div class="row g-4 align-items-start">
-            <div class="col-12 col-lg-7">
+            <div class="col-12 col-lg-8">
                 <div class="typing-card typing-verse-card h-100">
                     <div class="typing-card-head">
                         <div>
@@ -114,7 +85,7 @@
                     <div id="typingVerseList" class="typing-verse-list"></div>
                 </div>
             </div>
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-4">
                 <div class="typing-card typing-summary h-100">
                     <div class="typing-summary-head">
                         <div>
@@ -162,36 +133,10 @@
 
         <div id="typingAriaStatus" class="visually-hidden" aria-live="polite"></div>
     </section>
-
-    <section class="typing-modes" aria-labelledby="typingModesTitle">
-        <div class="typing-modes-head mb-4">
-            <div>
-                <p class="typing-section-kicker">Practice Modes</p>
-                <h2 id="typingModesTitle" class="typing-section-title h3">나에게 맞는 연습 모드</h2>
-            </div>
-        </div>
-        <div class="typing-mode-grid">
-            <article class="typing-mode-card h-100">
-                <h3>리듬 타자</h3>
-                <p>문장 호흡을 따라 타이핑하며 자연스럽게 암송합니다.</p>
-                <span>추천</span>
-            </article>
-            <article class="typing-mode-card h-100">
-                <h3>정확도 집중</h3>
-                <p>한 글자씩 정확히 입력하며 오타율을 빠르게 낮춥니다.</p>
-                <span>집중</span>
-            </article>
-            <article class="typing-mode-card h-100">
-                <h3>속도 훈련</h3>
-                <p>타수 목표를 설정하고 속도감을 높이는 모드입니다.</p>
-                <span>스피드</span>
-            </article>
-        </div>
-    </section>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/game/bible-typing.js?v=1.0"></script>
+<script type="module" src="/js/game/bible-typing.js?v=1.1"></script>
 </body>
 </html>
