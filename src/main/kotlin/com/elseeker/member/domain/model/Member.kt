@@ -13,9 +13,19 @@ import java.util.*
 @Entity
 @Table(
     name = "member",
-    indexes = [
-        Index(name = "idx_member_email", columnList = "email"),
-        Index(name = "idx_member_uuid", columnList = "uuid")
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_member_uid",
+            columnNames = ["uid"]
+        ),
+        UniqueConstraint(
+            name = "uk_member_email",
+            columnNames = ["email"]
+        ),
+        UniqueConstraint(
+            name = "uk_member_provider_user",
+            columnNames = ["provider", "provider_user_id"]
+        )
     ]
 )
 @EntityListeners(AuditingEntityListener::class)
