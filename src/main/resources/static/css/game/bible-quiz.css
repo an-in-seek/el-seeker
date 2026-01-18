@@ -34,7 +34,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #3a4a66;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
 }
 
@@ -77,10 +77,6 @@
 
 .quiz-progress-item {
     min-width: 64px;
-}
-
-.quiz-progress-divider {
-    color: #b4c1d6;
 }
 
 .quiz-options {
@@ -133,7 +129,6 @@
 }
 
 .quiz-feedback {
-    min-height: 1.4rem;
     margin-bottom: 1rem;
     font-weight: 600;
 }
