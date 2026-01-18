@@ -32,6 +32,7 @@ const state = {
     currentIndex: 0,
     sessionActive: false,
     practiceStarted: false,
+    transitioning: false,
     startedAt: null,
     endedAt: null,
     totalTyped: 0,
@@ -258,19 +259,29 @@ const handleVerseComplete = (index) => {
         row.classList.remove("is-active");
         row.classList.add("is-complete");
         const input = row.querySelector(".typing-verse-input");
-        if (input) input.disabled = true;
+        if (input) {
+            input.disabled = true;
+            input.blur();
+        }
         updateTokenClasses(row, verseState.normalizedText, verseState.normalizedText);
     }
     if (index + 1 < state.verseStates.length) {
+        state.transitioning = true;
         state.currentIndex = index + 1;
         activateVerse(state.currentIndex);
-        focusVerseInput(state.currentIndex);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                focusVerseInput(state.currentIndex);
+                state.transitioning = false;
+            });
+        });
     } else {
         endSession(true);
     }
 };
 
 const handleInput = (event) => {
+    if (state.transitioning) return;
     const target = event.target;
     if (!(target instanceof HTMLTextAreaElement)) return;
     const index = Number.parseInt(target.dataset.index, 10);
@@ -338,7 +349,17 @@ const renderVerses = () => {
         input.readOnly = true;
         input.dataset.index = String(index);
         input.setAttribute("aria-label", `${verse.verseNumber}절 입력`);
+        input.addEventListener("beforeinput", (event) => {
+            if (state.transitioning) {
+                event.preventDefault();
+            }
+        });
         input.addEventListener("input", handleInput);
+        input.addEventListener("keydown", (event) => {
+            if (state.transitioning) {
+                event.preventDefault();
+            }
+        });
 
         row.appendChild(textLine);
         row.appendChild(input);
@@ -448,8 +469,7 @@ const startSession = () => {
 };
 
 const formatLocalDateTime = (date) => {
-    const iso = date.toISOString().split(".")[0];
-    return iso;
+    return date.toISOString().split(".")[0];
 };
 
 const saveSession = async () => {
