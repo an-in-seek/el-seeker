@@ -33,6 +33,8 @@ const state = {
     sessionActive: false,
     practiceStarted: false,
     transitioning: false,
+    composing: false,
+    pendingCompleteIndex: null,
     startedAt: null,
     endedAt: null,
     totalTyped: 0,
@@ -315,6 +317,10 @@ const handleInput = (event) => {
     }
 
     if (normalizedInput === normalizedText && !verseState.completed) {
+        if (state.composing) {
+            state.pendingCompleteIndex = index;
+            return;
+        }
         handleVerseComplete(index);
     }
 };
@@ -358,6 +364,19 @@ const renderVerses = () => {
         input.addEventListener("keydown", (event) => {
             if (state.transitioning) {
                 event.preventDefault();
+            }
+        });
+        input.addEventListener("compositionstart", () => {
+            state.composing = true;
+        });
+        input.addEventListener("compositionend", () => {
+            state.composing = false;
+            if (state.pendingCompleteIndex !== null) {
+                const pendingIndex = state.pendingCompleteIndex;
+                state.pendingCompleteIndex = null;
+                if (pendingIndex === state.currentIndex) {
+                    handleVerseComplete(pendingIndex);
+                }
             }
         });
 
