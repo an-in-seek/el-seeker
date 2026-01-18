@@ -5,11 +5,13 @@
   - `common`: shared config, error model, common web components.
   - `bible`: Bible domain (domain, application, adapter/in, adapter/out).
   - `study`: Study domain (dictionary/history) with the same adapter structure.
+  - `game`: Bible quiz domain (domain, application, adapter/in, adapter/out).
 - `src/main/resources`: configuration and assets.
-  - `application.yml`: runtime config (H2, JPA).
-  - `data/`: SQL seed scripts for translations/books/chapters/verses and dictionary.
+  - `application.yml`: runtime config (H2, JPA, OAuth2, JWT).
+  - `data/`: SQL seed scripts for translations/books/chapters/verses, quizzes, and dictionary.
   - `templates/`: Thymeleaf HTML pages.
   - `static/`: CSS, JS, images.
+- `docs/`: domain documentation by area (bible/community/game/study).
 - No `src/test` directory yet; add tests under `src/test/kotlin` when introducing them.
 
 ## Build, Test, and Development Commands
@@ -37,6 +39,8 @@
 
 ## Configuration & Data Notes
 - H2 runs in-memory by default (`jdbc:h2:mem:test`); data is loaded from SQL in `src/main/resources/data`.
+- PostgreSQL driver is included for external DB use.
+- OAuth2 client and JWT settings live in `src/main/resources/application.yml`.
 - If you add new Bible content, keep book order and naming consistent with existing SQL files.
 
 ## Skills

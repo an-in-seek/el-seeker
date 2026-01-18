@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('The Bible | 성경', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/home.css?v=2.1')}"></head>
+<head th:replace="~{fragments/head :: head('ElSeeker | 홈', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/home.css?v=2.1')}"></head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
 <main class="container content-wrapper">
@@ -97,7 +97,7 @@
         });
         const pageTitleLabel = document.getElementById("pageTitleLabel");
         if (pageTitleLabel) {
-            pageTitleLabel.textContent = "The Bible";
+            pageTitleLabel.textContent = "ElSeeker";
             pageTitleLabel.classList.remove("d-none");
         }
     });
