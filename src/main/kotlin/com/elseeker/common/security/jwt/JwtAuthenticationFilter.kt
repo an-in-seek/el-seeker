@@ -1,5 +1,6 @@
 package com.elseeker.common.security.jwt
 
+import com.elseeker.member.domain.vo.MemberRole
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -25,17 +26,27 @@ class JwtAuthenticationFilter(
         if (!token.isNullOrBlank()) {
             val claims = jwtProvider.resolveClaims(token)
             if (claims != null) {
-                val memberUid = claims.subject
+                val memberUid = runCatching { java.util.UUID.fromString(claims.subject) }.getOrNull()
                 val email = claims["email"]?.toString().orEmpty()
-                val role = claims["role"]?.toString() ?: "USER"
+                val rolesClaim = claims["roles"]
+                val roles = when (rolesClaim) {
+                    is Collection<*> -> rolesClaim.mapNotNull { it?.toString() }
+                    is Array<*> -> rolesClaim.mapNotNull { it?.toString() }
+                    else -> emptyList()
+                }.mapNotNull { roleValue ->
+                    runCatching { MemberRole.valueOf(roleValue) }.getOrNull()
+                        ?: MemberRole.fromKey(roleValue)
+                }
 
-                val principal = JwtPrincipal(memberUid, email, role)
-                val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
+                if (memberUid != null && roles.isNotEmpty()) {
+                    val principal = JwtPrincipal(memberUid, email, roles)
+                    val authorities = roles.map { SimpleGrantedAuthority(it.key) }
 
-                val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
-                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+                    val authentication = UsernamePasswordAuthenticationToken(principal, null, authorities)
+                    authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
 
-                SecurityContextHolder.getContext().authentication = authentication
+                    SecurityContextHolder.getContext().authentication = authentication
+                }
             }
         }
 

@@ -1,0 +1,42 @@
+package com.elseeker.game.domain.model
+
+import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.member.domain.model.Member
+import jakarta.persistence.*
+
+@Entity
+@Table(
+    name = "quiz_question_stat",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "UK_quiz_question_stat_member_question",
+            columnNames = ["member_id", "question_id"]
+        )
+    ],
+    indexes = [
+        Index(
+            name = "IDX_quiz_question_stat_member",
+            columnList = "member_id"
+        ),
+        Index(
+            name = "IDX_quiz_question_stat_question",
+            columnList = "question_id"
+        )
+    ]
+)
+class QuizQuestionStat(
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    val member: Member,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false)
+    val question: QuizQuestion,
+
+    @Column(nullable = false)
+    var attempts: Int = 0,
+
+    @Column(nullable = false)
+    var correct: Int = 0
+) : BaseTimeEntity()

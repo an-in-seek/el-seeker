@@ -1,6 +1,6 @@
 package com.elseeker.auth.adapter.input.api.response
 
-import com.elseeker.common.security.jwt.JwtPrincipal
+import com.elseeker.member.domain.model.Member
 
 data class AuthMeResponse(
     val memberUid: String,
@@ -8,11 +8,11 @@ data class AuthMeResponse(
     val role: String,
 ) {
     companion object {
-        fun from(principal: JwtPrincipal): AuthMeResponse {
+        fun from(member: Member): AuthMeResponse {
             return AuthMeResponse(
-                memberUid = principal.memberUid,
-                email = principal.email,
-                role = principal.role,
+                memberUid = member.uid.toString(),
+                email = member.email,
+                role = member.memberRole.name,
             )
         }
     }

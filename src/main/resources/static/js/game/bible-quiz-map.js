@@ -1,5 +1,3 @@
-import {LocalStore} from "/js/storage-util.js?v=2.1";
-
 // Module-scope script
 // ==========================================
 // Constants & Configuration
@@ -7,21 +5,10 @@ import {LocalStore} from "/js/storage-util.js?v=2.1";
 const API_CONFIG = {
     BASE_URL: "/api/v1/game/bible-quiz",
     ENDPOINTS: {
-        STAGES: "/stages"
+        STAGES: "/stages",
+        RESET: "/progress/reset"
     }
 };
-
-const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "quiz_current_stage",
-    LAST_COMPLETED_STAGE: "quiz_last_completed_stage",
-    STAGE_SCORE_PREFIX: "quiz_stage_score",
-    QUESTION_STATS_PREFIX: "quiz_question_stats_stage",
-    REVIEW_COUNT_PREFIX: "quiz_review_count_stage",
-    CURRENT_QUESTION_PREFIX: "quiz_current_question_stage",
-    CURRENT_SCORE_PREFIX: "quiz_current_score_stage",
-    CURRENT_REVIEW_TYPE_PREFIX: "quiz_current_review_type_stage",
-    LAST_WRONG_IDS_PREFIX: "quiz_last_wrong_ids_stage",
-});
 
 const UI_CLASSES = {
     CARD: "stage-card",
@@ -47,60 +34,9 @@ const UI_CLASSES = {
 // ==========================================
 
 /**
- * Clamps a number between min and max.
- */
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-
-/**
- * Normalizes the current stage value.
- */
-const normalizeStage = (stageValue, totalStages) => {
-    const parsed = parseInt(stageValue, 10);
-    if (Number.isNaN(parsed)) return 1;
-    if (!totalStages) return Math.max(parsed, 1);
-    return clamp(parsed, 1, totalStages);
-};
-
-/**
- * Determines the status of a stage relative to the user's current progress.
- * @returns {'completed' | 'active' | 'locked'}
- */
-const calculateStageStatus = (stageNumber, currentStageNumber) => {
-    if (stageNumber < currentStageNumber) return "completed";
-    if (stageNumber === currentStageNumber) return "active";
-    return "locked";
-};
-
-const calculateAccuracy = (stats) => {
-    if (!stats || !stats.length) return 0;
-    let totalAttempts = 0;
-    let totalCorrect = 0;
-    stats.forEach((entry) => {
-        if (!entry || !entry.attempts) return;
-        totalAttempts += entry.attempts;
-        totalCorrect += entry.correct || 0;
-    });
-    if (totalAttempts === 0) return 0;
-    return Math.round((totalCorrect / totalAttempts) * 100);
-};
-
-const getMasteryLevel = (accuracy, reviewCount) => {
-    if (accuracy >= 90 && reviewCount >= 3) {
-        return {label: "완성", class: "badge-gold"};
-    }
-    if (accuracy >= 80) {
-        return {label: "숙련", class: "badge-blue"};
-    }
-    if (accuracy >= 65) {
-        return {label: "기초", class: "badge-green"};
-    }
-    return {label: "입문", class: "badge-gray"};
-};
-
-/**
  * Generates the properties needed to render a stage card.
  */
-const getStageCardProps = ({stage, questionCount, status, score, lastCompletedStage}) => {
+const getStageCardProps = ({stage, questionCount, status, score}) => {
     const isCompleted = status === "completed";
     const isActive = status === "active";
     const isLocked = status === "locked";
@@ -175,86 +111,6 @@ const calculateFlowDirection = (index, totalItems, columns) => {
     return (row < maxRow) ? UI_CLASSES.FLOW.DOWN : UI_CLASSES.FLOW.END;
 };
 
-// ==========================================
-// Data Access & Storage
-// ==========================================
-
-const Storage = (() => {
-    const store = LocalStore;
-    return {
-        get: (key) => (store.get ? store.get(key) : store.getItem(key)),
-        set: (key, value) => (store.set ? store.set(key, value) : store.setItem(key, String(value))),
-        remove: (key) => (store.remove ? store.remove(key) : store.removeItem(key))
-    };
-})();
-
-const StorageService = {
-    getStageScore: (stage) => {
-        const key = `${STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`;
-        const val = parseInt(Storage.get(key), 10);
-        return Number.isNaN(val) ? null : val;
-    },
-    getStageStats: (stage) => {
-        const raw = Storage.get(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`);
-        if (!raw) return [];
-        try {
-            const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== "object") return [];
-            return Object.values(parsed);
-        } catch (error) {
-            return [];
-        }
-    },
-    getReviewCount: (stage) => {
-        const count = parseInt(Storage.get(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`), 10);
-        return Number.isNaN(count) ? 0 : count;
-    },
-    getCurrentStage: () => {
-        const val = parseInt(Storage.get(STORAGE_KEYS.CURRENT_STAGE), 10);
-        return (Number.isNaN(val) || val < 1) ? 1 : val;
-    },
-    setCurrentStage: (stage) => {
-        Storage.set(STORAGE_KEYS.CURRENT_STAGE, stage);
-    },
-    getLastCompletedStage: () => {
-        const val = parseInt(Storage.get(STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
-        return Number.isNaN(val) ? 0 : val;
-    },
-    initDefaults: () => {
-        if (Storage.get(STORAGE_KEYS.LAST_COMPLETED_STAGE) === null) {
-            Storage.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
-        }
-        // Ensure current stage is valid
-        const current = StorageService.getCurrentStage();
-        const stored = parseInt(Storage.get(STORAGE_KEYS.CURRENT_STAGE), 10);
-        if (stored !== current) {
-            StorageService.setCurrentStage(current);
-        }
-    },
-    resetProgress: () => {
-        Storage.set(STORAGE_KEYS.CURRENT_STAGE, 1);
-        Storage.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, 0);
-
-        if (typeof localStorage === "undefined") return;
-
-        const prefixes = [
-            STORAGE_KEYS.CURRENT_QUESTION_PREFIX,
-            STORAGE_KEYS.CURRENT_SCORE_PREFIX,
-            STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX,
-            STORAGE_KEYS.LAST_WRONG_IDS_PREFIX
-        ];
-        const keysToRemove = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (!key) continue;
-            if (prefixes.some((prefix) => key.startsWith(`${prefix}_`))) {
-                keysToRemove.push(key);
-            }
-        }
-        keysToRemove.forEach((key) => Storage.remove(key));
-    }
-};
-
 const ApiService = {
     fetchStages: async () => {
         const controller = new AbortController();
@@ -270,6 +126,18 @@ const ApiService = {
             return null;
         } finally {
             clearTimeout(timeoutId);
+        }
+    },
+    resetProgress: async () => {
+        try {
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESET}`,
+                {method: "POST"}
+            );
+            return response.ok;
+        } catch (e) {
+            console.error("Failed to reset progress", e);
+            return false;
         }
     }
 };
@@ -320,17 +188,14 @@ const DomHelper = {
         return ordered;
     },
 
-    createCardElement: (summary, context) => {
-        const {stage, questionCount} = summary;
-        const status = calculateStageStatus(stage, context.currentStage);
-        const score = status === "completed" ? StorageService.getStageScore(stage) : null;
+    createCardElement: (summary) => {
+        const {stage, questionCount, status, score, masteryLabel, masteryClass} = summary;
 
         const props = getStageCardProps({
             stage,
             questionCount,
             status,
-            score,
-            lastCompletedStage: context.lastCompletedStage
+            score
         });
 
         const statusBadgeClass = [
@@ -369,12 +234,10 @@ const DomHelper = {
         header.appendChild(badge);
 
         let masteryBadge = null;
-        if (status === "completed") {
-            const accuracy = calculateAccuracy(StorageService.getStageStats(stage));
-            const mastery = getMasteryLevel(accuracy, StorageService.getReviewCount(stage));
+        if (status === "completed" && masteryLabel && masteryClass) {
             masteryBadge = document.createElement("span");
-            masteryBadge.className = `stage-mastery-badge ${mastery.class}`;
-            masteryBadge.textContent = mastery.label;
+            masteryBadge.className = `stage-mastery-badge ${masteryClass}`;
+            masteryBadge.textContent = masteryLabel;
         }
 
         const meta = document.createElement("div");
@@ -410,13 +273,13 @@ const DomHelper = {
         });
     },
 
-    render: (elements, stageSummaries, context) => {
+    render: (elements, stageSummaries) => {
         const columns = DomHelper.getGridColumns(elements.stageList);
         const minColumns = parseInt(elements.stageList.dataset.snakeColumns, 10) || 4;
         const orderedStages = DomHelper.getOrderedStages(stageSummaries, columns, minColumns);
         const fragment = document.createDocumentFragment();
         orderedStages.forEach(summary => {
-            fragment.appendChild(DomHelper.createCardElement(summary, context));
+            fragment.appendChild(DomHelper.createCardElement(summary));
         });
         elements.stageList.replaceChildren(fragment);
 
@@ -430,10 +293,12 @@ const DomHelper = {
             window.location.href = target.dataset.route;
         });
         if (elements.resetProgressButton) {
-            elements.resetProgressButton.addEventListener("click", () => {
+            elements.resetProgressButton.addEventListener("click", async () => {
                 if (!confirm("모든 스테이지 정보가 초기화됩니다. 정말 진행하시겠습니까?")) return;
-                StorageService.resetProgress();
-                window.location.href = "/web/game/bible-quiz?stage=1";
+                const ok = await ApiService.resetProgress();
+                if (ok) {
+                    window.location.href = "/web/game/bible-quiz?stage=1";
+                }
             });
         }
     },
@@ -493,40 +358,31 @@ const App = {
         const elements = DomHelper.getElements();
         if (!elements) return;
 
-        StorageService.initDefaults();
+        const response = await ApiService.fetchStages();
+        if (!response || !response.stages || !response.stages.length) {
+            DomHelper.showError(elements);
+            return;
+        }
 
         const context = {
-            currentStage: StorageService.getCurrentStage(),
-            lastCompletedStage: StorageService.getLastCompletedStage()
+            currentStage: response.currentStage,
+            lastCompletedStage: response.lastCompletedStage
         };
 
         if (elements.resetProgressButton) {
             elements.resetProgressButton.classList.toggle("d-none", context.lastCompletedStage < 1);
         }
 
-        const stages = await ApiService.fetchStages();
-        if (!stages || !stages.length) {
-            DomHelper.showError(elements);
-            return;
-        }
-
-        DomHelper.updateSummary(elements, context, stages.length);
+        DomHelper.updateSummary(elements, context, response.totalStages);
 
         const state = {
             columns: DomHelper.getGridColumns(elements.stageList),
-            stages
+            stages: response.stages
         };
-
-        // Validate current stage against actual stage count
-        const normalizedStage = normalizeStage(context.currentStage, stages.length);
-        if (normalizedStage !== context.currentStage) {
-            context.currentStage = normalizedStage;
-            StorageService.setCurrentStage(normalizedStage);
-        }
 
         DomHelper.showIntro(elements);
         DomHelper.bindEvents(elements);
-        DomHelper.render(elements, stages, context);
+        DomHelper.render(elements, response.stages);
 
         // Handle Resize for Flow Lines
         let resizeTimer;
@@ -536,7 +392,7 @@ const App = {
                 const nextColumns = DomHelper.getGridColumns(elements.stageList);
                 if (nextColumns !== state.columns) {
                     state.columns = nextColumns;
-                    DomHelper.render(elements, state.stages, context);
+                    DomHelper.render(elements, state.stages);
                 } else {
                     DomHelper.updateFlowDirections(elements.stageList, nextColumns);
                 }

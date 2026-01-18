@@ -17,9 +17,14 @@ class MemberService(
 
     // TODO: 회원(Member) 정보 수정
 
-    fun deleteMember(memberUid: UUID) {
-        val member = memberRepository.findByUid(memberUid)
-            ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
+    fun getMember(memberUid: UUID) = memberRepository.findByUid(memberUid)
+        ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
+
+    fun deleteMember(memberUid: UUID, principalUid: UUID) {
+        if (memberUid != principalUid) {
+            throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
+        }
+        val member = getMember(memberUid)
         memberRepository.delete(member)
     }
 }

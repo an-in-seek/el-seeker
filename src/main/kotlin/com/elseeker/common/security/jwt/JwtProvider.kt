@@ -23,14 +23,14 @@ class JwtProvider(
         .verifyWith(secretKey)
         .build()
 
-    fun generateAccessToken(memberUid: String, email: String, role: String): String {
+    fun generateAccessToken(memberUid: String, email: String, roles: List<com.elseeker.member.domain.vo.MemberRole>): String {
         val now = Instant.now()
         val expiry = now.plusSeconds(elSeekerProperties.jwt.accessTokenTtl.seconds)
 
         return Jwts.builder()
             .subject(memberUid)
             .claim("email", email)
-            .claim("role", role)
+            .claim("roles", roles.map { it.name })
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiry))
             .signWith(secretKey, Jwts.SIG.HS256)

@@ -1,26 +1,15 @@
-import {LocalStore} from "/js/storage-util.js?v=2.1";
-
 /**
  * Configuration constants
  */
 const API_CONFIG = {
     BASE_URL: "/api/v1/game/bible-quiz",
     ENDPOINTS: {
-        STAGES: "/stages"
+        STAGES: "/stages",
+        START: "/start",
+        ANSWER: "/answer",
+        COMPLETE: "/complete"
     }
 };
-
-const STORAGE_KEYS = Object.freeze({
-    CURRENT_STAGE: "quiz_current_stage",
-    LAST_COMPLETED_STAGE: "quiz_last_completed_stage",
-    STAGE_COUNT: "quiz_stage_count",
-    STAGE_SCORE_PREFIX: "quiz_stage_score",
-    CURRENT_QUESTION_PREFIX: "quiz_current_question_stage",
-    CURRENT_SCORE_PREFIX: "quiz_current_score_stage",
-    CURRENT_REVIEW_TYPE_PREFIX: "quiz_current_review_type_stage",
-    QUESTION_STATS_PREFIX: "quiz_question_stats_stage",
-    REVIEW_COUNT_PREFIX: "quiz_review_count_stage",
-});
 
 const UI_CLASSES = {
     HIDDEN: "d-none",
@@ -28,122 +17,6 @@ const UI_CLASSES = {
     CORRECT: "is-correct",
     WRONG: "is-wrong",
     SELECTED: "is-selected"
-};
-
-/**
- * Service for LocalStorage operations
- */
-const SafeLocalStore = {
-    isAvailable: () => {
-        try {
-            return typeof localStorage !== "undefined";
-        } catch (error) {
-            return false;
-        }
-    },
-    get: (key) => {
-        if (!SafeLocalStore.isAvailable()) return null;
-        try {
-            return LocalStore.get(key);
-        } catch (error) {
-            return null;
-        }
-    },
-    set: (key, value) => {
-        if (!SafeLocalStore.isAvailable()) return;
-        try {
-            LocalStore.set(key, value);
-        } catch (error) {
-            // Ignore storage errors to keep quiz usable.
-        }
-    },
-    remove: (key) => {
-        if (!SafeLocalStore.isAvailable()) return;
-        try {
-            LocalStore.remove(key);
-        } catch (error) {
-            // Ignore storage errors to keep quiz usable.
-        }
-    }
-};
-
-const StorageService = {
-    getStageCount: () => {
-        const count = parseInt(SafeLocalStore.get(STORAGE_KEYS.STAGE_COUNT), 10);
-        return Number.isNaN(count) ? null : count;
-    },
-    getLastCompletedStage: () => {
-        const stage = parseInt(SafeLocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE), 10);
-        return Number.isNaN(stage) ? 0 : stage;
-    },
-    getCurrentStage: () => {
-        const stage = parseInt(SafeLocalStore.get(STORAGE_KEYS.CURRENT_STAGE), 10);
-        return Number.isNaN(stage) ? null : stage;
-    },
-    setLastCompletedStage: (stage) => SafeLocalStore.set(STORAGE_KEYS.LAST_COMPLETED_STAGE, stage),
-    setCurrentStage: (stage) => SafeLocalStore.set(STORAGE_KEYS.CURRENT_STAGE, stage),
-    setStageCount: (count) => SafeLocalStore.set(STORAGE_KEYS.STAGE_COUNT, count),
-    setStageScore: (stage, score) => SafeLocalStore.set(`${STORAGE_KEYS.STAGE_SCORE_PREFIX}_${stage}`, score),
-    getCurrentScore: (stage) => {
-        const storedScore = parseInt(SafeLocalStore.get(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`), 10);
-        return Number.isNaN(storedScore) ? null : storedScore;
-    },
-    setCurrentScore: (stage, score) => SafeLocalStore.set(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`, score),
-    clearCurrentScore: (stage) => SafeLocalStore.remove(`${STORAGE_KEYS.CURRENT_SCORE_PREFIX}_${stage}`),
-    getCurrentReviewType: (stage) => SafeLocalStore.get(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`),
-    setCurrentReviewType: (stage, type) => SafeLocalStore.set(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`, type),
-    clearCurrentReviewType: (stage) => SafeLocalStore.remove(`${STORAGE_KEYS.CURRENT_REVIEW_TYPE_PREFIX}_${stage}`),
-    hasCurrentQuestionIndex: (stage) => {
-        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
-        return SafeLocalStore.get(key) !== null;
-    },
-    getCurrentQuestionIndex: (stage, questionCount) => {
-        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
-        const storedIndex = parseInt(SafeLocalStore.get(key), 10);
-        if (Number.isNaN(storedIndex) || storedIndex < 1) return 0;
-        if (questionCount && storedIndex > questionCount) return 0;
-        return storedIndex - 1;
-    },
-    setCurrentQuestionIndex: (stage, index) => {
-        const parsedIndex = parseInt(index, 10);
-        if (Number.isNaN(parsedIndex)) return;
-        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
-        SafeLocalStore.set(key, parsedIndex + 1);
-    },
-    clearCurrentQuestionIndex: (stage) => {
-        const key = `${STORAGE_KEYS.CURRENT_QUESTION_PREFIX}_${stage}`;
-        SafeLocalStore.remove(key);
-    },
-    getQuestionStats: (stage) => {
-        const raw = SafeLocalStore.get(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`);
-        if (!raw) return {};
-        try {
-            const parsed = JSON.parse(raw);
-            return parsed && typeof parsed === "object" ? parsed : {};
-        } catch (error) {
-            return {};
-        }
-    },
-    setQuestionStats: (stage, stats) => {
-        SafeLocalStore.set(`${STORAGE_KEYS.QUESTION_STATS_PREFIX}_${stage}`, JSON.stringify(stats));
-    },
-    updateQuestionStats: (stage, questionId, isCorrect) => {
-        const stats = StorageService.getQuestionStats(stage);
-        const key = String(questionId);
-        const current = stats[key] || {attempts: 0, correct: 0};
-        current.attempts += 1;
-        if (isCorrect) current.correct += 1;
-        stats[key] = current;
-        StorageService.setQuestionStats(stage, stats);
-    },
-    getReviewCount: (stage) => {
-        const count = parseInt(SafeLocalStore.get(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`), 10);
-        return Number.isNaN(count) ? 0 : count;
-    },
-    incrementReviewCount: (stage) => {
-        const next = StorageService.getReviewCount(stage) + 1;
-        SafeLocalStore.set(`${STORAGE_KEYS.REVIEW_COUNT_PREFIX}_${stage}`, next);
-    }
 };
 
 /**
@@ -159,69 +32,51 @@ const ApiService = {
             console.error("Failed to fetch stage data:", error);
             return null;
         }
+    },
+    startStage: async (stageNumber, mode, reviewType) => {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.START}`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({mode, reviewType})
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error("Failed to start stage:", error);
+            return null;
+        }
+    },
+    submitAnswer: async (stageNumber, payload) => {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.ANSWER}`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error("Failed to submit answer:", error);
+            return null;
+        }
+    },
+    completeStage: async (stageNumber, payload) => {
+        try {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.COMPLETE}`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error("Failed to complete stage:", error);
+            return null;
+        }
     }
 };
 
 const ReviewModes = Object.freeze({
     FULL: "full"
 });
-
-/**
- * Pure functions for business logic
- */
-const QuizLogic = {
-    clamp: (value, min, max) => Math.min(Math.max(value, min), max),
-
-    normalizeStage: (stageValue, stageCount) => {
-        const parsed = parseInt(stageValue, 10);
-        if (Number.isNaN(parsed)) return 1;
-        if (!stageCount) return Math.max(parsed, 1);
-        return QuizLogic.clamp(parsed, 1, stageCount);
-    },
-
-    /**
-     * Determines the initial state and mode of the quiz based on storage and URL
-     */
-    determineContext: (storedData, urlParams) => {
-        const {storedStageCount, lastCompletedStage, rawCurrentStage} = storedData;
-        const requestedStage = parseInt(urlParams.get("stage"), 10);
-
-        const storedCurrentStage = QuizLogic.normalizeStage(rawCurrentStage, storedStageCount);
-        const normalizedRequestedStage = Number.isNaN(requestedStage)
-            ? null
-            : QuizLogic.normalizeStage(requestedStage, storedStageCount);
-
-        // Calculate current stage logic
-        const currentStage = lastCompletedStage >= storedCurrentStage
-            ? lastCompletedStage + 1
-            : storedCurrentStage;
-
-        const boundedCurrentStage = storedStageCount
-            ? QuizLogic.clamp(currentStage, 1, storedStageCount)
-            : Math.max(currentStage, 1);
-
-        const activeStage = normalizedRequestedStage || boundedCurrentStage;
-
-        const isCompletedStage = activeStage <= lastCompletedStage && lastCompletedStage > 0;
-        const isReviewOnly = isCompletedStage;
-        const isBlocked = activeStage > boundedCurrentStage;
-
-        return {
-            activeStage,
-            boundedCurrentStage,
-            storedCurrentStage,
-            isCompletedStage,
-            isReviewOnly,
-            isBlocked
-        };
-    },
-
-    calculateNextStage: (currentStage, stageCount) => {
-        return stageCount
-            ? Math.min(currentStage + 1, stageCount)
-            : currentStage + 1;
-    }
-};
 
 /**
  * DOM manipulation helper
@@ -303,40 +158,37 @@ const App = {
         score: 0,
         answered: false,
         selectedIndex: null,
+        submitting: false,
         mode: 'record', // 'record', 'review'
         reviewType: ReviewModes.FULL,
         cachedStageData: null
     },
 
-    init: () => {
+    init: async () => {
         App.elements = DomHelper.getElements();
         if (!App.elements.quizPanel) return;
 
         App.initNav();
 
-        const storedData = {
-            storedStageCount: StorageService.getStageCount(),
-            lastCompletedStage: StorageService.getLastCompletedStage(),
-            rawCurrentStage: StorageService.getCurrentStage()
-        };
         const urlParams = new URLSearchParams(window.location.search);
+        const requestedStage = parseInt(urlParams.get("stage"), 10);
+        const stageNumber = Number.isNaN(requestedStage) ? 1 : requestedStage;
 
-        const context = QuizLogic.determineContext(storedData, urlParams);
-
-        // Sync Storage if needed
-        if (storedData.rawCurrentStage === null || context.boundedCurrentStage !== context.storedCurrentStage) {
-            StorageService.setCurrentStage(context.boundedCurrentStage);
-        }
-        if (SafeLocalStore.get(STORAGE_KEYS.LAST_COMPLETED_STAGE) === null) {
-            StorageService.setLastCompletedStage(storedData.lastCompletedStage);
+        const data = await ApiService.fetchStageData(stageNumber);
+        if (!data) {
+            App.showError("퀴즈를 불러올 수 없습니다", "잠시 후 다시 시도해주세요.");
+            return;
         }
 
-        App.state.stage = context.activeStage;
-        App.state.stageCount = storedData.storedStageCount;
+        App.state.stage = data.stage;
+        App.state.stageCount = data.stageCount;
+        App.state.cachedStageData = {stage: data.stage, data};
+
+        const context = data.context;
 
         App.updateHeroLead(context);
 
-        const hasInProgressQuiz = StorageService.hasCurrentQuestionIndex(context.activeStage);
+        const hasInProgressQuiz = context.hasInProgress;
 
         if (context.isBlocked) {
             App.showAccessBlocked();
@@ -344,10 +196,7 @@ const App = {
             App.showReviewSelection();
         } else {
             const mode = context.isReviewOnly ? "review" : "record";
-            const storedReviewType = context.isReviewOnly
-                ? StorageService.getCurrentReviewType(context.activeStage)
-                : null;
-            App.startQuiz(mode, storedReviewType);
+            App.startQuiz(mode, context.reviewType);
         }
 
         App.bindEvents();
@@ -420,7 +269,7 @@ const App = {
         App.updateReviewButtons();
     },
 
-    startQuiz: (mode, reviewType = ReviewModes.FULL) => {
+    startQuiz: async (mode, reviewType = ReviewModes.FULL) => {
         App.state.mode = mode;
         App.state.reviewType = reviewType || ReviewModes.FULL;
 
@@ -430,10 +279,14 @@ const App = {
         App.setModeLabel(mode);
 
         if (mode === "review") {
-            StorageService.setCurrentReviewType(App.state.stage, App.state.reviewType);
             DomHelper.setElementText(quizHeroLead, "기록에 반영되지 않는 복습 모드입니다.");
         } else {
-            StorageService.clearCurrentReviewType(App.state.stage);
+            DomHelper.setElementText(quizHeroLead, "");
+        }
+
+        const startContext = await ApiService.startStage(App.state.stage, mode, App.state.reviewType);
+        if (startContext && App.state.cachedStageData) {
+            App.state.cachedStageData.data.context = startContext;
         }
 
         App.loadStageData();
@@ -493,7 +346,6 @@ const App = {
 
         if (data.stageCount) {
             App.state.stageCount = data.stageCount;
-            StorageService.setStageCount(data.stageCount);
         }
 
         let reviewedQuestions = App.state.mode === "review"
@@ -505,14 +357,15 @@ const App = {
             reviewedQuestions = data.questions;
         }
 
+        const context = data.context || {};
         App.state.questions = reviewedQuestions;
-        const hasProgress = StorageService.hasCurrentQuestionIndex(App.state.stage);
-        App.state.index = StorageService.getCurrentQuestionIndex(App.state.stage, reviewedQuestions.length);
-        App.state.score = 0;
-        if (App.state.mode !== "review") {
-            const storedScore = hasProgress ? StorageService.getCurrentScore(App.state.stage) : null;
-            App.state.score = storedScore ?? 0;
-            StorageService.setCurrentScore(App.state.stage, App.state.score);
+        const rawIndex = Number.isInteger(context.currentQuestionIndex) ? context.currentQuestionIndex : 0;
+        App.state.index = Math.min(Math.max(rawIndex, 0), reviewedQuestions.length - 1);
+        App.state.score = App.state.mode !== "review"
+            ? (Number.isInteger(context.currentScore) ? context.currentScore : 0)
+            : 0;
+        if (App.state.mode === "review" && context.reviewType) {
+            App.state.reviewType = context.reviewType;
         }
         App.state.answered = false;
         App.state.selectedIndex = null;
@@ -522,34 +375,6 @@ const App = {
 
     applyReviewQuestions: (questions) => {
         return questions;
-    },
-
-    getStageAccuracy: (questions) => {
-        const stats = StorageService.getQuestionStats(App.state.stage);
-        let totalAttempts = 0;
-        let totalCorrect = 0;
-
-        questions.forEach((question) => {
-            const entry = stats[String(question.id)];
-            if (!entry || !entry.attempts) return;
-            totalAttempts += entry.attempts;
-            totalCorrect += entry.correct;
-        });
-
-        if (totalAttempts === 0) return null;
-        return Math.round((totalCorrect / totalAttempts) * 100);
-    },
-
-    getMasteryLabel: (accuracy, reviewCount) => {
-        if (accuracy === null) return "입문";
-        if (accuracy >= 90 && reviewCount >= 3) return "완성";
-        if (accuracy >= 80) return "숙련";
-        if (accuracy >= 65) return "기초";
-        return "입문";
-    },
-
-    persistQuestionIndex: () => {
-        StorageService.setCurrentQuestionIndex(App.state.stage, App.state.index);
     },
 
     renderQuestion: () => {
@@ -591,8 +416,6 @@ const App = {
         App.state.answered = false;
         App.state.selectedIndex = null;
 
-        App.persistQuestionIndex();
-
         DomHelper.setBusy(quizPanel, false);
     },
 
@@ -609,30 +432,47 @@ const App = {
         App.elements.quizNext.disabled = false;
     },
 
-    handleNext: () => {
+    handleNext: async () => {
         if (!App.state.answered) {
-            App.gradeAnswer();
+            await App.gradeAnswer();
         } else {
-            App.nextQuestion();
+            await App.nextQuestion();
         }
     },
 
-    gradeAnswer: () => {
+    gradeAnswer: async () => {
+        if (App.state.submitting) return;
         const {questions, index, selectedIndex} = App.state;
         const currentQuestion = questions[index];
-        const isCorrect = selectedIndex === currentQuestion.answerIndex;
+        const {quizNext} = App.elements;
+        App.state.submitting = true;
+        if (quizNext) quizNext.disabled = true;
+        const response = await ApiService.submitAnswer(App.state.stage, {
+            questionId: currentQuestion.id,
+            selectedIndex,
+            questionIndex: index,
+            mode: App.state.mode
+        });
+        App.state.submitting = false;
+        if (quizNext) quizNext.disabled = false;
+
+        if (!response) {
+            App.showError("정답을 확인할 수 없습니다", "잠시 후 다시 시도해주세요.");
+            return;
+        }
+
+        const isCorrect = response.isCorrect;
+        const correctIndex = response.correctIndex;
 
         App.state.answered = true;
-        StorageService.updateQuestionStats(App.state.stage, currentQuestion.id, isCorrect);
-        if (isCorrect && App.state.mode !== 'review') {
-            App.state.score++;
-            StorageService.setCurrentScore(App.state.stage, App.state.score);
+        if (App.state.mode !== "review") {
+            App.state.score = response.currentScore ?? App.state.score;
         }
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
         buttons.forEach((btn, idx) => {
             btn.disabled = true;
-            if (idx === currentQuestion.answerIndex) {
+            if (idx === correctIndex) {
                 btn.classList.add(UI_CLASSES.CORRECT);
                 btn.textContent += " (정답)";
             } else if (idx === selectedIndex && !isCorrect) {
@@ -641,7 +481,7 @@ const App = {
             }
         });
 
-        const {quizFeedback, quizNext} = App.elements;
+        const {quizFeedback} = App.elements;
         if (isCorrect) {
             DomHelper.setElementText(quizFeedback, "😊 잘하셨어요 정답입니다!");
             quizFeedback.classList.add(UI_CLASSES.CORRECT);
@@ -652,21 +492,20 @@ const App = {
 
         DomHelper.setElementText(quizNext, index === questions.length - 1 ? "완료" : "다음 문제");
 
-        App.persistQuestionIndex();
     },
 
-    nextQuestion: () => {
+    nextQuestion: async () => {
         const {index, questions} = App.state;
         if (index < questions.length - 1) {
             App.state.index++;
             App.renderQuestion();
         } else {
-            App.finishQuiz();
+            await App.finishQuiz();
         }
     },
 
-    finishQuiz: () => {
-        const {stage, score, questions, mode, stageCount} = App.state;
+    finishQuiz: async () => {
+        const {stage, score, questions, mode} = App.state;
         const {
             quizPanel,
             quizComplete,
@@ -678,24 +517,14 @@ const App = {
             quizNextStageButton
         } = App.elements;
 
-        StorageService.clearCurrentQuestionIndex(stage);
-        StorageService.clearCurrentReviewType(stage);
+        const completion = await ApiService.completeStage(stage, {
+            mode,
+            score,
+            questionCount: questions.length
+        });
 
-        if (mode === "review") {
-            StorageService.incrementReviewCount(stage);
-        }
-
-        if (mode !== 'review') {
-            StorageService.setCurrentScore(stage, score);
-            const nextStage = QuizLogic.calculateNextStage(stage, stageCount);
-            StorageService.setCurrentStage(nextStage);
-            StorageService.setLastCompletedStage(stage);
-            StorageService.setStageScore(stage, score);
-        }
-
-        if (quizNextStageButton) {
-            const nextStage = QuizLogic.calculateNextStage(stage, stageCount);
-            quizNextStageButton.href = `/web/game/bible-quiz?stage=${nextStage}`;
+        if (quizNextStageButton && completion?.nextStage) {
+            quizNextStageButton.href = `/web/game/bible-quiz?stage=${completion.nextStage}`;
         }
 
         DomHelper.setBusy(quizPanel, false);
@@ -708,21 +537,17 @@ const App = {
             DomHelper.setElementText(quizScore, "");
         }
 
-        if (quizSummary && summaryAccuracy && summaryCount && summaryMastery) {
-            const accuracy = App.getStageAccuracy(questions);
-            const reviewCount = StorageService.getReviewCount(stage);
-            const mastery = App.getMasteryLabel(accuracy, reviewCount);
-            const accuracyText = accuracy === null ? "-%" : `${accuracy}%`;
+        if (quizSummary && summaryAccuracy && summaryCount && summaryMastery && completion) {
+            const accuracyText = completion.accuracy === null ? "-%" : `${completion.accuracy}%`;
 
             DomHelper.setElementText(summaryAccuracy, accuracyText);
-            DomHelper.setElementText(summaryCount, `${reviewCount}회`);
-            DomHelper.setElementText(summaryMastery, mastery);
+            DomHelper.setElementText(summaryCount, `${completion.reviewCount}회`);
+            DomHelper.setElementText(summaryMastery, completion.masteryLabel);
 
             summaryMastery.classList.remove("badge-gray", "badge-green", "badge-blue", "badge-gold");
-            if (mastery === "완성") summaryMastery.classList.add("badge-gold");
-            else if (mastery === "숙련") summaryMastery.classList.add("badge-blue");
-            else if (mastery === "기초") summaryMastery.classList.add("badge-green");
-            else summaryMastery.classList.add("badge-gray");
+            if (completion.masteryClass) {
+                summaryMastery.classList.add(completion.masteryClass);
+            }
         }
     },
 

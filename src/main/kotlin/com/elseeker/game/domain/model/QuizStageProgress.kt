@@ -1,0 +1,50 @@
+package com.elseeker.game.domain.model
+
+import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.member.domain.model.Member
+import jakarta.persistence.*
+
+@Entity
+@Table(
+    name = "quiz_stage_progress",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "UK_quiz_stage_progress_member_stage",
+            columnNames = ["member_id", "stage_number"]
+        )
+    ],
+    indexes = [
+        Index(
+            name = "IDX_quiz_stage_progress_member",
+            columnList = "member_id"
+        ),
+        Index(
+            name = "IDX_quiz_stage_progress_stage",
+            columnList = "stage_number"
+        )
+    ]
+)
+class QuizStageProgress(
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    val member: Member,
+
+    @Column(name = "stage_number", nullable = false)
+    val stageNumber: Int,
+
+    @Column(name = "current_question_index")
+    var currentQuestionIndex: Int? = null,
+
+    @Column(name = "current_score")
+    var currentScore: Int? = null,
+
+    @Column(name = "last_score")
+    var lastScore: Int? = null,
+
+    @Column(name = "review_count", nullable = false)
+    var reviewCount: Int = 0,
+
+    @Column(name = "current_review_type", length = 20)
+    var currentReviewType: String? = null
+) : BaseTimeEntity()

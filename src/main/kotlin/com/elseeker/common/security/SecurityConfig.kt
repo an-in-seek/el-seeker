@@ -52,15 +52,21 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(
                     "/",
+                    "/error",
                     "/oauth2/**",
                     "/web/auth/login",
                     "/web/auth/login/**",
                     "/web/auth/logout",
                     "/web/auth/logout/**",
-                    "/error",
-                    "/api/v1/**",
-                    "/web/game"
+                    "/web/game",
+                    "/api/v1/bibles/**",
+                    "/api/v1/study/dictionaries/**"
                 ).permitAll()
+                    .requestMatchers(
+                        "/api/v1/auth/me",
+                        "/api/v1/members/**",
+                        "/api/v1/game/bible-quiz/**"
+                    ).authenticated()
                     // 게임 영역은 서버에서 인증을 강제합니다. (UX용 JS는 보조 역할)
                     .requestMatchers(
                         "/web/game/**",
