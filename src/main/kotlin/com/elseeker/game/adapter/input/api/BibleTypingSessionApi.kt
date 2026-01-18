@@ -1,17 +1,14 @@
 package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
-import com.elseeker.game.adapter.input.api.dto.BibleTypingSessionDto
+import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
+import com.elseeker.game.adapter.input.api.response.BibleTypingSessionResponse
+import com.elseeker.game.adapter.input.api.response.BibleTypingSessionSummaryResponse
 import com.elseeker.game.application.service.BibleTypingSessionService
 import com.elseeker.member.application.service.MemberService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
@@ -24,12 +21,12 @@ class BibleTypingSessionApi(
     @PostMapping
     fun createSession(
         @AuthenticationPrincipal principal: JwtPrincipal,
-        @RequestBody request: BibleTypingSessionDto.CreateRequest
-    ): ResponseEntity<BibleTypingSessionDto.Response> {
+        @RequestBody request: BibleTypingSessionCreateRequest
+    ): ResponseEntity<BibleTypingSessionResponse> {
         val member = memberService.getMember(principal.memberUid)
         val session = bibleTypingSessionService.createSession(member, request)
         return ResponseEntity.ok(
-            BibleTypingSessionDto.Response(
+            BibleTypingSessionResponse(
                 sessionId = session.id!!,
                 createdAt = session.createdAt
             )
@@ -44,7 +41,7 @@ class BibleTypingSessionApi(
         @RequestParam(required = false) chapterNumber: Int?,
         @RequestParam(required = false) fromDate: LocalDate?,
         @RequestParam(required = false) toDate: LocalDate?
-    ): ResponseEntity<List<BibleTypingSessionDto.SummaryResponse>> {
+    ): ResponseEntity<List<BibleTypingSessionSummaryResponse>> {
         val member = memberService.getMember(principal.memberUid)
         val sessions = bibleTypingSessionService.getSessions(
             member = member,
@@ -55,7 +52,7 @@ class BibleTypingSessionApi(
             toDate = toDate
         )
         val response = sessions.map {
-            BibleTypingSessionDto.SummaryResponse(
+            BibleTypingSessionSummaryResponse(
                 sessionId = it.id!!,
                 translationId = it.translationId,
                 bookOrder = it.bookOrder,

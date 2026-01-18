@@ -1,7 +1,7 @@
 package com.elseeker.game.application.service
 
-import com.elseeker.game.adapter.input.api.dto.BibleTypingVerseProgressRequest
-import com.elseeker.game.adapter.input.api.dto.BibleTypingVerseProgressResponse
+import com.elseeker.game.adapter.input.api.response.BibleTypingVerseProgressResponse
+import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseProgressRepository
 import com.elseeker.game.domain.model.BibleTypingVerseProgress
 import com.elseeker.member.domain.model.Member

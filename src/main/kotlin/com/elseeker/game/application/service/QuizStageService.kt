@@ -2,7 +2,15 @@ package com.elseeker.game.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.dto.*
+import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
+import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
+import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
+import com.elseeker.game.adapter.input.api.response.QuizStageAnswerResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageCompleteResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageContextResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageMapResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageSummaryResponse
 import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.application.mapper.toResponse
 import com.elseeker.game.domain.model.QuizProgress

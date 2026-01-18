@@ -1,7 +1,14 @@
 package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
-import com.elseeker.game.adapter.input.api.dto.*
+import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
+import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
+import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
+import com.elseeker.game.adapter.input.api.response.QuizStageAnswerResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageCompleteResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageContextResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageMapResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageResponse
 import com.elseeker.game.application.service.QuizStageService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal

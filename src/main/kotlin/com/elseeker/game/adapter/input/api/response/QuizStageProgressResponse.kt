@@ -1,4 +1,4 @@
-package com.elseeker.game.adapter.input.api.dto
+package com.elseeker.game.adapter.input.api.response
 
 data class QuizStageMapResponse(
     val currentStage: Int,
@@ -16,28 +16,10 @@ data class QuizStageSummaryResponse(
     val reviewCount: Int
 )
 
-data class QuizStageStartRequest(
-    val mode: String,
-    val reviewType: String?
-)
-
-data class QuizStageAnswerRequest(
-    val questionId: Long,
-    val selectedIndex: Int,
-    val questionIndex: Int,
-    val mode: String
-)
-
 data class QuizStageAnswerResponse(
     val isCorrect: Boolean,
     val correctIndex: Int,
     val currentScore: Int
-)
-
-data class QuizStageCompleteRequest(
-    val mode: String,
-    val score: Int,
-    val questionCount: Int
 )
 
 data class QuizStageCompleteResponse(

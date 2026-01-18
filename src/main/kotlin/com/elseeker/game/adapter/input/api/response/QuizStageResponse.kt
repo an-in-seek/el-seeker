@@ -1,4 +1,4 @@
-package com.elseeker.game.adapter.input.api.dto
+package com.elseeker.game.adapter.input.api.response
 
 data class QuizStageResponse(
     val stage: Int,

@@ -1,8 +1,8 @@
 package com.elseeker.game.application.mapper
 
-import com.elseeker.game.adapter.input.api.dto.QuizQuestionResponse
-import com.elseeker.game.adapter.input.api.dto.QuizStageContextResponse
-import com.elseeker.game.adapter.input.api.dto.QuizStageResponse
+import com.elseeker.game.adapter.input.api.response.QuizQuestionResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageContextResponse
+import com.elseeker.game.adapter.input.api.response.QuizStageResponse
 import com.elseeker.game.domain.model.QuizQuestion
 import com.elseeker.game.domain.model.QuizStage
 

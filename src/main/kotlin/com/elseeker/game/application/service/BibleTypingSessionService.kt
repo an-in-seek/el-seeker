@@ -1,6 +1,6 @@
 package com.elseeker.game.application.service
 
-import com.elseeker.game.adapter.input.api.dto.BibleTypingSessionDto
+import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.domain.model.BibleTypingSession
 import com.elseeker.game.domain.model.BibleTypingVerseResult
@@ -8,7 +8,6 @@ import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Service
 class BibleTypingSessionService(
@@ -18,7 +17,7 @@ class BibleTypingSessionService(
     @Transactional
     fun createSession(
         member: Member,
-        request: BibleTypingSessionDto.CreateRequest
+        request: BibleTypingSessionCreateRequest
     ): BibleTypingSession {
         val session = BibleTypingSession(
             member = member,
