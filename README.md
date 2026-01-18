@@ -1,6 +1,7 @@
 # ElSeeker
 
-ElSeeker는 "하나님을 구하는 사람" 또는 "하나님을 찾는 사람"이라는 의미를 지닌 성경 플랫폼 서비스입니다. Kotlin과 Spring Boot 기반으로 개발되었으며 REST API와 Thymeleaf 기반 웹 UI를 통해 성경 번역본, 책, 장, 절 데이터를 조회하고 검색할 수 있습니다.
+ElSeeker는 "하나님을 구하는 사람" 또는 "하나님을 찾는 사람"이라는 의미를 지닌 성경 플랫폼 서비스입니다. Kotlin과 Spring Boot 기반으로 개발되었으며 REST API와 Thymeleaf 기반 웹 UI를 통해 성경 번역본, 책, 장, 절 데이터를
+조회하고 검색할 수 있습니다.
 성경 퀴즈 스테이지와 스터디(사전/역사) 콘텐츠를 제공하고, 기본은 인메모리 H2 데이터베이스를 사용하며 애플리케이션 시작 시 SQL 시드 파일로 초기 데이터를 로딩합니다.
 
 ## 브랜드/철학
@@ -11,9 +12,12 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 
 * 성경 번역본, 책, 장, 절 조회 REST API 제공
 * 특정 번역본 내 성경 구절 키워드 검색 기능 제공
+* 오늘의 말씀(일일 구절) 조회 REST API 제공
+* 성경 구절 메모 조회/등록/삭제 REST API 제공
 * Thymeleaf 기반 성경 탐색 및 검색 웹 UI 제공
 * 성경 퀴즈 스테이지 조회 REST API 및 웹 UI 제공
 * 스터디(사전/역사) 조회 REST API 및 웹 UI 제공
+* OAuth2 로그인/로그아웃 및 회원 정보 관리 API 제공
 * SpringDoc 기반 OpenAPI 및 Swagger UI 제공
 
 ## 기술 스택
@@ -32,6 +36,7 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * `src/main/kotlin/com/elseeker`
 
     * `common`: 공통 설정, 에러 모델, 공용 웹 구성
+    * `auth`: 인증/인가, OAuth2, JWT
     * `bible`: 성경 도메인
         * `domain`: 도메인 모델/값 객체/결과 모델
         * `application`: 유스케이스 및 서비스/컴포넌트
@@ -47,6 +52,7 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
         * `application`: 애플리케이션 서비스/매퍼
         * `adapter/input`: REST API, Web Controller
         * `adapter/output`: JPA 리포지토리
+    * `member`: 회원 도메인
 * `src/main/resources`
 
     * `application.yml`: 애플리케이션 설정
@@ -85,10 +91,21 @@ GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters
 GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses
 GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/navigate?direction=prev|next
 GET /api/v1/bibles/translations/{translationId}/search?keyword={searchTerm}
+GET /api/v1/bibles/daily?translationType=KRV|KJV|NKRV
+GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos
+PUT /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo
+DELETE /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo
+GET /api/v1/auth/me
+PUT /api/v1/members/{memberUid}
+DELETE /api/v1/members/{memberUid}
 GET /api/v1/study/dictionaries
 GET /api/v1/study/dictionaries/{id}
 GET /api/v1/game/bible-quiz/stages
 GET /api/v1/game/bible-quiz/stages/{stageNumber}
+POST /api/v1/game/bible-quiz/stages/{stageNumber}/start
+POST /api/v1/game/bible-quiz/stages/{stageNumber}/answer
+POST /api/v1/game/bible-quiz/stages/{stageNumber}/complete
+POST /api/v1/game/bible-quiz/progress/reset
 ```
 
 ## 웹 UI 라우트
@@ -101,9 +118,16 @@ GET /web/bible/book/description
 GET /web/bible/chapter
 GET /web/bible/verse
 GET /web/bible/search
+GET /web/auth/login
+GET /web/auth/logout
+GET /web/legal/terms
+GET /web/legal/privacy
 GET /web/game
 GET /web/game/bible-quiz
 GET /web/game/bible-quiz/map
+GET /web/member/mypage
+GET /web/member/withdraw
+GET /web/member/withdraw/complete
 GET /web/study
 GET /web/study/history
 GET /web/study/history/{era}
@@ -118,15 +142,21 @@ GET /web/study/dictionary/{id}
 
 ```text
 index -> index.html
+bible/search -> bible/search.html
 bible/translation-list -> bible/translation-list.html
 bible/book-list -> bible/book-list.html
 bible/book-description -> bible/book-description.html
 bible/chapter-list -> bible/chapter-list.html
 bible/verse-list -> bible/verse-list.html
-bible/search -> bible/search.html
 game/game -> game/game.html
 game/bible-quiz -> game/bible-quiz.html
 game/bible-quiz-map -> game/bible-quiz-map.html
+login/login -> login/login.html
+member/mypage -> member/mypage.html
+member/withdraw -> member/withdraw.html
+member/withdraw-complete -> member/withdraw-complete.html
+legal/terms -> legal/terms.html
+legal/privacy -> legal/privacy.html
 study/study -> study/study.html
 study/history -> study/history.html
 study/history-era -> study/history-era.html
@@ -150,4 +180,4 @@ error -> error.html
 * `bible_krv_XX_<book>.sql`
 * `dictionary.sql`
 
-현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 번역본 목록에는 KRV/KJV가 포함되며, KJV는 책 목록만 제공됩니다.
+현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 개역개정(NKRV)은 창세기/출애굽기 본문만 포함되어 있으며, 번역본 목록에는 KRV/KJV/NKRV가 포함되고 KJV는 책 목록만 제공됩니다.

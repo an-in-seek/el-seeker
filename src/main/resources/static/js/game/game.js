@@ -22,13 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (card.classList.contains("coming-soon")) {
             return;
         }
-        if (card.dataset.gameKey === "bible-quiz" && card.dataset.gameRoute) {
-            const gameRoute = card.dataset.gameRoute;
-            // 메뉴 클릭 시에도 서버 인증을 확인합니다.
-            ensureAuthenticated(gameRoute, () => {
-                window.location.href = gameRoute;
-            });
+        const gameRoute = card.dataset.gameRoute;
+        if (!gameRoute) return;
+
+        if (gameRoute.startsWith("#")) {
+            const target = document.querySelector(gameRoute);
+            if (target) {
+                target.scrollIntoView({behavior: "smooth", block: "start"});
+            }
+            return;
         }
+
+        // 메뉴 클릭 시에도 서버 인증을 확인합니다.
+        ensureAuthenticated(gameRoute, () => {
+            window.location.href = gameRoute;
+        });
     };
 
     const gameList = document.querySelector(".game-list");
