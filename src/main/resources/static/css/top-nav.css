@@ -135,11 +135,26 @@
     font-size: 0.95rem;
 }
 
-.top-nav-account-item:hover,
 .top-nav-account-item:focus {
     background: #f1f3f5;
     color: #212529;
     outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .top-nav-account-item:hover {
+        background: #f1f3f5;
+        color: #212529;
+        outline: none;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .top-nav .btn:hover,
+    .top-nav-account-item:hover {
+        background-color: transparent;
+        color: inherit;
+    }
 }
 
 .top-nav-account-divider {
