@@ -1,5 +1,6 @@
 const apiBase = "/api/v1/bible";
 const sessionApi = "/api/v1/game/bible-typing/sessions";
+const resumeApi = "/api/v1/game/bible-typing/verse-results";
 
 const elements = {
     translationSelect: document.getElementById("typingTranslationSelect"),
@@ -10,6 +11,7 @@ const elements = {
     message: document.getElementById("typingMessage"),
     startBtn: document.getElementById("typingStartBtn"),
     endBtn: document.getElementById("typingEndBtn"),
+    resetBtn: document.getElementById("typingResetBtn"),
     verseHeader: document.getElementById("typingVerseHeader"),
     verseStatus: document.getElementById("typingVerseStatus"),
     progressText: document.getElementById("typingProgressText"),
@@ -32,6 +34,7 @@ const state = {
     currentIndex: 0,
     sessionActive: false,
     practiceStarted: false,
+    sessionKey: null,
     transitioning: false,
     composing: false,
     pendingCompleteIndex: null,
@@ -102,6 +105,28 @@ const normalizeText = (text, ignorePunctuation) => {
     return normalized;
 };
 
+const createSessionKey = () => {
+    if (state.sessionKey) return state.sessionKey;
+    if (window.crypto?.randomUUID) {
+        state.sessionKey = window.crypto.randomUUID();
+    } else {
+        state.sessionKey = `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+    return state.sessionKey;
+};
+
+const getResetStorageKey = ({translationId, bookOrder, chapterNumber}) =>
+    `bible-typing-reset:${translationId}:${bookOrder}:${chapterNumber}`;
+
+const getResetTimestamp = (selection) => {
+    const value = window.localStorage.getItem(getResetStorageKey(selection));
+    return value ? Number(value) : 0;
+};
+
+const markResetTimestamp = (selection) => {
+    window.localStorage.setItem(getResetStorageKey(selection), String(Date.now()));
+};
+
 const createOption = (value, label) => {
     const option = document.createElement("option");
     option.value = String(value);
@@ -150,6 +175,10 @@ const updateMetrics = () => {
 const resetSessionState = () => {
     state.sessionActive = false;
     state.practiceStarted = false;
+    state.sessionKey = null;
+    state.transitioning = false;
+    state.composing = false;
+    state.pendingCompleteIndex = null;
     state.startedAt = null;
     state.endedAt = null;
     state.currentIndex = 0;
@@ -162,6 +191,7 @@ const resetSessionState = () => {
         typedText: "",
         normalizedTyped: "",
         correctCount: 0,
+        saved: false,
         completed: false
     }));
     state.tokenMap.clear();
@@ -253,6 +283,32 @@ const focusVerseInput = (index) => {
     input.scrollIntoView({block: "center", behavior: "smooth"});
 };
 
+const saveVerseProgress = async (verseState) => {
+    if (verseState.saved) return;
+    const params = getQueryParams();
+    const payload = {
+        sessionKey: createSessionKey(),
+        translationId: params.translationId,
+        bookOrder: params.bookOrder,
+        chapterNumber: params.chapterNumber,
+        verseNumber: verseState.verseNumber,
+        originalText: verseState.originalText,
+        typedText: verseState.typedText,
+        accuracy: verseState.normalizedTyped.length === 0
+            ? 0
+            : Number(((verseState.correctCount / verseState.normalizedTyped.length) * 100).toFixed(2)),
+        completed: verseState.completed
+    };
+
+    await fetch(resumeApi, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+        credentials: "same-origin"
+    });
+    verseState.saved = true;
+};
+
 const handleVerseComplete = (index) => {
     const verseState = state.verseStates[index];
     verseState.completed = true;
@@ -280,6 +336,9 @@ const handleVerseComplete = (index) => {
     } else {
         endSession(true);
     }
+    saveVerseProgress(verseState).catch(() => {
+        showMessage("구절 기록 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    });
 };
 
 const handleInput = (event) => {
@@ -312,6 +371,7 @@ const handleInput = (event) => {
     if (normalizedInput.length > 0 && !state.sessionActive) {
         state.sessionActive = true;
         state.startedAt = new Date();
+        createSessionKey();
         if (elements.verseStatus) elements.verseStatus.textContent = "진행 중";
         state.timerId = setInterval(updateMetrics, 1000);
     }
@@ -477,11 +537,20 @@ const loadVerses = async (selection) => {
     renderVerses();
     updateHeader();
     updateMetrics();
+    try {
+        const progress = await fetchLatestProgress(selection);
+        if (progress) {
+            applyResumeProgress(progress, selection);
+        }
+    } catch (error) {
+        showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
 };
 
 const startSession = () => {
     if (state.verses.length === 0) return;
     state.practiceStarted = true;
+    createSessionKey();
     if (elements.verseStatus) elements.verseStatus.textContent = "입력 준비";
     activateVerse(state.currentIndex);
     focusVerseInput(state.currentIndex);
@@ -502,6 +571,7 @@ const saveSession = async () => {
     const cpmValue = elapsedMinutes > 0 ? state.totalTyped / elapsedMinutes : 0;
 
     const payload = {
+        sessionKey: createSessionKey(),
         translationId: params.translationId,
         bookOrder: params.bookOrder,
         chapterNumber: params.chapterNumber,
@@ -529,6 +599,96 @@ const saveSession = async () => {
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
+};
+
+const fetchLatestProgress = async (selection) => {
+    const {translationId, bookOrder, chapterNumber} = selection;
+    const response = await fetch(
+        `${resumeApi}?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`,
+        {credentials: "same-origin"}
+    );
+    if (response.status === 204) return null;
+    if (!response.ok) {
+        throw new Error(`요청 실패: ${response.status}`);
+    }
+    return response.json();
+};
+
+const applyResumeProgress = (progress, selection) => {
+    if (!progress || !Array.isArray(progress.verses) || progress.verses.length === 0) return false;
+    const resetAt = getResetTimestamp(selection);
+    const progressAt = Number(new Date(progress.createdAt));
+    if (resetAt && progressAt <= resetAt) return false;
+
+    const ignorePunctuation = elements.ignorePunctuation?.checked;
+    const verseMap = new Map(progress.verses.map((verse) => [verse.verseNumber, verse]));
+    state.sessionKey = progress.sessionKey;
+    state.totalTyped = 0;
+    state.totalCorrect = 0;
+
+    state.verseStates = state.verseStates.map((verse) => {
+        const saved = verseMap.get(verse.verseNumber);
+        if (!saved) return verse;
+        let normalizedTyped = normalizeText(saved.typedText || "", ignorePunctuation);
+        if (saved.completed && normalizedTyped.length === 0) {
+            normalizedTyped = verse.normalizedText;
+        }
+        const correctCount = countCorrectChars(verse.normalizedText, normalizedTyped);
+        state.totalTyped += normalizedTyped.length;
+        state.totalCorrect += correctCount;
+        return {
+            ...verse,
+            typedText: saved.typedText,
+            normalizedTyped,
+            correctCount,
+            completed: saved.completed,
+            saved: true
+        };
+    });
+
+    const firstIncomplete = state.verseStates.findIndex((verse) => !verse.completed);
+    state.currentIndex = firstIncomplete === -1 ? state.verseStates.length - 1 : firstIncomplete;
+    state.practiceStarted = true;
+    if (elements.verseStatus) elements.verseStatus.textContent = "이어하기";
+
+    const rows = elements.verseList.querySelectorAll(".typing-verse-row");
+    rows.forEach((row, index) => {
+        const verseState = state.verseStates[index];
+        if (!verseState) return;
+        const saved = verseMap.get(verseState.verseNumber);
+        const input = row.querySelector(".typing-verse-input");
+        if (input) {
+            if (saved) {
+                input.value = saved.typedText || "";
+            }
+            input.disabled = verseState.completed;
+            input.readOnly = verseState.completed;
+        }
+        if (!state.tokenMap.get(row.dataset.index)) {
+            ensureTokenized(row, verseState.normalizedText);
+        }
+        if (verseState.completed) {
+            row.classList.add("is-complete");
+            updateTokenClasses(row, verseState.normalizedText, verseState.normalizedText);
+        }
+    });
+
+    activateVerse(state.currentIndex);
+    requestAnimationFrame(() => {
+        focusVerseInput(state.currentIndex);
+    });
+    updateMetrics();
+    return true;
+};
+
+const resetProgress = () => {
+    const selection = getQueryParams();
+    if (!selection.translationId || !selection.bookOrder || !selection.chapterNumber) return;
+    markResetTimestamp(selection);
+    resetSessionState();
+    renderVerses();
+    updateHeader();
+    updateMetrics();
 };
 
 const endSession = async (completed) => {
@@ -601,6 +761,12 @@ const bindEvents = () => {
 
     elements.endBtn?.addEventListener("click", () => {
         endSession(false);
+    });
+
+    elements.resetBtn?.addEventListener("click", () => {
+        if (confirm("현재 진행 상황을 초기화하고 처음부터 시작할까요?")) {
+            resetProgress();
+        }
     });
 };
 

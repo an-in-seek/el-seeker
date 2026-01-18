@@ -1,6 +1,7 @@
 package com.elseeker.game.application.service
 
 import com.elseeker.game.adapter.input.api.dto.BibleTypingVerseProgressRequest
+import com.elseeker.game.adapter.input.api.dto.BibleTypingVerseProgressResponse
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseProgressRepository
 import com.elseeker.game.domain.model.BibleTypingVerseProgress
 import com.elseeker.member.domain.model.Member
@@ -39,5 +40,38 @@ class BibleTypingVerseProgressService(
             completed = request.completed
         )
         return bibleTypingVerseProgressRepository.save(progress)
+    }
+
+    @Transactional(readOnly = true)
+    fun getLatestProgress(
+        member: Member,
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int
+    ): BibleTypingVerseProgressResponse? {
+        val latest = bibleTypingVerseProgressRepository
+            .findTopByMemberAndTranslationIdAndBookOrderAndChapterNumberOrderByCreatedAtDesc(
+                member,
+                translationId,
+                bookOrder,
+                chapterNumber
+            ) ?: return null
+
+        val verses = bibleTypingVerseProgressRepository
+            .findAllByMemberAndSessionKeyOrderByVerseNumberAsc(member, latest.sessionKey)
+            .map {
+                BibleTypingVerseProgressResponse.VerseProgress(
+                    verseNumber = it.verseNumber,
+                    typedText = it.typedText,
+                    completed = it.completed,
+                    createdAt = it.createdAt
+                )
+            }
+
+        return BibleTypingVerseProgressResponse(
+            sessionKey = latest.sessionKey,
+            createdAt = latest.createdAt,
+            verses = verses
+        )
     }
 }

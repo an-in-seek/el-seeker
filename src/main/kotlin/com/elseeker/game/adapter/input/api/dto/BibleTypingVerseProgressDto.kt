@@ -11,3 +11,16 @@ data class BibleTypingVerseProgressRequest(
     val accuracy: Double,
     val completed: Boolean
 )
+
+data class BibleTypingVerseProgressResponse(
+    val sessionKey: String,
+    val createdAt: java.time.LocalDateTime,
+    val verses: List<VerseProgress>
+) {
+    data class VerseProgress(
+        val verseNumber: Int,
+        val typedText: String,
+        val completed: Boolean,
+        val createdAt: java.time.LocalDateTime
+    )
+}

@@ -7,4 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface BibleTypingVerseProgressRepository : JpaRepository<BibleTypingVerseProgress, Long> {
     fun existsByMemberAndSessionKeyAndVerseNumber(member: Member, sessionKey: String, verseNumber: Int): Boolean
     fun findFirstByMemberAndSessionKeyAndVerseNumber(member: Member, sessionKey: String, verseNumber: Int): BibleTypingVerseProgress?
+    fun findTopByMemberAndTranslationIdAndBookOrderAndChapterNumberOrderByCreatedAtDesc(
+        member: Member,
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int
+    ): BibleTypingVerseProgress?
+    fun findAllByMemberAndSessionKeyOrderByVerseNumberAsc(member: Member, sessionKey: String): List<BibleTypingVerseProgress>
 }
