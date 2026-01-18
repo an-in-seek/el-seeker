@@ -1,15 +1,15 @@
 package com.elseeker.game.adapter.input.api
 
+import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.game.adapter.input.api.dto.*
 import com.elseeker.game.application.service.QuizStageService
-import com.elseeker.common.security.jwt.JwtPrincipal
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/game/bible-quiz")
-class QuizStageController(
+class QuizStageApi(
     private val quizStageService: QuizStageService
 ) {
 

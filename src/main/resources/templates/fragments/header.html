@@ -71,12 +71,6 @@
                                role="menuitem">
                                 로그아웃
                             </a>
-                            <a id="topNavWithdrawLink"
-                               href="/web/member/withdraw"
-                               class="top-nav-account-item d-none"
-                               role="menuitem">
-                                회원탈퇴
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -95,12 +89,11 @@
         document.addEventListener("DOMContentLoaded", () => {
             const loginLink = document.getElementById("topNavLoginLink");
             const logoutLink = document.getElementById("topNavLogoutLink");
-            const withdrawLink = document.getElementById("topNavWithdrawLink");
             const myPageLink = document.getElementById("topNavMyPageLink");
             const accountDivider = document.getElementById("topNavAccountDivider");
             const accountButton = document.getElementById("topNavAccountButton");
             const accountMenu = document.getElementById("topNavAccountMenu");
-            if (!loginLink || !logoutLink || !withdrawLink || !myPageLink || !accountDivider || !accountButton || !accountMenu) {
+            if (!loginLink || !logoutLink || !myPageLink || !accountDivider || !accountButton || !accountMenu) {
                 return;
             }
             const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -111,7 +104,6 @@
                 onAuthenticated: () => {
                     logoutLink.classList.remove("d-none");
                     myPageLink.classList.remove("d-none");
-                    withdrawLink.classList.remove("d-none");
                     accountDivider.classList.remove("d-none");
                 },
                 onUnauthenticated: () => {

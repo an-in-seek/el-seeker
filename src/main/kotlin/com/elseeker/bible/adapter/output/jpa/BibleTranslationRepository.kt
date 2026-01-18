@@ -11,6 +11,8 @@ interface BibleTranslationRepository : JpaRepository<BibleTranslation, Long> {
 
     fun findAllByTranslationTypeInOrderByTranslationOrder(translationTypes: Set<BibleTranslationType>): List<BibleTranslation>
 
+    fun findByTranslationType(translationType: BibleTranslationType): BibleTranslation?
+
     @Query(
         """
         SELECT t 

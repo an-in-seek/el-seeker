@@ -15,6 +15,12 @@ class MemberWebController {
         return "member/withdraw"
     }
 
+    @GetMapping("/mypage")
+    fun showMyPage(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/member/mypage")?.let { return it }
+        return "member/mypage"
+    }
+
     @GetMapping("/withdraw/complete")
     fun showWithdrawComplete(): String {
         return "member/withdraw-complete"

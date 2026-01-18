@@ -51,4 +51,41 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         @Param("keyword") keyword: String
     ): Long
 
+    @Query(
+        """
+        SELECT new com.elseeker.bible.adapter.input.api.response.BibleSearchResponse(
+                    b.id,
+                    b.bookOrder,
+                    b.name,
+                    c.id,
+                    c.chapterNumber,
+                    v.id,
+                    v.verseNumber,
+                    v.text
+                )
+        FROM BibleVerse v
+        JOIN BibleChapter c ON v.chapterId = c.id
+        JOIN BibleBook b ON c.bookId = b.id
+        WHERE b.translationId = :translationId
+        ORDER BY b.bookOrder, c.chapterNumber, v.verseNumber
+        """
+    )
+    fun findSliceByTranslation(
+        @Param("translationId") translationId: Long,
+        pageable: Pageable
+    ): Slice<BibleSearchResponse>
+
+    @Query(
+        """
+        SELECT COUNT(v.id)
+        FROM BibleVerse v
+        JOIN BibleChapter c ON v.chapterId = c.id
+        JOIN BibleBook b ON c.bookId = b.id
+        WHERE b.translationId = :translationId
+        """
+    )
+    fun countByTranslationId(
+        @Param("translationId") translationId: Long
+    ): Long
+
 }

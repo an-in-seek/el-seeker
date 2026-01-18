@@ -1,7 +1,9 @@
 package com.elseeker.bible.adapter.input.api
 
 import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
+import com.elseeker.bible.adapter.input.api.response.BibleDailyVerseResponse
 import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
+import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.DirectionType
 import org.springframework.http.ResponseEntity
 
@@ -60,4 +62,11 @@ interface BibleApiDocument {
         page: Int,
         size: Int
     ): ResponseEntity<BibleSearchSliceResponse>
+
+    /**
+     * 📌 오늘의 묵상 구절 (일 단위 랜덤)
+     */
+    fun getDailyVerse(
+        translationType: BibleTranslationType
+    ): ResponseEntity<BibleDailyVerseResponse>
 }

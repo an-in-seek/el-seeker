@@ -3,9 +3,12 @@ package com.elseeker.bible.application.service
 import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
 import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
 import com.elseeker.bible.application.component.BibleReader
+import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.DirectionType
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Service
 class BibleService(
@@ -37,4 +40,9 @@ class BibleService(
         size: Int
     ): BibleSearchSliceResponse =
         bibleReader.searchBibleVersesSlice(translationId, keyword, page, size)
+
+    fun getDailyVerse(
+        translationType: BibleTranslationType,
+        date: LocalDate = LocalDate.now(ZoneId.of("Asia/Seoul"))
+    ) = bibleReader.getDailyRandomVerse(translationType, date)
 }

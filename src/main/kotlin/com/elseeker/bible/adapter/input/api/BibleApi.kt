@@ -1,8 +1,10 @@
 package com.elseeker.bible.adapter.input.api
 
 import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
+import com.elseeker.bible.adapter.input.api.response.BibleDailyVerseResponse
 import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
 import com.elseeker.bible.application.service.BibleService
+import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.DirectionType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -75,5 +77,13 @@ class BibleApi(
     ): ResponseEntity<BibleSearchSliceResponse> {
         val response = bibleService.searchBibleVersesSlice(translationId, keyword, page, size)
         return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/daily")
+    override fun getDailyVerse(
+        @RequestParam(defaultValue = "KRV") translationType: BibleTranslationType
+    ): ResponseEntity<BibleDailyVerseResponse> {
+        val verse = bibleService.getDailyVerse(translationType)
+        return ResponseEntity.ok(BibleDailyVerseResponse.from(translationType, verse))
     }
 }

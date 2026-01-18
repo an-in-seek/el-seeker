@@ -1,6 +1,7 @@
 package com.elseeker.bible.application.component
 
 import com.elseeker.bible.adapter.input.api.response.BibleApiResponse
+import com.elseeker.bible.adapter.input.api.response.BibleSearchResponse
 import com.elseeker.bible.adapter.input.api.response.BibleSearchSliceResponse
 import com.elseeker.bible.adapter.output.jpa.*
 import com.elseeker.bible.domain.result.BibleResult
@@ -12,6 +13,8 @@ import com.elseeker.common.domain.throwError
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
+import java.util.Random
 
 @Component
 @Transactional(readOnly = true)
@@ -171,4 +174,27 @@ class BibleReader(
         bibleTranslationRepository.findById(translationId)
             .orElse(null)
             ?.languageCode
+
+    fun getDailyRandomVerse(
+        translationType: BibleTranslationType,
+        date: LocalDate
+    ): BibleSearchResponse {
+        val translation = bibleTranslationRepository.findByTranslationType(translationType)
+            ?: throwError(ErrorType.TRANSLATION_NOT_FOUND)
+        val translationId = translation.id ?: throwError(ErrorType.TRANSLATION_NOT_FOUND)
+        val totalCount = bibleVerseRepository.countByTranslationId(translationId)
+        if (totalCount <= 0) {
+            throwError(ErrorType.DB_ERROR, "No verses found for translationId=$translationId")
+        }
+
+        val seed = date.toEpochDay() + (translationId * 31L)
+        val randomIndex = Random(seed).nextInt(totalCount.toInt())
+        val slice = bibleVerseRepository.findSliceByTranslation(
+            translationId,
+            PageRequest.of(randomIndex, 1)
+        )
+
+        return slice.content.firstOrNull()
+            ?: throwError(ErrorType.DB_ERROR, "No verse found for translationId=$translationId")
+    }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/auth")
-class AuthApiController(
+class AuthApi(
     private val memberService: MemberService
 ) {
 
