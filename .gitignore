@@ -43,3 +43,6 @@ out/
 ### Env ###
 /src/main/resources/keys/
 .env
+
+### Docs ###
+/docs/auth/
