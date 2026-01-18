@@ -1,29 +1,118 @@
 .game-hero {
     background: linear-gradient(135deg, #f7fbff 0%, #fff4ea 100%);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+}
+
+.game-hero-content {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.game-hero-eyebrow {
+    color: #4a6fa5;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.game-hero-title {
+    font-weight: 800;
+    color: #1a202c;
+    margin-bottom: 1rem;
+}
+
+.game-hero-lead {
+    color: #4a5568;
+    font-size: 1.1rem;
+    line-height: 1.6;
 }
 
 .game-card-icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    background: rgba(31, 42, 68, 0.08);
-    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    background: rgba(31, 42, 68, 0.05);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.card-clickable:hover .game-card-icon {
+    transform: scale(1.1) rotate(5deg);
+    background: rgba(31, 42, 68, 0.1);
 }
 
 .game-card-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 .game-card-meta .badge {
     font-weight: 500;
-    color: #3a4a66;
-    border: 1px solid #e3e8f1;
+    color: #475569;
+    background-color: #f1f5f9 !important; /* Override text-bg-light for better contrast */
+    border: 1px solid #e2e8f0;
+    padding: 0.4em 0.6em;
+}
+
+/* Active Card Styles */
+.card-clickable {
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+}
+
+.card-clickable:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.card-clickable:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 4px;
+    border-radius: 0.5rem;
+}
+
+/* Coming Soon Styles */
+.card.coming-soon {
+    background-color: #f8fafc;
+    border-color: #f1f5f9;
+    cursor: default;
+    opacity: 0.85;
+    height: 100%;
+}
+
+.card.coming-soon .game-card-icon {
+    filter: grayscale(100%);
+    opacity: 0.5;
+    background: #e2e8f0;
+}
+
+.card.coming-soon .card-title,
+.card.coming-soon h3 {
+    color: #94a3b8;
+}
+
+.card.coming-soon .text-muted {
+    color: #cbd5e1 !important;
+}
+
+.card.coming-soon .badge {
+    opacity: 0.6;
 }
 
 @media (max-width: 576px) {
@@ -31,5 +120,9 @@
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
+    }
+
+    .game-hero {
+        padding: 2rem 1rem;
     }
 }

@@ -18,33 +18,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    const handleGameCardAction = (card) => {
+        if (card.classList.contains("coming-soon")) {
+            return;
+        }
+        if (card.dataset.gameKey === "bible-quiz" && card.dataset.gameRoute) {
+            const gameRoute = card.dataset.gameRoute;
+            // 메뉴 클릭 시에도 서버 인증을 확인합니다.
+            ensureAuthenticated(gameRoute, () => {
+                window.location.href = gameRoute;
+            });
+        }
+    };
+
     const gameList = document.querySelector(".game-list");
     if (gameList) {
+        // Mouse Click Event
         gameList.addEventListener("click", (event) => {
             const card = event.target.closest(".card");
-            if (!card) {
-                return;
-            }
-            if (card.classList.contains("coming-soon")) {
+            if (!card) return;
+            
+            event.preventDefault();
+            handleGameCardAction(card);
+        });
+
+        // Keyboard Event (Enter or Space)
+        gameList.addEventListener("keydown", (event) => {
+            const card = event.target.closest(".card");
+            if (!card) return;
+
+            if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                return;
-            }
-            if (card.dataset.gameKey === "bible-quiz" && card.dataset.gameRoute) {
-                const gameRoute = card.dataset.gameRoute;
-                event.preventDefault();
-                // 메뉴 클릭 시에도 서버 인증을 확인합니다.
-                ensureAuthenticated(gameRoute, () => {
-                    window.location.href = gameRoute;
-                });
+                handleGameCardAction(card);
             }
         });
     }
+
     const comingSoonCards = document.querySelectorAll(".coming-soon");
     comingSoonCards.forEach((card) => {
         card.addEventListener("click", (event) => {
             event.preventDefault();
         });
+        // Remove tabindex from coming soon cards if present, or ensure they are not focusable
+        card.removeAttribute("tabindex");
+        card.removeAttribute("role");
     });
+
     const pageTitleLabel = document.getElementById("pageTitleLabel");
     if (pageTitleLabel) {
         pageTitleLabel.textContent = "게임";
