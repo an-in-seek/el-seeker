@@ -67,6 +67,24 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
+/* Action Buttons */
+.typing-action-bar {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.typing-action-bar .btn {
+    min-width: 110px;
+}
+
 .status-item {
     display: flex;
     flex-direction: column;
@@ -217,6 +235,14 @@
 }
 
 @media (max-width: 768px) {
+    .typing-action-bar {
+        justify-content: center;
+    }
+
+    .typing-action-bar .btn {
+        flex: 1 1 140px;
+    }
+
     .typing-status-bar {
         padding: 1rem;
     }

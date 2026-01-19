@@ -47,6 +47,11 @@ const state = {
 };
 
 const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
+const UI_STATUS = {
+    WAITING: "대기",
+    IN_PROGRESS: "진행",
+    COMPLETED: "완료"
+};
 
 const fetchJson = async (url) => {
     const response = await fetch(url, {credentials: "same-origin"});
@@ -170,6 +175,28 @@ const updateMetrics = () => {
 
 };
 
+const toggleButton = (button, shouldShow) => {
+    if (!button) return;
+    button.classList.toggle("d-none", !shouldShow);
+};
+
+const getUiStatus = () => {
+    const hasVerses = state.verseStates.length > 0;
+    const allCompleted = hasVerses && state.verseStates.every((verse) => verse.completed);
+    if (allCompleted) return UI_STATUS.COMPLETED;
+    if (state.practiceStarted || state.sessionActive) return UI_STATUS.IN_PROGRESS;
+    return UI_STATUS.WAITING;
+};
+
+const updateActionButtons = (status = getUiStatus()) => {
+    const isWaiting = status === UI_STATUS.WAITING;
+    const isInProgress = status === UI_STATUS.IN_PROGRESS;
+    const isCompleted = status === UI_STATUS.COMPLETED;
+    toggleButton(elements.startBtn, isWaiting);
+    toggleButton(elements.endBtn, isInProgress);
+    toggleButton(elements.resetBtn, isCompleted);
+};
+
 const resetSessionState = () => {
     state.sessionActive = false;
     state.practiceStarted = false;
@@ -200,6 +227,7 @@ const resetSessionState = () => {
     if (elements.verseStatus) elements.verseStatus.textContent = "대기";
     if (elements.sessionSummary) elements.sessionSummary.classList.add("d-none");
     updateMetrics();
+    updateActionButtons();
 };
 
 const ensureTokenized = (row, normalizedText) => {
@@ -562,6 +590,7 @@ const startSession = () => {
     if (elements.verseStatus) elements.verseStatus.textContent = "입력 준비";
     activateVerse(state.currentIndex);
     focusVerseInput(state.currentIndex);
+    updateActionButtons();
 };
 
 const formatLocalDateTime = (date) => {
@@ -691,6 +720,7 @@ const applyResumeProgress = (progress, selection) => {
         });
     }
     updateMetrics();
+    updateActionButtons();
     return true;
 };
 
@@ -702,6 +732,7 @@ const resetProgress = () => {
     renderVerses();
     updateHeader();
     updateMetrics();
+    updateActionButtons();
 };
 
 const endSession = async (completed) => {
@@ -720,6 +751,7 @@ const endSession = async (completed) => {
     }
     if (elements.verseStatus) elements.verseStatus.textContent = completed ? "완료" : "종료";
     updateMetrics();
+    updateActionButtons();
 
     if (elements.sessionSummary) {
         elements.sessionSummary.classList.remove("d-none");

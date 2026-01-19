@@ -10,11 +10,6 @@
     <div class="text-center mb-5">
         <span class="typing-kicker">Bible Typing Studio</span>
         <h1 class="typing-hero-title mb-3">성경 타자 스튜디오</h1>
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-dark px-4 rounded-pill" id="typingStartBtn">연습 시작</button>
-            <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" id="typingEndBtn">종료</button>
-            <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" id="typingResetBtn">초기화</button>
-        </div>
     </div>
 
     <!-- Main Workspace: 중앙 집중형 1단 레이아웃 -->
@@ -42,7 +37,14 @@
                 </div>
             </div>
 
-            <!-- 2. Status Bar: 실시간 지표 통합 -->
+            <!-- 3. Action Buttons -->
+            <div class="typing-action-bar mb-3">
+                <button type="button" class="btn btn-dark px-4 rounded-pill d-none" id="typingStartBtn">연습 시작</button>
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-pill d-none" id="typingEndBtn">종료</button>
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-pill d-none" id="typingResetBtn">초기화</button>
+            </div>
+
+            <!-- 3. Status Bar: 실시간 지표 통합 -->
             <div class="typing-status-bar mb-3">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <!-- 왼쪽: 진행률 -->
