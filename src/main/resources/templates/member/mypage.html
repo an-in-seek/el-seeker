@@ -11,7 +11,6 @@
                 <img id="mypageAvatar" src="/images/user.png" alt="프로필 이미지" loading="lazy">
             </div>
             <div class="mypage-intro">
-                <p class="mypage-eyebrow">오늘의 말씀과 함께</p>
                 <h1 id="mypageTitle" class="mypage-title">계정을 불러오는 중입니다</h1>
                 <p id="mypageEmail" class="mypage-email">잠시만 기다려 주세요.</p>
                 <div class="mypage-badges">
@@ -26,38 +25,14 @@
         <div class="col-12 col-lg-7">
             <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="h5 fw-bold mb-0">계정 정보</h2>
-                        <span class="mypage-status-pill">보안 유지 중</span>
-                    </div>
-                    <dl class="mypage-info-list">
-                        <div class="mypage-info-item">
-                            <dt>닉네임</dt>
-                            <dd id="mypageNicknameDetail">-</dd>
-                        </div>
-                        <div class="mypage-info-item">
-                            <dt>이메일</dt>
-                            <dd id="mypageEmailDetail">-</dd>
-                        </div>
-                        <div class="mypage-info-item">
-                            <dt>권한</dt>
-                            <dd id="mypageRoleDetail">-</dd>
-                        </div>
-                        <div class="mypage-info-item">
-                            <dt>연동 계정</dt>
-                            <dd id="mypageProviderDetail">-</dd>
-                        </div>
-                    </dl>
-                    <div class="mypage-divider"></div>
                     <form id="mypageEditForm" class="mypage-edit-form">
                         <h3 class="h6 fw-bold mb-3">회원 정보 수정</h3>
                         <div class="mb-3">
                             <label class="form-label" for="mypageNicknameInput">닉네임</label>
-                            <input id="mypageNicknameInput" class="form-control" type="text" autocomplete="nickname" required>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button id="mypageSaveButton" class="btn btn-primary" type="submit">저장하기</button>
-                            <button id="mypageResetButton" class="btn btn-outline-secondary" type="button">초기화</button>
+                            <div class="mypage-nickname-row">
+                                <input id="mypageNicknameInput" class="form-control" type="text" autocomplete="nickname" required>
+                                <button id="mypageSaveButton" class="btn btn-primary" type="submit">저장하기</button>
+                            </div>
                         </div>
                     </form>
                     <div id="mypageSuccessMessage" class="alert alert-success mt-3 d-none" role="alert"></div>

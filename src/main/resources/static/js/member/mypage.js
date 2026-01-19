@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
-    const resetButton = document.getElementById("mypageResetButton");
 
     let memberUid = null;
     let initialNickname = "";
@@ -51,12 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const setFormEnabled = (enabled) => {
-        if (!nicknameInput || !saveButton || !resetButton) {
+        if (!nicknameInput || !saveButton) {
             return;
         }
         nicknameInput.disabled = !enabled;
         saveButton.disabled = !enabled;
-        resetButton.disabled = !enabled;
     };
 
     const resetMessages = () => {
@@ -117,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const providerKey = (data.provider || "").toLowerCase();
             const providerLabel = providerLabels[providerKey] || data.provider || "연동 없음";
 
-            updateText(title, `${displayName} 님`);
+            updateText(title, `${displayName}`);
             updateText(email, emailValue || "이메일 정보 없음");
             updateText(nicknameDetail, nicknameValue || "미등록");
             updateText(emailDetail, emailValue || "미등록");
@@ -170,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     body: JSON.stringify({
                         nickname: nicknameValue,
-                        // profileImageUrl is omitted as requested
                     }),
                 });
 
@@ -218,15 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 showAuthError(errorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
             } finally {
                 setFormEnabled(true);
-            }
-        });
-    }
-
-    if (resetButton) {
-        resetButton.addEventListener("click", () => {
-            resetMessages();
-            if (nicknameInput) {
-                nicknameInput.value = initialNickname;
             }
         });
     }
