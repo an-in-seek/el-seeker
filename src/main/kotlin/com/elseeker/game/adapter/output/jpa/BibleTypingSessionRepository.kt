@@ -17,8 +17,8 @@ interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long>
           AND (:translationId IS NULL OR session.translationId = :translationId)
           AND (:bookOrder IS NULL OR session.bookOrder = :bookOrder)
           AND (:chapterNumber IS NULL OR session.chapterNumber = :chapterNumber)
-          AND (:fromDate IS NULL OR session.createdAt >= :fromDate)
-          AND (:toDate IS NULL OR session.createdAt <= :toDate)
+          AND session.createdAt >= :fromDate
+          AND session.createdAt <= :toDate
         ORDER BY session.createdAt DESC
         """
     )
@@ -27,7 +27,7 @@ interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long>
         @Param("translationId") translationId: Long?,
         @Param("bookOrder") bookOrder: Int?,
         @Param("chapterNumber") chapterNumber: Int?,
-        @Param("fromDate") fromDate: LocalDateTime?,
-        @Param("toDate") toDate: LocalDateTime?
+        @Param("fromDate") fromDate: LocalDateTime,
+        @Param("toDate") toDate: LocalDateTime
     ): List<BibleTypingSession>
 }

@@ -9,5 +9,7 @@ data class BibleTypingVerseProgressRequest(
     val originalText: String,
     val typedText: String,
     val accuracy: Double,
+    val cpm: Double,
+    val elapsedSeconds: Int,
     val completed: Boolean
 )

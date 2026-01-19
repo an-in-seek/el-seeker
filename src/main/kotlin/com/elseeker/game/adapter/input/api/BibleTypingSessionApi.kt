@@ -54,6 +54,7 @@ class BibleTypingSessionApi(
         val response = sessions.map {
             BibleTypingSessionSummaryResponse(
                 sessionId = it.id!!,
+                sessionKey = it.sessionKey,
                 translationId = it.translationId,
                 bookOrder = it.bookOrder,
                 chapterNumber = it.chapterNumber,
@@ -61,6 +62,8 @@ class BibleTypingSessionApi(
                 completedVerses = it.completedVerses,
                 accuracy = it.accuracy,
                 cpm = it.cpm,
+                startedAt = it.startedAt,
+                endedAt = it.endedAt,
                 createdAt = it.createdAt
             )
         }

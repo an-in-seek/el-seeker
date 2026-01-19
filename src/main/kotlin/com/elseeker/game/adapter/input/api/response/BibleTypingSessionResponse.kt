@@ -9,6 +9,7 @@ data class BibleTypingSessionResponse(
 
 data class BibleTypingSessionSummaryResponse(
     val sessionId: Long,
+    val sessionKey: String,
     val translationId: Long,
     val bookOrder: Int,
     val chapterNumber: Int,
@@ -16,5 +17,7 @@ data class BibleTypingSessionSummaryResponse(
     val completedVerses: Int,
     val accuracy: Double,
     val cpm: Double,
+    val startedAt: LocalDateTime,
+    val endedAt: LocalDateTime,
     val createdAt: LocalDateTime
 )

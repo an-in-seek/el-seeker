@@ -32,14 +32,20 @@ class BibleTypingVerseProgress(
     val verseNumber: Int,
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    val originalText: String,
+    var originalText: String,
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    val typedText: String,
+    var typedText: String,
 
     @Column(nullable = false)
-    val accuracy: Double,
+    var accuracy: Double,
+
+    @Column(nullable = false, columnDefinition = "double precision default 0")
+    var cpm: Double,
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    var elapsedSeconds: Int,
 
     @Column(nullable = false)
-    val completed: Boolean
+    var completed: Boolean
 ) : BaseTimeEntity()

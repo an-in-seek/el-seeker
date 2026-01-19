@@ -15,17 +15,19 @@ class BibleTypingVerseProgressService(
 
     @Transactional
     fun saveProgress(member: Member, request: BibleTypingVerseProgressRequest): BibleTypingVerseProgress {
-        if (bibleTypingVerseProgressRepository.existsByMemberAndSessionKeyAndVerseNumber(
-                member,
-                request.sessionKey,
-                request.verseNumber
-            )
-        ) {
-            return bibleTypingVerseProgressRepository.findFirstByMemberAndSessionKeyAndVerseNumber(
-                member,
-                request.sessionKey,
-                request.verseNumber
-            ) ?: throw IllegalStateException("Verse progress already exists but was not found.")
+        val existing = bibleTypingVerseProgressRepository.findFirstByMemberAndSessionKeyAndVerseNumber(
+            member,
+            request.sessionKey,
+            request.verseNumber
+        )
+        if (existing != null) {
+            existing.originalText = request.originalText
+            existing.typedText = request.typedText
+            existing.accuracy = request.accuracy
+            existing.cpm = request.cpm
+            existing.elapsedSeconds = request.elapsedSeconds
+            existing.completed = request.completed
+            return bibleTypingVerseProgressRepository.save(existing)
         }
         val progress = BibleTypingVerseProgress(
             member = member,
@@ -37,6 +39,8 @@ class BibleTypingVerseProgressService(
             originalText = request.originalText,
             typedText = request.typedText,
             accuracy = request.accuracy,
+            cpm = request.cpm,
+            elapsedSeconds = request.elapsedSeconds,
             completed = request.completed
         )
         return bibleTypingVerseProgressRepository.save(progress)

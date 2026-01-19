@@ -11,7 +11,6 @@ const elements = {
     verseList: document.getElementById("typingVerseList"),
     message: document.getElementById("typingMessage"),
     startBtn: document.getElementById("typingStartBtn"),
-    endBtn: document.getElementById("typingEndBtn"),
     resetBtn: document.getElementById("typingResetBtn"),
     verseHeader: document.getElementById("typingVerseHeader"),
     verseStatus: document.getElementById("typingVerseStatus"),
@@ -50,7 +49,8 @@ const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
 const UI_STATUS = {
     WAITING: "대기",
     IN_PROGRESS: "진행",
-    COMPLETED: "완료"
+    COMPLETED: "완료",
+    ENDED: "종료"
 };
 
 const fetchJson = async (url) => {
@@ -184,17 +184,17 @@ const getUiStatus = () => {
     const hasVerses = state.verseStates.length > 0;
     const allCompleted = hasVerses && state.verseStates.every((verse) => verse.completed);
     if (allCompleted) return UI_STATUS.COMPLETED;
-    if (state.practiceStarted || state.sessionActive) return UI_STATUS.IN_PROGRESS;
+    if (state.endedAt) return UI_STATUS.ENDED;
+    if (state.sessionActive) return UI_STATUS.IN_PROGRESS;
     return UI_STATUS.WAITING;
 };
 
 const updateActionButtons = (status = getUiStatus()) => {
     const isWaiting = status === UI_STATUS.WAITING;
-    const isInProgress = status === UI_STATUS.IN_PROGRESS;
     const isCompleted = status === UI_STATUS.COMPLETED;
+    const isEnded = status === UI_STATUS.ENDED;
     toggleButton(elements.startBtn, isWaiting);
-    toggleButton(elements.endBtn, isInProgress);
-    toggleButton(elements.resetBtn, isCompleted);
+    toggleButton(elements.resetBtn, isCompleted || isEnded);
 };
 
 const resetSessionState = () => {
@@ -312,6 +312,15 @@ const focusVerseInput = (index) => {
 const saveVerseProgress = async (verseState) => {
     if (verseState.saved) return;
     const params = getQueryParams();
+    const elapsedSeconds = getElapsedSeconds();
+    const elapsedMinutes = elapsedSeconds / 60;
+    const cpmValue = elapsedMinutes > 0 ? Math.round(state.totalTyped / elapsedMinutes) : 0;
+    const accuracyValue = state.totalTyped === 0
+        ? 0
+        : Number(((state.totalCorrect / state.totalTyped) * 100).toFixed(2));
+    const verseAccuracy = verseState.normalizedTyped.length === 0
+        ? 0
+        : Number(((verseState.correctCount / verseState.normalizedTyped.length) * 100).toFixed(2));
     const payload = {
         sessionKey: createSessionKey(),
         translationId: params.translationId,
@@ -320,9 +329,9 @@ const saveVerseProgress = async (verseState) => {
         verseNumber: verseState.verseNumber,
         originalText: verseState.originalText,
         typedText: verseState.typedText,
-        accuracy: verseState.normalizedTyped.length === 0
-            ? 0
-            : Number(((verseState.correctCount / verseState.normalizedTyped.length) * 100).toFixed(2)),
+        accuracy: verseAccuracy,
+        cpm: cpmValue,
+        elapsedSeconds,
         completed: verseState.completed
     };
 
@@ -400,6 +409,7 @@ const handleInput = (event) => {
         createSessionKey();
         if (elements.verseStatus) elements.verseStatus.textContent = "진행 중";
         state.timerId = setInterval(updateMetrics, 1000);
+        updateActionButtons();
     }
 
     if (normalizedInput === normalizedText && !verseState.completed) {
@@ -576,7 +586,15 @@ const loadVerses = async (selection) => {
     try {
         const progress = await fetchLatestProgress(selection);
         if (progress) {
-            applyResumeProgress(progress, selection);
+            const applied = applyResumeProgress(progress, selection);
+            if (applied) {
+                try {
+                    const summary = await fetchLatestSessionSummary(selection);
+                    applySessionSummary(summary, progress.sessionKey);
+                } catch (error) {
+                    showMessage("세션 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+                }
+            }
         }
     } catch (error) {
         showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
@@ -651,6 +669,31 @@ const fetchLatestProgress = async (selection) => {
     return response.json();
 };
 
+const fetchLatestSessionSummary = async (selection) => {
+    const {translationId, bookOrder, chapterNumber} = selection;
+    const params = new URLSearchParams({
+        translationId: String(translationId),
+        bookOrder: String(bookOrder),
+        chapterNumber: String(chapterNumber)
+    });
+    const response = await fetch(`${sessionApi}?${params.toString()}`, {credentials: "same-origin"});
+    if (!response.ok) {
+        throw new Error(`요청 실패: ${response.status}`);
+    }
+    const sessions = await response.json();
+    if (!Array.isArray(sessions) || sessions.length === 0) return null;
+    return sessions[0];
+};
+
+const applySessionSummary = (summary, sessionKey) => {
+    if (!summary) return false;
+    if (sessionKey && summary.sessionKey !== sessionKey) return false;
+    state.startedAt = summary.startedAt ? new Date(summary.startedAt) : null;
+    state.endedAt = summary.endedAt ? new Date(summary.endedAt) : null;
+    updateMetrics();
+    return true;
+};
+
 const applyResumeProgress = (progress, selection) => {
     if (!progress || !Array.isArray(progress.verses) || progress.verses.length === 0) return false;
     const resetAt = getResetTimestamp(selection);
@@ -688,7 +731,7 @@ const applyResumeProgress = (progress, selection) => {
     state.currentIndex = allCompleted ? state.verseStates.length - 1 : firstIncomplete;
     state.practiceStarted = !allCompleted;
     if (elements.verseStatus) {
-        elements.verseStatus.textContent = allCompleted ? "완료" : "이어하기";
+        elements.verseStatus.textContent = allCompleted ? "완료" : "진행";
     }
 
     const rows = elements.verseList.querySelectorAll(".typing-verse-row");
@@ -753,15 +796,14 @@ const endSession = async (completed) => {
     updateMetrics();
     updateActionButtons();
 
-    if (elements.sessionSummary) {
-        elements.sessionSummary.classList.remove("d-none");
-        elements.sessionSummaryText.textContent = completed
-            ? "선택한 장의 모든 구절을 마쳤습니다. 기록을 저장했습니다."
-            : "세션을 종료했습니다. 입력한 기록을 저장했습니다.";
-    }
-
     try {
         await saveSession();
+        if (elements.sessionSummary) {
+            elements.sessionSummary.classList.remove("d-none");
+            elements.sessionSummaryText.textContent = completed
+                ? "선택한 장의 모든 구절을 마쳤습니다. 기록을 저장했습니다."
+                : "세션을 종료했습니다. 입력한 기록을 저장했습니다.";
+        }
     } catch (error) {
         showMessage("세션 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     }
@@ -802,10 +844,6 @@ const bindEvents = () => {
 
     elements.startBtn?.addEventListener("click", () => {
         startSession();
-    });
-
-    elements.endBtn?.addEventListener("click", () => {
-        endSession(false);
     });
 
     elements.resetBtn?.addEventListener("click", () => {
