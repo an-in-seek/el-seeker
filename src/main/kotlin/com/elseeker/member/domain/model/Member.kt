@@ -77,10 +77,24 @@ class Member(
         )
     }
 
+    fun update(
+        nickname: String,
+        profileImageUrl: String?
+    ) {
+        val trimmed = nickname.trim()
+        if (trimmed.isBlank()) {
+            throwError(ErrorType.REQUIRED_NICKNAME)
+        }
+        if (trimmed.contains(' ')) {
+            throwError(ErrorType.INVALID_NICKNAME_FORMAT)
+        }
+        this.nickname = nickname.trim()
+        profileImageUrl?.let { this.profileImageUrl = it }
+    }
+
+
     /**
      * [도메인 비즈니스 메서드] OAuth 정보 동기화
-     * - 책임 1: 공급자(Provider) 일치 여부 검증 (Invariants)
-     * - 책임 2: 프로필 정보 업데이트 (State Change)
      */
     fun syncWithOAuth(
         inputProvider: OAuthProvider,
@@ -88,21 +102,16 @@ class Member(
         newNickname: String,
         newProfileImageUrl: String?
     ) {
-        // 1. 공급자 일치 여부 검증
         if (this.provider != inputProvider) {
             throwError(ErrorType.PROVIDER_MISMATCH, inputProvider.registrationId)
         }
         if (this.providerUserId != inputProviderUserId) {
             throwError(ErrorType.PROVIDER_USER_ID_MISMATCH, inputProvider.registrationId)
         }
-
-        // 2. 닉네임이 비어있지 않을 때만 업데이트 (선택 사항, 빈값 방지)
-        if (newNickname.isNotBlank()) {
+        if (newNickname.isNotBlank() && this.nickname.isBlank()) {
             this.nickname = newNickname
         }
-
-        // 3. 프로필 이미지가 넘어왔을 때만 업데이트 (기존 이미지 보존)
-        if (newProfileImageUrl != null) {
+        if (newProfileImageUrl != null && this.profileImageUrl.isNullOrBlank()) {
             this.profileImageUrl = newProfileImageUrl
         }
     }
