@@ -1,4 +1,5 @@
 import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
+import {LastReadStore} from "/js/storage-util.js?v=2.1";
 
 const roleLabels = {
     ADMIN: "관리자",
@@ -41,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
+    const homeButton = document.querySelector(".top-nav-home-button");
 
     let memberUid = null;
     let initialNickname = "";
@@ -99,6 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     setFormEnabled(false);
+    if (homeButton) {
+        homeButton.addEventListener("click", () => {
+            LastReadStore.clear();
+        });
+    }
 
     checkAuthStatus({
         onAuthenticated: (data) => {
