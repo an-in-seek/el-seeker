@@ -67,6 +67,9 @@ class BibleTypingVerseProgressService(
                 BibleTypingVerseProgressResponse.VerseProgress(
                     verseNumber = it.verseNumber,
                     typedText = it.typedText,
+                    accuracy = it.accuracy,
+                    cpm = it.cpm,
+                    elapsedSeconds = it.elapsedSeconds,
                     completed = it.completed,
                     createdAt = it.createdAt
                 )

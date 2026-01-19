@@ -3,6 +3,14 @@ const sessionApi = "/api/v1/game/bible-typing/sessions";
 const resumeApi = "/api/v1/game/bible-typing/verse-results";
 const FIXED_TRANSLATION_CODE = "KRV";
 
+const UI_STATUS = {
+    WAITING: "대기",
+    IN_PROGRESS: "진행",
+    COMPLETED: "완료"
+};
+
+const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
+
 const elements = {
     translationSelect: document.getElementById("typingTranslationSelect"),
     bookSelect: document.getElementById("typingBookSelect"),
@@ -10,6 +18,7 @@ const elements = {
     ignorePunctuation: document.getElementById("typingIgnorePunctuation"),
     verseList: document.getElementById("typingVerseList"),
     message: document.getElementById("typingMessage"),
+    actionBar: document.querySelector(".typing-action-bar"),
     startBtn: document.getElementById("typingStartBtn"),
     resetBtn: document.getElementById("typingResetBtn"),
     verseHeader: document.getElementById("typingVerseHeader"),
@@ -43,14 +52,6 @@ const state = {
     totalTyped: 0,
     totalCorrect: 0,
     timerId: null
-};
-
-const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
-const UI_STATUS = {
-    WAITING: "대기",
-    IN_PROGRESS: "진행",
-    COMPLETED: "완료",
-    ENDED: "종료"
 };
 
 const fetchJson = async (url) => {
@@ -158,21 +159,36 @@ const getElapsedSeconds = () => {
     return Math.max(0, Math.floor((now - state.startedAt) / 1000));
 };
 
+const computeAccuracyPercent = (correct, total, precision = 0) => {
+    if (total === 0) return 0;
+    const value = (correct / total) * 100;
+    return precision === 0 ? Math.round(value) : Number(value.toFixed(precision));
+};
+
+const computeCpm = (totalTyped, elapsedSeconds, precision = 0) => {
+    const elapsedMinutes = elapsedSeconds / 60;
+    if (elapsedMinutes <= 0) return 0;
+    const value = totalTyped / elapsedMinutes;
+    return precision === 0 ? Math.round(value) : Number(value.toFixed(precision));
+};
+
+const setVerseStatus = (label) => {
+    if (elements.verseStatus) elements.verseStatus.textContent = label;
+};
+
 const updateMetrics = () => {
     const totalVerses = state.verses.length;
     const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
     const progress = totalVerses === 0 ? 0 : Math.round((completedVerses / totalVerses) * 100);
-    const accuracyValue = state.totalTyped === 0 ? 0 : Math.round((state.totalCorrect / state.totalTyped) * 100);
+    const accuracyValue = computeAccuracyPercent(state.totalCorrect, state.totalTyped);
     const elapsedSeconds = getElapsedSeconds();
-    const elapsedMinutes = elapsedSeconds / 60;
-    const cpmValue = elapsedMinutes > 0 ? Math.round(state.totalTyped / elapsedMinutes) : 0;
+    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds);
 
     if (elements.progressText) elements.progressText.textContent = `${progress}%`;
     if (elements.progressBar) elements.progressBar.style.width = `${progress}%`;
     if (elements.cpm) elements.cpm.textContent = `${cpmValue}`;
     if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}`;
     if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
-
 };
 
 const toggleButton = (button, shouldShow) => {
@@ -184,17 +200,24 @@ const getUiStatus = () => {
     const hasVerses = state.verseStates.length > 0;
     const allCompleted = hasVerses && state.verseStates.every((verse) => verse.completed);
     if (allCompleted) return UI_STATUS.COMPLETED;
-    if (state.endedAt) return UI_STATUS.ENDED;
-    if (state.sessionActive) return UI_STATUS.IN_PROGRESS;
+    if (state.practiceStarted) return UI_STATUS.IN_PROGRESS;
     return UI_STATUS.WAITING;
 };
 
 const updateActionButtons = (status = getUiStatus()) => {
     const isWaiting = status === UI_STATUS.WAITING;
     const isCompleted = status === UI_STATUS.COMPLETED;
-    const isEnded = status === UI_STATUS.ENDED;
     toggleButton(elements.startBtn, isWaiting);
-    toggleButton(elements.resetBtn, isCompleted || isEnded);
+    toggleButton(elements.resetBtn, isCompleted);
+    const hasVisibleButton = !elements.startBtn?.classList.contains("d-none")
+        || !elements.resetBtn?.classList.contains("d-none");
+    toggleButton(elements.actionBar, hasVisibleButton);
+};
+
+const showSessionSummary = () => {
+    if (!elements.sessionSummary) return;
+    elements.sessionSummary.classList.remove("d-none");
+    elements.sessionSummaryText.textContent = "선택한 장의 모든 구절을 마쳤습니다. 기록을 저장했습니다.";
 };
 
 const resetSessionState = () => {
@@ -224,7 +247,7 @@ const resetSessionState = () => {
         clearInterval(state.timerId);
         state.timerId = null;
     }
-    if (elements.verseStatus) elements.verseStatus.textContent = "대기";
+    setVerseStatus("대기");
     if (elements.sessionSummary) elements.sessionSummary.classList.add("d-none");
     updateMetrics();
     updateActionButtons();
@@ -309,18 +332,84 @@ const focusVerseInput = (index) => {
     input.scrollIntoView({block: "center", behavior: "smooth"});
 };
 
+const formatLocalDateTime = (date) => {
+    return date.toISOString().split(".")[0];
+};
+
+const saveSession = async () => {
+    if (!state.startedAt) return;
+    const params = getQueryParams();
+    const totalVerses = state.verseStates.length;
+    const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
+    const accuracyValue = computeAccuracyPercent(state.totalCorrect, state.totalTyped, 2);
+    const elapsedSeconds = getElapsedSeconds();
+    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds, 2);
+
+    const payload = {
+        sessionKey: createSessionKey(),
+        translationId: params.translationId,
+        bookOrder: params.bookOrder,
+        chapterNumber: params.chapterNumber,
+        startedAt: formatLocalDateTime(state.startedAt),
+        endedAt: formatLocalDateTime(state.endedAt || new Date()),
+        totalVerses,
+        completedVerses,
+        totalTypedChars: state.totalTyped,
+        accuracy: accuracyValue,
+        cpm: cpmValue,
+        verses: state.verseStates.map((verse) => ({
+            verseNumber: verse.verseNumber,
+            originalText: verse.originalText,
+            typedText: verse.typedText,
+            accuracy: computeAccuracyPercent(verse.correctCount, verse.normalizedTyped.length, 2),
+            completed: verse.completed
+        }))
+    };
+
+    await fetch(sessionApi, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+        credentials: "same-origin"
+    });
+};
+
+const endSession = async () => {
+    if (!state.sessionActive && !state.startedAt) return;
+    state.sessionActive = false;
+    state.practiceStarted = false;
+    const inputs = elements.verseList.querySelectorAll(".typing-verse-input");
+    inputs.forEach((input) => {
+        input.disabled = true;
+        input.readOnly = true;
+    });
+    state.endedAt = new Date();
+    if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+    }
+    setVerseStatus("완료");
+    updateMetrics();
+    updateActionButtons();
+
+    try {
+        await saveSession();
+        showSessionSummary();
+    } catch (error) {
+        showMessage("세션 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+};
+
 const saveVerseProgress = async (verseState) => {
     if (verseState.saved) return;
     const params = getQueryParams();
     const elapsedSeconds = getElapsedSeconds();
-    const elapsedMinutes = elapsedSeconds / 60;
-    const cpmValue = elapsedMinutes > 0 ? Math.round(state.totalTyped / elapsedMinutes) : 0;
-    const accuracyValue = state.totalTyped === 0
-        ? 0
-        : Number(((state.totalCorrect / state.totalTyped) * 100).toFixed(2));
-    const verseAccuracy = verseState.normalizedTyped.length === 0
-        ? 0
-        : Number(((verseState.correctCount / verseState.normalizedTyped.length) * 100).toFixed(2));
+    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds);
+    const verseAccuracy = computeAccuracyPercent(
+        verseState.correctCount,
+        verseState.normalizedTyped.length,
+        2
+    );
     const payload = {
         sessionKey: createSessionKey(),
         translationId: params.translationId,
@@ -369,7 +458,7 @@ const handleVerseComplete = (index) => {
             });
         });
     } else {
-        endSession(true);
+        endSession();
     }
     saveVerseProgress(verseState).catch(() => {
         showMessage("구절 기록 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -405,9 +494,13 @@ const handleInput = (event) => {
 
     if (normalizedInput.length > 0 && !state.sessionActive) {
         state.sessionActive = true;
-        state.startedAt = new Date();
+        if (!state.startedAt) {
+            state.startedAt = new Date();
+        } else {
+            state.endedAt = null;
+        }
         createSessionKey();
-        if (elements.verseStatus) elements.verseStatus.textContent = "진행 중";
+        setVerseStatus("진행 중");
         state.timerId = setInterval(updateMetrics, 1000);
         updateActionButtons();
     }
@@ -564,98 +657,6 @@ const loadSelections = async () => {
     return {translationId, bookOrder, chapterNumber};
 };
 
-const loadVerses = async (selection) => {
-    const {translationId, bookOrder, chapterNumber} = selection;
-    const verses = await fetchJson(
-        `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`
-    );
-    if (!Array.isArray(verses) || verses.length === 0) {
-        showMessage("선택한 장에 구절 데이터가 없습니다.");
-        state.verses = [];
-        resetSessionState();
-        renderVerses();
-        updateHeader();
-        updateMetrics();
-        return;
-    }
-    state.verses = verses;
-    resetSessionState();
-    renderVerses();
-    updateHeader();
-    updateMetrics();
-    try {
-        const progress = await fetchLatestProgress(selection);
-        if (progress) {
-            const applied = applyResumeProgress(progress, selection);
-            if (applied) {
-                try {
-                    const summary = await fetchLatestSessionSummary(selection);
-                    applySessionSummary(summary, progress.sessionKey);
-                } catch (error) {
-                    showMessage("세션 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
-                }
-            }
-        }
-    } catch (error) {
-        showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
-    }
-};
-
-const startSession = () => {
-    if (state.verses.length === 0) return;
-    state.practiceStarted = true;
-    createSessionKey();
-    if (elements.verseStatus) elements.verseStatus.textContent = "입력 준비";
-    activateVerse(state.currentIndex);
-    focusVerseInput(state.currentIndex);
-    updateActionButtons();
-};
-
-const formatLocalDateTime = (date) => {
-    return date.toISOString().split(".")[0];
-};
-
-const saveSession = async () => {
-    if (!state.startedAt) return;
-    const params = getQueryParams();
-    const totalVerses = state.verseStates.length;
-    const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
-    const accuracyValue = state.totalTyped === 0 ? 0 : (state.totalCorrect / state.totalTyped) * 100;
-    const elapsedSeconds = getElapsedSeconds();
-    const elapsedMinutes = elapsedSeconds / 60;
-    const cpmValue = elapsedMinutes > 0 ? state.totalTyped / elapsedMinutes : 0;
-
-    const payload = {
-        sessionKey: createSessionKey(),
-        translationId: params.translationId,
-        bookOrder: params.bookOrder,
-        chapterNumber: params.chapterNumber,
-        startedAt: formatLocalDateTime(state.startedAt),
-        endedAt: formatLocalDateTime(state.endedAt || new Date()),
-        totalVerses,
-        completedVerses,
-        totalTypedChars: state.totalTyped,
-        accuracy: Number(accuracyValue.toFixed(2)),
-        cpm: Number(cpmValue.toFixed(2)),
-        verses: state.verseStates.map((verse) => ({
-            verseNumber: verse.verseNumber,
-            originalText: verse.originalText,
-            typedText: verse.typedText,
-            accuracy: verse.normalizedTyped.length === 0
-                ? 0
-                : Number(((verse.correctCount / verse.normalizedTyped.length) * 100).toFixed(2)),
-            completed: verse.completed
-        }))
-    };
-
-    await fetch(sessionApi, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload),
-        credentials: "same-origin"
-    });
-};
-
 const fetchLatestProgress = async (selection) => {
     const {translationId, bookOrder, chapterNumber} = selection;
     const response = await fetch(
@@ -730,8 +731,18 @@ const applyResumeProgress = (progress, selection) => {
     const allCompleted = firstIncomplete === -1 && state.verseStates.length > 0;
     state.currentIndex = allCompleted ? state.verseStates.length - 1 : firstIncomplete;
     state.practiceStarted = !allCompleted;
-    if (elements.verseStatus) {
-        elements.verseStatus.textContent = allCompleted ? "완료" : "진행";
+    setVerseStatus(allCompleted ? "완료" : "진행");
+
+    if (!allCompleted) {
+        const latestVerse = progress.verses.reduce((latest, current) => {
+            const latestTime = Number(new Date(latest.createdAt));
+            const currentTime = Number(new Date(current.createdAt));
+            return currentTime > latestTime ? current : latest;
+        });
+        if (latestVerse.elapsedSeconds > 0) {
+            state.startedAt = new Date(Date.now() - latestVerse.elapsedSeconds * 1000);
+            state.endedAt = new Date(state.startedAt.getTime() + latestVerse.elapsedSeconds * 1000);
+        }
     }
 
     const rows = elements.verseList.querySelectorAll(".typing-verse-row");
@@ -767,6 +778,53 @@ const applyResumeProgress = (progress, selection) => {
     return true;
 };
 
+const loadVerses = async (selection) => {
+    const {translationId, bookOrder, chapterNumber} = selection;
+    const verses = await fetchJson(
+        `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`
+    );
+    if (!Array.isArray(verses) || verses.length === 0) {
+        showMessage("선택한 장에 구절 데이터가 없습니다.");
+        state.verses = [];
+        resetSessionState();
+        renderVerses();
+        updateHeader();
+        updateMetrics();
+        return;
+    }
+    state.verses = verses;
+    resetSessionState();
+    renderVerses();
+    updateHeader();
+    updateMetrics();
+    try {
+        const progress = await fetchLatestProgress(selection);
+        if (progress) {
+            const applied = applyResumeProgress(progress, selection);
+            if (applied) {
+                try {
+                    const summary = await fetchLatestSessionSummary(selection);
+                    applySessionSummary(summary, progress.sessionKey);
+                } catch (error) {
+                    showMessage("세션 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+                }
+            }
+        }
+    } catch (error) {
+        showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+};
+
+const startSession = () => {
+    if (state.verses.length === 0) return;
+    state.practiceStarted = true;
+    createSessionKey();
+    setVerseStatus("입력 준비");
+    activateVerse(state.currentIndex);
+    focusVerseInput(state.currentIndex);
+    updateActionButtons();
+};
+
 const resetProgress = () => {
     const selection = getQueryParams();
     if (!selection.translationId || !selection.bookOrder || !selection.chapterNumber) return;
@@ -776,37 +834,6 @@ const resetProgress = () => {
     updateHeader();
     updateMetrics();
     updateActionButtons();
-};
-
-const endSession = async (completed) => {
-    if (!state.sessionActive && !state.startedAt) return;
-    state.sessionActive = false;
-    state.practiceStarted = false;
-    const inputs = elements.verseList.querySelectorAll(".typing-verse-input");
-    inputs.forEach((input) => {
-        input.disabled = true;
-        input.readOnly = true;
-    });
-    state.endedAt = new Date();
-    if (state.timerId) {
-        clearInterval(state.timerId);
-        state.timerId = null;
-    }
-    if (elements.verseStatus) elements.verseStatus.textContent = completed ? "완료" : "종료";
-    updateMetrics();
-    updateActionButtons();
-
-    try {
-        await saveSession();
-        if (elements.sessionSummary) {
-            elements.sessionSummary.classList.remove("d-none");
-            elements.sessionSummaryText.textContent = completed
-                ? "선택한 장의 모든 구절을 마쳤습니다. 기록을 저장했습니다."
-                : "세션을 종료했습니다. 입력한 기록을 저장했습니다.";
-        }
-    } catch (error) {
-        showMessage("세션 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-    }
 };
 
 const bindEvents = () => {

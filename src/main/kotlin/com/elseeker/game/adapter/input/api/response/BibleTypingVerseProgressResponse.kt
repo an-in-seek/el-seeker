@@ -10,6 +10,9 @@ data class BibleTypingVerseProgressResponse(
     data class VerseProgress(
         val verseNumber: Int,
         val typedText: String,
+        val accuracy: Double,
+        val cpm: Double,
+        val elapsedSeconds: Int,
         val completed: Boolean,
         val createdAt: LocalDateTime
     )
