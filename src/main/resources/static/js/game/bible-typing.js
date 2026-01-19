@@ -581,9 +581,9 @@ const updateHeader = () => {
     const translation = state.translations.find((item) => item.id === params.translationId);
     const book = state.books.find((item) => item.bookOrder === params.bookOrder);
     const chapterNumber = params.chapterNumber;
-    const title = book && chapterNumber ? `${book.name} ${chapterNumber}장` : "선택한 구절";
-    const subTitle = translation ? `${translation.name} (${translation.code})` : "번역본 선택";
-    if (elements.verseHeader) elements.verseHeader.textContent = `${title} · ${subTitle}`;
+    const translationTitle = translation ? `${translation.name} (${translation.code})` : "번역본 선택";
+    const bookChapterTitle = book && chapterNumber ? `${book.name} ${chapterNumber}장` : "선택한 구절";
+    if (elements.verseHeader) elements.verseHeader.textContent = `${translationTitle} · ${bookChapterTitle}`;
 };
 
 const loadSelections = async () => {
