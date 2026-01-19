@@ -42,4 +42,12 @@ class BibleTypingVerseProgressApi(
         ) ?: return ResponseEntity.noContent().build()
         return ResponseEntity.ok(response)
     }
+
+    @GetMapping("/latest")
+    fun getLatestProgress(@AuthenticationPrincipal principal: JwtPrincipal): ResponseEntity<BibleTypingVerseProgressResponse> {
+        val member = memberService.getMember(principal.memberUid)
+        val response = bibleTypingVerseProgressService.getLatestProgress(member)
+            ?: return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(response)
+    }
 }

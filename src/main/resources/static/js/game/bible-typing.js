@@ -588,14 +588,19 @@ const updateHeader = () => {
 
 const loadSelections = async () => {
     clearMessage();
+    const params = getQueryParams();
+    const needsFallback = !params.translationId || !params.bookOrder || !params.chapterNumber;
+    const latestSelection = needsFallback ? await fetchLatestProgressSelection() : null;
     state.translations = await fetchJson(`${apiBase}/translations`);
     if (state.translations.length === 0) {
         showMessage("사용 가능한 번역본이 없습니다.");
         return null;
     }
-    const params = getQueryParams();
     const fixedTranslation = state.translations.find((item) => item.code === FIXED_TRANSLATION_CODE);
-    let translationId = fixedTranslation?.id ?? params.translationId ?? state.translations[0].id;
+    let translationId = fixedTranslation?.id
+        ?? params.translationId
+        ?? latestSelection?.translationId
+        ?? state.translations[0].id;
     if (!state.translations.some((item) => item.id === translationId)) {
         translationId = state.translations[0].id;
     }
@@ -620,7 +625,7 @@ const loadSelections = async () => {
         showMessage("선택한 번역본에 책 정보가 없습니다.");
         return null;
     }
-    let bookOrder = params.bookOrder ?? state.books[0].bookOrder;
+    let bookOrder = params.bookOrder ?? latestSelection?.bookOrder ?? state.books[0].bookOrder;
     if (!state.books.some((item) => item.bookOrder === bookOrder)) {
         bookOrder = state.books[0].bookOrder;
     }
@@ -636,7 +641,7 @@ const loadSelections = async () => {
         showMessage("선택한 책에 장 정보가 없습니다.");
         return null;
     }
-    let chapterNumber = params.chapterNumber ?? state.chapters[0].chapterNumber;
+    let chapterNumber = params.chapterNumber ?? latestSelection?.chapterNumber ?? state.chapters[0].chapterNumber;
     if (!state.chapters.some((item) => item.chapterNumber === chapterNumber)) {
         chapterNumber = state.chapters[0].chapterNumber;
     }
@@ -663,6 +668,15 @@ const fetchLatestProgress = async (selection) => {
         `${resumeApi}?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`,
         {credentials: "same-origin"}
     );
+    if (response.status === 204) return null;
+    if (!response.ok) {
+        throw new Error(`요청 실패: ${response.status}`);
+    }
+    return response.json();
+};
+
+const fetchLatestProgressSelection = async () => {
+    const response = await fetch(`${resumeApi}/latest`, {credentials: "same-origin"});
     if (response.status === 204) return null;
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);

@@ -61,6 +61,21 @@ class BibleTypingVerseProgressService(
                 chapterNumber
             ) ?: return null
 
+        return buildProgressResponse(member, latest)
+    }
+
+    @Transactional(readOnly = true)
+    fun getLatestProgress(member: Member): BibleTypingVerseProgressResponse? {
+        val latest = bibleTypingVerseProgressRepository
+            .findTopByMemberOrderByCreatedAtDesc(member)
+            ?: return null
+        return buildProgressResponse(member, latest)
+    }
+
+    private fun buildProgressResponse(
+        member: Member,
+        latest: BibleTypingVerseProgress
+    ): BibleTypingVerseProgressResponse {
         val verses = bibleTypingVerseProgressRepository
             .findAllByMemberAndSessionKeyOrderByVerseNumberAsc(member, latest.sessionKey)
             .map {
@@ -77,6 +92,9 @@ class BibleTypingVerseProgressService(
 
         return BibleTypingVerseProgressResponse(
             sessionKey = latest.sessionKey,
+            translationId = latest.translationId,
+            bookOrder = latest.bookOrder,
+            chapterNumber = latest.chapterNumber,
             createdAt = latest.createdAt,
             verses = verses
         )

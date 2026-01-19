@@ -4,6 +4,9 @@ import java.time.LocalDateTime
 
 data class BibleTypingVerseProgressResponse(
     val sessionKey: String,
+    val translationId: Long,
+    val bookOrder: Int,
+    val chapterNumber: Int,
     val createdAt: LocalDateTime,
     val verses: List<VerseProgress>
 ) {
