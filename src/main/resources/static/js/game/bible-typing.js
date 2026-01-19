@@ -780,40 +780,50 @@ const applyResumeProgress = (progress, selection) => {
 
 const loadVerses = async (selection) => {
     const {translationId, bookOrder, chapterNumber} = selection;
-    const verses = await fetchJson(
-        `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`
-    );
-    if (!Array.isArray(verses) || verses.length === 0) {
-        showMessage("선택한 장에 구절 데이터가 없습니다.");
+    const url = `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`;
+
+    const initializeEmpty = (message) => {
+        showMessage(message);
         state.verses = [];
         resetSessionState();
         renderVerses();
         updateHeader();
         updateMetrics();
+    };
+
+    let verses;
+    try {
+        verses = await fetchJson(url);
+    } catch {
+        initializeEmpty("구절 데이터를 불러오지 못했습니다.");
         return;
     }
+
+    if (!Array.isArray(verses) || verses.length === 0) {
+        initializeEmpty("선택한 장에 구절 데이터가 없습니다.");
+        return;
+    }
+
     state.verses = verses;
     resetSessionState();
     renderVerses();
     updateHeader();
     updateMetrics();
+
     try {
         const progress = await fetchLatestProgress(selection);
-        if (progress) {
-            const applied = applyResumeProgress(progress, selection);
-            if (applied) {
-                try {
-                    const summary = await fetchLatestSessionSummary(selection);
-                    applySessionSummary(summary, progress.sessionKey);
-                } catch (error) {
-                    showMessage("세션 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
-                }
-            }
-        }
-    } catch (error) {
+        if (!progress) return;
+
+        const resumed = applyResumeProgress(progress, selection);
+        if (!resumed) return;
+
+        const summary = await fetchLatestSessionSummary(selection);
+        applySessionSummary(summary, progress.sessionKey);
+    } catch {
         showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
 };
+
 
 const startSession = () => {
     if (state.verses.length === 0) return;
