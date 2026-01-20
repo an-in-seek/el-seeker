@@ -188,7 +188,15 @@ const updateMetrics = () => {
     if (elements.progressBar) elements.progressBar.style.width = `${progress}%`;
     if (elements.cpm) elements.cpm.textContent = `${cpmValue}`;
     if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}`;
-    if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
+    if (elements.elapsedTime) {
+        if (!state.startedAt) {
+            elements.elapsedTime.textContent = "00:00";
+            elements.elapsedTime.classList.add("d-none");
+        } else {
+            elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
+            elements.elapsedTime.classList.remove("d-none");
+        }
+    }
 };
 
 const toggleButton = (button, shouldShow) => {
@@ -831,6 +839,9 @@ const loadVerses = async (selection) => {
         const resumed = applyResumeProgress(progress, selection);
         if (!resumed) return;
 
+        const allCompleted = state.verseStates.length > 0
+            && state.verseStates.every((verse) => verse.completed);
+        if (!allCompleted) return;
         const summary = await fetchLatestSessionSummary(selection);
         applySessionSummary(summary, progress.sessionKey);
     } catch {
