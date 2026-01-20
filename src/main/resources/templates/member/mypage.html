@@ -53,8 +53,89 @@
                     </form>
 
                     <h3 class="h6 fw-bold mb-3">연동 계정</h3>
-                    <div id="mypageOAuthAccountsEmpty" class="text-muted small mb-3">연동된 계정이 없습니다.</div>
-                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list d-none mb-4"></div>
+                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list mb-4">
+                        <div class="mypage-oauth-card" data-provider="kakao">
+                            <div class="mypage-oauth-header">
+                                <img class="mypage-oauth-icon" src="/images/btn_kakao.svg" alt="Kakao 로고" loading="lazy">
+                                <div>
+                                    <div class="mypage-oauth-provider">Kakao</div>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-details">
+                                <div class="mypage-oauth-field">
+                                    <span>이메일</span>
+                                    <strong class="mypage-oauth-email">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>닉네임</span>
+                                    <strong class="mypage-oauth-nickname">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>연동일</span>
+                                    <strong class="mypage-oauth-connected">-</strong>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-footer">
+                                <p class="mypage-oauth-notice d-none"></p>
+                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="kakao" href="#">연동하기</a>
+                            </div>
+                        </div>
+                        <div class="mypage-oauth-card" data-provider="naver">
+                            <div class="mypage-oauth-header">
+                                <img class="mypage-oauth-icon" src="/images/btn_naver.svg" alt="Naver 로고" loading="lazy">
+                                <div>
+                                    <div class="mypage-oauth-provider">Naver</div>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-details">
+                                <div class="mypage-oauth-field">
+                                    <span>이메일</span>
+                                    <strong class="mypage-oauth-email">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>닉네임</span>
+                                    <strong class="mypage-oauth-nickname">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>연동일</span>
+                                    <strong class="mypage-oauth-connected">-</strong>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-footer">
+                                <p class="mypage-oauth-notice d-none"></p>
+                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="naver" href="#">연동하기</a>
+                            </div>
+                        </div>
+                        <div class="mypage-oauth-card" data-provider="google">
+                            <div class="mypage-oauth-header">
+                                <img class="mypage-oauth-icon" src="/images/btn_google.svg" alt="Google 로고" loading="lazy">
+                                <div>
+                                    <div class="mypage-oauth-provider">Google</div>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-details">
+                                <div class="mypage-oauth-field">
+                                    <span>이메일</span>
+                                    <strong class="mypage-oauth-email">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>닉네임</span>
+                                    <strong class="mypage-oauth-nickname">-</strong>
+                                </div>
+                                <div class="mypage-oauth-field">
+                                    <span>연동일</span>
+                                    <strong class="mypage-oauth-connected">-</strong>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-footer">
+                                <p class="mypage-oauth-notice d-none"></p>
+                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="google" href="#">연동하기</a>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="mypageSuccessMessage" class="alert alert-success mt-3 d-none" role="alert"></div>
                     <div id="mypageErrorMessage" class="alert alert-warning mt-3 d-none" role="alert"></div>
@@ -82,6 +163,22 @@
         </div>
     </div>
 </main>
+
+<div id="mypageOAuthConfirmModal" class="mypage-modal d-none" role="dialog" aria-modal="true" aria-labelledby="mypageOAuthConfirmTitle">
+    <div class="mypage-modal-backdrop" data-modal-close="true"></div>
+    <div class="mypage-modal-dialog" role="document">
+        <div class="mypage-modal-header">
+            <h2 id="mypageOAuthConfirmTitle" class="mypage-modal-title">연동 해제 확인</h2>
+        </div>
+        <div class="mypage-modal-body">
+            <p id="mypageOAuthConfirmMessage" class="mb-0">선택한 소셜 계정을 연동 해제하시겠습니까?</p>
+        </div>
+        <div class="mypage-modal-footer">
+            <button id="mypageOAuthConfirmCancel" type="button" class="btn btn-outline-secondary">취소</button>
+            <button id="mypageOAuthConfirmSubmit" type="button" class="btn btn-danger">연동 해제</button>
+        </div>
+    </div>
+</div>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 

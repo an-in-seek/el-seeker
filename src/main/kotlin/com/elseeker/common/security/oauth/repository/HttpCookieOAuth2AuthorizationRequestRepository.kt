@@ -29,7 +29,20 @@ class HttpCookieOAuth2AuthorizationRequestRepository :
             return
         }
 
-        val serialized = serialize(authorizationRequest)
+        val linkFlag = request.getParameter(LINK_FLAG_PARAMETER)
+        val enrichedRequest = if (!linkFlag.isNullOrBlank() && linkFlag.equals("true", ignoreCase = true)) {
+            OAuth2AuthorizationRequest.from(authorizationRequest)
+                .attributes { attrs ->
+                    val updated = HashMap(attrs)
+                    updated[LINK_FLAG_ATTRIBUTE] = true
+                    updated
+                }
+                .build()
+        } else {
+            authorizationRequest
+        }
+
+        val serialized = serialize(enrichedRequest)
         CookieUtils.addCookie(
             response,
             OAUTH2_AUTH_REQUEST_COOKIE_NAME,
@@ -77,6 +90,7 @@ class HttpCookieOAuth2AuthorizationRequestRepository :
     ) {
         CookieUtils.deleteCookie(response, OAUTH2_AUTH_REQUEST_COOKIE_NAME, request.isSecure)
         CookieUtils.deleteCookie(response, REDIRECT_URI_PARAM_COOKIE_NAME, request.isSecure)
+        CookieUtils.deleteCookie(response, LINK_FLAG_COOKIE_NAME, request.isSecure)
     }
 
     private fun serialize(authorizationRequest: OAuth2AuthorizationRequest): String {
@@ -98,6 +112,9 @@ class HttpCookieOAuth2AuthorizationRequestRepository :
         private const val OAUTH2_AUTH_REQUEST_COOKIE_NAME = "OAUTH2_AUTH_REQUEST"
         private const val REDIRECT_URI_PARAM_COOKIE_NAME = "RETURN_URL"
         private const val RETURN_URL_PARAMETER = "returnUrl"
+        const val LINK_FLAG_COOKIE_NAME = "OAUTH2_LINK"
+        const val LINK_FLAG_ATTRIBUTE = "oauth_link"
+        private const val LINK_FLAG_PARAMETER = "link"
         private const val COOKIE_EXPIRE_SECONDS = 180L
     }
 }

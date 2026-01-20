@@ -2,6 +2,7 @@ package com.elseeker.common.security
 
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtAuthenticationFilter
+import com.elseeker.common.security.oauth.handler.OAuth2LoginFailureHandler
 import com.elseeker.common.security.oauth.handler.OAuth2LoginSuccessHandler
 import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
 import com.elseeker.common.security.oauth.service.CustomOAuth2UserService
@@ -25,6 +26,7 @@ import java.nio.charset.StandardCharsets
 class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val oAuth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
+    private val oAuth2LoginFailureHandler: OAuth2LoginFailureHandler,
     private val authorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val elSeekerProperties: ElSeekerProperties,
@@ -98,7 +100,7 @@ class SecurityConfig(
                     userInfo.userService(customOAuth2UserService)
                 }
                 oauth2.successHandler(oAuth2LoginSuccessHandler)
-                // 실패 핸들러도 필요하다면 추가 (.failureHandler)
+                oauth2.failureHandler(oAuth2LoginFailureHandler)
             }
 
             // 7. JWT 필터 추가 (UsernamePasswordAuthenticationFilter 앞단에 배치)

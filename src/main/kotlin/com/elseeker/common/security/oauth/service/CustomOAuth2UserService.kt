@@ -2,12 +2,15 @@ package com.elseeker.common.security.oauth.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
+import com.elseeker.common.security.jwt.JwtProvider
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
+import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
 import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import com.elseeker.member.domain.vo.MemberRole
 import com.elseeker.member.domain.vo.OAuthProvider
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
@@ -15,11 +18,16 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
+import java.util.UUID
 
 @Service
 class CustomOAuth2UserService(
     private val memberRepository: MemberRepository,
-    private val memberOAuthAccountRepository: MemberOAuthAccountRepository
+    private val memberOAuthAccountRepository: MemberOAuthAccountRepository,
+    private val jwtProvider: JwtProvider,
+    private val authorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository,
 ) : DefaultOAuth2UserService() {
 
     @Transactional
@@ -43,28 +51,51 @@ class CustomOAuth2UserService(
             provider = userInfo.provider,
             providerUserId = userInfo.providerUserId
         )
-        val member = oauthAccount?.let { account ->
-            account.syncOAuthProfile(
-                email = userInfo.email,
-                nickname = userInfo.name,
-                profileImageUrl = userInfo.imageUrl
-            )
-            account.member
-        }
-            ?: Member.create(
-                email = userInfo.email,
-                nickname = "",
-                memberRole = MemberRole.USER,
-                profileImageUrl = null
-            ).also { newMember ->
-                newMember.addOAuthAccount(
+        val linkTarget = resolveLinkTargetMember()
+        val member = if (linkTarget != null) {
+            if (oauthAccount != null && oauthAccount.member.id != linkTarget.id) {
+                throwError(ErrorType.OAUTH_ACCOUNT_ALREADY_LINKED, userInfo.provider.registrationId)
+            }
+            if (oauthAccount == null) {
+                linkTarget.addOAuthAccount(
                     provider = userInfo.provider,
                     providerUserId = userInfo.providerUserId,
                     email = userInfo.email,
                     oauthNickname = userInfo.name,
                     oauthProfileImageUrl = userInfo.imageUrl
                 )
+            } else {
+                oauthAccount.syncOAuthProfile(
+                    email = userInfo.email,
+                    nickname = userInfo.name,
+                    profileImageUrl = userInfo.imageUrl
+                )
             }
+            linkTarget
+        } else {
+            oauthAccount?.let { account ->
+                account.syncOAuthProfile(
+                    email = userInfo.email,
+                    nickname = userInfo.name,
+                    profileImageUrl = userInfo.imageUrl
+                )
+                account.member
+            }
+                ?: Member.create(
+                    email = userInfo.email,
+                    nickname = "",
+                    memberRole = MemberRole.USER,
+                    profileImageUrl = null
+                ).also { newMember ->
+                    newMember.addOAuthAccount(
+                        provider = userInfo.provider,
+                        providerUserId = userInfo.providerUserId,
+                        email = userInfo.email,
+                        oauthNickname = userInfo.name,
+                        oauthProfileImageUrl = userInfo.imageUrl
+                    )
+                }
+        }
         val savedMember = memberRepository.save(member)
         val savedMemberUid = savedMember.uid
 
@@ -82,5 +113,29 @@ class CustomOAuth2UserService(
         // (Google은 "sub", Naver는 "response", Kakao는 "id" 등이 될 수 있음)
         val userNameAttributeName = userRequest.clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName
         return DefaultOAuth2User(authorities, enrichedAttributes, userNameAttributeName)
+    }
+
+    private fun resolveLinkTargetMember(): Member? {
+        val request = getCurrentRequest() ?: return null
+        val authRequest = authorizationRequestRepository.loadAuthorizationRequest(request)
+            ?: return null
+        val linkFlag = authRequest.attributes[HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_ATTRIBUTE] as? Boolean
+            ?: return null
+        if (!linkFlag) {
+            return null
+        }
+        val accessToken = jwtProvider.resolveAccessToken(request)
+            ?: throwError(ErrorType.MEMBER_ACCESS_DENIED, "link")
+        val claims = jwtProvider.resolveClaims(accessToken)
+            ?: throwError(ErrorType.MEMBER_ACCESS_DENIED, "link")
+        val memberUid = runCatching { UUID.fromString(claims.subject) }
+            .getOrElse { throwError(ErrorType.INVALID_PARAMETER, "memberUid") }
+        return memberRepository.findByUid(memberUid)
+            ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
+    }
+
+    private fun getCurrentRequest(): HttpServletRequest? {
+        val attributes = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
+        return attributes?.request
     }
 }

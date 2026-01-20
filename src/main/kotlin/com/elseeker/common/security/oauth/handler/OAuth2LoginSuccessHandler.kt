@@ -79,6 +79,7 @@ class OAuth2LoginSuccessHandler(
         val returnUrl = authorizationRequestRepository.getRedirectUriFromCookie(request)
         val safeReturnUrl = returnUrl?.takeIf { it.startsWith("/") && !it.startsWith("//") }
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response)
+        CookieUtils.deleteCookie(response, HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_COOKIE_NAME, request.isSecure)
         redirectStrategy.sendRedirect(request, response, safeReturnUrl ?: "/")
 
         /*

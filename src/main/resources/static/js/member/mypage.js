@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailDetail = document.getElementById("mypageEmailDetail");
     const roleDetail = document.getElementById("mypageRoleDetail");
     const oauthAccountsList = document.getElementById("mypageOAuthAccountsList");
-    const oauthAccountsEmpty = document.getElementById("mypageOAuthAccountsEmpty");
     const roleBadge = document.getElementById("mypageRole");
     const providerBadge = document.getElementById("mypageProvider");
     const avatar = document.getElementById("mypageAvatar");
@@ -44,12 +43,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
     const homeButton = document.querySelector(".top-nav-home-button");
+    const oauthActionButtons = document.querySelectorAll(".mypage-oauth-action");
+    const confirmModal = document.getElementById("mypageOAuthConfirmModal");
+    const confirmCancel = document.getElementById("mypageOAuthConfirmCancel");
+    const confirmSubmit = document.getElementById("mypageOAuthConfirmSubmit");
+    const confirmMessage = document.getElementById("mypageOAuthConfirmMessage");
 
     let memberUid = null;
+    let memberEmail = "";
     let initialNickname = "";
+    let pendingOAuthUnlink = null;
 
     const redirectToLogin = () => {
         window.location.replace(buildLoginRedirectUrl());
+    };
+
+    const showOAuthErrorFromUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        const errorCode = params.get("oauthError");
+        if (!errorCode) {
+            return;
+        }
+        const messages = {
+            OAUTH_ACCOUNT_ALREADY_LINKED: "이미 다른 계정에 연결된 소셜 계정입니다. 다른 계정으로 시도해 주세요.",
+            OAUTH_EMAIL_MISSING: "소셜 계정 이메일 정보를 가져오지 못했습니다.",
+            OAUTH_PROVIDER_USER_ID_MISSING: "소셜 계정 식별 정보를 가져오지 못했습니다.",
+            UNKNOWN: "소셜 계정 연동에 실패했습니다. 다시 시도해 주세요.",
+        };
+        showAuthError(errorMessage, messages[errorCode] || messages.UNKNOWN);
+        params.delete("oauthError");
+        const newQuery = params.toString();
+        const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}${window.location.hash}`;
+        window.history.replaceState({}, "", newUrl);
     };
 
     const setFormEnabled = (enabled) => {
@@ -106,62 +131,179 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const renderOAuthAccounts = (accounts) => {
-        if (!oauthAccountsList || !oauthAccountsEmpty) {
+        if (!oauthAccountsList) {
             return;
         }
-        oauthAccountsList.innerHTML = "";
-        if (!Array.isArray(accounts) || accounts.length === 0) {
-            oauthAccountsList.classList.add("d-none");
-            oauthAccountsEmpty.classList.remove("d-none");
-            updateText(providerBadge, "연동 계정 0개");
-            return;
+        const providerMap = new Map();
+        if (Array.isArray(accounts)) {
+            accounts.forEach((account) => {
+                const providerKey = (account.provider || "").toLowerCase();
+                if (providerKey) {
+                    providerMap.set(providerKey, account);
+                }
+            });
         }
-        accounts.forEach((account) => {
-            const card = document.createElement("div");
-            card.className = "mypage-oauth-card";
-            const header = document.createElement("div");
-            header.className = "mypage-oauth-header";
-            const providerKey = (account.provider || "").toLowerCase();
-            const icon = document.createElement("img");
-            icon.className = "mypage-oauth-icon";
-            const iconMap = {
-                google: "/images/btn_google.svg",
-                naver: "/images/btn_naver.svg",
-                kakao: "/images/btn_kakao.svg",
-            };
-            icon.src = iconMap[providerKey] || "/images/user.png";
-            icon.alt = `${providerLabels[providerKey] || account.provider || "연동 계정"} 로고`;
-            icon.loading = "lazy";
-            icon.onerror = () => {
-                icon.src = "/images/user.png";
-            };
-            const label = document.createElement("span");
-            label.textContent = providerLabels[providerKey] || account.provider || "연동 계정";
-            header.appendChild(icon);
-            header.appendChild(label);
-
-            const meta = document.createElement("div");
-            meta.className = "mypage-oauth-meta";
-            const maskedEmail = maskEmail(account.email);
-            const nickname = account.nickname || "닉네임 없음";
-            meta.innerHTML = `
-                <span>이메일</span>
-                <strong>${maskedEmail}</strong>
-                <span>닉네임</span>
-                <strong>${nickname}</strong>
-                <span>연동일</span>
-                <strong>${formatConnectedAt(account.createdAt)}</strong>
-            `;
-
-            card.appendChild(header);
-            card.appendChild(meta);
-            oauthAccountsList.appendChild(card);
-        });
-        oauthAccountsEmpty.classList.add("d-none");
-        oauthAccountsList.classList.remove("d-none");
-        updateText(providerBadge, `연동 계정 ${accounts.length}개`);
+        updateOAuthCards(providerMap);
+        updateText(providerBadge, `연동 계정 ${providerMap.size}개`);
     };
 
+    const openConfirmModal = (providerLabel) => {
+        if (!confirmModal) {
+            return;
+        }
+        if (confirmMessage) {
+            confirmMessage.textContent = `${providerLabel} 계정을 연동 해제하시겠습니까?`;
+        }
+        confirmModal.classList.remove("d-none");
+        if (confirmSubmit) {
+            confirmSubmit.focus();
+        }
+    };
+
+    const closeConfirmModal = () => {
+        if (!confirmModal) {
+            return;
+        }
+        confirmModal.classList.add("d-none");
+        pendingOAuthUnlink = null;
+    };
+
+    const updateOAuthCards = (providerMap) => {
+        if (!oauthAccountsList) {
+            return;
+        }
+        const returnUrl = `${window.location.pathname}${window.location.search}`;
+        const cards = oauthAccountsList.querySelectorAll(".mypage-oauth-card");
+        cards.forEach((card) => {
+            const provider = card.dataset.provider;
+            const providerLabel = providerLabels[provider] || provider;
+            const status = card.querySelector(".mypage-oauth-status");
+            const emailField = card.querySelector(".mypage-oauth-email");
+            const nicknameField = card.querySelector(".mypage-oauth-nickname");
+            const connectedField = card.querySelector(".mypage-oauth-connected");
+            const actionButton = card.querySelector(".mypage-oauth-action");
+            const notice = card.querySelector(".mypage-oauth-notice");
+
+            const linkedAccount = providerMap.get(provider);
+            if (linkedAccount) {
+                card.classList.remove("is-empty");
+                updateText(status, "연동됨");
+                updateText(emailField, maskEmail(linkedAccount.email));
+                updateText(nicknameField, linkedAccount.nickname || "닉네임 없음");
+                updateText(connectedField, formatConnectedAt(linkedAccount.createdAt));
+                if (actionButton) {
+                    actionButton.textContent = `${providerLabel} 연동 해제`;
+                    actionButton.classList.remove("btn-outline-secondary");
+                    actionButton.classList.add("btn-outline-danger");
+                    actionButton.dataset.action = "unlink";
+                    actionButton.dataset.providerUserId = linkedAccount.providerUserId;
+                    actionButton.setAttribute("href", "#");
+                    actionButton.removeAttribute("aria-disabled");
+                    actionButton.classList.remove("disabled");
+                }
+                const isPrimary = memberEmail
+                    && linkedAccount.email
+                    && memberEmail.toLowerCase() === linkedAccount.email.toLowerCase();
+                if (isPrimary) {
+                    if (notice) {
+                        notice.textContent = "최초 가입 계정은 해제할 수 없습니다. 해제하려면 회원 탈퇴를 진행해 주세요.";
+                        notice.classList.remove("d-none");
+                    }
+                    if (actionButton) {
+                        actionButton.classList.add("disabled");
+                        actionButton.setAttribute("aria-disabled", "true");
+                        actionButton.dataset.action = "disabled";
+                    }
+                } else if (notice) {
+                    notice.textContent = "";
+                    notice.classList.add("d-none");
+                }
+            } else {
+                card.classList.add("is-empty");
+                updateText(status, "미연동");
+                updateText(emailField, "-");
+                updateText(nicknameField, "-");
+                updateText(connectedField, "-");
+                if (notice) {
+                    notice.textContent = "";
+                    notice.classList.add("d-none");
+                }
+                if (actionButton) {
+                    actionButton.textContent = `${providerLabel} 연동하기`;
+                    actionButton.classList.add("btn-outline-secondary");
+                    actionButton.classList.remove("btn-outline-danger");
+                    actionButton.dataset.action = "link";
+                    actionButton.dataset.providerUserId = "";
+                    actionButton.setAttribute(
+                        "href",
+                        `/oauth2/authorization/${provider}?returnUrl=${encodeURIComponent(returnUrl)}&link=true`
+                    );
+                    actionButton.removeAttribute("aria-disabled");
+                    actionButton.classList.remove("disabled");
+                }
+            }
+        });
+    };
+
+    const handleOAuthAction = async (event) => {
+        const target = event.currentTarget;
+        if (!target || target.dataset.action !== "unlink") {
+            return;
+        }
+        event.preventDefault();
+        resetMessages();
+        if (!memberUid) {
+            showAuthError(errorMessage, "회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
+            return;
+        }
+        const provider = target.dataset.provider;
+        const providerUserId = target.dataset.providerUserId;
+        if (!provider || !providerUserId) {
+            showAuthError(errorMessage, "연동 정보를 확인할 수 없습니다.");
+            return;
+        }
+        const providerLabel = providerLabels[provider] || provider;
+        pendingOAuthUnlink = {provider, providerUserId, button: target, providerLabel};
+        openConfirmModal(providerLabel);
+    };
+
+    const confirmOAuthUnlink = async () => {
+        if (!pendingOAuthUnlink) {
+            closeConfirmModal();
+            return;
+        }
+        const {provider, providerUserId, button} = pendingOAuthUnlink;
+        button.setAttribute("aria-disabled", "true");
+        button.classList.add("disabled");
+        try {
+            const response = await fetch(`/api/v1/members/${memberUid}/oauth-accounts?provider=${provider}&providerUserId=${providerUserId}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+            if (response.status === 401) {
+                redirectToLogin();
+                return;
+            }
+            if (!response.ok) {
+                showAuthError(errorMessage, "연동 해제에 실패했습니다. 다시 시도해 주세요.");
+                return;
+            }
+            if (successMessage) {
+                successMessage.textContent = "연동 계정이 해제되었습니다.";
+                successMessage.classList.remove("d-none");
+            }
+            loadOAuthAccounts();
+        } catch (error) {
+            showAuthError(errorMessage, "연동 해제 중 오류가 발생했습니다. 다시 시도해 주세요.");
+        } finally {
+            button.classList.remove("disabled");
+            button.removeAttribute("aria-disabled");
+            closeConfirmModal();
+        }
+    };
     const loadOAuthAccounts = async () => {
         if (!memberUid) {
             return;
@@ -223,6 +365,30 @@ document.addEventListener("DOMContentLoaded", () => {
             LastReadStore.clear();
         });
     }
+    if (oauthActionButtons && oauthActionButtons.length > 0) {
+        oauthActionButtons.forEach((button) => {
+            button.addEventListener("click", handleOAuthAction);
+        });
+    }
+    if (confirmCancel) {
+        confirmCancel.addEventListener("click", closeConfirmModal);
+    }
+    if (confirmSubmit) {
+        confirmSubmit.addEventListener("click", confirmOAuthUnlink);
+    }
+    if (confirmModal) {
+        confirmModal.addEventListener("click", (event) => {
+            const target = event.target;
+            if (target && target.dataset && target.dataset.modalClose) {
+                closeConfirmModal();
+            }
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !confirmModal.classList.contains("d-none")) {
+                closeConfirmModal();
+            }
+        });
+    }
 
     checkAuthStatus({
         onAuthenticated: (data) => {
@@ -232,6 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             memberUid = data.memberUid || null;
+            memberEmail = data.email || "";
             const emailValue = data.email || "";
             const nicknameValue = (data.nickname || "").trim();
             const displayName = nicknameValue || (emailValue ? emailValue.split("@")[0] : "회원");
@@ -255,11 +422,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 nicknameInput.value = initialNickname;
             }
             setFormEnabled(true);
+            updateOAuthCards(new Map());
             loadOAuthAccounts();
         },
         onUnauthenticated: redirectToLogin,
         onError: () => showAuthError(errorMessage, "인증 정보를 확인할 수 없습니다. 다시 로그인해 주세요."),
     });
+
+    showOAuthErrorFromUrl();
 
     if (editForm) {
         editForm.addEventListener("submit", async (event) => {
