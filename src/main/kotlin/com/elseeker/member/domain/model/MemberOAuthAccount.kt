@@ -38,9 +38,6 @@ class MemberOAuthAccount(
     @Column(name = "profile_image_url", length = 512)
     var profileImageUrl: String? = null,
 
-    @Column(name = "connected_at", nullable = false)
-    var connectedAt: LocalDateTime = LocalDateTime.now(),
-
     @Column(name = "last_synced_at")
     var lastSyncedAt: LocalDateTime? = null
 
@@ -61,7 +58,6 @@ class MemberOAuthAccount(
             email = email,
             nickname = nickname,
             profileImageUrl = profileImageUrl,
-            connectedAt = LocalDateTime.now(),
             lastSyncedAt = LocalDateTime.now()
         )
     }
