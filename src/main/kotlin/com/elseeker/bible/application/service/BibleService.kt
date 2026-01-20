@@ -6,9 +6,9 @@ import com.elseeker.bible.application.component.BibleReader
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.DirectionType
+import com.elseeker.common.config.RequestTimeZoneContext
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.ZoneId
 
 @Service
 class BibleService(
@@ -43,6 +43,6 @@ class BibleService(
 
     fun getDailyVerse(
         translationType: BibleTranslationType,
-        date: LocalDate = LocalDate.now(ZoneId.of("Asia/Seoul"))
+        date: LocalDate = LocalDate.now(RequestTimeZoneContext.get())
     ) = bibleReader.getDailyRandomVerse(translationType, date)
 }
