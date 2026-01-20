@@ -5,7 +5,6 @@ import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.member.domain.vo.MemberRole
 import com.elseeker.member.domain.vo.OAuthProvider
-import com.elseeker.member.domain.vo.OAuthProviderConverter
 import jakarta.persistence.*
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.util.*
@@ -21,10 +20,6 @@ import java.util.*
         UniqueConstraint(
             name = "uk_member_email",
             columnNames = ["email"]
-        ),
-        UniqueConstraint(
-            name = "uk_member_provider_user",
-            columnNames = ["provider", "provider_user_id"]
         )
     ]
 )
@@ -37,7 +32,7 @@ class Member(
     @Column(nullable = false, length = 255, unique = true)
     var email: String,
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     var nickname: String = "",
 
     @Column(length = 512)
@@ -46,17 +41,10 @@ class Member(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     var memberRole: MemberRole = MemberRole.USER,
-
-    // 소셜 플랫폼 이름 (google, naver, kakao)
-    @Convert(converter = OAuthProviderConverter::class)
-    @Column(nullable = false, length = 50)
-    var provider: OAuthProvider,
-
-    // 공급자가 부여한 사용자 ID
-    @Column(nullable = false, length = 255)
-    var providerUserId: String
-
 ) : BaseTimeEntity() {
+
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val oauthAccounts: MutableSet<MemberOAuthAccount> = mutableSetOf()
 
     companion object {
 
@@ -64,16 +52,12 @@ class Member(
             email: String,
             nickname: String,
             profileImageUrl: String?,
-            memberRole: MemberRole,
-            provider: OAuthProvider,
-            providerUserId: String
+            memberRole: MemberRole
         ) = Member(
             email = email,
             nickname = nickname,
             profileImageUrl = profileImageUrl,
-            memberRole = memberRole,
-            provider = provider,
-            providerUserId = providerUserId
+            memberRole = memberRole
         )
     }
 
@@ -92,27 +76,35 @@ class Member(
         profileImageUrl?.let { this.profileImageUrl = it }
     }
 
+    fun addOAuthAccount(
+        provider: OAuthProvider,
+        providerUserId: String,
+        email: String? = null,
+        oauthNickname: String? = null,
+        oauthProfileImageUrl: String? = null
+    ): MemberOAuthAccount {
+        val account = MemberOAuthAccount.create(
+            member = this,
+            provider = provider,
+            providerUserId = providerUserId,
+            email = email,
+            nickname = oauthNickname,
+            profileImageUrl = oauthProfileImageUrl
+        )
+        oauthAccounts.add(account)
+        return account
+    }
 
-    /**
-     * [도메인 비즈니스 메서드] OAuth 정보 동기화
-     */
-    fun syncWithOAuth(
-        inputProvider: OAuthProvider,
-        inputProviderUserId: String,
-        newNickname: String,
-        newProfileImageUrl: String?
-    ) {
-        if (this.provider != inputProvider) {
-            throwError(ErrorType.PROVIDER_MISMATCH, inputProvider.registrationId)
+    fun removeOAuthAccount(account: MemberOAuthAccount) {
+        oauthAccounts.remove(account)
+    }
+
+    fun initializeProfileFromOAuth(oauthNickname: String?, oauthProfileImageUrl: String?) {
+        if (this.nickname.isBlank() && !oauthNickname.isNullOrBlank()) {
+            this.nickname = oauthNickname
         }
-        if (this.providerUserId != inputProviderUserId) {
-            throwError(ErrorType.PROVIDER_USER_ID_MISMATCH, inputProvider.registrationId)
-        }
-        if (newNickname.isNotBlank() && this.nickname.isBlank()) {
-            this.nickname = newNickname
-        }
-        if (newProfileImageUrl != null && this.profileImageUrl.isNullOrBlank()) {
-            this.profileImageUrl = newProfileImageUrl
+        if (this.profileImageUrl.isNullOrBlank() && !oauthProfileImageUrl.isNullOrBlank()) {
+            this.profileImageUrl = oauthProfileImageUrl
         }
     }
 

@@ -3,6 +3,7 @@ package com.elseeker.common.security.oauth.service
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
+import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import com.elseeker.member.domain.vo.MemberRole
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CustomOAuth2UserService(
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val memberOAuthAccountRepository: MemberOAuthAccountRepository
 ) : DefaultOAuth2UserService() {
 
     @Transactional
@@ -36,24 +38,33 @@ class CustomOAuth2UserService(
             throwError(ErrorType.OAUTH_PROVIDER_USER_ID_MISSING, provider.registrationId)
         }
 
-        // 3. 사용자 저장 또는 업데이트
-        val member = memberRepository.findByEmail(userInfo.email)
-            ?.also {
-                it.syncWithOAuth(
-                    inputProvider = userInfo.provider,
-                    inputProviderUserId = userInfo.providerUserId,
-                    newNickname = userInfo.name,
-                    newProfileImageUrl = userInfo.imageUrl
-                )
-            }
-            ?: Member.create(
+        // 3. 사용자 저장 또는 업데이트 (OAuth 계정 기준)
+        val oauthAccount = memberOAuthAccountRepository.findByProviderAndProviderUserId(
+            provider = userInfo.provider,
+            providerUserId = userInfo.providerUserId
+        )
+        val member = oauthAccount?.let { account ->
+            account.syncOAuthProfile(
                 email = userInfo.email,
                 nickname = userInfo.name,
-                memberRole = MemberRole.USER,
-                provider = userInfo.provider,
-                providerUserId = userInfo.providerUserId,
                 profileImageUrl = userInfo.imageUrl
             )
+            account.member
+        }
+            ?: Member.create(
+                email = userInfo.email,
+                nickname = "",
+                memberRole = MemberRole.USER,
+                profileImageUrl = null
+            ).also { newMember ->
+                newMember.addOAuthAccount(
+                    provider = userInfo.provider,
+                    providerUserId = userInfo.providerUserId,
+                    email = userInfo.email,
+                    oauthNickname = userInfo.name,
+                    oauthProfileImageUrl = userInfo.imageUrl
+                )
+            }
         val savedMember = memberRepository.save(member)
         val savedMemberUid = savedMember.uid
 

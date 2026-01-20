@@ -12,13 +12,17 @@ data class AuthMeResponse(
 ) {
     companion object {
         fun from(member: Member): AuthMeResponse {
+            val providerRegistrationId = member.oauthAccounts.firstOrNull()
+                ?.provider
+                ?.registrationId
+                ?: ""
             return AuthMeResponse(
                 memberUid = member.uid.toString(),
                 email = member.email,
                 role = member.memberRole.name,
                 nickname = member.nickname,
                 profileImageUrl = member.profileImageUrl,
-                provider = member.provider.registrationId,
+                provider = providerRegistrationId,
             )
         }
     }
