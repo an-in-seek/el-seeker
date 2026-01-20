@@ -212,12 +212,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     if (actionButton) {
                         actionButton.classList.add("disabled");
+                        actionButton.classList.add("mypage-oauth-action-disabled");
                         actionButton.setAttribute("aria-disabled", "true");
                         actionButton.dataset.action = "disabled";
                     }
                 } else if (notice) {
                     notice.textContent = "";
                     notice.classList.add("d-none");
+                    if (actionButton) {
+                        actionButton.classList.remove("mypage-oauth-action-disabled");
+                    }
                 }
             } else {
                 card.classList.add("is-empty");
@@ -233,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     actionButton.textContent = `${providerLabel} 연동하기`;
                     actionButton.classList.add("btn-outline-secondary");
                     actionButton.classList.remove("btn-outline-danger");
+                    actionButton.classList.remove("mypage-oauth-action-disabled");
                     actionButton.dataset.action = "link";
                     actionButton.dataset.providerUserId = "";
                     actionButton.setAttribute(

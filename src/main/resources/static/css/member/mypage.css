@@ -214,6 +214,13 @@
 .mypage-oauth-action.btn-outline-danger[aria-disabled="true"] {
     opacity: 0.5;
     pointer-events: none;
+    cursor: not-allowed;
+}
+
+.mypage-oauth-action.mypage-oauth-action-disabled {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #64748b;
 }
 
 .mypage-modal {
