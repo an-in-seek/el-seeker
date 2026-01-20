@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             OAUTH_ACCOUNT_ALREADY_LINKED: "이미 다른 계정에 연결된 소셜 계정입니다. 다른 계정으로 시도해 주세요.",
             OAUTH_EMAIL_MISSING: "소셜 계정 이메일 정보를 가져오지 못했습니다.",
             OAUTH_PROVIDER_USER_ID_MISSING: "소셜 계정 식별 정보를 가져오지 못했습니다.",
+            OAUTH_LINK_REQUIRED: "연동 전용 요청입니다. 마이페이지의 연동하기 버튼으로 다시 시도해 주세요.",
             UNKNOWN: "소셜 계정 연동에 실패했습니다. 다시 시도해 주세요.",
         };
         showAuthError(errorMessage, messages[errorCode] || messages.UNKNOWN);

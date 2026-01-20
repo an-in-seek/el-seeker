@@ -5,6 +5,7 @@ import com.elseeker.common.domain.throwError
 import com.elseeker.common.security.jwt.JwtProvider
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
 import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
+import com.elseeker.common.security.oauth.util.CookieUtils
 import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
@@ -52,6 +53,7 @@ class CustomOAuth2UserService(
             providerUserId = userInfo.providerUserId
         )
         val linkTarget = resolveLinkTargetMember()
+        val authenticatedMember = linkTarget ?: resolveAuthenticatedMember()
         val member = if (linkTarget != null) {
             if (oauthAccount != null && oauthAccount.member.id != linkTarget.id) {
                 throwError(ErrorType.OAUTH_ACCOUNT_ALREADY_LINKED, userInfo.provider.registrationId)
@@ -81,19 +83,24 @@ class CustomOAuth2UserService(
                 )
                 account.member
             }
-                ?: Member.create(
-                    email = userInfo.email,
-                    nickname = "",
-                    memberRole = MemberRole.USER,
-                    profileImageUrl = null
-                ).also { newMember ->
-                    newMember.addOAuthAccount(
-                        provider = userInfo.provider,
-                        providerUserId = userInfo.providerUserId,
+                ?: run {
+                    if (authenticatedMember != null) {
+                        throwError(ErrorType.OAUTH_LINK_REQUIRED, userInfo.provider.registrationId)
+                    }
+                    Member.create(
                         email = userInfo.email,
-                        oauthNickname = userInfo.name,
-                        oauthProfileImageUrl = userInfo.imageUrl
-                    )
+                        nickname = "",
+                        memberRole = MemberRole.USER,
+                        profileImageUrl = null
+                    ).also { newMember ->
+                        newMember.addOAuthAccount(
+                            provider = userInfo.provider,
+                            providerUserId = userInfo.providerUserId,
+                            email = userInfo.email,
+                            oauthNickname = userInfo.name,
+                            oauthProfileImageUrl = userInfo.imageUrl
+                        )
+                    }
                 }
         }
         val savedMember = memberRepository.save(member)
@@ -118,10 +125,11 @@ class CustomOAuth2UserService(
     private fun resolveLinkTargetMember(): Member? {
         val request = getCurrentRequest() ?: return null
         val authRequest = authorizationRequestRepository.loadAuthorizationRequest(request)
-            ?: return null
-        val linkFlag = authRequest.attributes[HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_ATTRIBUTE] as? Boolean
-            ?: return null
-        if (!linkFlag) {
+        val linkFlag = authRequest?.attributes
+            ?.get(HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_ATTRIBUTE) as? Boolean
+        val linkCookie = CookieUtils.getCookie(request, HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_COOKIE_NAME)
+        val linkCookieFlag = linkCookie?.value?.equals("true", ignoreCase = true) ?: false
+        if (linkFlag != true && !linkCookieFlag) {
             return null
         }
         val accessToken = jwtProvider.resolveAccessToken(request)
@@ -132,6 +140,14 @@ class CustomOAuth2UserService(
             .getOrElse { throwError(ErrorType.INVALID_PARAMETER, "memberUid") }
         return memberRepository.findByUid(memberUid)
             ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
+    }
+
+    private fun resolveAuthenticatedMember(): Member? {
+        val request = getCurrentRequest() ?: return null
+        val accessToken = jwtProvider.resolveAccessToken(request) ?: return null
+        val claims = jwtProvider.resolveClaims(accessToken) ?: return null
+        val memberUid = runCatching { UUID.fromString(claims.subject) }.getOrNull() ?: return null
+        return memberRepository.findByUid(memberUid)
     }
 
     private fun getCurrentRequest(): HttpServletRequest? {

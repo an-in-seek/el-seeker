@@ -2,6 +2,7 @@ package com.elseeker.common.security.oauth.handler
 
 import com.elseeker.common.domain.ServiceError
 import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
+import com.elseeker.common.security.oauth.util.CookieUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.AuthenticationException
@@ -29,6 +30,7 @@ class OAuth2LoginFailureHandler(
         val redirectUrl = "$safeReturnUrl${separator}oauthError=$encodedError"
 
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response)
+        CookieUtils.deleteCookie(response, HttpCookieOAuth2AuthorizationRequestRepository.LINK_FLAG_COOKIE_NAME, request.isSecure)
         redirectStrategy.sendRedirect(request, response, redirectUrl)
     }
 }

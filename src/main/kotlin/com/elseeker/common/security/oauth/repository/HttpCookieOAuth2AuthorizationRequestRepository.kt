@@ -63,6 +63,16 @@ class HttpCookieOAuth2AuthorizationRequestRepository :
                 request.isSecure,
             )
         }
+
+        if (!linkFlag.isNullOrBlank() && linkFlag.equals("true", ignoreCase = true)) {
+            CookieUtils.addCookie(
+                response,
+                LINK_FLAG_COOKIE_NAME,
+                "true",
+                COOKIE_EXPIRE_SECONDS,
+                request.isSecure,
+            )
+        }
     }
 
     override fun removeAuthorizationRequest(
