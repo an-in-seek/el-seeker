@@ -46,7 +46,9 @@ class MemberService(
         }
         val member = getMember(memberUid)
         member.update(nickname, profileImageUrl)
-        return memberRepository.save(member)
+        memberRepository.save(member)
+        return memberRepository.findWithOAuthAccountsByUid(memberUid)
+            ?: member
     }
 
     @Transactional

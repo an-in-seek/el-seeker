@@ -24,12 +24,13 @@ class MemberApi(
         @RequestBody request: MemberUpdateRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
     ): ResponseEntity<AuthMeResponse> {
-        val member = memberService.updateMember(
+        memberService.updateMember(
             memberUid = memberUid,
             principalUid = principal.memberUid,
             nickname = request.nickname,
             profileImageUrl = request.profileImageUrl
         )
+        val member = memberService.getMemberWithOAuthAccounts(memberUid)
         return ResponseEntity.ok(AuthMeResponse.from(member))
     }
 

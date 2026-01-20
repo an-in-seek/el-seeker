@@ -128,6 +128,57 @@
     animation-delay: 0.2s;
 }
 
+.mypage-oauth-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.mypage-oauth-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem 1.1rem;
+    background: #ffffff;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+}
+
+.mypage-oauth-header {
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mypage-oauth-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-block;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 3px;
+    box-sizing: border-box;
+    object-fit: contain;
+}
+
+.mypage-oauth-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.mypage-oauth-meta span {
+    color: #64748b;
+}
+
+.mypage-oauth-meta strong {
+    font-weight: 600;
+    color: #0f172a;
+}
+
 .mypage-status-pill {
     display: inline-flex;
     align-items: center;
@@ -328,6 +379,23 @@
 
     .mypage-nickname-row .btn {
         width: 100%;
+    }
+
+    .mypage-oauth-card {
+        padding: 0.75rem 0.85rem;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .mypage-oauth-meta {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+        font-size: 0.78rem;
+    }
+
+    .mypage-oauth-meta span {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 }
 

@@ -25,8 +25,28 @@
         <div class="col-12 col-lg-7">
             <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
+                    <h3 class="h6 fw-bold mb-3">내 계정</h3>
+                    <dl class="mypage-info-list mb-4">
+                        <div class="mypage-info-item">
+                            <dt>닉네임</dt>
+                            <dd id="mypageNicknameDetail">불러오는 중</dd>
+                        </div>
+                        <div class="mypage-info-item">
+                            <dt>이메일</dt>
+                            <dd id="mypageEmailDetail">불러오는 중</dd>
+                        </div>
+                        <div class="mypage-info-item">
+                            <dt>권한</dt>
+                            <dd id="mypageRoleDetail">불러오는 중</dd>
+                        </div>
+                    </dl>
+
+                    <h3 class="h6 fw-bold mb-3">연동 계정</h3>
+                    <div id="mypageOAuthAccountsEmpty" class="text-muted small mb-3">연동된 계정이 없습니다.</div>
+                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list d-none mb-4"></div>
+
                     <form id="mypageEditForm" class="mypage-edit-form">
-                        <h3 class="h6 fw-bold mb-3">회원 정보 수정</h3>
+                        <h3 class="h6 fw-bold mb-3">닉네임 변경</h3>
                         <div class="mb-3">
                             <label class="form-label" for="mypageNicknameInput">닉네임</label>
                             <div class="mypage-nickname-row">
