@@ -2,8 +2,16 @@ package com.elseeker.member.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
+import com.elseeker.bible.adapter.output.jpa.BibleMemoRepository
+import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
+import com.elseeker.game.adapter.output.jpa.BibleTypingVerseProgressRepository
+import com.elseeker.game.adapter.output.jpa.QuizProgressRepository
+import com.elseeker.game.adapter.output.jpa.QuizQuestionStatRepository
+import com.elseeker.game.adapter.output.jpa.QuizStageProgressRepository
 import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
 import com.elseeker.member.adapter.output.jpa.MemberRepository
+import com.elseeker.member.adapter.output.jpa.MemberWithdrawalAuditRepository
+import com.elseeker.member.domain.model.MemberWithdrawalAudit
 import com.elseeker.member.domain.model.Member
 import com.elseeker.member.domain.vo.OAuthProvider
 import org.springframework.stereotype.Service
@@ -14,6 +22,13 @@ import java.util.*
 class MemberService(
     private val memberRepository: MemberRepository,
     private val memberOAuthAccountRepository: MemberOAuthAccountRepository,
+    private val bibleMemoRepository: BibleMemoRepository,
+    private val bibleTypingSessionRepository: BibleTypingSessionRepository,
+    private val bibleTypingVerseProgressRepository: BibleTypingVerseProgressRepository,
+    private val quizProgressRepository: QuizProgressRepository,
+    private val quizStageProgressRepository: QuizStageProgressRepository,
+    private val quizQuestionStatRepository: QuizQuestionStatRepository,
+    private val memberWithdrawalAuditRepository: MemberWithdrawalAuditRepository,
 ) {
 
     // TODO: 회원(Member) 가입
@@ -36,6 +51,20 @@ class MemberService(
             throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
         }
         val member = getMember(memberUid)
+        memberWithdrawalAuditRepository.save(
+            MemberWithdrawalAudit(
+                memberUid = member.uid,
+                email = member.email,
+                nickname = member.nickname
+            )
+        )
+        bibleMemoRepository.deleteAllByMember(member)
+        bibleTypingVerseProgressRepository.deleteAllByMember(member)
+        bibleTypingSessionRepository.deleteAllByMember(member)
+        quizQuestionStatRepository.deleteAllByMember(member)
+        quizStageProgressRepository.deleteAllByMember(member)
+        quizProgressRepository.deleteAllByMember(member)
+        memberOAuthAccountRepository.deleteAllByMember(member)
         memberRepository.delete(member)
     }
 

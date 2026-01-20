@@ -5,6 +5,7 @@ import com.elseeker.member.domain.model.Member
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface BibleTypingVerseProgressRepository : JpaRepository<BibleTypingVerseProgress, Long> {
+    fun deleteAllByMember(member: Member)
     fun findFirstByMemberAndSessionKeyAndVerseNumber(member: Member, sessionKey: String, verseNumber: Int): BibleTypingVerseProgress?
     fun findTopByMemberOrderByCreatedAtDesc(member: Member): BibleTypingVerseProgress?
     fun findTopByMemberAndTranslationIdAndBookOrderAndChapterNumberOrderByCreatedAtDesc(

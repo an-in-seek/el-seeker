@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
+    fun deleteAllByMember(member: Member)
     fun findByMemberAndQuestionId(member: Member, questionId: Long): QuizQuestionStat?
 
     @Query(

@@ -1,5 +1,6 @@
 package com.elseeker.member.adapter.output.jpa
 
+import com.elseeker.member.domain.model.Member
 import com.elseeker.member.domain.model.MemberOAuthAccount
 import com.elseeker.member.domain.vo.OAuthProvider
 import org.springframework.data.jpa.repository.JpaRepository
@@ -12,4 +13,6 @@ interface MemberOAuthAccountRepository : JpaRepository<MemberOAuthAccount, Long>
     ): MemberOAuthAccount?
 
     fun findAllByMemberUid(memberUid: UUID): List<MemberOAuthAccount>
+
+    fun deleteAllByMember(member: Member)
 }

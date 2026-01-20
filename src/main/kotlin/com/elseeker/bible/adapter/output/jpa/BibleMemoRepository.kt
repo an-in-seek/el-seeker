@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface BibleMemoRepository : JpaRepository<BibleVerseMemo, Long> {
 
+    fun deleteAllByMember(member: Member)
+
     fun findAllByMemberAndTranslationIdAndBookOrderAndChapterNumber(
         member: Member,
         translationId: Long,

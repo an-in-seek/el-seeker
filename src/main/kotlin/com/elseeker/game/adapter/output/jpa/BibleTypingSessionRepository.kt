@@ -9,6 +9,8 @@ import java.time.Instant
 
 interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long> {
 
+    fun deleteAllByMember(member: Member)
+
     @Query(
         """
         SELECT session

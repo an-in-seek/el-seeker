@@ -203,7 +203,7 @@
 
 .mypage-info-item {
     display: grid;
-    grid-template-columns: minmax(100px, 140px) 1fr;
+    grid-template-columns: minmax(60px, 80px) 1fr;
     gap: 1rem;
     align-items: center;
     padding: 1rem 1.25rem;
