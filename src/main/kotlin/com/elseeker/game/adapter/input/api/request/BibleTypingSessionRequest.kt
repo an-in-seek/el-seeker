@@ -1,14 +1,14 @@
 package com.elseeker.game.adapter.input.api.request
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class BibleTypingSessionCreateRequest(
     val sessionKey: String,
     val translationId: Long,
     val bookOrder: Int,
     val chapterNumber: Int,
-    val startedAt: LocalDateTime,
-    val endedAt: LocalDateTime,
+    val startedAt: Instant,
+    val endedAt: Instant,
     val totalVerses: Int,
     val completedVerses: Int,
     val totalTypedChars: Int,

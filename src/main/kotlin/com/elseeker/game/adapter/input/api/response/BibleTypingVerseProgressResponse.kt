@@ -1,13 +1,13 @@
 package com.elseeker.game.adapter.input.api.response
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class BibleTypingVerseProgressResponse(
     val sessionKey: String,
     val translationId: Long,
     val bookOrder: Int,
     val chapterNumber: Int,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
     val verses: List<VerseProgress>
 ) {
     data class VerseProgress(
@@ -17,6 +17,6 @@ data class BibleTypingVerseProgressResponse(
         val cpm: Double,
         val elapsedSeconds: Int,
         val completed: Boolean,
-        val createdAt: LocalDateTime
+        val createdAt: Instant
     )
 }

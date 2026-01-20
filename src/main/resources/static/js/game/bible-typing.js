@@ -333,7 +333,7 @@ const focusVerseInput = (index) => {
 };
 
 const formatLocalDateTime = (date) => {
-    return date.toISOString().split(".")[0];
+    return date.toISOString();
 };
 
 const saveSession = async () => {

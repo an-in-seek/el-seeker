@@ -5,7 +5,7 @@ import com.elseeker.member.domain.model.Member
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.time.LocalDateTime
+import java.time.Instant
 
 interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long> {
 
@@ -27,7 +27,7 @@ interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long>
         @Param("translationId") translationId: Long?,
         @Param("bookOrder") bookOrder: Int?,
         @Param("chapterNumber") chapterNumber: Int?,
-        @Param("fromDate") fromDate: LocalDateTime,
-        @Param("toDate") toDate: LocalDateTime
+        @Param("fromDate") fromDate: Instant,
+        @Param("toDate") toDate: Instant
     ): List<BibleTypingSession>
 }

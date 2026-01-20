@@ -4,11 +4,12 @@ import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateReque
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.domain.model.BibleTypingSession
 import com.elseeker.game.domain.model.BibleTypingVerseResult
+import com.elseeker.common.config.RequestTimeZoneContext
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Service
 class BibleTypingSessionService(
@@ -57,10 +58,11 @@ class BibleTypingSessionService(
         fromDate: LocalDate?,
         toDate: LocalDate?
     ): List<BibleTypingSession> {
-        val fromDateTime = fromDate?.atStartOfDay()
-            ?: LocalDateTime.of(1970, 1, 1, 0, 0)
-        val toDateTime = toDate?.atTime(23, 59, 59)
-            ?: LocalDateTime.of(9999, 12, 31, 23, 59, 59)
+        val zoneId = RequestTimeZoneContext.get()
+        val fromDateTime = fromDate?.atStartOfDay(zoneId)?.toInstant()
+            ?: Instant.EPOCH
+        val toDateTime = toDate?.atTime(23, 59, 59)?.atZone(zoneId)?.toInstant()
+            ?: Instant.parse("9999-12-31T23:59:59Z")
         return bibleTypingSessionRepository.findSessions(
             member = member,
             translationId = translationId,

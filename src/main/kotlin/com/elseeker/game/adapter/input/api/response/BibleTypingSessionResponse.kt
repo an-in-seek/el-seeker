@@ -1,10 +1,10 @@
 package com.elseeker.game.adapter.input.api.response
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class BibleTypingSessionResponse(
     val sessionId: Long,
-    val createdAt: LocalDateTime
+    val createdAt: Instant
 )
 
 data class BibleTypingSessionSummaryResponse(
@@ -17,7 +17,7 @@ data class BibleTypingSessionSummaryResponse(
     val completedVerses: Int,
     val accuracy: Double,
     val cpm: Double,
-    val startedAt: LocalDateTime,
-    val endedAt: LocalDateTime,
-    val createdAt: LocalDateTime
+    val startedAt: Instant,
+    val endedAt: Instant,
+    val createdAt: Instant
 )

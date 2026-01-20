@@ -4,7 +4,7 @@ import com.elseeker.common.domain.BaseTimeEntity
 import com.elseeker.member.domain.vo.OAuthProvider
 import com.elseeker.member.domain.vo.OAuthProviderConverter
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(
@@ -39,7 +39,7 @@ class MemberOAuthAccount(
     var profileImageUrl: String? = null,
 
     @Column(name = "last_synced_at")
-    var lastSyncedAt: LocalDateTime? = null
+    var lastSyncedAt: Instant? = null
 
 ) : BaseTimeEntity() {
 
@@ -58,7 +58,7 @@ class MemberOAuthAccount(
             email = email,
             nickname = nickname,
             profileImageUrl = profileImageUrl,
-            lastSyncedAt = LocalDateTime.now()
+            lastSyncedAt = Instant.now()
         )
     }
 
@@ -70,6 +70,6 @@ class MemberOAuthAccount(
         this.email = email
         this.nickname = nickname
         this.profileImageUrl = profileImageUrl
-        this.lastSyncedAt = LocalDateTime.now()
+        this.lastSyncedAt = Instant.now()
     }
 }

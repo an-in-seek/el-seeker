@@ -1,7 +1,7 @@
 package com.elseeker.bible.adapter.input.api.response
 
 import com.elseeker.bible.domain.model.BibleVerseMemo
-import java.time.LocalDateTime
+import java.time.Instant
 
 class BibleMemoApiResponse {
 
@@ -9,7 +9,7 @@ class BibleMemoApiResponse {
         val memoId: Long,
         val verseNumber: Int,
         val content: String,
-        val updatedAt: LocalDateTime
+        val updatedAt: Instant
     ) {
         companion object {
             fun from(memo: BibleVerseMemo) = MemoItem(

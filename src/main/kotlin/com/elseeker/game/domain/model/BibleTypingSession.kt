@@ -3,7 +3,7 @@ package com.elseeker.game.domain.model
 import com.elseeker.common.domain.BaseTimeEntity
 import com.elseeker.member.domain.model.Member
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(name = "bible_typing_session")
@@ -41,10 +41,10 @@ class BibleTypingSession(
     val cpm: Double,
 
     @Column(nullable = false)
-    val startedAt: LocalDateTime,
+    val startedAt: Instant,
 
     @Column(nullable = false)
-    val endedAt: LocalDateTime,
+    val endedAt: Instant,
 
     @OneToMany(
         mappedBy = "session",

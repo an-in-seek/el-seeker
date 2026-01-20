@@ -1,7 +1,7 @@
 package com.elseeker.study.domain.model
 
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  * 성경 사전
@@ -29,14 +29,14 @@ class Dictionary(
     val relatedVerses: String? = null,
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: Instant = Instant.now(),
 
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: Instant = Instant.now()
 ) {
 
     @PreUpdate
     fun updateTimestamp() {
-        updatedAt = LocalDateTime.now()
+        updatedAt = Instant.now()
     }
 }

@@ -19,6 +19,8 @@ spring:
       hibernate:
         show_sql: false
         format_sql: false
+        jdbc:
+          time_zone: UTC
     defer-datasource-initialization: true  # ✅ JPA 실행 후 sql 실행
   sql:
     init:

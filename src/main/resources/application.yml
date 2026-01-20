@@ -53,6 +53,8 @@ spring:
       hibernate:
         show_sql: false
         format_sql: false
+        jdbc:
+          time_zone: UTC
 
 el-seeker:
   jwt:
