@@ -18,7 +18,7 @@ class AuthApi(
     fun me(
         @AuthenticationPrincipal principal: JwtPrincipal
     ): AuthMeResponse {
-        val member = memberService.getMember(principal.memberUid)
+        val member = memberService.getMemberWithOAuthAccounts(principal.memberUid)
         return AuthMeResponse.from(member)
     }
 }

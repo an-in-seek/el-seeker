@@ -7,6 +7,7 @@ import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import com.elseeker.member.domain.vo.OAuthProvider
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
@@ -21,9 +22,15 @@ class MemberService(
 
     // TODO: 회원(Member) 정보 수정
 
+    @Transactional(readOnly = true)
     fun getMember(memberUid: UUID) = memberRepository.findByUid(memberUid)
         ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
 
+    @Transactional(readOnly = true)
+    fun getMemberWithOAuthAccounts(memberUid: UUID) = memberRepository.findWithOAuthAccountsByUid(memberUid)
+        ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
+
+    @Transactional
     fun deleteMember(memberUid: UUID, principalUid: UUID) {
         if (memberUid != principalUid) {
             throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
@@ -32,6 +39,7 @@ class MemberService(
         memberRepository.delete(member)
     }
 
+    @Transactional
     fun updateMember(memberUid: UUID, principalUid: UUID, nickname: String, profileImageUrl: String?): Member {
         if (memberUid != principalUid) {
             throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
@@ -41,6 +49,7 @@ class MemberService(
         return memberRepository.save(member)
     }
 
+    @Transactional
     fun linkOAuthAccount(
         memberUid: UUID,
         principalUid: UUID,
@@ -70,6 +79,7 @@ class MemberService(
         return memberRepository.save(member)
     }
 
+    @Transactional(readOnly = true)
     fun getOAuthAccounts(memberUid: UUID, principalUid: UUID) =
         if (memberUid != principalUid) {
             throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
@@ -77,6 +87,7 @@ class MemberService(
             memberOAuthAccountRepository.findAllByMemberUid(memberUid)
         }
 
+    @Transactional
     fun unlinkOAuthAccount(
         memberUid: UUID,
         principalUid: UUID,
@@ -104,6 +115,7 @@ class MemberService(
         return memberRepository.save(member)
     }
 
+    @Transactional
     fun initializeProfileFromOAuthAccount(
         memberUid: UUID,
         principalUid: UUID,
@@ -130,4 +142,5 @@ class MemberService(
         member.initializeProfileFromOAuth(account.nickname, account.profileImageUrl)
         return memberRepository.save(member)
     }
+
 }
