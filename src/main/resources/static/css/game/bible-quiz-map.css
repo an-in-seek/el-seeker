@@ -2,6 +2,10 @@
     margin: 0 auto 1.5rem auto;
 }
 
+.quiz-map-card .card-body {
+    padding-top: 0;
+}
+
 .quiz-map-summary {
     display: flex;
     align-items: center;
@@ -15,6 +19,12 @@
     border-radius: 14px;
     border: 1px solid #e1e7f2;
     background: linear-gradient(135deg, #f7f9ff 0%, #f2f7ff 45%, #f6fbff 100%);
+}
+
+.quiz-map-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 0.75rem;
 }
 
 .quiz-map-summary-main {
