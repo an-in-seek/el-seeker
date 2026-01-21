@@ -331,7 +331,7 @@ const initNav = () => {
     const backButton = document.getElementById("topNavBackButton");
     const pageTitleLabel = document.getElementById("pageTitleLabel");
     if (pageTitleLabel) {
-        pageTitleLabel.textContent = "성경 퀴즈";
+        pageTitleLabel.textContent = "성경 퀴즈 맵";
         pageTitleLabel.classList.remove("d-none");
     }
     if (backButton) {
