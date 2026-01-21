@@ -30,7 +30,8 @@ const elements = {
     elapsedTime: document.getElementById("typingElapsedTime"),
     sessionSummary: document.getElementById("typingSessionSummary"),
     sessionSummaryText: document.getElementById("typingSessionSummaryText"),
-    backButton: document.getElementById("topNavBackButton")
+    backButton: document.getElementById("topNavBackButton"),
+    pageTitleLabel: document.getElementById("pageTitleLabel")
 };
 
 const state = {
@@ -922,6 +923,10 @@ const initialize = async () => {
             elements.backButton.addEventListener("click", () => {
                 window.location.href = "/web/game";
             });
+        }
+        if (elements.pageTitleLabel) {
+            elements.pageTitleLabel.textContent = "성경 타자";
+            elements.pageTitleLabel.classList.remove("d-none");
         }
         const selection = await loadSelections();
         if (!selection) return;
