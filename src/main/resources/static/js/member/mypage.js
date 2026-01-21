@@ -28,9 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const title = document.getElementById("mypageTitle");
     const email = document.getElementById("mypageEmail");
-    const nicknameDetail = document.getElementById("mypageNicknameDetail");
-    const emailDetail = document.getElementById("mypageEmailDetail");
-    const roleDetail = document.getElementById("mypageRoleDetail");
     const oauthAccountsList = document.getElementById("mypageOAuthAccountsList");
     const roleBadge = document.getElementById("mypageRole");
     const providerBadge = document.getElementById("mypageProvider");
@@ -412,9 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateText(title, `${displayName}`);
             updateText(email, emailValue || "이메일 정보 없음");
-            updateText(nicknameDetail, nicknameValue || "미등록");
-            updateText(emailDetail, emailValue || "미등록");
-            updateText(roleDetail, roleLabel);
             updateText(roleBadge, roleLabel);
             updateText(providerBadge, "연동 계정 확인 중");
 
@@ -492,9 +486,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 updateText(title, `${displayName} 님`);
                 updateText(email, updatedEmail || "이메일 정보 없음");
-                updateText(nicknameDetail, updatedNickname || "미등록");
-                updateText(emailDetail, updatedEmail || "미등록");
-                updateText(roleDetail, updatedRole);
                 updateText(roleBadge, updatedRole);
                 loadOAuthAccounts();
 

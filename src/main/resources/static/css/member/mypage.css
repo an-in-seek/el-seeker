@@ -281,47 +281,6 @@
     font-weight: 600;
 }
 
-.mypage-info-list {
-    display: grid;
-    gap: 0; /* Removed gap for border separation */
-    margin: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    overflow: hidden;
-}
-
-.mypage-info-item {
-    display: grid;
-    grid-template-columns: minmax(60px, 80px) 1fr;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem 1.25rem;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.mypage-info-item:last-child {
-    border-bottom: none;
-}
-
-.mypage-info-item:hover {
-    background: #f8fafc;
-}
-
-.mypage-info-item dt {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #64748b;
-    margin: 0;
-}
-
-.mypage-info-item dd {
-    margin: 0;
-    font-weight: 500;
-    color: #0f172a;
-    font-size: 0.95rem;
-}
-
 .mypage-divider {
     height: 1px;
     margin: 2rem 0;
