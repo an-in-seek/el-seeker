@@ -1,6 +1,6 @@
 const apiBase = "/api/v1/bible";
 const sessionApi = "/api/v1/game/bible-typing/sessions";
-const resumeApi = "/api/v1/game/bible-typing/verse-results";
+const resumeApi = "/api/v1/game/bible-typing/progress";
 const FIXED_TRANSLATION_CODE = "KRV";
 
 const UI_STATUS = {
@@ -423,7 +423,7 @@ const saveVerseProgress = async (verseState) => {
         completed: verseState.completed
     };
 
-    await fetch(resumeApi, {
+    await fetch(`${resumeApi}/verses`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),

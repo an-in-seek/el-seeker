@@ -10,13 +10,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/game/bible-typing/verse-results")
+@RequestMapping("/api/v1/game/bible-typing/progress")
 class BibleTypingVerseProgressApi(
     private val bibleTypingSessionService: BibleTypingSessionService,
     private val memberService: MemberService
 ) {
 
-    @PostMapping
+    // 절(Verse) 진행 정보 저장
+    @PostMapping("/verses")
     fun saveProgress(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestBody request: BibleTypingVerseProgressRequest
@@ -26,8 +27,9 @@ class BibleTypingVerseProgressApi(
         return ResponseEntity.noContent().build()
     }
 
+    // 특정 범위 진행 정보 조회
     @GetMapping
-    fun getLatestProgress(
+    fun getProgress(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestParam translationId: Long,
         @RequestParam bookOrder: Int,
@@ -39,6 +41,7 @@ class BibleTypingVerseProgressApi(
         return ResponseEntity.ok(response)
     }
 
+    // 최신 진행 정보 조회
     @GetMapping("/latest")
     fun getLatestProgress(@AuthenticationPrincipal principal: JwtPrincipal): ResponseEntity<BibleTypingVersesResponse> {
         val member = memberService.getMember(principal.memberUid)
