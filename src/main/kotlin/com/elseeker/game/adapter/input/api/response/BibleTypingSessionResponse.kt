@@ -1,5 +1,6 @@
 package com.elseeker.game.adapter.input.api.response
 
+import com.elseeker.game.domain.model.BibleTypingSession
 import java.time.Instant
 
 
@@ -44,4 +45,20 @@ data class BibleTypingSessionSummaryResponse(
 
     /** 세션 생성 시각 */
     val createdAt: Instant
-)
+) {
+    companion object {
+        fun of(session: BibleTypingSession) = BibleTypingSessionSummaryResponse(
+            sessionKey = session.sessionKey.toString(),
+            translationId = session.translationId,
+            bookOrder = session.bookOrder,
+            chapterNumber = session.chapterNumber,
+            totalVerses = session.totalVerses,
+            completedVerses = session.completedVerses,
+            accuracy = session.accuracy,
+            cpm = session.cpm,
+            startedAt = session.startedAt,
+            endedAt = session.endedAt,
+            createdAt = session.createdAt,
+        )
+    }
+}

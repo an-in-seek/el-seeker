@@ -338,9 +338,8 @@ const formatLocalDateTime = (date) => {
     return date.toISOString();
 };
 
-const saveSession = async () => {
-    if (!state.startedAt) return;
-    const params = getQueryParams();
+const updateSession = async () => {
+    if (!state.startedAt || !state.sessionKey) return;
     const totalVerses = state.verseStates.length;
     const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
     const accuracyValue = computeAccuracyPercent(state.totalCorrect, state.totalTyped, 2);
@@ -348,32 +347,24 @@ const saveSession = async () => {
     const cpmValue = computeCpm(state.totalTyped, elapsedSeconds, 2);
 
     const payload = {
-        sessionKey: createSessionKey(),
-        translationId: params.translationId,
-        bookOrder: params.bookOrder,
-        chapterNumber: params.chapterNumber,
-        startedAt: formatLocalDateTime(state.startedAt),
-        endedAt: formatLocalDateTime(state.endedAt || new Date()),
         totalVerses,
         completedVerses,
         totalTypedChars: state.totalTyped,
         accuracy: accuracyValue,
         cpm: cpmValue,
-        verses: state.verseStates.map((verse) => ({
-            verseNumber: verse.verseNumber,
-            originalText: verse.originalText,
-            typedText: verse.typedText,
-            accuracy: computeAccuracyPercent(verse.correctCount, verse.normalizedTyped.length, 2),
-            completed: verse.completed
-        }))
+        endedAt: formatLocalDateTime(state.endedAt || new Date())
     };
 
-    await fetch(sessionApi, {
-        method: "POST",
+    const response = await fetch(`${sessionApi}/${state.sessionKey}`, {
+        method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
+
+    if (!response.ok) {
+        throw new Error(`요청 실패: ${response.status}`);
+    }
 };
 
 const endSession = async () => {
@@ -395,7 +386,13 @@ const endSession = async () => {
     updateActionButtons();
 
     try {
-        await saveSession();
+        await updateSession();
+        const selection = getQueryParams();
+        const summary = await fetchLatestSessionSummary(selection);
+        if (summary) {
+            if (elements.accuracy) elements.accuracy.textContent = `${summary.accuracy}`;
+            if (elements.cpm) elements.cpm.textContent = `${summary.cpm}`;
+        }
         showSessionSummary();
     } catch (error) {
         showMessage("세션 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -704,9 +701,9 @@ const fetchLatestSessionSummary = async (selection) => {
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
     }
-    const sessions = await response.json();
-    if (!Array.isArray(sessions) || sessions.length === 0) return null;
-    return sessions[0];
+    const session = await response.json();
+    if (!session) return null;
+    return session;
 };
 
 const applySessionSummary = (summary, sessionKey) => {

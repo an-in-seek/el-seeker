@@ -29,6 +29,9 @@ import java.util.*
 )
 class BibleTypingSession(
 
+    @Column(nullable = false, unique = true)
+    val sessionKey: UUID = UUID.randomUUID(),
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -42,11 +45,8 @@ class BibleTypingSession(
     @Column(nullable = false)
     val chapterNumber: Int,
 
-    @Column(nullable = false, unique = true)
-    val sessionUid: UUID = UUID.randomUUID(),
-
     @Column(nullable = false)
-    val totalVerses: Int,
+    var totalVerses: Int,
 
     @Column(nullable = false)
     var completedVerses: Int = 0,
@@ -75,6 +75,22 @@ class BibleTypingSession(
 
 ) : BaseTimeEntity() {
 
+    fun updateStats(
+        totalVerses: Int,
+        completedVerses: Int,
+        totalTypedChars: Int,
+        accuracy: Double,
+        cpm: Double,
+        endedAt: Instant
+    ) {
+        this.totalVerses = totalVerses
+        this.completedVerses = completedVerses
+        this.totalTypedChars = totalTypedChars
+        this.accuracy = accuracy
+        this.cpm = cpm
+        this.endedAt = endedAt
+    }
+
     companion object {
 
         /**
@@ -92,7 +108,7 @@ class BibleTypingSession(
                 translationId = translationId,
                 bookOrder = bookOrder,
                 chapterNumber = chapterNumber,
-                sessionUid = UUID.randomUUID(),
+                sessionKey = UUID.randomUUID(),
                 totalVerses = totalVerses,
                 completedVerses = 0,
                 totalTypedChars = 0,

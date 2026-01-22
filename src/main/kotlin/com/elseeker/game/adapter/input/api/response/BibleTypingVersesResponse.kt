@@ -3,7 +3,7 @@ package com.elseeker.game.adapter.input.api.response
 import com.elseeker.game.domain.model.BibleTypingSession
 import java.time.Instant
 
-data class BibleTypingVerseProgressResponse(
+data class BibleTypingVersesResponse(
     val sessionKey: String,
     val translationId: Long,
     val bookOrder: Int,
@@ -22,7 +22,7 @@ data class BibleTypingVerseProgressResponse(
     )
 
     companion object {
-        fun from(session: BibleTypingSession): BibleTypingVerseProgressResponse {
+        fun from(session: BibleTypingSession): BibleTypingVersesResponse {
             val verses = session.verses
                 .asSequence()
                 .map {
@@ -38,8 +38,8 @@ data class BibleTypingVerseProgressResponse(
                 }
                 .sortedBy { it.verseNumber }
                 .toList()
-            return BibleTypingVerseProgressResponse(
-                sessionKey = session.sessionUid.toString(),
+            return BibleTypingVersesResponse(
+                sessionKey = session.sessionKey.toString(),
                 translationId = session.translationId,
                 bookOrder = session.bookOrder,
                 chapterNumber = session.chapterNumber,

@@ -2,7 +2,7 @@ package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
-import com.elseeker.game.adapter.input.api.response.BibleTypingVerseProgressResponse
+import com.elseeker.game.adapter.input.api.response.BibleTypingVersesResponse
 import com.elseeker.game.application.service.BibleTypingSessionService
 import com.elseeker.member.application.service.MemberService
 import org.springframework.http.ResponseEntity
@@ -32,21 +32,18 @@ class BibleTypingVerseProgressApi(
         @RequestParam translationId: Long,
         @RequestParam bookOrder: Int,
         @RequestParam chapterNumber: Int
-    ): ResponseEntity<BibleTypingVerseProgressResponse> {
+    ): ResponseEntity<BibleTypingVersesResponse> {
         val member = memberService.getMember(principal.memberUid)
-        val response = bibleTypingSessionService.getLatestProgress(
-            member,
-            translationId,
-            bookOrder,
-            chapterNumber
-        ) ?: return ResponseEntity.noContent().build()
+        val response = bibleTypingSessionService.getProgress(member, translationId, bookOrder, chapterNumber)
+            ?: return ResponseEntity.noContent().build()
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/latest")
-    fun getLatestProgress(@AuthenticationPrincipal principal: JwtPrincipal): ResponseEntity<BibleTypingVerseProgressResponse> {
+    fun getLatestProgress(@AuthenticationPrincipal principal: JwtPrincipal): ResponseEntity<BibleTypingVersesResponse> {
         val member = memberService.getMember(principal.memberUid)
-        val response = bibleTypingSessionService.getLatestProgress(member) ?: return ResponseEntity.noContent().build()
+        val response = bibleTypingSessionService.getProgress(member)
+            ?: return ResponseEntity.noContent().build()
         return ResponseEntity.ok(response)
     }
 }

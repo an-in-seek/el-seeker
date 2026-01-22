@@ -5,68 +5,35 @@ import com.elseeker.member.domain.model.Member
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import java.time.Instant
 import java.util.*
 
 interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long> {
 
-    fun findBySessionUidAndMember(
-        sessionUid: UUID,
-        member: Member,
-    ): BibleTypingSession?
+    fun deleteAllByMember(member: Member)
 
-    @Query(
-        """
-        SELECT s
-        FROM BibleTypingSession s
-        WHERE s.member = :member
-          AND s.translationId = :translationId
-          AND s.bookOrder = :bookOrder
-          AND s.chapterNumber = :chapterNumber
-        ORDER BY s.createdAt DESC
-        """
-    )
-    fun findLatestByScope(
-        @Param("member") member: Member,
-        @Param("translationId") translationId: Long,
-        @Param("bookOrder") bookOrder: Int,
-        @Param("chapterNumber") chapterNumber: Int
-    ): List<BibleTypingSession>
-
-
-    @Query(
-        """
-        SELECT s
-        FROM BibleTypingSession s
-        WHERE s.member = :member
-        ORDER BY s.createdAt DESC
-        """
-    )
-    fun findLatestByMember(
-        @Param("member") member: Member
-    ): List<BibleTypingSession>
+    fun findBySessionKeyAndMember(sessionUid: UUID, member: Member): BibleTypingSession?
 
     @Query(
         """
         SELECT session
         FROM BibleTypingSession session
+        LEFT JOIN FETCH session.verses verse
         WHERE session.member = :member
           AND (:translationId IS NULL OR session.translationId = :translationId)
           AND (:bookOrder IS NULL OR session.bookOrder = :bookOrder)
           AND (:chapterNumber IS NULL OR session.chapterNumber = :chapterNumber)
-          AND session.createdAt >= :fromDate
-          AND session.createdAt <= :toDate
-        ORDER BY session.createdAt DESC
         """
     )
-    fun findSessions(
+    fun findSession(
         @Param("member") member: Member,
         @Param("translationId") translationId: Long?,
         @Param("bookOrder") bookOrder: Int?,
         @Param("chapterNumber") chapterNumber: Int?,
-        @Param("fromDate") fromDate: Instant,
-        @Param("toDate") toDate: Instant
-    ): List<BibleTypingSession>
+    ): BibleTypingSession?
 
-    fun deleteAllByMember(member: Member)
+    // 최신 세션 조회
+    fun findTopByMemberOrderByCreatedAtDesc(
+        member: Member
+    ): BibleTypingSession?
+
 }
