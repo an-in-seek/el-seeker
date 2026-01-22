@@ -6,10 +6,45 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.Instant
+import java.util.*
 
 interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long> {
 
-    fun deleteAllByMember(member: Member)
+    fun findBySessionUidAndMember(
+        sessionUid: UUID,
+        member: Member,
+    ): BibleTypingSession?
+
+    @Query(
+        """
+        SELECT s
+        FROM BibleTypingSession s
+        WHERE s.member = :member
+          AND s.translationId = :translationId
+          AND s.bookOrder = :bookOrder
+          AND s.chapterNumber = :chapterNumber
+        ORDER BY s.createdAt DESC
+        """
+    )
+    fun findLatestByScope(
+        @Param("member") member: Member,
+        @Param("translationId") translationId: Long,
+        @Param("bookOrder") bookOrder: Int,
+        @Param("chapterNumber") chapterNumber: Int
+    ): List<BibleTypingSession>
+
+
+    @Query(
+        """
+        SELECT s
+        FROM BibleTypingSession s
+        WHERE s.member = :member
+        ORDER BY s.createdAt DESC
+        """
+    )
+    fun findLatestByMember(
+        @Param("member") member: Member
+    ): List<BibleTypingSession>
 
     @Query(
         """
@@ -32,4 +67,6 @@ interface BibleTypingSessionRepository : JpaRepository<BibleTypingSession, Long>
         @Param("fromDate") fromDate: Instant,
         @Param("toDate") toDate: Instant
     ): List<BibleTypingSession>
+
+    fun deleteAllByMember(member: Member)
 }

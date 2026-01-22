@@ -6,6 +6,7 @@ import com.elseeker.game.adapter.input.api.response.BibleTypingSessionResponse
 import com.elseeker.game.adapter.input.api.response.BibleTypingSessionSummaryResponse
 import com.elseeker.game.application.service.BibleTypingSessionService
 import com.elseeker.member.application.service.MemberService
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -27,7 +28,7 @@ class BibleTypingSessionApi(
         val session = bibleTypingSessionService.createSession(member, request)
         return ResponseEntity.ok(
             BibleTypingSessionResponse(
-                sessionId = session.id!!,
+                sessionKey = session.sessionUid.toString(),
                 createdAt = session.createdAt
             )
         )
@@ -39,34 +40,35 @@ class BibleTypingSessionApi(
         @RequestParam(required = false) translationId: Long?,
         @RequestParam(required = false) bookOrder: Int?,
         @RequestParam(required = false) chapterNumber: Int?,
-        @RequestParam(required = false) fromDate: LocalDate?,
-        @RequestParam(required = false) toDate: LocalDate?
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?
     ): ResponseEntity<List<BibleTypingSessionSummaryResponse>> {
         val member = memberService.getMember(principal.memberUid)
         val sessions = bibleTypingSessionService.getSessions(
-            member = member,
-            translationId = translationId,
-            bookOrder = bookOrder,
-            chapterNumber = chapterNumber,
-            fromDate = fromDate,
-            toDate = toDate
+            member,
+            translationId,
+            bookOrder,
+            chapterNumber,
+            fromDate,
+            toDate
         )
-        val response = sessions.map {
-            BibleTypingSessionSummaryResponse(
-                sessionId = it.id!!,
-                sessionKey = it.sessionKey,
-                translationId = it.translationId,
-                bookOrder = it.bookOrder,
-                chapterNumber = it.chapterNumber,
-                totalVerses = it.totalVerses,
-                completedVerses = it.completedVerses,
-                accuracy = it.accuracy,
-                cpm = it.cpm,
-                startedAt = it.startedAt,
-                endedAt = it.endedAt,
-                createdAt = it.createdAt
-            )
-        }
-        return ResponseEntity.ok(response)
+
+        return ResponseEntity.ok(
+            sessions.map {
+                BibleTypingSessionSummaryResponse(
+                    sessionKey = it.sessionUid.toString(),
+                    translationId = it.translationId,
+                    bookOrder = it.bookOrder,
+                    chapterNumber = it.chapterNumber,
+                    totalVerses = it.totalVerses,
+                    completedVerses = it.completedVerses,
+                    accuracy = it.accuracy,
+                    cpm = it.cpm,
+                    startedAt = it.startedAt,
+                    endedAt = it.endedAt,
+                    createdAt = it.createdAt
+                )
+            }
+        )
     }
 }

@@ -2,22 +2,46 @@ package com.elseeker.game.adapter.input.api.response
 
 import java.time.Instant
 
+
 data class BibleTypingSessionResponse(
-    val sessionId: Long,
+    /** 외부 공개용 세션 식별자 (UUID) */
+    val sessionKey: String,
+
+    /** 세션 생성 시각 */
     val createdAt: Instant
 )
 
 data class BibleTypingSessionSummaryResponse(
-    val sessionId: Long,
+    /** 외부 공개용 세션 식별자 (UUID) */
     val sessionKey: String,
+
+    /** 번역본 ID */
     val translationId: Long,
+
+    /** 성경 권 순서 */
     val bookOrder: Int,
+
+    /** 장 번호 */
     val chapterNumber: Int,
+
+    /** 전체 절 수 */
     val totalVerses: Int,
+
+    /** 완료한 절 수 */
     val completedVerses: Int,
+
+    /** 정확도 (0~100) */
     val accuracy: Double,
+
+    /** 타자 속도 (CPM) */
     val cpm: Double,
+
+    /** 세션 시작 시각 */
     val startedAt: Instant,
-    val endedAt: Instant,
+
+    /** 세션 종료 시각 (진행 중이면 null) */
+    val endedAt: Instant?,
+
+    /** 세션 생성 시각 */
     val createdAt: Instant
 )

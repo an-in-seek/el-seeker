@@ -4,6 +4,7 @@ import com.elseeker.common.domain.BaseTimeEntity
 import com.elseeker.member.domain.model.Member
 import jakarta.persistence.*
 import java.time.Instant
+import java.util.*
 
 @Entity
 @Table(name = "bible_typing_session")
@@ -22,40 +23,67 @@ class BibleTypingSession(
     @Column(nullable = false)
     val chapterNumber: Int,
 
-    @Column(nullable = false, length = 64)
-    val sessionKey: String,
+    @Column(nullable = false, unique = true)
+    val sessionUid: UUID = UUID.randomUUID(),
 
     @Column(nullable = false)
     val totalVerses: Int,
 
     @Column(nullable = false)
-    val completedVerses: Int,
+    var completedVerses: Int = 0,
 
     @Column(nullable = false)
-    val totalTypedChars: Int,
+    var totalTypedChars: Int = 0,
 
     @Column(nullable = false)
-    val accuracy: Double,
+    var accuracy: Double = 0.0,
 
     @Column(nullable = false)
-    val cpm: Double,
+    var cpm: Double = 0.0,
 
     @Column(nullable = false)
     val startedAt: Instant,
 
-    @Column(nullable = false)
-    val endedAt: Instant,
+    @Column
+    var endedAt: Instant? = null,
 
     @OneToMany(
         mappedBy = "session",
         cascade = [CascadeType.ALL],
         orphanRemoval = true
     )
-    val verseResults: MutableList<BibleTypingVerseResult> = mutableListOf()
+    val verses: MutableList<BibleTypingVerse> = mutableListOf()
 
 ) : BaseTimeEntity() {
 
-    fun addVerseResults(results: List<BibleTypingVerseResult>) {
-        verseResults.addAll(results)
+    companion object {
+
+        /**
+         * 세션 생성 (유일한 생성 진입점)
+         */
+        fun create(
+            member: Member,
+            translationId: Long,
+            bookOrder: Int,
+            chapterNumber: Int,
+            totalVerses: Int = 0,
+        ): BibleTypingSession {
+            return BibleTypingSession(
+                member = member,
+                translationId = translationId,
+                bookOrder = bookOrder,
+                chapterNumber = chapterNumber,
+                sessionUid = UUID.randomUUID(),
+                totalVerses = totalVerses,
+                completedVerses = 0,
+                totalTypedChars = 0,
+                accuracy = 0.0,
+                cpm = 0.0,
+                startedAt = Instant.now(),
+                endedAt = null,
+                verses = mutableListOf()
+            )
+        }
     }
+
 }

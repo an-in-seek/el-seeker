@@ -1,5 +1,6 @@
 package com.elseeker.game.adapter.input.api.response
 
+import com.elseeker.game.domain.model.BibleTypingSession
 import java.time.Instant
 
 data class BibleTypingVerseProgressResponse(
@@ -19,4 +20,32 @@ data class BibleTypingVerseProgressResponse(
         val completed: Boolean,
         val createdAt: Instant
     )
+
+    companion object {
+        fun from(session: BibleTypingSession): BibleTypingVerseProgressResponse {
+            val verses = session.verses
+                .asSequence()
+                .map {
+                    VerseProgress(
+                        verseNumber = it.verseNumber,
+                        typedText = it.typedText,
+                        accuracy = it.accuracy,
+                        cpm = it.cpm,
+                        elapsedSeconds = it.elapsedSeconds,
+                        completed = it.completed,
+                        createdAt = it.createdAt
+                    )
+                }
+                .sortedBy { it.verseNumber }
+                .toList()
+            return BibleTypingVerseProgressResponse(
+                sessionKey = session.sessionUid.toString(),
+                translationId = session.translationId,
+                bookOrder = session.bookOrder,
+                chapterNumber = session.chapterNumber,
+                createdAt = session.createdAt,
+                verses = verses
+            )
+        }
+    }
 }
