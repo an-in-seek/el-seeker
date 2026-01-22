@@ -7,7 +7,26 @@ import java.time.Instant
 import java.util.*
 
 @Entity
-@Table(name = "bible_typing_session")
+@Table(
+    name = "bible_typing_session",
+    uniqueConstraints = [
+        // 외부 공개용 세션 식별자
+        UniqueConstraint(
+            name = "uk_bible_typing_session_uid",
+            columnNames = ["session_uid"]
+        ),
+        // 동일 사용자의 동일 범위 세션 단일화
+        UniqueConstraint(
+            name = "uk_bible_typing_session_scope",
+            columnNames = [
+                "member_id",
+                "translation_id",
+                "book_order",
+                "chapter_number"
+            ]
+        )
+    ]
+)
 class BibleTypingSession(
 
     @ManyToOne(fetch = FetchType.LAZY)
