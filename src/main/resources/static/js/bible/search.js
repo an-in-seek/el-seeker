@@ -1,4 +1,5 @@
 import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
+import {formatNumberWithComma} from "/js/common-util.js?v=2.1";
 
 const UI_CLASSES = {
     HIDDEN: "d-none",
@@ -265,7 +266,7 @@ const App = {
     updateResultCount: () => {
         const {resultCount} = App.elements;
         if (resultCount && App.state.totalCount !== null && App.state.activeKeyword) {
-            resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${App.state.totalCount}건`;
+            resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${formatNumberWithComma(App.state.totalCount)}건`;
         }
     },
 
