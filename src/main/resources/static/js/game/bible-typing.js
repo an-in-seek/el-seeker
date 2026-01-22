@@ -9,13 +9,10 @@ const UI_STATUS = {
     COMPLETED: "완료"
 };
 
-const punctuationRegex = /[.,!?;:"'“”‘’(){}\[\]—\-]/g;
-
 const elements = {
     translationSelect: document.getElementById("typingTranslationSelect"),
     bookSelect: document.getElementById("typingBookSelect"),
     chapterSelect: document.getElementById("typingChapterSelect"),
-    ignorePunctuation: document.getElementById("typingIgnorePunctuation"),
     verseList: document.getElementById("typingVerseList"),
     message: document.getElementById("typingMessage"),
     actionBar: document.querySelector(".typing-action-bar"),
@@ -105,12 +102,8 @@ const updateQueryParams = (params, replace = false) => {
     }
 };
 
-const normalizeText = (text, ignorePunctuation) => {
-    let normalized = text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
-    if (ignorePunctuation) {
-        normalized = normalized.replace(punctuationRegex, "");
-    }
-    return normalized;
+const normalizeText = (text) => {
+    return text.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
 };
 
 const createSessionKey = () => {
@@ -244,7 +237,7 @@ const resetSessionState = () => {
     state.verseStates = state.verses.map((verse) => ({
         verseNumber: verse.verseNumber,
         originalText: verse.text,
-        normalizedText: normalizeText(verse.text, elements.ignorePunctuation?.checked),
+        normalizedText: normalizeText(verse.text),
         typedText: "",
         normalizedTyped: "",
         correctCount: 0,
@@ -482,8 +475,7 @@ const handleInput = (event) => {
     if (Number.isNaN(index) || index !== state.currentIndex) return;
 
     const verseState = state.verseStates[index];
-    const ignorePunctuation = elements.ignorePunctuation?.checked;
-    const normalizedInput = normalizeText(target.value, ignorePunctuation);
+    const normalizedInput = normalizeText(target.value);
     const normalizedText = verseState.normalizedText;
     const correctCount = countCorrectChars(normalizedText, normalizedInput);
 
@@ -565,6 +557,11 @@ const renderVerses = () => {
             }
             if (event.key === "Enter") {
                 event.preventDefault();
+                const verseState = state.verseStates[index];
+                const normalizedInput = normalizeText(input.value);
+                if (normalizedInput === verseState.normalizedText && !verseState.completed) {
+                    handleVerseComplete(index);
+                }
             }
         });
         input.addEventListener("compositionstart", () => {
@@ -727,7 +724,6 @@ const applyResumeProgress = (progress, selection) => {
     const progressAt = Number(new Date(progress.createdAt));
     if (resetAt && progressAt <= resetAt) return false;
 
-    const ignorePunctuation = elements.ignorePunctuation?.checked;
     const verseMap = new Map(progress.verses.map((verse) => [verse.verseNumber, verse]));
     state.sessionKey = progress.sessionKey;
     state.totalTyped = 0;
@@ -736,7 +732,7 @@ const applyResumeProgress = (progress, selection) => {
     state.verseStates = state.verseStates.map((verse) => {
         const saved = verseMap.get(verse.verseNumber);
         if (!saved) return verse;
-        let normalizedTyped = normalizeText(saved.typedText || "", ignorePunctuation);
+        let normalizedTyped = normalizeText(saved.typedText || "");
         if (saved.completed && normalizedTyped.length === 0) {
             normalizedTyped = verse.normalizedText;
         }
@@ -901,11 +897,6 @@ const bindEvents = () => {
         });
         const selection = await loadSelections();
         if (selection) await loadVerses(selection);
-    });
-
-    elements.ignorePunctuation?.addEventListener("change", () => {
-        resetSessionState();
-        renderVerses();
     });
 
     elements.startBtn?.addEventListener("click", () => {
