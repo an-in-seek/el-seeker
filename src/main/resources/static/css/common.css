@@ -6,7 +6,7 @@
 /* 상단 하단 여백 */
 .content-wrapper {
     /* padding-top: 1rem !important; */
-    padding-bottom: 1rem !important;
+    /* padding-bottom: 1rem !important; */
 }
 
 
@@ -114,4 +114,8 @@
 
 .mb-70 {
     margin-bottom: 70px;
+}
+
+.mb-80 {
+    margin-bottom: 80px;
 }
