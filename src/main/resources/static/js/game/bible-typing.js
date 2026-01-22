@@ -563,6 +563,9 @@ const renderVerses = () => {
             if (state.transitioning) {
                 event.preventDefault();
             }
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
         });
         input.addEventListener("compositionstart", () => {
             state.composing = true;
