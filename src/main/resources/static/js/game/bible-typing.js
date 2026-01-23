@@ -54,7 +54,7 @@ const state = {
 };
 
 const fetchJson = async (url) => {
-    const response = await fetch(url, {credentials: "same-origin"});
+    const response = await fetch(url, { credentials: "same-origin" });
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
     }
@@ -117,7 +117,7 @@ const createSessionKey = () => {
     return state.sessionKey;
 };
 
-const getResetStorageKey = ({translationId, bookOrder, chapterNumber}) =>
+const getResetStorageKey = ({ translationId, bookOrder, chapterNumber }) =>
     `bible-typing-reset:${translationId}:${bookOrder}:${chapterNumber}`;
 
 const getResetTimestamp = (selection) => {
@@ -335,7 +335,7 @@ const focusVerseInput = (index) => {
     const input = row.querySelector(".typing-verse-input");
     if (!input) return;
     input.focus();
-    input.scrollIntoView({block: "center", behavior: "smooth"});
+    input.scrollIntoView({ block: "center", behavior: "smooth" });
 };
 
 const formatLocalDateTime = (date) => {
@@ -362,7 +362,7 @@ const updateSession = async () => {
 
     const response = await fetch(`${sessionApi}/${state.sessionKey}`, {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
@@ -405,6 +405,44 @@ const endSession = async () => {
     }
 };
 
+const handleResetSession = async () => {
+    if (!confirm("현재 진행 중인 연습 기록을 포함해, 해당 장의 모든 기록이 삭제됩니다. 계속하시겠습니까?")) {
+        return;
+    }
+
+    try {
+        const params = getQueryParams();
+        const query = new URLSearchParams({
+            translationId: String(params.translationId),
+            bookOrder: String(params.bookOrder),
+            chapterNumber: String(params.chapterNumber)
+        });
+
+        const response = await fetch(`${sessionApi}?${query.toString()}`, {
+            method: "DELETE",
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            throw new Error(`초기화 실패: ${response.status}`);
+        }
+
+        // 로컬 스토리지 초기화 및 상태 리셋
+        window.localStorage.removeItem(getResetStorageKey(params));
+        resetSessionState();
+
+        // 초기화 후 UI 반영 (다시 로드)
+        await loadSelections();
+        renderVerses();
+        updateHeader();
+
+        alert("기록이 초기화되었습니다.");
+    } catch (error) {
+        console.error(error);
+        showMessage("기록 초기화 중 오류가 발생했습니다.");
+    }
+};
+
 const saveVerseProgress = async (verseState) => {
     if (verseState.saved) return;
     const params = getQueryParams();
@@ -432,7 +470,7 @@ const saveVerseProgress = async (verseState) => {
 
     await fetch(`${resumeApi}/verses`, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
@@ -674,16 +712,16 @@ const loadSelections = async () => {
         || params.bookOrder !== bookOrder
         || params.chapterNumber !== chapterNumber
     ) {
-        updateQueryParams({translationId, bookOrder, chapterNumber}, true);
+        updateQueryParams({ translationId, bookOrder, chapterNumber }, true);
     }
-    return {translationId, bookOrder, chapterNumber};
+    return { translationId, bookOrder, chapterNumber };
 };
 
 const fetchLatestProgress = async (selection) => {
-    const {translationId, bookOrder, chapterNumber} = selection;
+    const { translationId, bookOrder, chapterNumber } = selection;
     const response = await fetch(
         `${resumeApi}?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`,
-        {credentials: "same-origin"}
+        { credentials: "same-origin" }
     );
     if (response.status === 204) return null;
     if (!response.ok) {
@@ -693,7 +731,7 @@ const fetchLatestProgress = async (selection) => {
 };
 
 const fetchLatestProgressSelection = async () => {
-    const response = await fetch(`${resumeApi}/latest`, {credentials: "same-origin"});
+    const response = await fetch(`${resumeApi}/latest`, { credentials: "same-origin" });
     if (response.status === 204) return null;
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
@@ -702,13 +740,13 @@ const fetchLatestProgressSelection = async () => {
 };
 
 const fetchLatestSessionSummary = async (selection) => {
-    const {translationId, bookOrder, chapterNumber} = selection;
+    const { translationId, bookOrder, chapterNumber } = selection;
     const params = new URLSearchParams({
         translationId: String(translationId),
         bookOrder: String(bookOrder),
         chapterNumber: String(chapterNumber)
     });
-    const response = await fetch(`${sessionApi}?${params.toString()}`, {credentials: "same-origin"});
+    const response = await fetch(`${sessionApi}?${params.toString()}`, { credentials: "same-origin" });
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
     }
@@ -813,7 +851,7 @@ const applyResumeProgress = (progress, selection) => {
 };
 
 const loadVerses = async (selection) => {
-    const {translationId, bookOrder, chapterNumber} = selection;
+    const { translationId, bookOrder, chapterNumber } = selection;
     const url = `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`;
 
     const initializeEmpty = (message) => {
@@ -886,7 +924,7 @@ const resetProgress = () => {
 const bindEvents = () => {
     elements.translationSelect?.addEventListener("change", async (event) => {
         const translationId = parseNumber(event.target.value);
-        updateQueryParams({translationId, bookOrder: null, chapterNumber: null});
+        updateQueryParams({ translationId, bookOrder: null, chapterNumber: null });
         const selection = await loadSelections();
         if (selection) await loadVerses(selection);
     });
@@ -894,7 +932,7 @@ const bindEvents = () => {
     elements.bookSelect?.addEventListener("change", async (event) => {
         const params = getQueryParams();
         const bookOrder = parseNumber(event.target.value);
-        updateQueryParams({translationId: params.translationId, bookOrder, chapterNumber: null});
+        updateQueryParams({ translationId: params.translationId, bookOrder, chapterNumber: null });
         const selection = await loadSelections();
         if (selection) await loadVerses(selection);
     });
@@ -915,11 +953,7 @@ const bindEvents = () => {
         startSession();
     });
 
-    elements.resetBtn?.addEventListener("click", () => {
-        if (confirm("현재 진행 상황을 초기화하고 처음부터 시작할까요?")) {
-            resetProgress();
-        }
-    });
+    elements.resetBtn?.addEventListener("click", handleResetSession);
 };
 
 const initialize = async () => {

@@ -44,6 +44,18 @@ class BibleTypingSessionApi(
         return ResponseEntity.noContent().build()
     }
 
+    @DeleteMapping
+    fun resetSession(
+        @AuthenticationPrincipal principal: JwtPrincipal,
+        @RequestParam translationId: Long,
+        @RequestParam bookOrder: Int,
+        @RequestParam chapterNumber: Int
+    ): ResponseEntity<Void> {
+        val member = memberService.getMember(principal.memberUid)
+        bibleTypingSessionService.resetSession(member, translationId, bookOrder, chapterNumber)
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping
     fun getSessions(
         @AuthenticationPrincipal principal: JwtPrincipal,

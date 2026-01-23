@@ -7,7 +7,9 @@ import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateReque
 import com.elseeker.game.adapter.input.api.request.BibleTypingSessionUpdateRequest
 import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
+import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.DisplayName
@@ -21,6 +23,7 @@ import java.util.*
 class BibleTypingSessionServiceTest @Autowired constructor(
     private val bibleTypingSessionService: BibleTypingSessionService,
     private val sessionRepository: BibleTypingSessionRepository,
+    private val bibleTypingVerseRepository: BibleTypingVerseRepository,
 ) : IntegrationTest() {
 
     @Nested
@@ -339,6 +342,61 @@ class BibleTypingSessionServiceTest @Autowired constructor(
             // then
             response.shouldNotBeNull()
             response.sessionKey shouldBe session.sessionKey.toString()
+        }
+    }
+
+    @Nested
+    @DisplayName("resetSession_메서드는")
+    inner class ResetSession {
+
+        @Test
+        fun `세션을 초기화하면 세션과 구절 데이터가 모두 삭제된다`() {
+            // given
+            val sessionKey = UUID.randomUUID().toString()
+            val request = BibleTypingSessionCreateRequest(
+                sessionKey = sessionKey,
+                translationId = 1L,
+                bookOrder = 1,
+                chapterNumber = 1,
+                totalVerses = 10,
+                startedAt = Instant.now(),
+                endedAt = Instant.now(),
+                completedVerses = 0,
+                totalTypedChars = 0,
+                accuracy = 0.0,
+                cpm = 0.0,
+                verses = emptyList(),
+            )
+            bibleTypingSessionService.createSession(member, request)
+
+            // when
+            bibleTypingSessionService.resetSession(
+                member = member,
+                translationId = 1L,
+                bookOrder = 1,
+                chapterNumber = 1,
+            )
+
+            // then
+            val sessionUid = UUID.fromString(sessionKey)
+            val session = sessionRepository.findBySessionKeyAndMember(sessionUid, member)
+            session shouldBe null
+            val verses = bibleTypingVerseRepository.findAllBySessionSessionKey(sessionUid)
+            verses.shouldBeEmpty()
+        }
+
+        @Test
+        fun `존재하지 않는 세션을 초기화하면 예외가 발생한다`() {
+            // when & then
+            val exception = shouldThrow<ServiceError> {
+                bibleTypingSessionService.resetSession(
+                    member = member,
+                    translationId = 999L,
+                    bookOrder = 999,
+                    chapterNumber = 999,
+                )
+            }
+            exception.errorType shouldBe ErrorType.SESSION_NOT_FOUND
         }
     }
 }

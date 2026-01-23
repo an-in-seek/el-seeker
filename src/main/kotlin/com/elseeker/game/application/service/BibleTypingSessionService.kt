@@ -101,6 +101,19 @@ class BibleTypingSessionService(
     }
 
 
+
+    @Transactional
+    fun resetSession(
+        member: Member,
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int
+    ) {
+        val session = sessionRepository.findSession(member, translationId, bookOrder, chapterNumber)
+            ?: throwError(ErrorType.SESSION_NOT_FOUND)
+        sessionRepository.delete(session)
+    }
+
     @Transactional(readOnly = true)
     fun getSessions(
         member: Member,
