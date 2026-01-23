@@ -49,6 +49,7 @@ const state = {
     endedAt: null,
     totalTyped: 0,
     totalCorrect: 0,
+    totalElapsedSeconds: 0,
     timerId: null
 };
 
@@ -234,6 +235,7 @@ const resetSessionState = () => {
     state.currentIndex = 0;
     state.totalTyped = 0;
     state.totalCorrect = 0;
+    state.totalElapsedSeconds = 0;
     state.verseStates = state.verses.map((verse) => ({
         verseNumber: verse.verseNumber,
         originalText: verse.text,
@@ -242,7 +244,9 @@ const resetSessionState = () => {
         normalizedTyped: "",
         correctCount: 0,
         saved: false,
-        completed: false
+        completed: false,
+        startedAt: null,
+        elapsedSeconds: 0
     }));
     state.tokenMap.clear();
     if (state.timerId) {
@@ -352,6 +356,7 @@ const updateSession = async () => {
         totalTypedChars: state.totalTyped,
         accuracy: accuracyValue,
         cpm: cpmValue,
+        totalElapsedSeconds: state.totalElapsedSeconds,
         endedAt: formatLocalDateTime(state.endedAt || new Date())
     };
 
@@ -392,6 +397,7 @@ const endSession = async () => {
         if (summary) {
             if (elements.accuracy) elements.accuracy.textContent = `${summary.accuracy}`;
             if (elements.cpm) elements.cpm.textContent = `${summary.cpm}`;
+            if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(summary.totalElapsedSeconds || 0);
         }
         showSessionSummary();
     } catch (error) {
@@ -419,7 +425,8 @@ const saveVerseProgress = async (verseState) => {
         typedText: verseState.typedText,
         accuracy: verseAccuracy,
         cpm: cpmValue,
-        elapsedSeconds,
+        startedAt: verseState.startedAt ? formatLocalDateTime(verseState.startedAt) : null,
+        endedAt: formatLocalDateTime(new Date()),
         completed: verseState.completed
     };
 
@@ -478,6 +485,10 @@ const handleInput = (event) => {
 
     state.totalTyped += normalizedInput.length - verseState.normalizedTyped.length;
     state.totalCorrect += correctCount - verseState.correctCount;
+
+    if (!verseState.startedAt) {
+        verseState.startedAt = new Date();
+    }
 
     verseState.typedText = target.value;
     verseState.normalizedTyped = normalizedInput;
@@ -742,9 +753,13 @@ const applyResumeProgress = (progress, selection) => {
             normalizedTyped,
             correctCount,
             completed: saved.completed,
-            saved: true
+            saved: true,
+            elapsedSeconds: saved.elapsedSeconds || 0
         };
     });
+
+    // Calculate totalElapsedSeconds from saved verses
+    state.totalElapsedSeconds = state.verseStates.reduce((sum, verse) => sum + (verse.elapsedSeconds || 0), 0);
 
     const firstIncomplete = state.verseStates.findIndex((verse) => !verse.completed);
     const allCompleted = firstIncomplete === -1 && state.verseStates.length > 0;

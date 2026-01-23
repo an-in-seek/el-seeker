@@ -9,6 +9,7 @@ data class BibleTypingVersesResponse(
     val bookOrder: Int,
     val chapterNumber: Int,
     val createdAt: Instant,
+    val totalElapsedSeconds: Int,
     val verses: List<VerseProgress>
 ) {
     data class VerseProgress(
@@ -44,6 +45,7 @@ data class BibleTypingVersesResponse(
                 bookOrder = session.bookOrder,
                 chapterNumber = session.chapterNumber,
                 createdAt = session.createdAt,
+                totalElapsedSeconds = session.totalElapsedSeconds,
                 verses = verses
             )
         }

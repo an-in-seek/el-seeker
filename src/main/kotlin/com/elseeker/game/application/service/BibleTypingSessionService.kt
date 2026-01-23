@@ -12,7 +12,6 @@ import com.elseeker.game.domain.model.BibleTypingSession
 import com.elseeker.game.domain.model.BibleTypingVerse
 import com.elseeker.game.domain.model.BibleTypingVerseId
 import com.elseeker.member.domain.model.Member
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -54,6 +53,7 @@ class BibleTypingSessionService(
             totalTypedChars = request.totalTypedChars,
             accuracy = request.accuracy,
             cpm = request.cpm,
+            totalElapsedSeconds = request.totalElapsedSeconds,
             endedAt = request.endedAt
         )
     }
@@ -63,20 +63,43 @@ class BibleTypingSessionService(
         member: Member,
         request: BibleTypingVerseProgressRequest
     ) {
-        val sessionUid = parseSessionUid(request.sessionKey)
-        val session = sessionRepository.findBySessionKeyAndMember(sessionUid, member) ?: createSessionForVerse(member, request, sessionUid)
+        // 1. 세션 조회
+        val session = getOrCreateSession(member, request)
+
+        // 2. 세션 종료 여부 확인
         if (session.endedAt != null) throwError(ErrorType.SESSION_ALREADY_ENDED)
+
+        // 3. 구절 조회
         val verseId = BibleTypingVerseId.of(sessionId = session.id!!, verseNumber = request.verseNumber)
+
+        // 4. 구절 정보 조회, 없으면 구절 생성
         val verse = verseRepository.findByIdOrNull(verseId) ?: createVerse(session, request)
+
+        // 5. '기존 구절 소요 시간'
+        val previousElapsedSeconds = verse.elapsedSeconds
+
+        // 6. '현재 구절 소요 시간' 계산
+        val currentElapsedSeconds = calculateDuration(request.startedAt, request.endedAt)
+
+        // 7. '현재 구절 소요 시간' 업데이트
         verse.updateProgress(
             typedText = request.typedText,
             accuracy = request.accuracy,
             cpm = request.cpm,
-            elapsedSeconds = request.elapsedSeconds,
+            elapsedSeconds = currentElapsedSeconds,
             completed = request.completed
         )
-        saveVerseSafely(verse, verseId)
+
+        // 5. 세션 정보 업데이트
+        session.adjustTotalElapsedSeconds(previousElapsedSeconds, currentElapsedSeconds)
+
+        // 6. 구절 저장
+        verseRepository.save(verse)
+
+        // 7. 세션 저장
+        sessionRepository.save(session)
     }
+
 
     @Transactional(readOnly = true)
     fun getSessions(
@@ -119,6 +142,15 @@ class BibleTypingSessionService(
         runCatching { UUID.fromString(sessionKey) }
             .getOrElse { throwError(ErrorType.INVALID_SESSION_KEY) }
 
+    private fun getOrCreateSession(
+        member: Member,
+        request: BibleTypingVerseProgressRequest
+    ): BibleTypingSession {
+        val sessionUid = parseSessionUid(request.sessionKey)
+        return sessionRepository.findBySessionKeyAndMember(sessionUid, member)
+            ?: createSessionForVerse(member, request, sessionUid)
+    }
+
     private fun createSessionForVerse(
         member: Member,
         request: BibleTypingVerseProgressRequest,
@@ -145,22 +177,10 @@ class BibleTypingSessionService(
         originalText = request.originalText
     )
 
-    private fun saveVerseSafely(
-        verse: BibleTypingVerse,
-        verseId: BibleTypingVerseId
-    ) {
-        try {
-            verseRepository.save(verse)
-        } catch (e: DataIntegrityViolationException) {
-            val existing = verseRepository.findByIdOrNull(verseId) ?: throw e
-            existing.updateProgress(
-                typedText = verse.typedText,
-                accuracy = verse.accuracy,
-                cpm = verse.cpm,
-                elapsedSeconds = verse.elapsedSeconds,
-                completed = verse.completed
-            )
-        }
+    private fun calculateDuration(startedAt: Instant?, endedAt: Instant?): Int {
+        if (startedAt == null || endedAt == null) return 0
+        val duration = java.time.Duration.between(startedAt, endedAt).toSeconds().toInt()
+        return duration.coerceAtLeast(0)
     }
 
 }

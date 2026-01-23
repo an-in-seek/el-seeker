@@ -1,0 +1,36 @@
+spring:
+  # Security (OAuth, JWT 테스트용 최소 설정)
+  security:
+    oauth2:
+      client:
+        registration: { }   # OAuth 전부 비활성화
+        provider: { }
+
+  # 테스트용 DB (Testcontainers 사용 시 이 값들은 override 됨)
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/container
+    username: user
+    password: password
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+
+el-seeker:
+  jwt:
+    # Base64 정상 문자열 32바이트(256bit) 이상
+    secret: dGVzdC1zZWNyZXQta2V5LWZvci1pbnRlZ3JhdGlvbi10ZXN0LTEyMzQ=
+    access-token-ttl: 1h
+    refresh-token-ttl: 14d
+  api:
+    base-url: http://localhost:8080
+    api-key: TEST_API_KEY

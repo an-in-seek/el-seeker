@@ -8,5 +8,6 @@ data class BibleTypingSessionUpdateRequest(
     val totalTypedChars: Int,
     val accuracy: Double,
     val cpm: Double,
+    val totalElapsedSeconds: Int,
     val endedAt: Instant
 )

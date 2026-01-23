@@ -60,6 +60,12 @@ class BibleTypingSession(
     @Column(nullable = false)
     var cpm: Double = 0.0,
 
+    /**
+     * 총 소요 시간 (초) - 각 구절 소요 시간의 합
+     */
+    @Column(nullable = false)
+    var totalElapsedSeconds: Int = 0,
+
     @Column(nullable = false)
     val startedAt: Instant,
 
@@ -81,6 +87,7 @@ class BibleTypingSession(
         totalTypedChars: Int,
         accuracy: Double,
         cpm: Double,
+        totalElapsedSeconds: Int,
         endedAt: Instant
     ) {
         this.totalVerses = totalVerses
@@ -88,7 +95,17 @@ class BibleTypingSession(
         this.totalTypedChars = totalTypedChars
         this.accuracy = accuracy
         this.cpm = cpm
+        this.totalElapsedSeconds = totalElapsedSeconds
         this.endedAt = endedAt
+    }
+
+    fun adjustTotalElapsedSeconds(
+        oldElapsedSeconds: Int,
+        newElapsedSeconds: Int,
+    ) {
+        val diff = newElapsedSeconds - oldElapsedSeconds
+        val currentTotal = this.totalElapsedSeconds
+        this.totalElapsedSeconds = (currentTotal + diff).coerceAtLeast(0)
     }
 
     companion object {
@@ -114,6 +131,7 @@ class BibleTypingSession(
                 totalTypedChars = 0,
                 accuracy = 0.0,
                 cpm = 0.0,
+                totalElapsedSeconds = 0,
                 startedAt = Instant.now(),
                 endedAt = null,
                 verses = mutableListOf()

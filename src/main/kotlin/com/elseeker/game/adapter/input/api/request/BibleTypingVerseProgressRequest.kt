@@ -1,5 +1,7 @@
 package com.elseeker.game.adapter.input.api.request
 
+import java.time.Instant
+
 data class BibleTypingVerseProgressRequest(
     val sessionKey: String,
     val translationId: Long,
@@ -10,6 +12,7 @@ data class BibleTypingVerseProgressRequest(
     val typedText: String,
     val accuracy: Double,
     val cpm: Double,
-    val elapsedSeconds: Int,
+    val startedAt: Instant?,
+    val endedAt: Instant?,
     val completed: Boolean
 )
