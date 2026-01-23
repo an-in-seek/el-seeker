@@ -21,6 +21,7 @@ repositories {
 
 val springDocVersion = "2.8.14"
 val kotlinLogging = "3.0.5"
+val kotestVersion = "5.9.1"
 
 dependencies {
     // kotlin-logging
@@ -59,6 +60,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Kotest
+    testImplementation("io.kotest:kotest-runner-junit5:${kotestVersion}")
+    testImplementation("io.kotest:kotest-assertions-core:${kotestVersion}")
+    testImplementation("io.kotest:kotest-framework-engine:${kotestVersion}")
 
     // testcontainers
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

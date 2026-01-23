@@ -60,9 +60,6 @@ class BibleTypingSession(
     @Column(nullable = false)
     var cpm: Double = 0.0,
 
-    /**
-     * 총 소요 시간 (초) - 각 구절 소요 시간의 합
-     */
     @Column(nullable = false)
     var totalElapsedSeconds: Int = 0,
 
