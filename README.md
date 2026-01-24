@@ -65,6 +65,10 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
     * `static/`: CSS, JavaScript, 이미지 리소스
 * `docs/`: 도메인별 문서
 
+## 개발 가이드
+
+* Swagger/OpenAPI 어노테이션은 `*ApiDocument` 인터페이스에 작성하고, 컨트롤러는 해당 인터페이스를 구현합니다.
+
 ## 로컬 실행 방법
 
 ```bash
@@ -117,7 +121,7 @@ POST /api/v1/game/bible-quiz/stages/{stageNumber}/complete
 POST /api/v1/game/bible-quiz/progress/reset
 GET /api/v1/game/bible-typing/sessions
 POST /api/v1/game/bible-typing/sessions
-PUT /api/v1/game/bible-typing/sessions/{sessionKey}
+POST /api/v1/game/bible-typing/sessions/{sessionKey}/end
 DELETE /api/v1/game/bible-typing/sessions
 GET /api/v1/game/bible-typing/progress
 GET /api/v1/game/bible-typing/progress/latest

@@ -32,6 +32,7 @@
 - SQL seed files follow `bible_krv_XX_<book>.sql` in `src/main/resources/data/krv`.
 - No formatter or linter is configured; avoid reformatting unrelated files.
 - Frontend JS: prefer ES module scripts (`type="module"`); avoid IIFEs and `'use strict'` in module files. Use explicit `import`/`export` instead of globals.
+- Swagger/OpenAPI annotations should live in `*ApiDocument` interfaces (controllers implement them).
 
 ## Testing Guidelines
 - Tests should use `spring-boot-starter-test` with JUnit 5 (Kotest is also available).
