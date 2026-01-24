@@ -1,3 +1,5 @@
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+
 const apiBase = "/api/v1/bible";
 const sessionApi = "/api/v1/game/bible-typing/sessions";
 const resumeApi = "/api/v1/game/bible-typing/progress";
@@ -52,7 +54,7 @@ const state = {
 };
 
 const fetchJson = async (url) => {
-    const response = await fetch(url, {credentials: "same-origin"});
+    const response = await fetchWithAuthRetry(url, {credentials: "same-origin"});
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
     }
@@ -389,7 +391,7 @@ const updateSession = async () => {
         endedAt: formatLocalDateTime(state.endedAt || new Date())
     };
 
-    const response = await fetch(`${sessionApi}/${state.sessionKey}/end`, {
+    const response = await fetchWithAuthRetry(`${sessionApi}/${state.sessionKey}/end`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
@@ -445,7 +447,7 @@ const handleResetSession = async () => {
             chapterNumber: String(params.chapterNumber)
         });
 
-        const response = await fetch(`${sessionApi}?${query.toString()}`, {
+        const response = await fetchWithAuthRetry(`${sessionApi}?${query.toString()}`, {
             method: "DELETE",
             credentials: "same-origin"
         });
@@ -482,7 +484,7 @@ const saveVerseProgress = async (verseState) => {
         completed: verseState.completed
     };
 
-    const response = await fetch(`${resumeApi}/verses`, {
+    const response = await fetchWithAuthRetry(`${resumeApi}/verses`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
@@ -745,7 +747,7 @@ const loadSelections = async () => {
 
 const fetchLatestProgress = async (selection) => {
     const {translationId, bookOrder, chapterNumber} = selection;
-    const response = await fetch(
+    const response = await fetchWithAuthRetry(
         `${resumeApi}?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`,
         {credentials: "same-origin"}
     );
@@ -757,7 +759,7 @@ const fetchLatestProgress = async (selection) => {
 };
 
 const fetchLatestProgressSelection = async () => {
-    const response = await fetch(`${resumeApi}/latest`, {credentials: "same-origin"});
+    const response = await fetchWithAuthRetry(`${resumeApi}/latest`, {credentials: "same-origin"});
     if (response.status === 204) return null;
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);

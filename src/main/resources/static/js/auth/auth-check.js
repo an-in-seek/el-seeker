@@ -1,10 +1,22 @@
 // /js/auth/auth-check.js
 
 const AUTH_ME_ENDPOINT = "/api/v1/auth/me";
+const AUTH_REFRESH_ENDPOINT = "/api/v1/auth/refresh";
 
 const isOkStatus = (response) => response && response.status === 200;
 
 const isUnauthorized = (response) => response && response.status === 401;
+
+export const refreshAccessToken = async () => {
+    const response = await fetch(AUTH_REFRESH_ENDPOINT, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            Accept: "application/json",
+        },
+    });
+    return response && response.status === 204;
+};
 
 export const buildLoginRedirectUrl = (returnUrl) => {
     const targetReturnUrl = returnUrl || `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -47,6 +59,24 @@ export const checkAuthStatus = async ({
         }
 
         if (isUnauthorized(response)) {
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                const retry = await fetch(AUTH_ME_ENDPOINT, {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+                if (isOkStatus(retry)) {
+                    const data = await retry.json().catch(() => null);
+                    if (typeof onAuthenticated === "function") {
+                        onAuthenticated(data);
+                    }
+                    return;
+                }
+            }
+
             // 인증 실패는 로그인으로 유도합니다.
             if (typeof onUnauthenticated === "function") {
                 onUnauthenticated();

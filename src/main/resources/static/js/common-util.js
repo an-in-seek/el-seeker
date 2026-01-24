@@ -1,3 +1,5 @@
+import {refreshAccessToken} from "/js/auth/auth-check.js";
+
 /**
  * 숫자에 천 단위 콤마를 적용하여 반환합니다.
  * @param {number|string} number - 포맷팅할 숫자
@@ -8,4 +10,16 @@ export const formatNumberWithComma = (number) => {
         return "0";
     }
     return Number(number).toLocaleString();
+};
+
+export const fetchWithAuthRetry = async (url, options = {}) => {
+    const response = await fetch(url, options);
+    if (response.status !== 401) {
+        return response;
+    }
+    const refreshed = await refreshAccessToken();
+    if (!refreshed) {
+        return response;
+    }
+    return fetch(url, options);
 };

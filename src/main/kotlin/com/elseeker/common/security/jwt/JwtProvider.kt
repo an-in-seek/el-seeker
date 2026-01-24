@@ -58,6 +58,12 @@ class JwtProvider(
             ?.value
     }
 
+    fun resolveRefreshToken(request: HttpServletRequest): String? {
+        return request.cookies
+            ?.firstOrNull { it.name == REFRESH_TOKEN_COOKIE_NAME }
+            ?.value
+    }
+
     /**
      * 최적화 2: 토큰 검증과 파싱을 동시에 수행합니다.
      * 유효한 토큰이면 Claims를 반환하고, 유효하지 않거나 만료되었으면 null을 반환합니다.

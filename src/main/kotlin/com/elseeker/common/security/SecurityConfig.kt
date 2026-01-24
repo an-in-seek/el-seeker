@@ -2,6 +2,7 @@ package com.elseeker.common.security
 
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtAuthenticationFilter
+import com.elseeker.common.security.jwt.JwtRefreshFilter
 import com.elseeker.common.security.oauth.handler.OAuth2LoginFailureHandler
 import com.elseeker.common.security.oauth.handler.OAuth2LoginSuccessHandler
 import com.elseeker.common.security.oauth.repository.HttpCookieOAuth2AuthorizationRequestRepository
@@ -29,6 +30,7 @@ class SecurityConfig(
     private val oAuth2LoginFailureHandler: OAuth2LoginFailureHandler,
     private val authorizationRequestRepository: HttpCookieOAuth2AuthorizationRequestRepository,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val jwtRefreshFilter: JwtRefreshFilter,
     private val elSeekerProperties: ElSeekerProperties,
 ) {
 
@@ -66,13 +68,14 @@ class SecurityConfig(
                     "/web/auth/logout/**",
                     "/web/game",
                     "/api/v1/bibles/**",
-                    "/api/v1/study/dictionaries/**"
+                    "/api/v1/study/dictionaries/**",
+                    "/api/v1/auth/refresh"
                 ).permitAll()
                     .requestMatchers(
-                        "/api/v1/auth/me",
-                        "/api/v1/members/**",
-                        "/api/v1/game/bible-quiz/**"
-                    ).authenticated()
+                    "/api/v1/auth/me",
+                    "/api/v1/members/**",
+                    "/api/v1/game/bible-quiz/**"
+                ).authenticated()
                     // 게임 영역은 서버에서 인증을 강제합니다. (UX용 JS는 보조 역할)
                     .requestMatchers(
                         "/web/game/**",
@@ -104,6 +107,7 @@ class SecurityConfig(
             }
 
             // 7. JWT 필터 추가 (UsernamePasswordAuthenticationFilter 앞단에 배치)
+            .addFilterBefore(jwtRefreshFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
             // 8. 예외 처리 (SSR 페이지는 로그인으로, API는 401을 반환)

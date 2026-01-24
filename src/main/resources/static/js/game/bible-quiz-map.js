@@ -1,3 +1,5 @@
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+
 // Module-scope script
 // ==========================================
 // Constants & Configuration
@@ -116,9 +118,9 @@ const ApiService = {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         try {
-            const response = await fetch(
+            const response = await fetchWithAuthRetry(
                 `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}`,
-                {signal: controller.signal}
+                {signal: controller.signal, credentials: "same-origin"}
             );
             return response.ok ? await response.json() : null;
         } catch (e) {
@@ -130,9 +132,9 @@ const ApiService = {
     },
     resetProgress: async () => {
         try {
-            const response = await fetch(
+            const response = await fetchWithAuthRetry(
                 `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESET}`,
-                {method: "POST"}
+                {method: "POST", credentials: "same-origin"}
             );
             return response.ok;
         } catch (e) {

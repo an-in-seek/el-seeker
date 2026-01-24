@@ -1,3 +1,5 @@
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+
 /**
  * Configuration constants
  */
@@ -25,7 +27,10 @@ const UI_CLASSES = {
 const ApiService = {
     fetchStageData: async (stageNumber) => {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}`);
+            const response = await fetchWithAuthRetry(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}`,
+                {credentials: "same-origin"}
+            );
             if (!response.ok) return null;
             return await response.json();
         } catch (error) {
@@ -35,10 +40,11 @@ const ApiService = {
     },
     startStage: async (stageNumber, mode, reviewType) => {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.START}`, {
+            const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.START}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({mode, reviewType})
+                body: JSON.stringify({mode, reviewType}),
+                credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
         } catch (error) {
@@ -48,10 +54,11 @@ const ApiService = {
     },
     submitAnswer: async (stageNumber, payload) => {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.ANSWER}`, {
+            const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.ANSWER}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
         } catch (error) {
@@ -61,10 +68,11 @@ const ApiService = {
     },
     completeStage: async (stageNumber, payload) => {
         try {
-            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.COMPLETE}`, {
+            const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.COMPLETE}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
         } catch (error) {

@@ -1,4 +1,5 @@
 import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
 import {LastReadStore} from "/js/storage-util.js?v=2.1";
 
 const roleLabels = {
@@ -279,7 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.setAttribute("aria-disabled", "true");
         button.classList.add("disabled");
         try {
-            const response = await fetch(`/api/v1/members/${memberUid}/oauth-accounts?provider=${provider}&providerUserId=${providerUserId}`, {
+            const response = await fetchWithAuthRetry(`/api/v1/members/${memberUid}/oauth-accounts?provider=${provider}&providerUserId=${providerUserId}`, {
                 method: "DELETE",
                 credentials: "include",
                 headers: {
@@ -312,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         try {
-            const response = await fetch(`/api/v1/members/${memberUid}/oauth-accounts`, {
+            const response = await fetchWithAuthRetry(`/api/v1/members/${memberUid}/oauth-accounts`, {
                 credentials: "include",
                 headers: {
                     Accept: "application/json",
@@ -343,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch("/api/v1/bibles/daily?translationType=KRV", {
+            const response = await fetchWithAuthRetry("/api/v1/bibles/daily?translationType=KRV", {
                 headers: {
                     Accept: "application/json",
                 },
@@ -451,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setFormEnabled(false);
 
             try {
-                const response = await fetch(`/api/v1/members/${memberUid}`, {
+                const response = await fetchWithAuthRetry(`/api/v1/members/${memberUid}`, {
                     method: "PUT",
                     credentials: "include",
                     headers: {
