@@ -94,6 +94,12 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 API는 모든 시간 값을 UTC 기준 ISO-8601 형식으로 응답합니다. 사용자 타임존에 따른 표시 변환은 클라이언트에서 수행합니다.
 예: `2024-01-01T10:00:00Z`
 
+## 인증 및 토큰 갱신
+
+* OAuth2 로그인 성공 시 Access/Refresh JWT가 HttpOnly 쿠키로 발급됩니다.
+* Access 토큰이 만료되면 서버 `JwtRefreshFilter`가 Refresh 토큰으로 자동 재발급을 시도합니다.
+* 명시적 재발급은 `POST /api/v1/auth/refresh`로 수행합니다(실패 시 401).
+
 ## REST API 엔드포인트
 
 ```text
@@ -109,6 +115,7 @@ GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chap
 PUT /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo
 DELETE /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo
 GET /api/v1/auth/me
+POST /api/v1/auth/refresh
 PUT /api/v1/members/{memberUid}
 DELETE /api/v1/members/{memberUid}
 GET /api/v1/study/dictionaries

@@ -49,6 +49,7 @@
 - H2 runs in-memory by default (`jdbc:h2:mem:test`); data is loaded from SQL in `src/main/resources/data`.
 - PostgreSQL driver is included for external DB use.
 - OAuth2 client and JWT settings live in `src/main/resources/application.yml`.
+- Access/refresh JWT cookies are issued on OAuth2 login; access is auto-refreshed via `JwtRefreshFilter` using refresh cookie (or via `POST /api/v1/auth/refresh`).
 - API responses return all timestamps in UTC ISO-8601 (example: `2024-01-01T10:00:00Z`); client converts to user timezone.
 - If you add new Bible content, keep book order and naming consistent with existing SQL files.
 

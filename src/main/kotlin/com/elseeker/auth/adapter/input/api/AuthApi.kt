@@ -21,10 +21,10 @@ class AuthApi(
     private val memberService: MemberService,
     private val jwtProvider: JwtProvider,
     private val properties: ElSeekerProperties,
-) {
+) : AuthApiDocument {
 
     @GetMapping("/me")
-    fun me(
+    override fun me(
         @AuthenticationPrincipal principal: JwtPrincipal
     ): AuthMeResponse {
         val member = memberService.getMemberWithOAuthAccounts(principal.memberUid)
@@ -32,7 +32,7 @@ class AuthApi(
     }
 
     @PostMapping("/refresh")
-    fun refresh(
+    override fun refresh(
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): ResponseEntity<Void> {
