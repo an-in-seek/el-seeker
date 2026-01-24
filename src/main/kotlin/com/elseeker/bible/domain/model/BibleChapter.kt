@@ -29,4 +29,14 @@ class BibleChapter(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapterId")
     val verses: MutableList<BibleVerse> = mutableListOf()
-)
+) {
+    companion object {
+        fun of(
+            bookId: Long,
+            chapterNumber: Int
+        ) = BibleChapter(
+            bookId = bookId,
+            chapterNumber = chapterNumber,
+        )
+    }
+}

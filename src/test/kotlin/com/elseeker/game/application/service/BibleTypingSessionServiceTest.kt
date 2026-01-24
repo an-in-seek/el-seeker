@@ -1,10 +1,22 @@
 package com.elseeker.game.application.service
 
+import com.elseeker.bible.adapter.output.jpa.BibleBookRepository
+import com.elseeker.bible.adapter.output.jpa.BibleChapterRepository
+import com.elseeker.bible.adapter.output.jpa.BibleTranslationRepository
+import com.elseeker.bible.adapter.output.jpa.BibleVerseRepository
+import com.elseeker.bible.domain.model.BibleBook
+import com.elseeker.bible.domain.model.BibleChapter
+import com.elseeker.bible.domain.model.BibleTranslation
+import com.elseeker.bible.domain.model.BibleVerse
+import com.elseeker.bible.domain.vo.BibleBookKey
+import com.elseeker.bible.domain.vo.BibleTestamentType
+import com.elseeker.bible.domain.vo.BibleTranslationType
+import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.IntegrationTest
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.ServiceError
 import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionUpdateRequest
+import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
 import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
@@ -12,6 +24,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -24,20 +37,102 @@ class BibleTypingSessionServiceTest @Autowired constructor(
     private val bibleTypingSessionService: BibleTypingSessionService,
     private val sessionRepository: BibleTypingSessionRepository,
     private val bibleTypingVerseRepository: BibleTypingVerseRepository,
+    private val bibleTranslationRepository: BibleTranslationRepository,
+    private val bibleBookRepository: BibleBookRepository,
+    private val bibleChapterRepository: BibleChapterRepository,
+    private val bibleVerseRepository: BibleVerseRepository,
 ) : IntegrationTest() {
+
+    private lateinit var seed: SeedContext
+
+    private data class SeedContext(
+        val translationId: Long,
+        val bookOrder: Int,
+        val chapterNumber: Int,
+        val verseNumber1: Int,
+        val verseNumber2: Int
+    )
+
+    @BeforeEach
+    fun ensureBibleSeed() {
+        seed = seedBibleData()
+    }
+
+    private fun seedBibleData(): SeedContext {
+        val translation = bibleTranslationRepository.findByTranslationType(BibleTranslationType.KRV)
+            ?: bibleTranslationRepository.save(
+                BibleTranslation(
+                    translationType = BibleTranslationType.KRV,
+                    name = "테스트 번역본",
+                    translationOrder = 999,
+                    languageCode = LanguageCode.ko
+                )
+            )
+        val translationId = translation.id!!
+        val bookOrder = 1
+        val book = bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
+            ?: bibleBookRepository.save(
+                BibleBook(
+                    translationId = translationId,
+                    bookKey = BibleBookKey.GEN,
+                    bookOrder = bookOrder,
+                    name = "테스트 책",
+                    abbreviation = "TEST",
+                    testamentType = BibleTestamentType.OLD
+                )
+            )
+        val chapterNumber = 1
+        val chapter = bibleChapterRepository.findByBookAndChapter(book.id!!, chapterNumber)
+            ?: bibleChapterRepository.save(
+                BibleChapter.of(
+                    bookId = book.id!!,
+                    chapterNumber = chapterNumber
+                )
+            )
+        val verseNumber1 = 1
+        val verseNumber2 = 2
+        val verseText1 = bibleVerseRepository.findVerseText(translationId, bookOrder, chapterNumber, verseNumber1)
+        if (verseText1 == null) {
+            bibleVerseRepository.save(
+                BibleVerse(
+                    chapterId = chapter.id!!,
+                    verseNumber = verseNumber1,
+                    text = "테스트 구절 1"
+                )
+            )
+        }
+        val verseText2 = bibleVerseRepository.findVerseText(translationId, bookOrder, chapterNumber, verseNumber2)
+        if (verseText2 == null) {
+            bibleVerseRepository.save(
+                BibleVerse(
+                    chapterId = chapter.id!!,
+                    verseNumber = verseNumber2,
+                    text = "테스트 구절 2"
+                )
+            )
+        }
+
+        return SeedContext(
+            translationId = translationId,
+            bookOrder = bookOrder,
+            chapterNumber = chapterNumber,
+            verseNumber1 = verseNumber1,
+            verseNumber2 = verseNumber2
+        )
+    }
 
     @Nested
     @DisplayName("createSession_메서드는")
-    inner class CreateSession {
+    inner class createSession_메서드는 {
 
         @Test
         fun `새로운 세션을 생성한다`() {
             // given
             val request = BibleTypingSessionCreateRequest(
                 sessionKey = UUID.randomUUID().toString(),
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
                 totalVerses = 10,
                 startedAt = Instant.now(),
                 endedAt = Instant.now(),
@@ -60,19 +155,19 @@ class BibleTypingSessionServiceTest @Autowired constructor(
     }
 
     @Nested
-    @DisplayName("updateSession_메서드는")
-    inner class UpdateSession {
+    @DisplayName("endSession_메서드는")
+    inner class endSession_메서드는 {
 
         @Test
-        fun `세션 통계를 업데이트한다`() {
+        fun `세션 종료 시각을 업데이트한다`() {
             // given
             val session = bibleTypingSessionService.createSession(
                 member = member,
                 request = BibleTypingSessionCreateRequest(
                     sessionKey = UUID.randomUUID().toString(),
-                    translationId = 1L,
-                    bookOrder = 1,
-                    chapterNumber = 1,
+                    translationId = seed.translationId,
+                    bookOrder = seed.bookOrder,
+                    chapterNumber = seed.chapterNumber,
                     totalVerses = 10,
                     startedAt = Instant.now(),
                     endedAt = Instant.now(),
@@ -84,45 +179,33 @@ class BibleTypingSessionServiceTest @Autowired constructor(
                 )
             )
 
-            val updateRequest = BibleTypingSessionUpdateRequest(
-                totalVerses = 10,
-                completedVerses = 5,
-                totalTypedChars = 100,
-                accuracy = 95.5,
-                cpm = 300.0,
-                totalElapsedSeconds = 120,
+            val endRequest = BibleTypingSessionEndRequest(
                 endedAt = Instant.now()
             )
 
             // when
-            bibleTypingSessionService.updateSession(member, session.sessionKey.toString(), updateRequest)
+            bibleTypingSessionService.endSession(member, session.sessionKey.toString(), endRequest)
 
             // then
             val updatedSession = sessionRepository.findById(session.id!!).get()
-            updatedSession.completedVerses shouldBe 5
-            updatedSession.totalElapsedSeconds shouldBe 120
+            updatedSession.completedVerses shouldBe 0
+            updatedSession.totalElapsedSeconds shouldBe 0
             updatedSession.endedAt.shouldNotBeNull()
         }
 
         @Test
         fun `존재하지 않는 세션이면 예외가 발생한다`() {
             // given
-            val updateRequest = BibleTypingSessionUpdateRequest(
-                totalVerses = 10,
-                completedVerses = 5,
-                totalTypedChars = 100,
-                accuracy = 95.5,
-                cpm = 300.0,
-                totalElapsedSeconds = 120,
+            val endRequest = BibleTypingSessionEndRequest(
                 endedAt = Instant.now()
             )
 
             // when & then
             val exception = shouldThrow<ServiceError> {
-                bibleTypingSessionService.updateSession(
+                bibleTypingSessionService.endSession(
                     member,
                     UUID.randomUUID().toString(),
-                    updateRequest
+                    endRequest
                 )
             }
 
@@ -136,9 +219,9 @@ class BibleTypingSessionServiceTest @Autowired constructor(
                 member = member,
                 request = BibleTypingSessionCreateRequest(
                     sessionKey = UUID.randomUUID().toString(),
-                    translationId = 1L,
-                    bookOrder = 1,
-                    chapterNumber = 1,
+                    translationId = seed.translationId,
+                    bookOrder = seed.bookOrder,
+                    chapterNumber = seed.chapterNumber,
                     totalVerses = 10,
                     startedAt = Instant.now(),
                     endedAt = Instant.now(),
@@ -150,21 +233,15 @@ class BibleTypingSessionServiceTest @Autowired constructor(
                 )
             )
 
-            val endedRequest = BibleTypingSessionUpdateRequest(
-                totalVerses = 10,
-                completedVerses = 10,
-                totalTypedChars = 100,
-                accuracy = 100.0,
-                cpm = 400.0,
-                totalElapsedSeconds = 100,
+            val endedRequest = BibleTypingSessionEndRequest(
                 endedAt = Instant.now(),
             )
 
-            bibleTypingSessionService.updateSession(member, session.sessionKey.toString(), endedRequest)
+            bibleTypingSessionService.endSession(member, session.sessionKey.toString(), endedRequest)
 
             // when & then
             val exception = shouldThrow<ServiceError> {
-                bibleTypingSessionService.updateSession(member, session.sessionKey.toString(), endedRequest)
+                bibleTypingSessionService.endSession(member, session.sessionKey.toString(), endedRequest)
             }
 
             exception.errorType shouldBe ErrorType.SESSION_ALREADY_ENDED
@@ -173,21 +250,18 @@ class BibleTypingSessionServiceTest @Autowired constructor(
 
     @Nested
     @DisplayName("saveVerseProgress_메서드는")
-    inner class SaveVerseProgress {
+    inner class saveVerseProgress_메서드는 {
 
         @Test
         fun `구절 진행 상황을 저장하고 세션 총 시간을 누적한다`() {
             // given
             val request1 = BibleTypingVerseProgressRequest(
                 sessionKey = UUID.randomUUID().toString(),
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
-                verseNumber = 1,
-                originalText = "태초에 하나님이...",
-                typedText = "태초에 하나님이...",
-                accuracy = 100.0,
-                cpm = 400.0,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
+                verseNumber = seed.verseNumber1,
+                typedText = "테스트 입력",
                 startedAt = Instant.now().minusSeconds(10),
                 endedAt = Instant.now(),
                 completed = true
@@ -202,7 +276,7 @@ class BibleTypingSessionServiceTest @Autowired constructor(
 
             // given
             val request2 = request1.copy(
-                verseNumber = 2,
+                verseNumber = seed.verseNumber2,
                 startedAt = Instant.now().minusSeconds(5),
                 endedAt = Instant.now()
             )
@@ -220,14 +294,11 @@ class BibleTypingSessionServiceTest @Autowired constructor(
             // given
             val request = BibleTypingVerseProgressRequest(
                 sessionKey = UUID.randomUUID().toString(),
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
-                verseNumber = 1,
-                originalText = "Text",
-                typedText = "Text",
-                accuracy = 100.0,
-                cpm = 400.0,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
+                verseNumber = seed.verseNumber1,
+                typedText = "테스트 입력",
                 startedAt = Instant.now().minusSeconds(10),
                 endedAt = Instant.now(),
                 completed = true
@@ -255,9 +326,9 @@ class BibleTypingSessionServiceTest @Autowired constructor(
                 member = member,
                 request = BibleTypingSessionCreateRequest(
                     sessionKey = UUID.randomUUID().toString(),
-                    translationId = 1L,
-                    bookOrder = 1,
-                    chapterNumber = 1,
+                    translationId = seed.translationId,
+                    bookOrder = seed.bookOrder,
+                    chapterNumber = seed.chapterNumber,
                     totalVerses = 10,
                     startedAt = Instant.now(),
                     endedAt = Instant.now(),
@@ -269,30 +340,21 @@ class BibleTypingSessionServiceTest @Autowired constructor(
                 )
             )
 
-            bibleTypingSessionService.updateSession(
+            bibleTypingSessionService.endSession(
                 member,
                 session.sessionKey.toString(),
-                BibleTypingSessionUpdateRequest(
-                    totalVerses = 10,
-                    completedVerses = 10,
-                    totalTypedChars = 100,
-                    accuracy = 100.0,
-                    cpm = 100.0,
-                    totalElapsedSeconds = 100,
+                BibleTypingSessionEndRequest(
                     endedAt = Instant.now(),
                 )
             )
 
             val verseRequest = BibleTypingVerseProgressRequest(
                 sessionKey = session.sessionKey.toString(),
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
-                verseNumber = 1,
-                originalText = "Text",
-                typedText = "Text",
-                accuracy = 100.0,
-                cpm = 400.0,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
+                verseNumber = seed.verseNumber1,
+                typedText = "테스트 입력",
                 startedAt = Instant.now(),
                 endedAt = Instant.now(),
                 completed = true,
@@ -309,16 +371,16 @@ class BibleTypingSessionServiceTest @Autowired constructor(
 
     @Nested
     @DisplayName("getProgress_메서드는")
-    inner class GetProgress {
+    inner class getProgress_메서드는 {
 
         @Test
         fun `세션 정보를 조회한다`() {
             // given
             val request = BibleTypingSessionCreateRequest(
                 sessionKey = UUID.randomUUID().toString(),
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
                 totalVerses = 1,
                 startedAt = Instant.now(),
                 endedAt = Instant.now(),
@@ -347,7 +409,7 @@ class BibleTypingSessionServiceTest @Autowired constructor(
 
     @Nested
     @DisplayName("resetSession_메서드는")
-    inner class ResetSession {
+    inner class resetSession_메서드는 {
 
         @Test
         fun `세션을 초기화하면 세션과 구절 데이터가 모두 삭제된다`() {
@@ -355,9 +417,9 @@ class BibleTypingSessionServiceTest @Autowired constructor(
             val sessionKey = UUID.randomUUID().toString()
             val request = BibleTypingSessionCreateRequest(
                 sessionKey = sessionKey,
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
                 totalVerses = 10,
                 startedAt = Instant.now(),
                 endedAt = Instant.now(),
@@ -372,9 +434,9 @@ class BibleTypingSessionServiceTest @Autowired constructor(
             // when
             bibleTypingSessionService.resetSession(
                 member = member,
-                translationId = 1L,
-                bookOrder = 1,
-                chapterNumber = 1,
+                translationId = seed.translationId,
+                bookOrder = seed.bookOrder,
+                chapterNumber = seed.chapterNumber,
             )
 
             // then

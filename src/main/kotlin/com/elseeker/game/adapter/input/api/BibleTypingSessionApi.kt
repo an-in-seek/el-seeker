@@ -2,7 +2,7 @@ package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionUpdateRequest
+import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
 import com.elseeker.game.adapter.input.api.response.BibleTypingSessionResponse
 import com.elseeker.game.adapter.input.api.response.BibleTypingSessionSummaryResponse
 import com.elseeker.game.application.service.BibleTypingSessionService
@@ -34,13 +34,13 @@ class BibleTypingSessionApi(
     }
 
     @PutMapping("/{sessionKey}")
-    fun updateSession(
+    fun endSession(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @PathVariable sessionKey: String,
-        @RequestBody request: BibleTypingSessionUpdateRequest
+        @RequestBody request: BibleTypingSessionEndRequest
     ): ResponseEntity<Void> {
         val member = memberService.getMember(principal.memberUid)
-        bibleTypingSessionService.updateSession(member, sessionKey, request)
+        bibleTypingSessionService.endSession(member, sessionKey, request)
         return ResponseEntity.noContent().build()
     }
 

@@ -9,14 +9,16 @@ data class BibleTypingVersesResponse(
     val bookOrder: Int,
     val chapterNumber: Int,
     val createdAt: Instant,
+    val accuracy: Int,
+    val cpm: Int,
     val totalElapsedSeconds: Int,
     val verses: List<VerseProgress>
 ) {
     data class VerseProgress(
         val verseNumber: Int,
         val typedText: String,
-        val accuracy: Double,
-        val cpm: Double,
+        val accuracy: Int,
+        val cpm: Int,
         val elapsedSeconds: Int,
         val completed: Boolean,
         val createdAt: Instant
@@ -30,8 +32,8 @@ data class BibleTypingVersesResponse(
                     VerseProgress(
                         verseNumber = it.verseNumber,
                         typedText = it.typedText,
-                        accuracy = it.accuracy,
-                        cpm = it.cpm,
+                        accuracy = it.accuracy.toInt(),
+                        cpm = it.cpm.toInt(),
                         elapsedSeconds = it.elapsedSeconds,
                         completed = it.completed,
                         createdAt = it.createdAt
@@ -44,9 +46,11 @@ data class BibleTypingVersesResponse(
                 translationId = session.translationId,
                 bookOrder = session.bookOrder,
                 chapterNumber = session.chapterNumber,
-                createdAt = session.createdAt,
+                accuracy = session.accuracy.toInt(),
+                cpm = session.cpm.toInt(),
                 totalElapsedSeconds = session.totalElapsedSeconds,
-                verses = verses
+                verses = verses,
+                createdAt = session.createdAt,
             )
         }
     }

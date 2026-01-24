@@ -1,9 +1,10 @@
 package com.elseeker.game.application.service
 
+import com.elseeker.bible.application.component.BibleReader
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionUpdateRequest
+import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
 import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.input.api.response.BibleTypingVersesResponse
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
@@ -22,6 +23,7 @@ import java.util.*
 class BibleTypingSessionService(
     private val sessionRepository: BibleTypingSessionRepository,
     private val verseRepository: BibleTypingVerseRepository,
+    private val bibleReader: BibleReader,
 ) {
 
     @Transactional
@@ -39,23 +41,15 @@ class BibleTypingSessionService(
     }
 
     @Transactional
-    fun updateSession(
+    fun endSession(
         member: Member,
         sessionKey: String,
-        request: BibleTypingSessionUpdateRequest
+        request: BibleTypingSessionEndRequest
     ) {
         val sessionUid = parseSessionUid(sessionKey)
         val session = sessionRepository.findBySessionKeyAndMember(sessionUid, member) ?: throwError(ErrorType.SESSION_NOT_FOUND)
         if (session.endedAt != null) throwError(ErrorType.SESSION_ALREADY_ENDED)
-        session.updateStats(
-            totalVerses = request.totalVerses,
-            completedVerses = request.completedVerses,
-            totalTypedChars = request.totalTypedChars,
-            accuracy = request.accuracy,
-            cpm = request.cpm,
-            totalElapsedSeconds = request.totalElapsedSeconds,
-            endedAt = request.endedAt
-        )
+        session.end(request.endedAt)
     }
 
     @Transactional
@@ -73,7 +67,13 @@ class BibleTypingSessionService(
         val verseId = BibleTypingVerseId.of(sessionId = session.id!!, verseNumber = request.verseNumber)
 
         // 4. 구절 정보 조회, 없으면 구절 생성
-        val verse = verseRepository.findByIdOrNull(verseId) ?: createVerse(session, request)
+        val originalText = bibleReader.getVerseText(
+            translationId = session.translationId,
+            bookOrder = session.bookOrder,
+            chapterNumber = session.chapterNumber,
+            verseNumber = request.verseNumber
+        )
+        val verse = verseRepository.findByIdOrNull(verseId) ?: createVerse(session, request.verseNumber, originalText)
 
         // 5. '기존 구절 소요 시간'
         val previousElapsedSeconds = verse.elapsedSeconds
@@ -84,23 +84,25 @@ class BibleTypingSessionService(
         // 7. '현재 구절 소요 시간' 업데이트
         verse.updateProgress(
             typedText = request.typedText,
-            accuracy = request.accuracy,
-            cpm = request.cpm,
             elapsedSeconds = currentElapsedSeconds,
             completed = request.completed
         )
 
-        // 5. 세션 정보 업데이트
-        session.adjustTotalElapsedSeconds(previousElapsedSeconds, currentElapsedSeconds)
+        // 8. 세션에 구절 결과 반영
+        session.applyVerseResult(
+            previousElapsedSeconds = previousElapsedSeconds,
+            currentElapsedSeconds = currentElapsedSeconds,
+            typedChars = request.typedText.length,
+            verseAccuracy = verse.accuracy,
+            completed = verse.completed
+        )
 
-        // 6. 구절 저장
+        // 9. 구절 저장
         verseRepository.save(verse)
 
-        // 7. 세션 저장
+        // 10. 세션 저장
         sessionRepository.save(session)
     }
-
-
 
     @Transactional
     fun resetSession(
@@ -183,11 +185,12 @@ class BibleTypingSessionService(
 
     private fun createVerse(
         session: BibleTypingSession,
-        request: BibleTypingVerseProgressRequest
+        verseNumber: Int,
+        originalText: String
     ) = BibleTypingVerse.create(
         session = session,
-        verseNumber = request.verseNumber,
-        originalText = request.originalText
+        verseNumber = verseNumber,
+        originalText = originalText
     )
 
     private fun calculateDuration(startedAt: Instant?, endedAt: Instant?): Int {

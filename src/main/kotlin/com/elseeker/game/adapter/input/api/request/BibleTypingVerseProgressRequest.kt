@@ -8,10 +8,7 @@ data class BibleTypingVerseProgressRequest(
     val bookOrder: Int,
     val chapterNumber: Int,
     val verseNumber: Int,
-    val originalText: String,
     val typedText: String,
-    val accuracy: Double,
-    val cpm: Double,
     val startedAt: Instant?,
     val endedAt: Instant?,
     val completed: Boolean

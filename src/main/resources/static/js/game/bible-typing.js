@@ -47,14 +47,13 @@ const state = {
     pendingCompleteIndex: null,
     startedAt: null,
     endedAt: null,
-    totalTyped: 0,
-    totalCorrect: 0,
+    sessionSummary: null,
     totalElapsedSeconds: 0,
     timerId: null
 };
 
 const fetchJson = async (url) => {
-    const response = await fetch(url, { credentials: "same-origin" });
+    const response = await fetch(url, {credentials: "same-origin"});
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
     }
@@ -117,7 +116,7 @@ const createSessionKey = () => {
     return state.sessionKey;
 };
 
-const getResetStorageKey = ({ translationId, bookOrder, chapterNumber }) =>
+const getResetStorageKey = ({translationId, bookOrder, chapterNumber}) =>
     `bible-typing-reset:${translationId}:${bookOrder}:${chapterNumber}`;
 
 const getResetTimestamp = (selection) => {
@@ -148,10 +147,9 @@ const formatDuration = (seconds) => {
     return `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
 };
 
-const getElapsedSeconds = () => {
-    if (!state.startedAt) return 0;
-    const now = state.endedAt || new Date();
-    return Math.max(0, Math.floor((now - state.startedAt) / 1000));
+const getVerseElapsedSeconds = (startedAt, endedAt) => {
+    if (!startedAt || !endedAt) return 0;
+    return Math.max(0, Math.floor((endedAt - startedAt) / 1000));
 };
 
 const computeAccuracyPercent = (correct, total, precision = 0) => {
@@ -167,6 +165,45 @@ const computeCpm = (totalTyped, elapsedSeconds, precision = 0) => {
     return precision === 0 ? Math.round(value) : Number(value.toFixed(precision));
 };
 
+const finalizeVerseMetrics = (verseState) => {
+    if (!verseState.startedAt) {
+        verseState.startedAt = new Date();
+    }
+    if (!verseState.endedAt) {
+        verseState.endedAt = new Date();
+    }
+    verseState.elapsedSeconds = getVerseElapsedSeconds(verseState.startedAt, verseState.endedAt);
+    const typedLength = verseState.typedText.length;
+    const correctCount = countCorrectCharsRaw(verseState.originalText, verseState.typedText);
+    verseState.accuracy = computeAccuracyPercent(correctCount, typedLength, 2);
+    verseState.cpm = computeCpm(typedLength, verseState.elapsedSeconds, 2);
+};
+
+const computeSessionStats = () => {
+    const completedVerses = state.verseStates.filter((verse) => verse.completed);
+    const completedCount = completedVerses.length;
+    const totalElapsedSeconds = completedVerses.reduce((sum, verse) => sum + (verse.elapsedSeconds || 0), 0);
+    const totalTypedChars = completedVerses.reduce(
+        (sum, verse) => sum + (verse.typedText?.length || 0),
+        0
+    );
+    const totalCorrectChars = completedVerses.reduce((sum, verse) => {
+        const typedChars = verse.typedText?.length || 0;
+        const accuracy = Number.isFinite(verse.accuracy) ? verse.accuracy : 0;
+        const correctChars = Math.floor((typedChars * accuracy) / 100);
+        return sum + correctChars;
+    }, 0);
+
+    return {
+        totalVerses: state.verses.length,
+        completedVerses: completedCount,
+        totalTypedChars,
+        accuracy: computeAccuracyPercent(totalCorrectChars, totalTypedChars, 2),
+        cpm: computeCpm(totalTypedChars, totalElapsedSeconds, 2),
+        totalElapsedSeconds
+    };
+};
+
 const setVerseStatus = (label) => {
     if (elements.verseStatus) elements.verseStatus.textContent = label;
 };
@@ -175,21 +212,29 @@ const updateMetrics = () => {
     const totalVerses = state.verses.length;
     const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
     const progress = totalVerses === 0 ? 0 : Math.round((completedVerses / totalVerses) * 100);
-    const accuracyValue = computeAccuracyPercent(state.totalCorrect, state.totalTyped);
-    const elapsedSeconds = getElapsedSeconds();
-    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds);
+    const allCompleted = totalVerses > 0 && completedVerses === totalVerses;
+    const useSummary = Boolean(state.sessionSummary) && (!state.sessionActive || allCompleted);
+    const completedStats = computeSessionStats();
+    const liveStats = completedStats;
+    let accuracyValue = useSummary ? state.sessionSummary.accuracy : completedStats.accuracy;
+    let cpmValue = useSummary ? state.sessionSummary.cpm : completedStats.cpm;
+    let elapsedSeconds = useSummary ? state.sessionSummary.totalElapsedSeconds : completedStats.totalElapsedSeconds;
+    if (!useSummary) {
+        accuracyValue = Math.round(accuracyValue);
+        cpmValue = Math.round(cpmValue);
+    }
 
     if (elements.progressText) elements.progressText.textContent = `${progress}%`;
     if (elements.progressBar) elements.progressBar.style.width = `${progress}%`;
     if (elements.cpm) elements.cpm.textContent = `${cpmValue}`;
     if (elements.accuracy) elements.accuracy.textContent = `${accuracyValue}`;
     if (elements.elapsedTime) {
-        if (!state.startedAt) {
-            elements.elapsedTime.textContent = "00:00";
-            elements.elapsedTime.classList.add("d-none");
-        } else {
+        if (useSummary || elapsedSeconds > 0) {
             elements.elapsedTime.textContent = formatDuration(elapsedSeconds);
-            elements.elapsedTime.classList.remove("d-none");
+        } else if (state.startedAt || state.sessionActive) {
+            elements.elapsedTime.textContent = formatDuration(0);
+        } else {
+            elements.elapsedTime.textContent = "00:00";
         }
     }
 };
@@ -209,11 +254,9 @@ const getUiStatus = () => {
 
 const updateActionButtons = (status = getUiStatus()) => {
     const isWaiting = status === UI_STATUS.WAITING;
-    const isCompleted = status === UI_STATUS.COMPLETED;
     toggleButton(elements.startBtn, isWaiting);
-    toggleButton(elements.resetBtn, isCompleted);
-    const hasVisibleButton = !elements.startBtn?.classList.contains("d-none")
-        || !elements.resetBtn?.classList.contains("d-none");
+    toggleButton(elements.resetBtn, !isWaiting);
+    const hasVisibleButton = !elements.startBtn?.classList.contains("d-none") || !elements.resetBtn?.classList.contains("d-none");
     toggleButton(elements.actionBar, hasVisibleButton);
 };
 
@@ -232,9 +275,8 @@ const resetSessionState = () => {
     state.pendingCompleteIndex = null;
     state.startedAt = null;
     state.endedAt = null;
+    state.sessionSummary = null;
     state.currentIndex = 0;
-    state.totalTyped = 0;
-    state.totalCorrect = 0;
     state.totalElapsedSeconds = 0;
     state.verseStates = state.verses.map((verse) => ({
         verseNumber: verse.verseNumber,
@@ -243,9 +285,12 @@ const resetSessionState = () => {
         typedText: "",
         normalizedTyped: "",
         correctCount: 0,
+        accuracy: 0,
+        cpm: 0,
         saved: false,
         completed: false,
         startedAt: null,
+        endedAt: null,
         elapsedSeconds: 0
     }));
     state.tokenMap.clear();
@@ -311,6 +356,17 @@ const countCorrectChars = (normalizedText, normalizedInput) => {
     return count;
 };
 
+const countCorrectCharsRaw = (originalText, typedText) => {
+    const length = Math.min(originalText.length, typedText.length);
+    let count = 0;
+    for (let i = 0; i < length; i += 1) {
+        if (originalText[i] === typedText[i]) {
+            count += 1;
+        }
+    }
+    return count;
+};
+
 const activateVerse = (index) => {
     const verseRows = elements.verseList.querySelectorAll(".typing-verse-row");
     verseRows.forEach((row, rowIndex) => {
@@ -335,7 +391,7 @@ const focusVerseInput = (index) => {
     const input = row.querySelector(".typing-verse-input");
     if (!input) return;
     input.focus();
-    input.scrollIntoView({ block: "center", behavior: "smooth" });
+    input.scrollIntoView({block: "center", behavior: "smooth"});
 };
 
 const formatLocalDateTime = (date) => {
@@ -343,26 +399,14 @@ const formatLocalDateTime = (date) => {
 };
 
 const updateSession = async () => {
-    if (!state.startedAt || !state.sessionKey) return;
-    const totalVerses = state.verseStates.length;
-    const completedVerses = state.verseStates.filter((verse) => verse.completed).length;
-    const accuracyValue = computeAccuracyPercent(state.totalCorrect, state.totalTyped, 2);
-    const elapsedSeconds = getElapsedSeconds();
-    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds, 2);
-
+    if (!state.sessionKey) return;
     const payload = {
-        totalVerses,
-        completedVerses,
-        totalTypedChars: state.totalTyped,
-        accuracy: accuracyValue,
-        cpm: cpmValue,
-        totalElapsedSeconds: state.totalElapsedSeconds,
         endedAt: formatLocalDateTime(state.endedAt || new Date())
     };
 
     const response = await fetch(`${sessionApi}/${state.sessionKey}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
@@ -393,11 +437,9 @@ const endSession = async () => {
     try {
         await updateSession();
         const selection = getQueryParams();
-        const summary = await fetchLatestSessionSummary(selection);
-        if (summary) {
-            if (elements.accuracy) elements.accuracy.textContent = `${summary.accuracy}`;
-            if (elements.cpm) elements.cpm.textContent = `${summary.cpm}`;
-            if (elements.elapsedTime) elements.elapsedTime.textContent = formatDuration(summary.totalElapsedSeconds || 0);
+        const progress = await fetchLatestProgress(selection);
+        if (progress) {
+            applyProgressSummary(progress, state.sessionKey);
         }
         showSessionSummary();
     } catch (error) {
@@ -435,8 +477,6 @@ const handleResetSession = async () => {
         await loadSelections();
         renderVerses();
         updateHeader();
-
-        alert("기록이 초기화되었습니다.");
     } catch (error) {
         console.error(error);
         showMessage("기록 초기화 중 오류가 발생했습니다.");
@@ -446,31 +486,21 @@ const handleResetSession = async () => {
 const saveVerseProgress = async (verseState) => {
     if (verseState.saved) return;
     const params = getQueryParams();
-    const elapsedSeconds = getElapsedSeconds();
-    const cpmValue = computeCpm(state.totalTyped, elapsedSeconds);
-    const verseAccuracy = computeAccuracyPercent(
-        verseState.correctCount,
-        verseState.normalizedTyped.length,
-        2
-    );
     const payload = {
         sessionKey: createSessionKey(),
         translationId: params.translationId,
         bookOrder: params.bookOrder,
         chapterNumber: params.chapterNumber,
         verseNumber: verseState.verseNumber,
-        originalText: verseState.originalText,
         typedText: verseState.typedText,
-        accuracy: verseAccuracy,
-        cpm: cpmValue,
         startedAt: verseState.startedAt ? formatLocalDateTime(verseState.startedAt) : null,
-        endedAt: formatLocalDateTime(new Date()),
+        endedAt: verseState.endedAt ? formatLocalDateTime(verseState.endedAt) : null,
         completed: verseState.completed
     };
 
     await fetch(`${resumeApi}/verses`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
@@ -479,7 +509,10 @@ const saveVerseProgress = async (verseState) => {
 
 const handleVerseComplete = (index) => {
     const verseState = state.verseStates[index];
+    verseState.endedAt = new Date();
+    finalizeVerseMetrics(verseState);
     verseState.completed = true;
+    state.totalElapsedSeconds += verseState.elapsedSeconds;
     const row = elements.verseList.querySelector(`.typing-verse-row[data-index="${index}"]`);
     if (row) {
         row.classList.remove("is-active");
@@ -521,9 +554,6 @@ const handleInput = (event) => {
     const normalizedText = verseState.normalizedText;
     const correctCount = countCorrectChars(normalizedText, normalizedInput);
 
-    state.totalTyped += normalizedInput.length - verseState.normalizedTyped.length;
-    state.totalCorrect += correctCount - verseState.correctCount;
-
     if (!verseState.startedAt) {
         verseState.startedAt = new Date();
     }
@@ -552,7 +582,7 @@ const handleInput = (event) => {
         updateActionButtons();
     }
 
-    if (normalizedInput === normalizedText && !verseState.completed) {
+    if (target.value === verseState.originalText && !verseState.completed) {
         if (state.composing) {
             state.pendingCompleteIndex = index;
             return;
@@ -604,8 +634,7 @@ const renderVerses = () => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 const verseState = state.verseStates[index];
-                const normalizedInput = normalizeText(input.value);
-                if (normalizedInput === verseState.normalizedText && !verseState.completed) {
+                if (input.value === verseState.originalText && !verseState.completed) {
                     handleVerseComplete(index);
                 }
             }
@@ -712,16 +741,16 @@ const loadSelections = async () => {
         || params.bookOrder !== bookOrder
         || params.chapterNumber !== chapterNumber
     ) {
-        updateQueryParams({ translationId, bookOrder, chapterNumber }, true);
+        updateQueryParams({translationId, bookOrder, chapterNumber}, true);
     }
-    return { translationId, bookOrder, chapterNumber };
+    return {translationId, bookOrder, chapterNumber};
 };
 
 const fetchLatestProgress = async (selection) => {
-    const { translationId, bookOrder, chapterNumber } = selection;
+    const {translationId, bookOrder, chapterNumber} = selection;
     const response = await fetch(
         `${resumeApi}?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`,
-        { credentials: "same-origin" }
+        {credentials: "same-origin"}
     );
     if (response.status === 204) return null;
     if (!response.ok) {
@@ -731,7 +760,7 @@ const fetchLatestProgress = async (selection) => {
 };
 
 const fetchLatestProgressSelection = async () => {
-    const response = await fetch(`${resumeApi}/latest`, { credentials: "same-origin" });
+    const response = await fetch(`${resumeApi}/latest`, {credentials: "same-origin"});
     if (response.status === 204) return null;
     if (!response.ok) {
         throw new Error(`요청 실패: ${response.status}`);
@@ -739,27 +768,14 @@ const fetchLatestProgressSelection = async () => {
     return response.json();
 };
 
-const fetchLatestSessionSummary = async (selection) => {
-    const { translationId, bookOrder, chapterNumber } = selection;
-    const params = new URLSearchParams({
-        translationId: String(translationId),
-        bookOrder: String(bookOrder),
-        chapterNumber: String(chapterNumber)
-    });
-    const response = await fetch(`${sessionApi}?${params.toString()}`, { credentials: "same-origin" });
-    if (!response.ok) {
-        throw new Error(`요청 실패: ${response.status}`);
-    }
-    const session = await response.json();
-    if (!session) return null;
-    return session;
-};
-
-const applySessionSummary = (summary, sessionKey) => {
-    if (!summary) return false;
-    if (sessionKey && summary.sessionKey !== sessionKey) return false;
-    state.startedAt = summary.startedAt ? new Date(summary.startedAt) : null;
-    state.endedAt = summary.endedAt ? new Date(summary.endedAt) : null;
+const applyProgressSummary = (progress, sessionKey) => {
+    if (!progress) return false;
+    if (sessionKey && progress.sessionKey !== sessionKey) return false;
+    state.sessionSummary = {
+        accuracy: progress.accuracy,
+        cpm: progress.cpm,
+        totalElapsedSeconds: progress.totalElapsedSeconds
+    };
     updateMetrics();
     return true;
 };
@@ -772,8 +788,6 @@ const applyResumeProgress = (progress, selection) => {
 
     const verseMap = new Map(progress.verses.map((verse) => [verse.verseNumber, verse]));
     state.sessionKey = progress.sessionKey;
-    state.totalTyped = 0;
-    state.totalCorrect = 0;
 
     state.verseStates = state.verseStates.map((verse) => {
         const saved = verseMap.get(verse.verseNumber);
@@ -783,13 +797,17 @@ const applyResumeProgress = (progress, selection) => {
             normalizedTyped = verse.normalizedText;
         }
         const correctCount = countCorrectChars(verse.normalizedText, normalizedTyped);
-        state.totalTyped += normalizedTyped.length;
-        state.totalCorrect += correctCount;
         return {
             ...verse,
             typedText: saved.typedText,
             normalizedTyped,
             correctCount,
+            accuracy: saved.accuracy ?? computeAccuracyPercent(
+                countCorrectCharsRaw(verse.originalText, saved.typedText || ""),
+                (saved.typedText || "").length,
+                2
+            ),
+            cpm: saved.cpm ?? computeCpm((saved.typedText || "").length, saved.elapsedSeconds || 0, 2),
             completed: saved.completed,
             saved: true,
             elapsedSeconds: saved.elapsedSeconds || 0
@@ -845,13 +863,14 @@ const applyResumeProgress = (progress, selection) => {
             focusVerseInput(state.currentIndex);
         });
     }
+    applyProgressSummary(progress, progress.sessionKey);
     updateMetrics();
     updateActionButtons();
     return true;
 };
 
 const loadVerses = async (selection) => {
-    const { translationId, bookOrder, chapterNumber } = selection;
+    const {translationId, bookOrder, chapterNumber} = selection;
     const url = `${apiBase}/verses?translationId=${translationId}&bookOrder=${bookOrder}&chapterNumber=${chapterNumber}`;
 
     const initializeEmpty = (message) => {
@@ -889,11 +908,6 @@ const loadVerses = async (selection) => {
         const resumed = applyResumeProgress(progress, selection);
         if (!resumed) return;
 
-        const allCompleted = state.verseStates.length > 0
-            && state.verseStates.every((verse) => verse.completed);
-        if (!allCompleted) return;
-        const summary = await fetchLatestSessionSummary(selection);
-        applySessionSummary(summary, progress.sessionKey);
     } catch {
         showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
@@ -924,7 +938,7 @@ const resetProgress = () => {
 const bindEvents = () => {
     elements.translationSelect?.addEventListener("change", async (event) => {
         const translationId = parseNumber(event.target.value);
-        updateQueryParams({ translationId, bookOrder: null, chapterNumber: null });
+        updateQueryParams({translationId, bookOrder: null, chapterNumber: null});
         const selection = await loadSelections();
         if (selection) await loadVerses(selection);
     });
@@ -932,7 +946,7 @@ const bindEvents = () => {
     elements.bookSelect?.addEventListener("change", async (event) => {
         const params = getQueryParams();
         const bookOrder = parseNumber(event.target.value);
-        updateQueryParams({ translationId: params.translationId, bookOrder, chapterNumber: null });
+        updateQueryParams({translationId: params.translationId, bookOrder, chapterNumber: null});
         const selection = await loadSelections();
         if (selection) await loadVerses(selection);
     });

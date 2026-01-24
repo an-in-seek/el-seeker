@@ -14,7 +14,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.util.Random
+import java.util.*
 
 @Component
 @Transactional(readOnly = true)
@@ -196,5 +196,20 @@ class BibleReader(
 
         return slice.content.firstOrNull()
             ?: throwError(ErrorType.DB_ERROR, "No verse found for translationId=$translationId")
+    }
+
+    fun getVerseText(
+        translationId: Long,
+        bookOrder: Int,
+        chapterNumber: Int,
+        verseNumber: Int
+    ): String {
+        val verseText = bibleVerseRepository.findVerseText(
+            translationId,
+            bookOrder,
+            chapterNumber,
+            verseNumber
+        ) ?: throwError(ErrorType.VERSE_NOT_FOUND)
+        return verseText
     }
 }

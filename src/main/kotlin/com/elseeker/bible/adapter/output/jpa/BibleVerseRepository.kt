@@ -88,4 +88,24 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         @Param("translationId") translationId: Long
     ): Long
 
+
+    @Query(
+        """
+            SELECT v.text
+            FROM BibleVerse v
+            JOIN BibleChapter c ON v.chapterId = c.id
+            JOIN BibleBook b ON c.bookId = b.id
+            WHERE b.translationId = :translationId 
+                AND b.bookOrder = :bookOrder 
+                AND c.chapterNumber = :chapterNumber 
+                AND v.verseNumber = :verseNumber
+        """
+    )
+    fun findVerseText(
+        @Param("translationId") translationId: Long,
+        @Param("bookOrder") bookOrder: Int,
+        @Param("chapterNumber") chapterNumber: Int,
+        @Param("verseNumber") verseNumber: Int
+    ): String?
+
 }

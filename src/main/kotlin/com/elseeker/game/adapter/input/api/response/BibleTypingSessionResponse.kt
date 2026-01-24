@@ -32,10 +32,13 @@ data class BibleTypingSessionSummaryResponse(
     val completedVerses: Int,
 
     /** 정확도 (0~100) */
-    val accuracy: Double,
+    val accuracy: Int,
 
     /** 타자 속도 (CPM) */
-    val cpm: Double,
+    val cpm: Int,
+
+    /** 전체 소요 시간 (초) */
+    val totalElapsedSeconds: Int,
 
     /** 세션 시작 시각 */
     val startedAt: Instant,
@@ -54,10 +57,11 @@ data class BibleTypingSessionSummaryResponse(
             chapterNumber = session.chapterNumber,
             totalVerses = session.totalVerses,
             completedVerses = session.completedVerses,
-            accuracy = session.accuracy,
-            cpm = session.cpm,
+            accuracy = session.accuracy.toInt(),
+            cpm = session.cpm.toInt(),
             startedAt = session.startedAt,
             endedAt = session.endedAt,
+            totalElapsedSeconds = session.totalElapsedSeconds,
             createdAt = session.createdAt,
         )
     }

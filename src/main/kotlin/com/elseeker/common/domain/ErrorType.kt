@@ -31,6 +31,7 @@ enum class ErrorType(
     QUIZ_STAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "퀴즈 스테이지를 찾을 수 없습니다.", LogLevel.WARN),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다.", LogLevel.WARN),
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "세션을 찾을 수 없습니다.", LogLevel.WARN),
+    VERSE_NOT_FOUND(HttpStatus.NOT_FOUND, "구절을 찾을 수 없습니다.", LogLevel.WARN),
 
     // 403
     MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "요청한 회원 정보에 접근할 수 없습니다.", LogLevel.WARN),
