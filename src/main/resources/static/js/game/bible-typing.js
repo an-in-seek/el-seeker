@@ -48,7 +48,6 @@ const state = {
     startedAt: null,
     endedAt: null,
     sessionSummary: null,
-    totalElapsedSeconds: 0,
     timerId: null
 };
 
@@ -114,18 +113,6 @@ const createSessionKey = () => {
         state.sessionKey = `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
     return state.sessionKey;
-};
-
-const getResetStorageKey = ({translationId, bookOrder, chapterNumber}) =>
-    `bible-typing-reset:${translationId}:${bookOrder}:${chapterNumber}`;
-
-const getResetTimestamp = (selection) => {
-    const value = window.localStorage.getItem(getResetStorageKey(selection));
-    return value ? Number(value) : 0;
-};
-
-const markResetTimestamp = (selection) => {
-    window.localStorage.setItem(getResetStorageKey(selection), String(Date.now()));
 };
 
 const createOption = (value, label) => {
@@ -215,7 +202,6 @@ const updateMetrics = () => {
     const allCompleted = totalVerses > 0 && completedVerses === totalVerses;
     const useSummary = Boolean(state.sessionSummary) && (!state.sessionActive || allCompleted);
     const completedStats = computeSessionStats();
-    const liveStats = completedStats;
     let accuracyValue = useSummary ? state.sessionSummary.accuracy : completedStats.accuracy;
     let cpmValue = useSummary ? state.sessionSummary.cpm : completedStats.cpm;
     let elapsedSeconds = useSummary ? state.sessionSummary.totalElapsedSeconds : completedStats.totalElapsedSeconds;
@@ -277,7 +263,6 @@ const resetSessionState = () => {
     state.endedAt = null;
     state.sessionSummary = null;
     state.currentIndex = 0;
-    state.totalElapsedSeconds = 0;
     state.verseStates = state.verses.map((verse) => ({
         verseNumber: verse.verseNumber,
         originalText: verse.text,
@@ -470,7 +455,6 @@ const handleResetSession = async () => {
         }
 
         // 로컬 스토리지 초기화 및 상태 리셋
-        window.localStorage.removeItem(getResetStorageKey(params));
         resetSessionState();
 
         // 초기화 후 UI 반영 (다시 로드)
@@ -498,21 +482,23 @@ const saveVerseProgress = async (verseState) => {
         completed: verseState.completed
     };
 
-    await fetch(`${resumeApi}/verses`, {
+    const response = await fetch(`${resumeApi}/verses`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
         credentials: "same-origin"
     });
+    if (!response.ok) {
+        throw new Error(`저장 실패: ${response.status}`);
+    }
     verseState.saved = true;
 };
 
-const handleVerseComplete = (index) => {
+const handleVerseComplete = async (index) => {
     const verseState = state.verseStates[index];
     verseState.endedAt = new Date();
     finalizeVerseMetrics(verseState);
     verseState.completed = true;
-    state.totalElapsedSeconds += verseState.elapsedSeconds;
     const row = elements.verseList.querySelector(`.typing-verse-row[data-index="${index}"]`);
     if (row) {
         row.classList.remove("is-active");
@@ -535,7 +521,14 @@ const handleVerseComplete = (index) => {
             });
         });
     } else {
-        endSession();
+        try {
+            await saveVerseProgress(verseState);
+        } catch (error) {
+            showMessage("구절 기록 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            return;
+        }
+        await endSession();
+        return;
     }
     saveVerseProgress(verseState).catch(() => {
         showMessage("구절 기록 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -546,6 +539,10 @@ const handleInput = (event) => {
     if (state.transitioning) return;
     const target = event.target;
     if (!(target instanceof HTMLTextAreaElement)) return;
+    const sanitizedValue = target.value.replace(/\r?\n/g, "");
+    if (sanitizedValue !== target.value) {
+        target.value = sanitizedValue;
+    }
     const index = Number.parseInt(target.dataset.index, 10);
     if (Number.isNaN(index) || index !== state.currentIndex) return;
 
@@ -782,10 +779,6 @@ const applyProgressSummary = (progress, sessionKey) => {
 
 const applyResumeProgress = (progress, selection) => {
     if (!progress || !Array.isArray(progress.verses) || progress.verses.length === 0) return false;
-    const resetAt = getResetTimestamp(selection);
-    const progressAt = Number(new Date(progress.createdAt));
-    if (resetAt && progressAt <= resetAt) return false;
-
     const verseMap = new Map(progress.verses.map((verse) => [verse.verseNumber, verse]));
     state.sessionKey = progress.sessionKey;
 
@@ -815,8 +808,6 @@ const applyResumeProgress = (progress, selection) => {
     });
 
     // Calculate totalElapsedSeconds from saved verses
-    state.totalElapsedSeconds = state.verseStates.reduce((sum, verse) => sum + (verse.elapsedSeconds || 0), 0);
-
     const firstIncomplete = state.verseStates.findIndex((verse) => !verse.completed);
     const allCompleted = firstIncomplete === -1 && state.verseStates.length > 0;
     state.currentIndex = allCompleted ? state.verseStates.length - 1 : firstIncomplete;
@@ -921,17 +912,6 @@ const startSession = () => {
     setVerseStatus("입력 준비");
     activateVerse(state.currentIndex);
     focusVerseInput(state.currentIndex);
-    updateActionButtons();
-};
-
-const resetProgress = () => {
-    const selection = getQueryParams();
-    if (!selection.translationId || !selection.bookOrder || !selection.chapterNumber) return;
-    markResetTimestamp(selection);
-    resetSessionState();
-    renderVerses();
-    updateHeader();
-    updateMetrics();
     updateActionButtons();
 };
 
