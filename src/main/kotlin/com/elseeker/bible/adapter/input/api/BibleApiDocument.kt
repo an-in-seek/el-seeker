@@ -64,7 +64,7 @@ interface BibleApiDocument {
     ): ResponseEntity<BibleSearchSliceResponse>
 
     /**
-     * 📌 오늘의 묵상 구절 (일 단위 랜덤)
+     * 📌 오늘의 성경 구절 (일 단위 랜덤)
      */
     fun getDailyVerse(
         translationType: BibleTranslationType

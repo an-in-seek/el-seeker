@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="301" height="407" viewBox="0 0 301 407">
+  <defs>
+    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="6" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#ds)">
+    <!-- Top square split into four triangles -->
+    <polygon points="17,0 253,0 135,118" fill="#90caf8"/>
+    <polygon points="17,0 17,236 135,118" fill="#42a5f5"/>
+    <polygon points="253,0 253,236 135,118" fill="#42a5f5"/>
+    <polygon points="17,236 253,236 135,118" fill="#90caf8"/>
+
+    <!-- Diagonal tail (slightly overlaps the square edge to avoid seams) -->
+    <polygon points="17,236 253,236 290,288 175,400" fill="#90caf8"/>
+  </g>
+</svg>
