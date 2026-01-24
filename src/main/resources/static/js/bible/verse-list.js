@@ -44,7 +44,8 @@ const App = {
         bookName: null,
         chapterNumber: null,
         verseNumber: null,
-        fromSearch: false
+        fromSearch: false,
+        fromHome: false
     },
     memoAuth: {
         checked: false,
@@ -123,7 +124,9 @@ const App = {
         }
         App.state.chapterNumber = chapterNumber;
         App.state.verseNumber = Number.isNaN(parsedVerseNumber) ? null : parsedVerseNumber;
-        App.state.fromSearch = urlParams.get("from") === "search";
+        const fromValue = urlParams.get("from");
+        App.state.fromSearch = fromValue === "search";
+        App.state.fromHome = fromValue === "home";
     },
 
     initNav: () => {
@@ -151,6 +154,10 @@ const App = {
         button.addEventListener("click", () => {
             if (App.state.fromSearch) {
                 history.back();
+                return;
+            }
+            if (App.state.fromHome) {
+                window.location.href = "/";
                 return;
             }
             window.location.href = App.state.translationId && App.state.bookOrder
