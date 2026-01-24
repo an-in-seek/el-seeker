@@ -9,18 +9,22 @@
   - `game`: Bible quiz domain (domain, application, adapter/in, adapter/out).
   - `member`: member profile and account management.
 - `src/main/resources`: configuration and assets.
-  - `application.yml`: runtime config (H2, JPA, OAuth2, JWT).
+  - `application.yml`: main runtime config (H2, JPA, OAuth2, JWT).
+  - `application-local.yml`, `application-prod.yml`: env-specific overrides.
   - `data/`: SQL seed scripts for translations/books/chapters/verses, quizzes, and dictionary.
+    - `krv/`, `nkrv/`, `kjv/`: translation-specific book/verse seeds.
   - `templates/`: Thymeleaf HTML pages.
   - `static/`: CSS, JS, images.
-- `docs/`: domain documentation by area (auth/bible/community/game/study).
-- No `src/test` directory yet; add tests under `src/test/kotlin` when introducing them.
+- `docs/`: domain documentation (currently game-focused).
+- `src/test/kotlin`: test support + game service tests.
+- `src/test/resources`: test config (`application-test.yml`).
 
 ## Build, Test, and Development Commands
 - `./gradlew bootRun`: run the service locally with the embedded H2 database.
 - `./gradlew build`: compile and run tests (if present), produce the boot JAR.
 - `./gradlew test`: run unit tests with JUnit 5.
 - `./gradlew bootJar`: build the runnable Spring Boot artifact.
+- Gradle toolchain targets Java 21; Kotlin 1.9.x + Spring Boot 3.5.x.
 
 ## Coding Style & Naming Conventions
 - Kotlin + Spring Boot 3; keep idiomatic Kotlin (data classes, null-safety) and Spring annotations.
@@ -30,7 +34,8 @@
 - Frontend JS: prefer ES module scripts (`type="module"`); avoid IIFEs and `'use strict'` in module files. Use explicit `import`/`export` instead of globals.
 
 ## Testing Guidelines
-- Tests should use `spring-boot-starter-test` with JUnit 5.
+- Tests should use `spring-boot-starter-test` with JUnit 5 (Kotest is also available).
+- Testcontainers dependencies are available for integration tests (PostgreSQL).
 - Place unit tests under `src/test/kotlin` mirroring production packages.
 - Name tests `*Test.kt` and focus on service, repository, and controller behavior.
 
