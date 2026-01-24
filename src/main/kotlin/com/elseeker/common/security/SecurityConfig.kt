@@ -22,6 +22,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+/**
+ * Spring Security 전반 설정을 담당하는 설정 클래스입니다.
+ *
+ * JWT 기반 인증과 OAuth2 로그인을 결합한 무상태(stateless) 보안 구성을 정의하며,
+ * API 요청과 SSR(Web) 요청에 대해 서로 다른 인증·예외 처리 전략을 적용합니다.
+ */
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
@@ -34,49 +40,57 @@ class SecurityConfig(
     private val elSeekerProperties: ElSeekerProperties,
 ) {
 
+    /**
+     * Spring Security 필터 체인을 구성합니다.
+     *
+     * - CSRF, Form Login, HTTP Basic 인증을 비활성화합니다.
+     * - JWT 기반 무상태 인증을 사용합니다.
+     * - OAuth2 로그인 플로우를 설정합니다.
+     * - API 요청과 SSR 페이지 요청에 대해 서로 다른 예외 처리 방식을 적용합니다.
+     */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            // 1. CSRF 비활성화 (JWT 사용 시 불필요)
+            // CSRF 비활성화 (JWT 기반 인증 환경)
             .csrf { it.disable() }
 
-            // 2. 기본 인증 방식 비활성화 (API 서버이므로)
+            // 기본 인증 방식 비활성화 (API 서버 용도)
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
 
-            // 3. CORS 설정 적용
+            // CORS 설정 적용
             .cors { it.configurationSource(corsConfigurationSource()) }
 
-            // 4. 세션 관리: Stateless (서버에 세션 유지 X)
+            // 세션을 사용하지 않는 무상태 인증 정책
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
 
-            // 5. 요청 권한 관리
+            // 요청 URL별 접근 권한 설정
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos",
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo"
                 ).authenticated()
                     .requestMatchers(
-                    "/",
-                    "/error",
-                    "/oauth2/**",
-                    "/web/auth/login",
-                    "/web/auth/login/**",
-                    "/web/auth/logout",
-                    "/web/auth/logout/**",
-                    "/web/game",
-                    "/api/v1/bibles/**",
-                    "/api/v1/study/dictionaries/**",
-                    "/api/v1/auth/refresh"
-                ).permitAll()
+                        "/",
+                        "/error",
+                        "/oauth2/**",
+                        "/web/auth/login",
+                        "/web/auth/login/**",
+                        "/web/auth/logout",
+                        "/web/auth/logout/**",
+                        "/web/game",
+                        "/api/v1/bibles/**",
+                        "/api/v1/study/dictionaries/**",
+                        "/api/v1/auth/refresh"
+                    ).permitAll()
                     .requestMatchers(
-                    "/api/v1/auth/me",
-                    "/api/v1/members/**",
-                    "/api/v1/game/bible-quiz/**"
-                ).authenticated()
-                    // 게임 영역은 서버에서 인증을 강제합니다. (UX용 JS는 보조 역할)
+                        "/api/v1/auth/me",
+                        "/api/v1/members/**",
+                        "/api/v1/game/bible-quiz/**"
+                    ).authenticated()
+                    // 게임 관련 페이지는 서버 단에서 인증을 강제
                     .requestMatchers(
                         "/web/game/**",
                         "/game/**",
@@ -89,12 +103,12 @@ class SecurityConfig(
                         "/images/**",
                         "/webjars/**",
                     ).permitAll()
-                    // 그 외 공개 SSR 페이지
+                    // 공개 SSR 페이지
                     .requestMatchers("/web/**").permitAll()
                     .anyRequest().authenticated()
             }
 
-            // 6. OAuth2 로그인 설정
+            // OAuth2 로그인 설정
             .oauth2Login { oauth2 ->
                 oauth2.authorizationEndpoint { authorizationEndpoint ->
                     authorizationEndpoint.authorizationRequestRepository(authorizationRequestRepository)
@@ -106,11 +120,11 @@ class SecurityConfig(
                 oauth2.failureHandler(oAuth2LoginFailureHandler)
             }
 
-            // 7. JWT 필터 추가 (UsernamePasswordAuthenticationFilter 앞단에 배치)
+            // JWT 관련 필터를 UsernamePasswordAuthenticationFilter 앞단에 등록
             .addFilterBefore(jwtRefreshFilter, UsernamePasswordAuthenticationFilter::class.java)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-            // 8. 예외 처리 (SSR 페이지는 로그인으로, API는 401을 반환)
+            // 인증 예외 처리 (SSR 페이지는 로그인으로, API는 401을 반환)
             .exceptionHandling {
                 it.authenticationEntryPoint { request, response, _ ->
                     val acceptHeader = request.getHeader("Accept").orEmpty()
@@ -127,26 +141,34 @@ class SecurityConfig(
         return http.build()
     }
 
+    /**
+     * 로그인 성공 후 복귀를 위해 현재 요청 URL을 생성합니다.
+     *
+     * @param request 현재 HTTP 요청
+     * @return 쿼리 스트링을 포함한 요청 URI
+     */
     private fun buildReturnUrl(request: HttpServletRequest): String {
         val query = request.queryString?.let { "?$it" }.orEmpty()
         return "${request.requestURI}$query"
     }
 
     /**
-     * CORS 설정 빈
-     * 프론트엔드 도메인, 허용할 메서드 및 헤더를 정의합니다.
+     * CORS 설정을 위한 [CorsConfigurationSource] 빈을 생성합니다.
+     *
+     * - 허용 Origin은 설정 파일에 정의된 API Base URL을 기준으로 합니다.
+     * - 쿠키 기반 리프레시 토큰 전송을 위해 credentials를 허용합니다.
      */
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val configuration = CorsConfiguration()
+        val configuration = CorsConfiguration().apply {
+            allowedOrigins = listOf(elSeekerProperties.api.baseUrl)
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+        }
 
-        configuration.allowedOrigins = listOf(elSeekerProperties.api.baseUrl)
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-        configuration.allowedHeaders = listOf("*")
-        configuration.allowCredentials = true // 쿠키(리프레시 토큰) 전송을 위해 필요
-
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", configuration)
-        return source
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
     }
 }

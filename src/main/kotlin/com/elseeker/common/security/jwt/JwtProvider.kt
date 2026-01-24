@@ -7,23 +7,59 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.*
 import javax.crypto.SecretKey
 
+/**
+ * JWT 생성과 검증을 담당하는 Provider 컴포넌트입니다.
+ *
+ * - Access / Refresh 토큰 발급을 담당합니다.
+ * - HTTP 요청으로부터 토큰을 추출합니다.
+ * - 토큰 파싱 및 만료 여부를 검증합니다.
+ *
+ * 모든 토큰은 HMAC-SHA256 알고리즘을 사용해 서명됩니다.
+ */
 @Component
 class JwtProvider(
     private val elSeekerProperties: ElSeekerProperties,
 ) {
-    private val secretKey: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(elSeekerProperties.jwt.secret))
 
-    // 최적화 1: Parser는 Thread-Safe 하므로 한 번만 생성하여 재사용합니다.
+    private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
+
+    /**
+     * JWT 서명 및 검증에 사용되는 Secret Key입니다.
+     */
+    private val secretKey: SecretKey =
+        Keys.hmacShaKeyFor(Decoders.BASE64.decode(elSeekerProperties.jwt.secret))
+
+    /**
+     * JWT 파싱을 담당하는 [JwtParser] 인스턴스입니다.
+     *
+     * Thread-Safe 하므로 한 번만 생성해 재사용합니다.
+     */
     private val jwtParser: JwtParser = Jwts.parser()
         .verifyWith(secretKey)
         .build()
 
-    fun generateAccessToken(memberUid: String, email: String, roles: List<com.elseeker.member.domain.vo.MemberRole>): String {
+    /**
+     * 액세스 토큰(JWT)을 생성합니다.
+     *
+     * 토큰에는 회원 식별자, 이메일, 권한 정보가 포함되며
+     * 설정된 TTL 이후 자동으로 만료됩니다.
+     *
+     * @param memberUid 회원 UID (UUID 문자열)
+     * @param email 회원 이메일
+     * @param roles 회원 권한 목록
+     * @return 서명된 Access Token 문자열
+     */
+    fun generateAccessToken(
+        memberUid: String,
+        email: String,
+        roles: List<com.elseeker.member.domain.vo.MemberRole>,
+    ): String {
         val now = Instant.now()
         val expiry = now.plusSeconds(elSeekerProperties.jwt.accessTokenTtl.seconds)
 
@@ -37,9 +73,19 @@ class JwtProvider(
             .compact()
     }
 
+    /**
+     * 리프레시 토큰(JWT)을 생성합니다.
+     *
+     * 리프레시 토큰은 재발급 용도로만 사용되며,
+     * 사용자 식별 정보만 포함합니다.
+     *
+     * @param memberUid 회원 UID (UUID 문자열)
+     * @return 서명된 Refresh Token 문자열
+     */
     fun generateRefreshToken(memberUid: String): String {
         val now = Instant.now()
         val expiry = now.plusSeconds(elSeekerProperties.jwt.refreshTokenTtl.seconds)
+
         return Jwts.builder()
             .subject(memberUid)
             .issuedAt(Date.from(now))
@@ -48,16 +94,33 @@ class JwtProvider(
             .compact()
     }
 
+    /**
+     * HTTP 요청에서 액세스 토큰을 추출합니다.
+     *
+     * 우선순위는 다음과 같습니다.
+     * 1. Authorization 헤더의 Bearer 토큰
+     * 2. ACCESS_TOKEN 쿠키
+     *
+     * @param request HTTP 요청
+     * @return 액세스 토큰 문자열, 없으면 null
+     */
     fun resolveAccessToken(request: HttpServletRequest): String? {
         val bearerToken = request.getHeader("Authorization")
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7)
         }
+
         return request.cookies
             ?.firstOrNull { it.name == ACCESS_TOKEN_COOKIE_NAME }
             ?.value
     }
 
+    /**
+     * HTTP 요청의 쿠키에서 리프레시 토큰을 추출합니다.
+     *
+     * @param request HTTP 요청
+     * @return 리프레시 토큰 문자열, 없으면 null
+     */
     fun resolveRefreshToken(request: HttpServletRequest): String? {
         return request.cookies
             ?.firstOrNull { it.name == REFRESH_TOKEN_COOKIE_NAME }
@@ -65,31 +128,41 @@ class JwtProvider(
     }
 
     /**
-     * 최적화 2: 토큰 검증과 파싱을 동시에 수행합니다.
-     * 유효한 토큰이면 Claims를 반환하고, 유효하지 않거나 만료되었으면 null을 반환합니다.
+     * JWT를 파싱하고 유효성을 검증합니다.
+     *
+     * - 서명 검증
+     * - 만료 여부 검증
+     *
+     * 유효하지 않거나 만료된 토큰의 경우 null을 반환합니다.
+     *
+     * @param token JWT 문자열
+     * @return 유효한 경우 [Claims], 그렇지 않으면 null
      */
     fun resolveClaims(token: String): Claims? {
         return try {
             val claims = jwtParser.parseSignedClaims(token).payload
-            // 만료 시간 검사는 parser가 자동으로 수행하지만, 명시적으로 확인하고 싶다면 아래 코드 유지
+
             if (claims.expiration.before(Date.from(Instant.now()))) {
                 null
             } else {
                 claims
             }
         } catch (e: Exception) {
-            // Log.error("Invalid JWT token: ${e.message}") // 필요 시 로깅
+            logger.error("Invalid JWT token: ${e.message}")
             null
         }
     }
 
-    // 단순 검증용 메서드가 필요하다면 재활용
-    fun validateToken(token: String): Boolean {
-        return resolveClaims(token) != null
-    }
-
     companion object {
+
+        /**
+         * 액세스 토큰이 저장되는 쿠키 이름입니다.
+         */
         const val ACCESS_TOKEN_COOKIE_NAME = "ACCESS_TOKEN"
+
+        /**
+         * 리프레시 토큰이 저장되는 쿠키 이름입니다.
+         */
         const val REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN"
     }
 }
