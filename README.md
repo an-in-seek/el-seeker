@@ -16,6 +16,10 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * 성경 구절 메모 조회/등록/삭제 REST API 제공
 * Thymeleaf 기반 성경 탐색 및 검색 웹 UI 제공
 * 성경 퀴즈 스테이지 조회 REST API 및 웹 UI 제공
+* **성경 타자 연습(Bible Typing)** 기능 제공
+    * 번역본/책/장 단위 타자 연습 세션 생성 및 진행
+    * 연습 진행도 저장 및 조회
+    * 타자 정확도 및 속도 측정
 * 스터디(사전/역사) 조회 REST API 및 웹 UI 제공
 * OAuth2 로그인/로그아웃 및 회원 정보 관리 API 제공
 * SpringDoc 기반 OpenAPI 및 Swagger UI 제공
@@ -111,6 +115,13 @@ POST /api/v1/game/bible-quiz/stages/{stageNumber}/start
 POST /api/v1/game/bible-quiz/stages/{stageNumber}/answer
 POST /api/v1/game/bible-quiz/stages/{stageNumber}/complete
 POST /api/v1/game/bible-quiz/progress/reset
+GET /api/v1/game/bible-typing/sessions
+POST /api/v1/game/bible-typing/sessions
+PUT /api/v1/game/bible-typing/sessions/{sessionKey}
+DELETE /api/v1/game/bible-typing/sessions
+GET /api/v1/game/bible-typing/progress
+GET /api/v1/game/bible-typing/progress/latest
+POST /api/v1/game/bible-typing/progress/verses
 ```
 
 ## 웹 UI 라우트
@@ -130,6 +141,7 @@ GET /web/legal/privacy
 GET /web/game
 GET /web/game/bible-quiz
 GET /web/game/bible-quiz/map
+GET /web/game/bible-typing
 GET /web/member/mypage
 GET /web/member/withdraw
 GET /web/member/withdraw/complete
@@ -156,6 +168,7 @@ bible/verse-list -> bible/verse-list.html
 game/game -> game/game.html
 game/bible-quiz -> game/bible-quiz.html
 game/bible-quiz-map -> game/bible-quiz-map.html
+game/bible-typing -> game/bible-typing.html
 login/login -> login/login.html
 member/mypage -> member/mypage.html
 member/withdraw -> member/withdraw.html
