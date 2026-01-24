@@ -39,4 +39,13 @@ class SwaggerConfig(
             .packagesToScan("com.elseeker.bible")  // ✅ 패키지 기반 스캔
             .build()
     }
+
+    @Bean
+    fun gameApiGroupConfiguration(): GroupedOpenApi {
+        return GroupedOpenApi.builder()
+            .group("game")
+            .pathsToMatch("/api/v1/game/**")
+            .packagesToScan("com.elseeker.game")
+            .build()
+    }
 }

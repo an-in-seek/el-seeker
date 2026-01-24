@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*
 class BibleTypingSessionApi(
     private val bibleTypingSessionService: BibleTypingSessionService,
     private val memberService: MemberService
-) {
+) : BibleTypingSessionApiDocument {
 
     @PostMapping
-    fun createSession(
+    override fun createSession(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestBody request: BibleTypingSessionCreateRequest
     ): ResponseEntity<BibleTypingSessionResponse> {
@@ -33,8 +33,8 @@ class BibleTypingSessionApi(
         )
     }
 
-    @PutMapping("/{sessionKey}")
-    fun endSession(
+    @PostMapping("/{sessionKey}/end")
+    override fun endSession(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @PathVariable sessionKey: String,
         @RequestBody request: BibleTypingSessionEndRequest
@@ -45,7 +45,7 @@ class BibleTypingSessionApi(
     }
 
     @DeleteMapping
-    fun resetSession(
+    override fun resetSession(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestParam translationId: Long,
         @RequestParam bookOrder: Int,
@@ -57,7 +57,7 @@ class BibleTypingSessionApi(
     }
 
     @GetMapping
-    fun getSessions(
+    override fun getSessions(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestParam(required = false) translationId: Long?,
         @RequestParam(required = false) bookOrder: Int?,

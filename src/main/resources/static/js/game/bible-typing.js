@@ -404,8 +404,8 @@ const updateSession = async () => {
         endedAt: formatLocalDateTime(state.endedAt || new Date())
     };
 
-    const response = await fetch(`${sessionApi}/${state.sessionKey}`, {
-        method: "PUT",
+    const response = await fetch(`${sessionApi}/${state.sessionKey}/end`, {
+        method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload),
         credentials: "same-origin"
