@@ -8,6 +8,7 @@ import com.elseeker.game.adapter.input.api.response.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 
 @Tag(name = "Bible Quiz", description = "Bible Quiz APIs")
@@ -29,7 +30,7 @@ interface BibleQuizApiDocument {
     fun startStage(
         @Parameter(description = "스테이지 번호", example = "1")
         stageNumber: Int,
-        request: QuizStageStartRequest,
+        @Valid request: QuizStageStartRequest,
         principal: JwtPrincipal
     ): QuizStageProgressResponse
 
@@ -37,7 +38,7 @@ interface BibleQuizApiDocument {
     fun submitAnswer(
         @Parameter(description = "스테이지 번호", example = "1")
         stageNumber: Int,
-        request: QuizStageAnswerRequest,
+        @Valid request: QuizStageAnswerRequest,
         principal: JwtPrincipal
     ): QuizStageAnswerResponse
 
@@ -45,7 +46,7 @@ interface BibleQuizApiDocument {
     fun completeStage(
         @Parameter(description = "스테이지 번호", example = "1")
         stageNumber: Int,
-        request: QuizStageCompleteRequest,
+        @Valid request: QuizStageCompleteRequest,
         principal: JwtPrincipal
     ): QuizStageCompleteResponse
 
