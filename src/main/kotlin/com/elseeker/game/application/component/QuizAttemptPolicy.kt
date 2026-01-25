@@ -35,7 +35,7 @@ class QuizAttemptPolicy(
                 stage.stageNumber,
                 mode
             )
-        if (mode == QuizStageAttemptMode.REVIEW || existingAttempt == null) {
+        if (existingAttempt == null) {
             val attempt = QuizStageAttempt(
                 member = member,
                 stageNumber = stage.stageNumber,

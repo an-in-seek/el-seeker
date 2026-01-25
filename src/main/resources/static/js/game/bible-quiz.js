@@ -196,11 +196,27 @@ const App = {
 
         if (progress.isBlocked) {
             App.showAccessBlocked();
-        } else if (progress.isReviewOnly && !hasInProgressQuiz) {
+        } else if (hasInProgressQuiz) {
+            const mode = progress.isReviewOnly ? "review" : "record";
+            App.state.mode = mode;
+            App.state.reviewType = progress.currentReviewType || ReviewModes.FULL;
+
+            const {quizHeroLead, quizPanel, quizReviewSelect} = App.elements;
+            DomHelper.toggleVisibility(quizReviewSelect, false);
+            DomHelper.toggleVisibility(quizPanel, true);
+            App.setModeLabel(mode);
+
+            if (mode === "review") {
+                DomHelper.setElementText(quizHeroLead, "기록에 반영되지 않는 복습 모드입니다.");
+            } else {
+                DomHelper.setElementText(quizHeroLead, "");
+            }
+
+            App.loadStageData();
+        } else if (progress.isReviewOnly) {
             App.showReviewSelection();
         } else {
-            const mode = progress.isReviewOnly ? "review" : "record";
-            App.startQuiz(mode, progress.currentReviewType);
+            App.startQuiz("record", progress.currentReviewType);
         }
 
         App.bindEvents();
@@ -461,11 +477,7 @@ const App = {
         const correctIndex = response.correctIndex;
 
         App.state.answered = true;
-        if (App.state.mode !== "review") {
-            App.state.score = response.currentScore ?? App.state.score;
-        } else if (isCorrect) {
-            App.state.score += 1;
-        }
+        App.state.score = response.currentScore ?? App.state.score;
 
         const buttons = App.elements.quizOptions.querySelectorAll(".quiz-option");
         buttons.forEach((btn, idx) => {

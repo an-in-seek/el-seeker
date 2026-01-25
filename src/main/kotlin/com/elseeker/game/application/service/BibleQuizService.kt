@@ -5,11 +5,10 @@ import com.elseeker.common.domain.throwError
 import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
-import com.elseeker.game.adapter.input.api.response.*
 import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.application.component.QuizAttemptPolicy
 import com.elseeker.game.application.component.QuizStageValidator
-import com.elseeker.game.application.mapper.toResponse
+import com.elseeker.game.application.dto.*
 import com.elseeker.game.domain.model.QuizProgress
 import com.elseeker.game.domain.model.QuizQuestionStat
 import com.elseeker.game.domain.model.QuizStageProgress
@@ -18,6 +17,7 @@ import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class BibleQuizService(
@@ -32,29 +32,63 @@ class BibleQuizService(
 ) {
 
     @Transactional
-    fun getStage(stageNumber: Int, memberUid: java.util.UUID): QuizStageResponse {
+    fun getStage(stageNumber: Int, memberUid: UUID): QuizStageDetailResult {
         val member = getMember(memberUid)
-        val stage = getStageOrThrow(stageNumber)
+        val memberId = requireNotNull(member.id) { "member id is null" }
+        val detailRows = quizStageRepository.findStageDetailRows(stageNumber)
+        if (detailRows.isEmpty()) throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
+        val firstRow = detailRows.first()
+        val questions = LinkedHashMap<Long, MutableQuestion>()
+        detailRows.forEach { row ->
+            val questionId = row.questionId ?: return@forEach
+            val question = questions.getOrPut(questionId) {
+                MutableQuestion(
+                    id = questionId,
+                    question = row.questionText ?: ""
+                )
+            }
+            val optionIndex = row.optionIndex
+            val optionText = row.optionText
+            if (optionIndex != null && optionText != null) {
+                question.options.add(IndexedOption(optionIndex, optionText))
+            }
+        }
+        val questionSnapshots = questions.values.map { question ->
+            val options = question.options.sortedBy { it.index }.map { it.text }
+            QuizStageQuestionSnapshot(
+                id = question.id,
+                question = question.question,
+                options = options
+            )
+        }
         val stageCount = quizStageRepository.count().toInt()
-        val progress = getOrCreateProgress(member)
-        val progressResponse = buildProgress(progress, stageNumber, stageCount, member)
-        return stage.toResponse(stageCount, progressResponse)
+        val progress = getOrCreateProgressByMemberId(memberId, member)
+        val progressSnapshot = buildProgressSnapshotByMemberId(progress, stageNumber, stageCount, memberId, member)
+        return QuizStageDetailResult(
+            stageNumber = firstRow.stageNumber,
+            title = firstRow.title,
+            questions = questionSnapshots,
+            stageCount = stageCount,
+            questionCount = questionSnapshots.size,
+            progress = progressSnapshot
+        )
     }
 
     @Transactional
-    fun getStageSummaries(memberUid: java.util.UUID): QuizStageMapResponse {
-        val member = getMember(memberUid)
+    fun getStageSummaries(memberUid: UUID): QuizStageSummaryMapResult {
+        val memberId = memberRepository.findIdByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
         val stageSummaries = quizStageRepository.findStageSummaries()
         val stageCount = stageSummaries.size
-        val progress = getOrCreateProgress(member)
-        val currentStage = progress.normalizeCurrentStage(stageCount)
-        val stageProgresses = quizStageProgressRepository.findAllByMember(member).associateBy { it.stageNumber }
-        val accuracySummaries = quizQuestionStatRepository.findStageAccuracySummaries(member).associateBy { it.stageNumber }
+        val progress = quizProgressRepository.findByMemberId(memberId)
+        val currentStage = progress?.normalizeCurrentStage(stageCount) ?: 1
+        val lastCompletedStage = progress?.lastCompletedStage ?: 0
+        val stageProgresses = quizStageProgressRepository.findAllByMemberId(memberId).associateBy { it.stageNumber }
+        val accuracySummaries = quizQuestionStatRepository.findStageAccuracySummariesByMemberId(memberId).associateBy { it.stageNumber }
         val summaries = stageSummaries.map { summary ->
             val stageNumber = summary.stageNumber
-            val isCompleted = progress.isStageCompleted(stageNumber)
-            val isCurrent = progress.isStageCurrent(stageNumber, currentStage)
-            val isLocked = progress.isStageLocked(stageNumber, currentStage)
+            val isCompleted = progress?.isStageCompleted(stageNumber) ?: false
+            val isCurrent = progress?.isStageCurrent(stageNumber, currentStage) ?: (stageNumber == currentStage)
+            val isLocked = progress?.isStageLocked(stageNumber, currentStage) ?: (stageNumber > currentStage)
             val status = when {
                 isCompleted -> "completed"
                 isCurrent -> "current"
@@ -66,7 +100,7 @@ class BibleQuizService(
             val accuracy = accuracySummary?.let { QuizQuestionStat.accuracyPercent(it.attempts, it.correct) }
             val reviewCount = stageProgress?.reviewCount ?: 0
             val hasInProgress = stageProgress?.currentQuestionIndex != null
-            QuizStageSummaryResponse(
+            QuizStageSummarySnapshot(
                 stageNumber = stageNumber,
                 questionCount = summary.questionCount.toInt(),
                 status = status,
@@ -79,16 +113,16 @@ class BibleQuizService(
                 hasInProgress = hasInProgress
             )
         }
-        return QuizStageMapResponse(
+        return QuizStageSummaryMapResult(
             currentStage = currentStage,
-            lastCompletedStage = progress.lastCompletedStage,
+            lastCompletedStage = lastCompletedStage,
             totalStages = stageCount,
             stages = summaries
         )
     }
 
     @Transactional
-    fun startStage(stageNumber: Int, request: QuizStageStartRequest, memberUid: java.util.UUID): QuizStageProgressResponse {
+    fun startStage(stageNumber: Int, request: QuizStageStartRequest, memberUid: UUID): QuizStageProgressSnapshot {
         val member = getMember(memberUid)
         val stageCount = quizStageRepository.count().toInt()
         quizStageValidator.requireStageNumberInRange(stageNumber, stageCount)
@@ -97,11 +131,11 @@ class BibleQuizService(
         val stage = getStageOrThrow(stageNumber)
         stageProgress.start(request.mode, request.reviewType)
         quizAttemptPolicy.getOrCreateStageAttempt(member, stage, request.mode, request.startedAt)
-        return buildProgress(progress, stageNumber, stageCount, member)
+        return buildProgressSnapshot(progress, stageNumber, stageCount, member)
     }
 
     @Transactional
-    fun submitAnswer(stageNumber: Int, request: QuizStageAnswerRequest, memberUid: java.util.UUID): QuizStageAnswerResponse {
+    fun submitAnswer(stageNumber: Int, request: QuizStageAnswerRequest, memberUid: UUID): QuizStageAnswerSnapshot {
         val member = getMember(memberUid)
         val question = quizQuestionRepository.findById(request.questionId)
             .orElseThrow { throwError(ErrorType.INVALID_PARAMETER, "questionId=${request.questionId}") }
@@ -119,7 +153,7 @@ class BibleQuizService(
         stageProgress.advance(request.questionIndex, isCorrect, request.mode)
         val score = stageProgress.currentScoreOrZero()
         val nextIndex = stageProgress.currentQuestionIndexOrZero()
-        return QuizStageAnswerResponse(
+        return QuizStageAnswerSnapshot(
             isCorrect = isCorrect,
             correctIndex = question.answerIndex,
             currentScore = score,
@@ -128,7 +162,7 @@ class BibleQuizService(
     }
 
     @Transactional
-    fun completeStage(stageNumber: Int, request: QuizStageCompleteRequest, memberUid: java.util.UUID): QuizStageCompleteResponse {
+    fun completeStage(stageNumber: Int, request: QuizStageCompleteRequest, memberUid: UUID): QuizStageCompleteSnapshot {
         val member = getMember(memberUid)
         val stageCount = quizStageRepository.count().toInt()
         quizStageValidator.requireStageNumberInRange(stageNumber, stageCount)
@@ -150,7 +184,7 @@ class BibleQuizService(
         stageProgress.resetInProgress()
         val accuracy = if (request.mode == QuizStageAttemptMode.REVIEW) null else getStageAccuracy(member, stageNumber)
         val nextStage = progress.currentStageNumber
-        return QuizStageCompleteResponse(
+        return QuizStageCompleteSnapshot(
             nextStage = nextStage,
             accuracy = accuracy,
             reviewCount = stageProgress.reviewCount,
@@ -159,7 +193,7 @@ class BibleQuizService(
     }
 
     @Transactional
-    fun resetProgress(memberUid: java.util.UUID) {
+    fun resetProgress(memberUid: UUID) {
         val member = getMember(memberUid)
         val progress = getOrCreateProgress(member)
         progress.reset()
@@ -174,11 +208,16 @@ class BibleQuizService(
             ?: quizProgressRepository.save(QuizProgress(member = member))
     }
 
+    private fun getOrCreateProgressByMemberId(memberId: Long, memberRef: Member): QuizProgress {
+        return quizProgressRepository.findByMemberId(memberId)
+            ?: quizProgressRepository.save(QuizProgress(member = memberRef))
+    }
+
     private fun getStageOrThrow(stageNumber: Int) =
         quizStageRepository.findByStageNumber(stageNumber)
             ?: throwError(ErrorType.QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
 
-    private fun getMember(memberUid: java.util.UUID): Member {
+    private fun getMember(memberUid: UUID): Member {
         return memberRepository.findByUid(memberUid)
             ?: throwError(ErrorType.MEMBER_NOT_FOUND, memberUid)
     }
@@ -188,12 +227,12 @@ class BibleQuizService(
             ?: quizStageProgressRepository.save(QuizStageProgress(member = member, stageNumber = stageNumber))
     }
 
-    private fun buildProgress(
+    private fun buildProgressSnapshot(
         progress: QuizProgress,
         stageNumber: Int,
         stageCount: Int,
         member: Member
-    ): QuizStageProgressResponse {
+    ): QuizStageProgressSnapshot {
         val currentStage = progress.normalizeCurrentStage(stageCount)
         val isCompleted = progress.isStageCompleted(stageNumber)
         val isReviewOnly = isCompleted
@@ -202,7 +241,39 @@ class BibleQuizService(
         val currentQuestionIndex = stageProgress.currentQuestionIndexOrZero()
         val currentScore = stageProgress.currentScoreOrZero()
         val hasInProgress = stageProgress.hasInProgress()
-        return QuizStageProgressResponse(
+        return QuizStageProgressSnapshot(
+            stageNumber = stageNumber,
+            currentStage = progress.currentStageNumber,
+            lastCompletedStage = progress.lastCompletedStage,
+            isCompleted = isCompleted,
+            isReviewOnly = isReviewOnly,
+            isBlocked = isBlocked,
+            currentQuestionIndex = currentQuestionIndex,
+            currentScore = currentScore,
+            currentReviewType = stageProgress.currentReviewType,
+            lastScore = stageProgress.lastScore,
+            reviewCount = stageProgress.reviewCount,
+            hasInProgress = hasInProgress
+        )
+    }
+
+    private fun buildProgressSnapshotByMemberId(
+        progress: QuizProgress,
+        stageNumber: Int,
+        stageCount: Int,
+        memberId: Long,
+        memberRef: Member
+    ): QuizStageProgressSnapshot {
+        val currentStage = progress.normalizeCurrentStage(stageCount)
+        val isCompleted = progress.isStageCompleted(stageNumber)
+        val isReviewOnly = isCompleted
+        val isBlocked = progress.isStageLocked(stageNumber, currentStage)
+        val stageProgress = quizStageProgressRepository.findByMemberIdAndStageNumber(memberId, stageNumber)
+            ?: quizStageProgressRepository.save(QuizStageProgress(member = memberRef, stageNumber = stageNumber))
+        val currentQuestionIndex = stageProgress.currentQuestionIndexOrZero()
+        val currentScore = stageProgress.currentScoreOrZero()
+        val hasInProgress = stageProgress.hasInProgress()
+        return QuizStageProgressSnapshot(
             stageNumber = stageNumber,
             currentStage = progress.currentStageNumber,
             lastCompletedStage = progress.lastCompletedStage,
@@ -227,3 +298,14 @@ class BibleQuizService(
     }
 
 }
+
+private data class IndexedOption(
+    val index: Int,
+    val text: String
+)
+
+private data class MutableQuestion(
+    val id: Long,
+    val question: String,
+    val options: MutableList<IndexedOption> = mutableListOf()
+)

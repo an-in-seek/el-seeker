@@ -22,6 +22,24 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 
     @Query(
         """
+            SELECT
+                stage.stageNumber AS stageNumber,
+                stage.title AS title,
+                question.id AS questionId,
+                question.questionText AS questionText,
+                option.optionIndex AS optionIndex,
+                option.optionText AS optionText
+            FROM QuizStage stage
+            LEFT JOIN stage._questions question
+            LEFT JOIN question._options option
+            WHERE stage.stageNumber = :stageNumber
+            ORDER BY question.id, option.optionIndex
+        """
+    )
+    fun findStageDetailRows(stageNumber: Int): List<QuizStageDetailRowProjection>
+
+    @Query(
+        """
             SELECT stage.stageNumber AS stageNumber, COUNT(question) AS questionCount
             FROM QuizStage stage
             LEFT JOIN stage._questions question
@@ -35,4 +53,13 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 interface QuizStageSummaryProjection {
     val stageNumber: Int
     val questionCount: Long
+}
+
+interface QuizStageDetailRowProjection {
+    val stageNumber: Int
+    val title: String?
+    val questionId: Long?
+    val questionText: String?
+    val optionIndex: Int?
+    val optionText: String?
 }

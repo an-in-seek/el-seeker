@@ -2,6 +2,7 @@ package com.elseeker.game.domain.model
 
 import com.elseeker.game.domain.vo.QuizDifficulty
 import jakarta.persistence.*
+import org.hibernate.annotations.BatchSize
 
 @Entity
 @Table(
@@ -27,6 +28,7 @@ class QuizQuestion(
     val questionText: String,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @BatchSize(size = 100)
     @OrderBy("optionIndex ASC")
     private val _options: MutableList<QuizOption> = mutableListOf(),
 

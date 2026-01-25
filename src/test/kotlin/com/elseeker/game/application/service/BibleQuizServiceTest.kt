@@ -6,12 +6,7 @@ import com.elseeker.common.domain.ServiceError
 import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
-import com.elseeker.game.adapter.output.jpa.QuizProgressRepository
-import com.elseeker.game.adapter.output.jpa.QuizQuestionRepository
-import com.elseeker.game.adapter.output.jpa.QuizQuestionStatRepository
-import com.elseeker.game.adapter.output.jpa.QuizStageAttemptRepository
-import com.elseeker.game.adapter.output.jpa.QuizStageProgressRepository
-import com.elseeker.game.adapter.output.jpa.QuizStageRepository
+import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.domain.model.QuizOption
 import com.elseeker.game.domain.model.QuizQuestion
 import com.elseeker.game.domain.model.QuizStage
@@ -44,52 +39,6 @@ class BibleQuizServiceTest @Autowired constructor(
     fun seedStages() {
         stage1 = seedStage(1, 1)
         stage2 = seedStage(2, 1)
-    }
-
-    private fun seedStage(stageNumber: Int, questionCount: Int): QuizStage {
-        val stage = QuizStage(stageNumber = stageNumber, title = "Stage $stageNumber")
-        repeat(questionCount) { index ->
-            val question = QuizQuestion(
-                stage = stage,
-                questionText = "Question ${stageNumber}-${index + 1}",
-                answerIndex = 1
-            )
-            question.addOption(QuizOption(question = question, optionText = "A", optionIndex = 0))
-            question.addOption(QuizOption(question = question, optionText = "B", optionIndex = 1))
-            question.addOption(QuizOption(question = question, optionText = "C", optionIndex = 2))
-            stage.addQuestion(question)
-        }
-        quizStageRepository.save(stage)
-        return stage
-    }
-
-    private fun startStageRecord(stageNumber: Int) {
-        bibleQuizService.startStage(
-            stageNumber = stageNumber,
-            request = QuizStageStartRequest(
-                mode = QuizStageAttemptMode.RECORD,
-                reviewType = null,
-                startedAt = Instant.now()
-            ),
-            memberUid = member.uid
-        )
-    }
-
-    private fun startStageReview(stageNumber: Int) {
-        bibleQuizService.startStage(
-            stageNumber = stageNumber,
-            request = QuizStageStartRequest(
-                mode = QuizStageAttemptMode.REVIEW,
-                reviewType = "full",
-                startedAt = Instant.now()
-            ),
-            memberUid = member.uid
-        )
-    }
-
-    private fun firstQuestion(stage: QuizStage): QuizQuestion {
-        val questionId = stage.questions.first().id ?: return stage.questions.first()
-        return quizQuestionRepository.findById(questionId).orElseThrow()
     }
 
     @Nested
@@ -125,24 +74,24 @@ class BibleQuizServiceTest @Autowired constructor(
         }
 
         @Test
-        fun `review 모드는 매번 새로운 attempt를 생성한다`() {
+        fun `review 모드 재시작 시 진행 중 attempt를 재사용한다`() {
             // given
             repeat(2) { startStageReview(stage1.stageNumber) }
 
             // then
             val attempts = quizStageAttemptRepository.findAllByMember(member)
-                .filter { it.stageNumber == stage1.stageNumber && it.mode == QuizStageAttemptMode.REVIEW }
-            attempts.size shouldBe 2
+                .filter { it.stageNumber == stage1.stageNumber && it.mode == QuizStageAttemptMode.REVIEW && it.completedAt == null }
+            attempts.size shouldBe 1
         }
 
         @Test
-        fun `review 모드 시작 시 점수는 null로 유지된다`() {
+        fun `review 모드 시작 시 점수는 0으로 초기화된다`() {
             // when
             startStageReview(stage1.stageNumber)
 
             // then
             val stageProgress = quizStageProgressRepository.findByMemberAndStageNumber(member, stage1.stageNumber)!!
-            stageProgress.currentScore shouldBe null
+            stageProgress.currentScore shouldBe 0
         }
     }
 
@@ -355,5 +304,54 @@ class BibleQuizServiceTest @Autowired constructor(
             response.progress.isCompleted shouldBe true
             response.progress.isReviewOnly shouldBe true
         }
+    }
+
+
+    // ---------- private methods ----------
+
+    private fun seedStage(stageNumber: Int, questionCount: Int): QuizStage {
+        val stage = QuizStage(stageNumber = stageNumber, title = "Stage $stageNumber")
+        repeat(questionCount) { index ->
+            val question = QuizQuestion(
+                stage = stage,
+                questionText = "Question ${stageNumber}-${index + 1}",
+                answerIndex = 1
+            )
+            question.addOption(QuizOption(question = question, optionText = "A", optionIndex = 0))
+            question.addOption(QuizOption(question = question, optionText = "B", optionIndex = 1))
+            question.addOption(QuizOption(question = question, optionText = "C", optionIndex = 2))
+            stage.addQuestion(question)
+        }
+        quizStageRepository.save(stage)
+        return stage
+    }
+
+    private fun startStageRecord(stageNumber: Int) {
+        bibleQuizService.startStage(
+            stageNumber = stageNumber,
+            request = QuizStageStartRequest(
+                mode = QuizStageAttemptMode.RECORD,
+                reviewType = null,
+                startedAt = Instant.now()
+            ),
+            memberUid = member.uid
+        )
+    }
+
+    private fun startStageReview(stageNumber: Int) {
+        bibleQuizService.startStage(
+            stageNumber = stageNumber,
+            request = QuizStageStartRequest(
+                mode = QuizStageAttemptMode.REVIEW,
+                reviewType = "full",
+                startedAt = Instant.now()
+            ),
+            memberUid = member.uid
+        )
+    }
+
+    private fun firstQuestion(stage: QuizStage): QuizQuestion {
+        val questionId = stage.questions.first().id ?: return stage.questions.first()
+        return quizQuestionRepository.findById(questionId).orElseThrow()
     }
 }

@@ -1,6 +1,7 @@
 package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
+import com.elseeker.game.adapter.input.api.mapper.toResponse
 import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
@@ -23,15 +24,17 @@ class BibleQuizApi(
     override fun getStage(
         @PathVariable stageNumber: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageResponse {
-        return bibleQuizService.getStage(stageNumber, principal.memberUid)
+    ): ResponseEntity<QuizStageResponse> {
+        val response = bibleQuizService.getStage(stageNumber, principal.memberUid).toResponse()
+        return ResponseEntity.ok(response)
     }
 
     @GetMapping("/stages")
     override fun getStages(
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageMapResponse {
-        return bibleQuizService.getStageSummaries(principal.memberUid)
+    ): ResponseEntity<QuizStageMapResponse> {
+        val response = bibleQuizService.getStageSummaries(principal.memberUid).toResponse()
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/stages/{stageNumber}/start")
@@ -39,8 +42,9 @@ class BibleQuizApi(
         @PathVariable stageNumber: Int,
         @Valid @RequestBody request: QuizStageStartRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageProgressResponse {
-        return bibleQuizService.startStage(stageNumber, request, principal.memberUid)
+    ): ResponseEntity<QuizStageProgressResponse> {
+        val response = bibleQuizService.startStage(stageNumber, request, principal.memberUid).toResponse()
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/stages/{stageNumber}/answer")
@@ -48,8 +52,9 @@ class BibleQuizApi(
         @PathVariable stageNumber: Int,
         @Valid @RequestBody request: QuizStageAnswerRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageAnswerResponse {
-        return bibleQuizService.submitAnswer(stageNumber, request, principal.memberUid)
+    ): ResponseEntity<QuizStageAnswerResponse> {
+        val response = bibleQuizService.submitAnswer(stageNumber, request, principal.memberUid).toResponse()
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/stages/{stageNumber}/complete")
@@ -57,8 +62,9 @@ class BibleQuizApi(
         @PathVariable stageNumber: Int,
         @Valid @RequestBody request: QuizStageCompleteRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageCompleteResponse {
-        return bibleQuizService.completeStage(stageNumber, request, principal.memberUid)
+    ): ResponseEntity<QuizStageCompleteResponse> {
+        val response = bibleQuizService.completeStage(stageNumber, request, principal.memberUid).toResponse()
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/progress/reset")

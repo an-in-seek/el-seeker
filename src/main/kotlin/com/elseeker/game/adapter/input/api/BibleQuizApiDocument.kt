@@ -19,12 +19,12 @@ interface BibleQuizApiDocument {
         @Parameter(description = "스테이지 번호", example = "1")
         stageNumber: Int,
         principal: JwtPrincipal
-    ): QuizStageResponse
+    ): ResponseEntity<QuizStageResponse>
 
     @Operation(summary = "Get stage summaries")
     fun getStages(
         principal: JwtPrincipal
-    ): QuizStageMapResponse
+    ): ResponseEntity<QuizStageMapResponse>
 
     @Operation(summary = "Start stage")
     fun startStage(
@@ -32,7 +32,7 @@ interface BibleQuizApiDocument {
         stageNumber: Int,
         @Valid request: QuizStageStartRequest,
         principal: JwtPrincipal
-    ): QuizStageProgressResponse
+    ): ResponseEntity<QuizStageProgressResponse>
 
     @Operation(summary = "Submit answer")
     fun submitAnswer(
@@ -40,7 +40,7 @@ interface BibleQuizApiDocument {
         stageNumber: Int,
         @Valid request: QuizStageAnswerRequest,
         principal: JwtPrincipal
-    ): QuizStageAnswerResponse
+    ): ResponseEntity<QuizStageAnswerResponse>
 
     @Operation(summary = "Complete stage")
     fun completeStage(
@@ -48,7 +48,7 @@ interface BibleQuizApiDocument {
         stageNumber: Int,
         @Valid request: QuizStageCompleteRequest,
         principal: JwtPrincipal
-    ): QuizStageCompleteResponse
+    ): ResponseEntity<QuizStageCompleteResponse>
 
     @Operation(summary = "Reset progress")
     fun resetProgress(

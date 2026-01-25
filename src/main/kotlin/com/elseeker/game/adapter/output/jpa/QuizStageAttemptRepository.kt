@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface QuizStageAttemptRepository : JpaRepository<QuizStageAttempt, Long> {
     fun findAllByMember(member: Member): List<QuizStageAttempt>
+    fun deleteAllByMember(member: Member)
     fun findTopByMemberAndStageNumberAndModeAndCompletedAtIsNullOrderByStartedAtDesc(
         member: Member,
         stageNumber: Int,

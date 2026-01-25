@@ -25,6 +25,19 @@ interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
 
     @Query(
         """
+            SELECT q.stage.stageNumber AS stageNumber,
+                   SUM(stat.attempts) AS attempts,
+                   SUM(stat.correct) AS correct
+            FROM QuizQuestionStat stat
+            JOIN stat.question q
+            WHERE stat.member.id = :memberId
+            GROUP BY q.stage.stageNumber
+        """
+    )
+    fun findStageAccuracySummariesByMemberId(memberId: Long): List<QuizStageAccuracyProjection>
+
+    @Query(
+        """
             SELECT stat
             FROM QuizQuestionStat stat
             JOIN stat.question q

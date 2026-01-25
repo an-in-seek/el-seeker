@@ -53,12 +53,11 @@ class QuizStageProgress(
     fun start(mode: QuizStageAttemptMode, reviewType: String?) {
         if (mode == QuizStageAttemptMode.REVIEW) {
             currentReviewType = reviewType ?: "full"
-            currentScore = null
         } else {
             currentReviewType = null
-            if (currentScore == null) {
-                currentScore = 0
-            }
+        }
+        if (currentScore == null) {
+            currentScore = 0
         }
         if (currentQuestionIndex == null) {
             currentQuestionIndex = 0
@@ -67,7 +66,6 @@ class QuizStageProgress(
 
     fun advance(questionIndex: Int, isCorrect: Boolean, mode: QuizStageAttemptMode) {
         currentQuestionIndex = questionIndex + 1
-        if (mode == QuizStageAttemptMode.REVIEW) return
         val score = currentScore ?: 0
         currentScore = score + if (isCorrect) 1 else 0
     }
