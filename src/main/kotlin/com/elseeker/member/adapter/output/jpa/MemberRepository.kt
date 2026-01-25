@@ -12,6 +12,15 @@ interface MemberRepository : JpaRepository<Member, Long> {
 
     @Query(
         """
+        SELECT member.id
+        FROM Member member
+        WHERE member.uid = :uid
+        """
+    )
+    fun findIdByUid(@Param("uid") uid: UUID): Long?
+
+    @Query(
+        """
         SELECT member
         FROM Member member
         LEFT JOIN FETCH member.oauthAccounts

@@ -43,7 +43,7 @@ class Member(
     var memberRole: MemberRole = MemberRole.USER,
 ) : BaseTimeEntity() {
 
-    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val oauthAccounts: MutableSet<MemberOAuthAccount> = mutableSetOf()
 
     companion object {

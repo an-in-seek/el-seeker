@@ -5,7 +5,9 @@ import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.QuizProgressRepository
+import com.elseeker.game.adapter.output.jpa.QuizQuestionAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizQuestionStatRepository
+import com.elseeker.game.adapter.output.jpa.QuizStageAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizStageProgressRepository
 import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
 import com.elseeker.member.adapter.output.jpa.MemberRepository
@@ -24,6 +26,8 @@ class MemberService(
     private val bibleMemoRepository: BibleMemoRepository,
     private val bibleTypingSessionRepository: BibleTypingSessionRepository,
     private val quizProgressRepository: QuizProgressRepository,
+    private val quizStageAttemptRepository: QuizStageAttemptRepository,
+    private val quizQuestionAttemptRepository: QuizQuestionAttemptRepository,
     private val quizStageProgressRepository: QuizStageProgressRepository,
     private val quizQuestionStatRepository: QuizQuestionStatRepository,
     private val memberWithdrawalAuditRepository: MemberWithdrawalAuditRepository,
@@ -58,6 +62,8 @@ class MemberService(
         )
         bibleMemoRepository.deleteAllByMember(member)
         bibleTypingSessionRepository.deleteAllByMember(member)
+        quizQuestionAttemptRepository.deleteAllByMember(member)
+        quizStageAttemptRepository.deleteAllByMember(member)
         quizQuestionStatRepository.deleteAllByMember(member)
         quizStageProgressRepository.deleteAllByMember(member)
         quizProgressRepository.deleteAllByMember(member)
