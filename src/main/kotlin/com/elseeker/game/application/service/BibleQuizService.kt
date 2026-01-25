@@ -66,9 +66,7 @@ class BibleQuizService(
         val progressSnapshot = buildProgressSnapshotByMemberId(progress, stageNumber, stageCount, memberId, member)
         return QuizStageDetailResult(
             stageNumber = firstRow.stageNumber,
-            title = firstRow.title,
             questions = questionSnapshots,
-            stageCount = stageCount,
             questionCount = questionSnapshots.size,
             progress = progressSnapshot
         )

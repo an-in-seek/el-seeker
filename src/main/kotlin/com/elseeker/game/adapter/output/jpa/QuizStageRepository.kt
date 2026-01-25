@@ -24,7 +24,6 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
         """
             SELECT
                 stage.stageNumber AS stageNumber,
-                stage.title AS title,
                 question.id AS questionId,
                 question.questionText AS questionText,
                 option.optionIndex AS optionIndex,
@@ -57,7 +56,6 @@ interface QuizStageSummaryProjection {
 
 interface QuizStageDetailRowProjection {
     val stageNumber: Int
-    val title: String?
     val questionId: Long?
     val questionText: String?
     val optionIndex: Int?

@@ -5,11 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class QuizStageResponse(
     @field:Schema(description = "스테이지 번호", example = "1")
     val stageNumber: Int,
-    @field:Schema(description = "스테이지 제목", example = "창세기 퀴즈", nullable = true)
-    val title: String?,
     val questions: List<QuizQuestionResponse>,
-    @field:Schema(description = "전체 스테이지 수", example = "10")
-    val stageCount: Int,
     @field:Schema(description = "문제 수", example = "10")
     val questionCount: Int,
     val progress: QuizStageProgressResponse

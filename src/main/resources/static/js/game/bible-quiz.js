@@ -159,6 +159,7 @@ const App = {
     state: {
         stage: 0,
         questions: [],
+        questionCount: 0,
         index: 0,
         score: 0,
         answered: false,
@@ -186,6 +187,7 @@ const App = {
         }
 
         App.state.stage = data.stageNumber;
+        App.state.questionCount = data.questionCount ?? 0;
         App.state.cachedStageData = {stage: data.stageNumber, data};
 
         const progress = data.progress;
@@ -338,7 +340,7 @@ const App = {
             App.state.cachedStageData = {stage: App.state.stage, data};
         }
 
-        const totalCount = data.questions.length;
+        const totalCount = data.questionCount ?? data.questions.length;
         DomHelper.setElementText(quizReviewFullButton, `복습 (${totalCount}문제)`);
 
         quizReviewFullButton.setAttribute("aria-busy", "false");
@@ -363,6 +365,8 @@ const App = {
         if (!App.state.cachedStageData) {
             App.state.cachedStageData = {stage: App.state.stage, data};
         }
+
+        App.state.questionCount = data.questionCount ?? data.questions.length;
 
         let reviewedQuestions = App.state.mode === "review"
             ? App.applyReviewQuestions(data.questions)
@@ -541,7 +545,8 @@ const App = {
         DomHelper.toggleVisibility(quizPanel, false);
         DomHelper.toggleVisibility(quizComplete, true);
 
-        DomHelper.setElementText(quizScore, `점수 ${score} / ${questions.length}`);
+        const totalCount = App.state.questionCount || questions.length;
+        DomHelper.setElementText(quizScore, `점수 ${score} / ${totalCount}`);
         DomHelper.toggleVisibility(quizSummary, true);
         DomHelper.toggleVisibility(summaryAccuracyStat, mode !== "review");
 

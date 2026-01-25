@@ -2,9 +2,7 @@ package com.elseeker.game.application.dto
 
 data class QuizStageDetailResult(
     val stageNumber: Int,
-    val title: String?,
     val questions: List<QuizStageQuestionSnapshot>,
-    val stageCount: Int,
     val questionCount: Int,
     val progress: QuizStageProgressSnapshot
 )

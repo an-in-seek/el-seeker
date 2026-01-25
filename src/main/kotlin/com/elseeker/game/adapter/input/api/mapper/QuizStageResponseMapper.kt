@@ -1,20 +1,12 @@
 package com.elseeker.game.adapter.input.api.mapper
 
 import com.elseeker.game.adapter.input.api.response.*
-import com.elseeker.game.application.dto.QuizStageAnswerSnapshot
-import com.elseeker.game.application.dto.QuizStageCompleteSnapshot
-import com.elseeker.game.application.dto.QuizStageDetailResult
-import com.elseeker.game.application.dto.QuizStageProgressSnapshot
-import com.elseeker.game.application.dto.QuizStageQuestionSnapshot
-import com.elseeker.game.application.dto.QuizStageSummaryMapResult
-import com.elseeker.game.application.dto.QuizStageSummarySnapshot
+import com.elseeker.game.application.dto.*
 
 fun QuizStageDetailResult.toResponse(): QuizStageResponse {
     return QuizStageResponse(
         stageNumber = stageNumber,
-        title = title,
         questions = questions.map { it.toResponse() },
-        stageCount = stageCount,
         questionCount = questionCount,
         progress = progress.toResponse()
     )
