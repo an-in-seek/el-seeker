@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository
 @Repository
 interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 
+    fun existsByStageNumber(stageNumber: Int): Boolean
+
     @Query(
         """
             SELECT DISTINCT stage
             FROM QuizStage stage
-            LEFT JOIN FETCH stage.questions question
-            LEFT JOIN FETCH question.options
+            LEFT JOIN FETCH stage._questions question
             WHERE stage.stageNumber = :stageNumber
         """
     )
@@ -23,7 +24,7 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
         """
             SELECT stage.stageNumber AS stageNumber, COUNT(question) AS questionCount
             FROM QuizStage stage
-            LEFT JOIN stage.questions question
+            LEFT JOIN stage._questions question
             GROUP BY stage.id, stage.stageNumber
             ORDER BY stage.stageNumber
         """

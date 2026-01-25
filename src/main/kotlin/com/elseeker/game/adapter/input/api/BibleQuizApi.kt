@@ -4,69 +4,68 @@ import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
-import com.elseeker.game.adapter.input.api.response.QuizStageAnswerResponse
-import com.elseeker.game.adapter.input.api.response.QuizStageCompleteResponse
-import com.elseeker.game.adapter.input.api.response.QuizStageContextResponse
-import com.elseeker.game.adapter.input.api.response.QuizStageMapResponse
-import com.elseeker.game.adapter.input.api.response.QuizStageResponse
-import com.elseeker.game.application.service.QuizStageService
+import com.elseeker.game.adapter.input.api.response.*
+import com.elseeker.game.application.service.BibleQuizService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/game/bible-quiz")
-class QuizStageApi(
-    private val quizStageService: QuizStageService
-) {
+class BibleQuizApi(
+    private val bibleQuizService: BibleQuizService
+) : BibleQuizApiDocument {
 
     @GetMapping("/stages/{stageNumber}")
-    fun getStage(
+    override fun getStage(
         @PathVariable stageNumber: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
     ): QuizStageResponse {
-        return quizStageService.getStage(stageNumber, principal.memberUid)
+        return bibleQuizService.getStage(stageNumber, principal.memberUid)
     }
 
     @GetMapping("/stages")
-    fun getStages(
+    override fun getStages(
         @AuthenticationPrincipal principal: JwtPrincipal
     ): QuizStageMapResponse {
-        return quizStageService.getStageSummaries(principal.memberUid)
+        return bibleQuizService.getStageSummaries(principal.memberUid)
     }
 
     @PostMapping("/stages/{stageNumber}/start")
-    fun startStage(
+    override fun startStage(
         @PathVariable stageNumber: Int,
-        @RequestBody request: QuizStageStartRequest,
+        @Valid @RequestBody request: QuizStageStartRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): QuizStageContextResponse {
-        return quizStageService.startStage(stageNumber, request, principal.memberUid)
+    ): QuizStageProgressResponse {
+        return bibleQuizService.startStage(stageNumber, request, principal.memberUid)
     }
 
     @PostMapping("/stages/{stageNumber}/answer")
-    fun submitAnswer(
+    override fun submitAnswer(
         @PathVariable stageNumber: Int,
-        @RequestBody request: QuizStageAnswerRequest,
+        @Valid @RequestBody request: QuizStageAnswerRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
     ): QuizStageAnswerResponse {
-        return quizStageService.submitAnswer(stageNumber, request, principal.memberUid)
+        return bibleQuizService.submitAnswer(stageNumber, request, principal.memberUid)
     }
 
     @PostMapping("/stages/{stageNumber}/complete")
-    fun completeStage(
+    override fun completeStage(
         @PathVariable stageNumber: Int,
-        @RequestBody request: QuizStageCompleteRequest,
+        @Valid @RequestBody request: QuizStageCompleteRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
     ): QuizStageCompleteResponse {
-        return quizStageService.completeStage(stageNumber, request, principal.memberUid)
+        return bibleQuizService.completeStage(stageNumber, request, principal.memberUid)
     }
 
     @PostMapping("/progress/reset")
-    fun resetProgress(
+    override fun resetProgress(
         @AuthenticationPrincipal principal: JwtPrincipal
     ): ResponseEntity<Void> {
-        quizStageService.resetProgress(principal.memberUid)
+        bibleQuizService.resetProgress(principal.memberUid)
         return ResponseEntity.noContent().build()
     }
 }

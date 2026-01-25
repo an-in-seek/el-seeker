@@ -3,6 +3,7 @@ package com.elseeker.game.domain.model
 import com.elseeker.common.domain.BaseTimeEntity
 import com.elseeker.member.domain.model.Member
 import jakarta.persistence.*
+import kotlin.math.roundToInt
 
 @Entity
 @Table(
@@ -39,4 +40,11 @@ class QuizQuestionStat(
 
     @Column(nullable = false)
     var correct: Int = 0
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+    companion object {
+        fun accuracyPercent(attempts: Long, correct: Long): Int? {
+            if (attempts <= 0) return null
+            return ((correct.toDouble() / attempts.toDouble()) * 100).roundToInt()
+        }
+    }
+}

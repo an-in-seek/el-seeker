@@ -30,7 +30,14 @@ class QuizStage(
     @Column
     val title: String? = null,
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stage")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stage", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")
-    val questions: MutableSet<QuizQuestion> = mutableSetOf()
-)
+    private val _questions: MutableList<QuizQuestion> = mutableListOf()
+) {
+    val questions: List<QuizQuestion>
+        get() = _questions.toList()
+
+    fun addQuestion(question: QuizQuestion) {
+        _questions.add(question)
+    }
+}

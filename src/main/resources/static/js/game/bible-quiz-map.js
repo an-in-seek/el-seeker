@@ -38,11 +38,7 @@ const UI_CLASSES = {
 /**
  * Generates the properties needed to render a stage card.
  */
-const getStageCardProps = ({stage, questionCount, status, score}) => {
-    const isCompleted = status === "completed";
-    const isActive = status === "active";
-    const isLocked = status === "locked";
-
+const getStageCardProps = ({stageNumber, questionCount, isCompleted, isCurrent, isLocked, lastScore}) => {
     let label = "잠김";
     let meta = "진행 전";
     let route = null;
@@ -51,18 +47,18 @@ const getStageCardProps = ({stage, questionCount, status, score}) => {
     if (isCompleted) {
         cssClasses.push(UI_CLASSES.STATE.COMPLETED);
         label = "완료";
-        if (score !== null && questionCount > 0) {
-            const percent = questionCount > 0 ? Math.round((score / questionCount) * 100) : 0;
-            meta = `점수 ${score} / ${questionCount} (${percent}%)`;
+        if (lastScore !== null && questionCount > 0) {
+            const percent = questionCount > 0 ? Math.round((lastScore / questionCount) * 100) : 0;
+            meta = `점수 ${lastScore} / ${questionCount} (${percent}%)`;
         } else {
             meta = "완료";
         }
-        route = `/web/game/bible-quiz?stage=${stage}`;
-    } else if (isActive) {
+        route = `/web/game/bible-quiz?stage=${stageNumber}`;
+    } else if (isCurrent) {
         cssClasses.push(UI_CLASSES.STATE.CURRENT);
         label = "현재";
         meta = "진행 가능";
-        route = `/web/game/bible-quiz?stage=${stage}`;
+        route = `/web/game/bible-quiz?stage=${stageNumber}`;
     } else {
         cssClasses.push(UI_CLASSES.STATE.LOCKED);
     }
@@ -78,7 +74,7 @@ const getStageCardProps = ({stage, questionCount, status, score}) => {
         route,
         isClickable,
         cssClasses: cssClasses.join(" "),
-        statusIcon: isCompleted ? "✓" : (isActive ? "▶︎" : null)
+        statusIcon: isCompleted ? "✓" : (isCurrent ? "▶︎" : null)
     };
 };
 
@@ -191,19 +187,29 @@ const DomHelper = {
     },
 
     createCardElement: (summary) => {
-        const {stage, questionCount, status, score} = summary;
-
-        const props = getStageCardProps({
-            stage,
+        const {
+            stageNumber,
             questionCount,
             status,
-            score
+            isCompleted,
+            isCurrent,
+            isLocked,
+            lastScore
+        } = summary;
+
+        const props = getStageCardProps({
+            stageNumber,
+            questionCount,
+            isCompleted,
+            isCurrent,
+            isLocked,
+            lastScore
         });
 
         const statusBadgeClass = [
             UI_CLASSES.STATUS_BADGE,
-            status === "completed" ? UI_CLASSES.STATE.COMPLETED : "",
-            status === "active" ? UI_CLASSES.STATE.CURRENT : ""
+            isCompleted ? UI_CLASSES.STATE.COMPLETED : "",
+            isCurrent ? UI_CLASSES.STATE.CURRENT : ""
         ].join(" ").trim();
 
         const button = document.createElement("button");
@@ -211,14 +217,14 @@ const DomHelper = {
         button.className = props.cssClasses;
         button.disabled = !props.isClickable;
         if (props.route) button.dataset.route = props.route;
-        if (status === "active") button.setAttribute("aria-current", "step");
+        if (isCurrent) button.setAttribute("aria-current", "step");
 
         const header = document.createElement("div");
         header.className = "stage-card-header";
 
         const number = document.createElement("span");
         number.className = "stage-number";
-        number.textContent = `${stage} 스테이지`;
+        number.textContent = `${stageNumber} 스테이지`;
 
         const badge = document.createElement("span");
         badge.className = statusBadgeClass;

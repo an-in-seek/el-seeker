@@ -43,7 +43,7 @@ const ApiService = {
             const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.START}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({mode, reviewType}),
+                body: JSON.stringify({mode: mode.toUpperCase(), reviewType, startedAt: new Date().toISOString()}),
                 credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
@@ -57,7 +57,7 @@ const ApiService = {
             const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.ANSWER}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload),
+                body: JSON.stringify({...payload, mode: payload.mode.toUpperCase(), answeredAt: new Date().toISOString()}),
                 credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
@@ -71,7 +71,7 @@ const ApiService = {
             const response = await fetchWithAuthRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.STAGES}/${stageNumber}${API_CONFIG.ENDPOINTS.COMPLETE}`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload),
+                body: JSON.stringify({...payload, mode: payload.mode.toUpperCase(), completedAt: new Date().toISOString()}),
                 credentials: "same-origin"
             });
             return response.ok ? await response.json() : null;
@@ -185,22 +185,22 @@ const App = {
             return;
         }
 
-        App.state.stage = data.stage;
-        App.state.cachedStageData = {stage: data.stage, data};
+        App.state.stage = data.stageNumber;
+        App.state.cachedStageData = {stage: data.stageNumber, data};
 
-        const context = data.context;
+        const progress = data.progress;
 
-        App.updateHeroLead(context);
+        App.updateHeroLead(progress);
 
-        const hasInProgressQuiz = context.hasInProgress;
+        const hasInProgressQuiz = progress.hasInProgress;
 
-        if (context.isBlocked) {
+        if (progress.isBlocked) {
             App.showAccessBlocked();
-        } else if (context.isReviewOnly && !hasInProgressQuiz) {
+        } else if (progress.isReviewOnly && !hasInProgressQuiz) {
             App.showReviewSelection();
         } else {
-            const mode = context.isReviewOnly ? "review" : "record";
-            App.startQuiz(mode, context.reviewType);
+            const mode = progress.isReviewOnly ? "review" : "record";
+            App.startQuiz(mode, progress.currentReviewType);
         }
 
         App.bindEvents();
@@ -218,14 +218,14 @@ const App = {
         }
     },
 
-    updateHeroLead: (context) => {
+    updateHeroLead: (progress) => {
         const {quizHeroLead, quizTitle} = App.elements;
         if (quizTitle) {
-            DomHelper.setElementText(quizTitle, `STAGE ${context.activeStage}`);
+            DomHelper.setElementText(quizTitle, `STAGE ${progress.stageNumber}`);
         }
         if (!quizHeroLead) return;
 
-        if (context.isBlocked) {
+        if (progress.isBlocked) {
             DomHelper.setElementText(quizHeroLead, "아직 진행할 수 없는 스테이지입니다.");
             quizHeroLead.classList.remove(UI_CLASSES.HIDDEN);
         } else {
@@ -288,9 +288,9 @@ const App = {
             DomHelper.setElementText(quizHeroLead, "");
         }
 
-        const startContext = await ApiService.startStage(App.state.stage, mode, App.state.reviewType);
-        if (startContext && App.state.cachedStageData) {
-            App.state.cachedStageData.data.context = startContext;
+        const startProgress = await ApiService.startStage(App.state.stage, mode, App.state.reviewType);
+        if (startProgress && App.state.cachedStageData) {
+            App.state.cachedStageData.data.progress = startProgress;
         }
 
         App.loadStageData();
@@ -357,15 +357,15 @@ const App = {
             reviewedQuestions = data.questions;
         }
 
-        const context = data.context || {};
+        const progress = data.progress || {};
         App.state.questions = reviewedQuestions;
-        const rawIndex = Number.isInteger(context.currentQuestionIndex) ? context.currentQuestionIndex : 0;
+        const rawIndex = Number.isInteger(progress.currentQuestionIndex) ? progress.currentQuestionIndex : 0;
         App.state.index = Math.min(Math.max(rawIndex, 0), reviewedQuestions.length - 1);
         App.state.score = App.state.mode !== "review"
-            ? (Number.isInteger(context.currentScore) ? context.currentScore : 0)
+            ? (Number.isInteger(progress.currentScore) ? progress.currentScore : 0)
             : 0;
-        if (App.state.mode === "review" && context.reviewType) {
-            App.state.reviewType = context.reviewType;
+        if (App.state.mode === "review" && progress.currentReviewType) {
+            App.state.reviewType = progress.currentReviewType;
         }
         App.state.answered = false;
         App.state.selectedIndex = null;

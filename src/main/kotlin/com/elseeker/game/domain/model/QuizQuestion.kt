@@ -26,9 +26,9 @@ class QuizQuestion(
     @Column(name = "question_text", nullable = false, length = 500)
     val questionText: String,
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("optionIndex ASC")
-    val options: MutableSet<QuizOption> = mutableSetOf(),
+    private val _options: MutableList<QuizOption> = mutableListOf(),
 
     @Column(name = "answer_index", nullable = false)
     val answerIndex: Int,
@@ -36,4 +36,11 @@ class QuizQuestion(
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty")
     val difficulty: QuizDifficulty? = null
-)
+) {
+    val options: List<QuizOption>
+        get() = _options.toList()
+
+    fun addOption(option: QuizOption) {
+        _options.add(option)
+    }
+}

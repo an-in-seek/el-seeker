@@ -1,6 +1,7 @@
 package com.elseeker.game.domain.model
 
 import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import com.elseeker.member.domain.model.Member
 import jakarta.persistence.*
 
@@ -47,4 +48,47 @@ class QuizStageProgress(
 
     @Column(name = "current_review_type", length = 20)
     var currentReviewType: String? = null
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+
+    fun start(mode: QuizStageAttemptMode, reviewType: String?) {
+        if (mode == QuizStageAttemptMode.REVIEW) {
+            currentReviewType = reviewType ?: "full"
+            currentScore = null
+        } else {
+            currentReviewType = null
+            if (currentScore == null) {
+                currentScore = 0
+            }
+        }
+        if (currentQuestionIndex == null) {
+            currentQuestionIndex = 0
+        }
+    }
+
+    fun advance(questionIndex: Int, isCorrect: Boolean, mode: QuizStageAttemptMode) {
+        currentQuestionIndex = questionIndex + 1
+        if (mode == QuizStageAttemptMode.REVIEW) return
+        val score = currentScore ?: 0
+        currentScore = score + if (isCorrect) 1 else 0
+    }
+
+    fun increaseReviewCount() {
+        reviewCount += 1
+    }
+
+    fun recordLastScore(score: Int) {
+        lastScore = score
+    }
+
+    fun resetInProgress() {
+        currentQuestionIndex = null
+        currentScore = null
+        currentReviewType = null
+    }
+
+    fun currentQuestionIndexOrZero(): Int = currentQuestionIndex ?: 0
+
+    fun currentScoreOrZero(): Int = currentScore ?: 0
+
+    fun hasInProgress(): Boolean = currentQuestionIndex != null
+}
