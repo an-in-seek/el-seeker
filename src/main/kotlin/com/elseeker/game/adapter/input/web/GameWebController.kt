@@ -38,6 +38,12 @@ class GameWebController {
         return "game/bible-ox-quiz"
     }
 
+    @GetMapping("/bible-ox-quiz/map")
+    fun showOxQuizMap(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/game/bible-ox-quiz/map")?.let { return it }
+        return "game/bible-ox-quiz-map"
+    }
+
     private fun redirectIfUnauthenticated(authentication: Authentication?, returnUrl: String): String? {
         if (authentication == null || !authentication.isAuthenticated || authentication.principal == "anonymousUser") {
             return "redirect:/web/auth/login?returnUrl=$returnUrl"

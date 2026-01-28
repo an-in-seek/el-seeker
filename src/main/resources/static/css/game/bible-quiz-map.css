@@ -2,10 +2,6 @@
     margin: 0 auto 1.5rem auto;
 }
 
-.quiz-map-card .card-body {
-    padding-top: 0;
-}
-
 .quiz-map-summary {
     display: flex;
     align-items: center;
