@@ -32,4 +32,18 @@ interface BibleOxQuestionRepository : JpaRepository<BibleOxQuestion, Long> {
         """
     )
     fun countByStageNumber(@Param("stageNumber") stageNumber: Int): Long
+
+    @Query(
+        """
+        SELECT q.stage.stageNumber AS stageNumber, COUNT(q) AS totalQuestions
+        FROM BibleOxQuestion q
+        GROUP BY q.stage.stageNumber
+        """
+    )
+    fun countByStageNumberGroup(): List<StageQuestionCountRow>
+}
+
+interface StageQuestionCountRow {
+    val stageNumber: Int
+    val totalQuestions: Long
 }

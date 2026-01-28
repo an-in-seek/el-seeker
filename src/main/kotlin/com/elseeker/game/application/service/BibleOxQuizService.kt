@@ -30,8 +30,8 @@ class BibleOxQuizService(
     @Transactional(readOnly = true)
     fun getStage(stageNumber: Int, memberUid: UUID): BibleOxStageResponse {
         validateStageNumber(stageNumber)
-        val stage = getStageOrThrow(stageNumber)
-        val questions = questionRepository.findByStageNumber(stageNumber)
+        val stage = getStageOrThrowWithQuestions(stageNumber)
+        val questions = stage.questions
 
         return BibleOxStageResponse(
             stageNumber = stage.stageNumber,
@@ -51,16 +51,18 @@ class BibleOxQuizService(
     fun getStages(memberUid: UUID): BibleOxStageListResponse {
         val member = getMember(memberUid)
         val stages = stageRepository.findAllOrderByStageNumber()
-        val completedStageNumbers = stageAttemptRepository.findCompletedStageNumbers(member)
+        val bestScoreMap = stageAttemptRepository.findBestScoresByMember(member)
+            .associate { it.stageNumber to it.bestScore }
+        val inProgressStageNumbers = stageAttemptRepository.findInProgressStageNumbers(member).toSet()
+        val questionCountMap = questionRepository.countByStageNumberGroup()
+            .associate { it.stageNumber to it.totalQuestions.toInt() }
 
         val stageSummaries = stages.map { stage ->
             val stageNumber = stage.stageNumber
-            val isCompleted = stageNumber in completedStageNumbers
-            val bestScore = if (isCompleted) {
-                stageAttemptRepository.findBestScore(member, stageNumber)
-            } else null
-            val hasInProgress = stageAttemptRepository.findInProgressAttempt(member, stageNumber) != null
-            val questionCount = questionRepository.countByStageNumber(stageNumber).toInt()
+            val bestScore = bestScoreMap[stageNumber]
+            val isCompleted = bestScore != null
+            val hasInProgress = stageNumber in inProgressStageNumbers
+            val questionCount = questionCountMap[stageNumber] ?: 0
 
             BibleOxStageSummaryResponse(
                 stageNumber = stageNumber,
@@ -198,8 +200,8 @@ class BibleOxQuizService(
         }
     }
 
-    private fun getStageOrThrow(stageNumber: Int): BibleOxStage {
-        return stageRepository.findByStageNumber(stageNumber)
+    private fun getStageOrThrowWithQuestions(stageNumber: Int): BibleOxStage {
+        return stageRepository.findByStageNumberWithQuestions(stageNumber)
             ?: throwError(ErrorType.OX_QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
     }
 

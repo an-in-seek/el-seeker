@@ -29,6 +29,7 @@ class BibleOxQuiz {
         // 공통
         this.loadingEl = document.getElementById("oxQuizLoading");
         this.errorEl = document.getElementById("oxQuizError");
+        this.backButton = document.getElementById("topNavBackButton");
 
         // 스테이지 목록
         this.stageListSection = document.getElementById("oxStageList");
@@ -59,6 +60,7 @@ class BibleOxQuiz {
     }
 
     async init() {
+        this.initNav();
         // 인증 체크
         await checkAuthStatus({
             onAuthenticated: () => this.onAuthenticated(),
@@ -68,6 +70,30 @@ class BibleOxQuiz {
             },
             onError: () => {
                 this.showError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            }
+        });
+    }
+
+    initNav() {
+        if (!this.backButton) {
+            return;
+        }
+        const pageTitleLabel = document.getElementById("pageTitleLabel");
+        if (pageTitleLabel) {
+            pageTitleLabel.textContent = "성경 O/X 퀴즈";
+            pageTitleLabel.classList.remove("d-none");
+        }
+        this.backButton.classList.remove("d-none");
+        this.backButton.addEventListener("click", () => {
+            const isSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
+            if (isSameOrigin) {
+                window.history.back();
+                return;
+            }
+            if (this.stageNumber) {
+                window.location.href = "/web/game/bible-ox-quiz";
+            } else {
+                window.location.href = "/web/game";
             }
         });
     }

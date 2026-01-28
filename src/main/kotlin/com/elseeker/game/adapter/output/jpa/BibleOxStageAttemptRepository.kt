@@ -63,25 +63,23 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
 
     @Query(
         """
-        SELECT DISTINCT a.stageNumber FROM BibleOxStageAttempt a
+        SELECT a.stageNumber AS stageNumber, MAX(a.score) AS bestScore
+        FROM BibleOxStageAttempt a
         WHERE a.member = :member
         AND a.completedAt IS NOT NULL
+        GROUP BY a.stageNumber
         """
     )
-    fun findCompletedStageNumbers(@Param("member") member: Member): Set<Int>
+    fun findBestScoresByMember(@Param("member") member: Member): List<StageBestScoreRow>
 
     @Query(
         """
-        SELECT MAX(a.score) FROM BibleOxStageAttempt a
+        SELECT a.stageNumber FROM BibleOxStageAttempt a
         WHERE a.member = :member
-        AND a.stageNumber = :stageNumber
-        AND a.completedAt IS NOT NULL
+        AND a.completedAt IS NULL
         """
     )
-    fun findBestScore(
-        @Param("member") member: Member,
-        @Param("stageNumber") stageNumber: Int
-    ): Int?
+    fun findInProgressStageNumbers(@Param("member") member: Member): List<Int>
 
     @Modifying
     @Query(
@@ -91,4 +89,9 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
         """
     )
     fun deleteAllByMemberId(@Param("memberId") memberId: Long)
+}
+
+interface StageBestScoreRow {
+    val stageNumber: Int
+    val bestScore: Int?
 }
