@@ -7,7 +7,7 @@ import kotlin.math.roundToInt
 
 @Entity
 @Table(
-    name = "quiz_question_stat",
+    name = "quiz_member_question_stat",
     uniqueConstraints = [
         UniqueConstraint(
             name = "UK_quiz_question_stat_member_question",
@@ -16,16 +16,12 @@ import kotlin.math.roundToInt
     ],
     indexes = [
         Index(
-            name = "IDX_quiz_question_stat_member",
-            columnList = "member_id"
-        ),
-        Index(
             name = "IDX_quiz_question_stat_question",
             columnList = "question_id"
         )
     ]
 )
-class QuizQuestionStat(
+class QuizMemberQuestionStat(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

@@ -4,7 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(
-    name = "quiz_option",
+    name = "quiz_question_option",
     indexes = [
         Index(
             name = "IDX_quiz_option_question",
@@ -12,7 +12,7 @@ import jakarta.persistence.*
         )
     ]
 )
-class QuizOption(
+class QuizQuestionOption(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

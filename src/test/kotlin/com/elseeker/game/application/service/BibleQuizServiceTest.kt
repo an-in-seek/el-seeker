@@ -7,8 +7,8 @@ import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
 import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
 import com.elseeker.game.adapter.output.jpa.*
-import com.elseeker.game.domain.model.QuizOption
 import com.elseeker.game.domain.model.QuizQuestion
+import com.elseeker.game.domain.model.QuizQuestionOption
 import com.elseeker.game.domain.model.QuizStage
 import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import io.kotest.assertions.throwables.shouldThrow
@@ -317,9 +317,9 @@ class BibleQuizServiceTest @Autowired constructor(
                 questionText = "Question ${stageNumber}-${index + 1}",
                 answerIndex = 1
             )
-            question.addOption(QuizOption(question = question, optionText = "A", optionIndex = 0))
-            question.addOption(QuizOption(question = question, optionText = "B", optionIndex = 1))
-            question.addOption(QuizOption(question = question, optionText = "C", optionIndex = 2))
+            question.addOption(QuizQuestionOption(question = question, optionText = "A", optionIndex = 0))
+            question.addOption(QuizQuestionOption(question = question, optionText = "B", optionIndex = 1))
+            question.addOption(QuizQuestionOption(question = question, optionText = "C", optionIndex = 2))
             stage.addQuestion(question)
         }
         quizStageRepository.save(stage)

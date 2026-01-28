@@ -6,11 +6,7 @@ import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.output.jpa.QuizQuestionAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizQuestionStatRepository
 import com.elseeker.game.adapter.output.jpa.QuizStageAttemptRepository
-import com.elseeker.game.domain.model.QuizQuestion
-import com.elseeker.game.domain.model.QuizQuestionAttempt
-import com.elseeker.game.domain.model.QuizQuestionStat
-import com.elseeker.game.domain.model.QuizStage
-import com.elseeker.game.domain.model.QuizStageAttempt
+import com.elseeker.game.domain.model.*
 import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Component
@@ -36,7 +32,7 @@ class QuizAttemptPolicy(
                 mode
             )
         if (existingAttempt == null) {
-            val attempt = QuizStageAttempt(
+            val attempt = QuizMemberStageAttempt(
                 member = member,
                 stageNumber = stage.stageNumber,
                 mode = mode,
@@ -52,13 +48,13 @@ class QuizAttemptPolicy(
         member: Member,
         stageNumber: Int,
         mode: QuizStageAttemptMode
-    ): QuizStageAttempt =
+    ): QuizMemberStageAttempt =
         quizStageAttemptRepository
             .findTopByMemberAndStageNumberAndModeAndCompletedAtIsNullOrderByStartedAtDesc(member, stageNumber, mode)
             ?: throwError(ErrorType.INVALID_PARAMETER, "stageAttempt not started")
 
     fun recordQuestionAttempt(
-        attempt: QuizStageAttempt,
+        attempt: QuizMemberStageAttempt,
         question: QuizQuestion,
         request: QuizStageAnswerRequest,
         isCorrect: Boolean
@@ -67,7 +63,7 @@ class QuizAttemptPolicy(
         if (existingAttempt != null) {
             throwError(ErrorType.INVALID_PARAMETER, "question already answered")
         }
-        val questionAttempt = QuizQuestionAttempt(
+        val questionAttempt = QuizMemberQuestionAttempt(
             stageAttempt = attempt,
             question = question,
             selectedIndex = request.selectedIndex,
@@ -79,7 +75,7 @@ class QuizAttemptPolicy(
     }
 
     fun completeAttempt(
-        attempt: QuizStageAttempt,
+        attempt: QuizMemberStageAttempt,
         score: Int,
         questionCount: Int,
         completedAt: Instant?
@@ -96,7 +92,7 @@ class QuizAttemptPolicy(
     ) {
         if (mode == QuizStageAttemptMode.REVIEW) return
         val stat = quizQuestionStatRepository.findByMemberAndQuestionId(member, question.id!!)
-            ?: QuizQuestionStat(member = member, question = question)
+            ?: QuizMemberQuestionStat(member = member, question = question)
 
         stat.attempts += 1
         if (isCorrect) stat.correct += 1

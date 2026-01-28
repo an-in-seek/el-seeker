@@ -1,13 +1,13 @@
 package com.elseeker.game.adapter.output.jpa
 
-import com.elseeker.game.domain.model.QuizQuestionStat
+import com.elseeker.game.domain.model.QuizMemberQuestionStat
 import com.elseeker.member.domain.model.Member
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
+interface QuizQuestionStatRepository : JpaRepository<QuizMemberQuestionStat, Long> {
     fun deleteAllByMember(member: Member)
-    fun findByMemberAndQuestionId(member: Member, questionId: Long): QuizQuestionStat?
+    fun findByMemberAndQuestionId(member: Member, questionId: Long): QuizMemberQuestionStat?
     fun existsByMemberAndQuestionId(member: Member, questionId: Long): Boolean
 
     @Query(
@@ -15,7 +15,7 @@ interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
             SELECT q.stage.stageNumber AS stageNumber,
                    SUM(stat.attempts) AS attempts,
                    SUM(stat.correct) AS correct
-            FROM QuizQuestionStat stat
+            FROM QuizMemberQuestionStat stat
             JOIN stat.question q
             WHERE stat.member = :member
             GROUP BY q.stage.stageNumber
@@ -28,7 +28,7 @@ interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
             SELECT q.stage.stageNumber AS stageNumber,
                    SUM(stat.attempts) AS attempts,
                    SUM(stat.correct) AS correct
-            FROM QuizQuestionStat stat
+            FROM QuizMemberQuestionStat stat
             JOIN stat.question q
             WHERE stat.member.id = :memberId
             GROUP BY q.stage.stageNumber
@@ -39,13 +39,13 @@ interface QuizQuestionStatRepository : JpaRepository<QuizQuestionStat, Long> {
     @Query(
         """
             SELECT stat
-            FROM QuizQuestionStat stat
+            FROM QuizMemberQuestionStat stat
             JOIN stat.question q
             WHERE stat.member = :member
               AND q.stage.stageNumber = :stageNumber
         """
     )
-    fun findByMemberAndStageNumber(member: Member, stageNumber: Int): List<QuizQuestionStat>
+    fun findByMemberAndStageNumber(member: Member, stageNumber: Int): List<QuizMemberQuestionStat>
 }
 
 interface QuizStageAccuracyProjection {

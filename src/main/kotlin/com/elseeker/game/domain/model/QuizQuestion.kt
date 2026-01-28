@@ -30,7 +30,7 @@ class QuizQuestion(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = [CascadeType.ALL], orphanRemoval = true)
     @BatchSize(size = 100)
     @OrderBy("optionIndex ASC")
-    private val _options: MutableList<QuizOption> = mutableListOf(),
+    private val _options: MutableList<QuizQuestionOption> = mutableListOf(),
 
     @Column(name = "answer_index", nullable = false)
     val answerIndex: Int,
@@ -39,10 +39,10 @@ class QuizQuestion(
     @Column(name = "difficulty")
     val difficulty: QuizDifficulty? = null
 ) {
-    val options: List<QuizOption>
+    val options: List<QuizQuestionOption>
         get() = _options.toList()
 
-    fun addOption(option: QuizOption) {
+    fun addOption(option: QuizQuestionOption) {
         _options.add(option)
     }
 }

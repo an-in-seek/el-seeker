@@ -9,8 +9,8 @@ import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.application.component.QuizAttemptPolicy
 import com.elseeker.game.application.component.QuizStageValidator
 import com.elseeker.game.application.dto.*
-import com.elseeker.game.domain.model.QuizProgress
-import com.elseeker.game.domain.model.QuizQuestionStat
+import com.elseeker.game.domain.model.QuizMemberProgress
+import com.elseeker.game.domain.model.QuizMemberQuestionStat
 import com.elseeker.game.domain.model.QuizStageProgress
 import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import com.elseeker.member.adapter.output.jpa.MemberRepository
@@ -95,7 +95,7 @@ class BibleQuizService(
             val stageProgress = stageProgresses[stageNumber]
             val lastScore = if (isCompleted) stageProgress?.lastScore else null
             val accuracySummary = accuracySummaries[stageNumber]
-            val accuracy = accuracySummary?.let { QuizQuestionStat.accuracyPercent(it.attempts, it.correct) }
+            val accuracy = accuracySummary?.let { QuizMemberQuestionStat.accuracyPercent(it.attempts, it.correct) }
             val reviewCount = stageProgress?.reviewCount ?: 0
             val hasInProgress = stageProgress?.currentQuestionIndex != null
             QuizStageSummarySnapshot(
@@ -201,14 +201,14 @@ class BibleQuizService(
         }
     }
 
-    private fun getOrCreateProgress(member: Member): QuizProgress {
+    private fun getOrCreateProgress(member: Member): QuizMemberProgress {
         return quizProgressRepository.findByMember(member)
-            ?: quizProgressRepository.save(QuizProgress(member = member))
+            ?: quizProgressRepository.save(QuizMemberProgress(member = member))
     }
 
-    private fun getOrCreateProgressByMemberId(memberId: Long, memberRef: Member): QuizProgress {
+    private fun getOrCreateProgressByMemberId(memberId: Long, memberRef: Member): QuizMemberProgress {
         return quizProgressRepository.findByMemberId(memberId)
-            ?: quizProgressRepository.save(QuizProgress(member = memberRef))
+            ?: quizProgressRepository.save(QuizMemberProgress(member = memberRef))
     }
 
     private fun getStageOrThrow(stageNumber: Int) =
@@ -226,7 +226,7 @@ class BibleQuizService(
     }
 
     private fun buildProgressSnapshot(
-        progress: QuizProgress,
+        progress: QuizMemberProgress,
         stageNumber: Int,
         stageCount: Int,
         member: Member
@@ -256,7 +256,7 @@ class BibleQuizService(
     }
 
     private fun buildProgressSnapshotByMemberId(
-        progress: QuizProgress,
+        progress: QuizMemberProgress,
         stageNumber: Int,
         stageCount: Int,
         memberId: Long,
@@ -292,7 +292,7 @@ class BibleQuizService(
         if (stats.isEmpty()) return null
         val attempts = stats.sumOf { it.attempts }
         val correct = stats.sumOf { it.correct }
-        return QuizQuestionStat.accuracyPercent(attempts.toLong(), correct.toLong())
+        return QuizMemberQuestionStat.accuracyPercent(attempts.toLong(), correct.toLong())
     }
 
 }

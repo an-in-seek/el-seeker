@@ -5,11 +5,7 @@ import com.elseeker.game.adapter.output.jpa.QuizQuestionAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizQuestionRepository
 import com.elseeker.game.adapter.output.jpa.QuizStageAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizStageRepository
-import com.elseeker.game.domain.model.QuizOption
-import com.elseeker.game.domain.model.QuizQuestion
-import com.elseeker.game.domain.model.QuizQuestionAttempt
-import com.elseeker.game.domain.model.QuizStage
-import com.elseeker.game.domain.model.QuizStageAttempt
+import com.elseeker.game.domain.model.*
 import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -39,7 +35,7 @@ class MemberServiceTest @Autowired constructor(
             answerIndex = 0
         )
         question.addOption(
-            QuizOption(
+            QuizQuestionOption(
                 question = question,
                 optionText = "테스트 보기",
                 optionIndex = 0
@@ -48,7 +44,7 @@ class MemberServiceTest @Autowired constructor(
         val savedQuestion = quizQuestionRepository.save(question)
 
         val stageAttempt = quizStageAttemptRepository.save(
-            QuizStageAttempt(
+            QuizMemberStageAttempt(
                 member = member,
                 stageNumber = stage.stageNumber,
                 mode = QuizStageAttemptMode.RECORD,
@@ -59,7 +55,7 @@ class MemberServiceTest @Autowired constructor(
         )
 
         quizQuestionAttemptRepository.save(
-            QuizQuestionAttempt(
+            QuizMemberQuestionAttempt(
                 stageAttempt = stageAttempt,
                 question = savedQuestion,
                 selectedIndex = 0,

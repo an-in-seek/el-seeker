@@ -6,7 +6,7 @@ import java.time.Instant
 
 @Entity
 @Table(
-    name = "quiz_question_attempt",
+    name = "quiz_member_question_attempt",
     uniqueConstraints = [
         UniqueConstraint(
             name = "UK_quiz_question_attempt_stage_question",
@@ -14,15 +14,14 @@ import java.time.Instant
         )
     ],
     indexes = [
-        Index(name = "IDX_quiz_question_attempt_stage_attempt", columnList = "stage_attempt_id"),
         Index(name = "IDX_quiz_question_attempt_question", columnList = "question_id")
     ]
 )
-class QuizQuestionAttempt(
+class QuizMemberQuestionAttempt(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_attempt_id", nullable = false)
-    val stageAttempt: QuizStageAttempt,
+    val stageAttempt: QuizMemberStageAttempt,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)

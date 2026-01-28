@@ -8,21 +8,15 @@ import kotlin.math.min
 
 @Entity
 @Table(
-    name = "quiz_progress",
+    name = "quiz_member_progress",
     uniqueConstraints = [
         UniqueConstraint(
             name = "UK_quiz_progress_member",
             columnNames = ["member_id"]
         )
-    ],
-    indexes = [
-        Index(
-            name = "IDX_quiz_progress_member",
-            columnList = "member_id"
-        )
     ]
 )
-class QuizProgress(
+class QuizMemberProgress(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
