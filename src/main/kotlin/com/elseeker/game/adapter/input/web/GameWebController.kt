@@ -33,7 +33,7 @@ class GameWebController {
     }
 
     @GetMapping("/bible-ox-quiz")
-    fun showBibleOxQuiz(authentication: Authentication?): String {
+    fun showOxQuiz(authentication: Authentication?): String {
         redirectIfUnauthenticated(authentication, "/web/game/bible-ox-quiz")?.let { return it }
         return "game/bible-ox-quiz"
     }

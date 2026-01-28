@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.Instant
 
 @Schema(description = "O/X 퀴즈 스테이지 상세 응답")
-data class BibleOxStageResponse(
+data class OxStageResponse(
     @field:Schema(description = "스테이지 번호", example = "1")
     val stageNumber: Int,
 
@@ -15,11 +15,11 @@ data class BibleOxStageResponse(
     val totalQuestions: Int,
 
     @field:Schema(description = "문제 목록")
-    val questions: List<BibleOxQuestionResponse>
+    val questions: List<OxQuestionResponse>
 )
 
 @Schema(description = "O/X 퀴즈 문제 응답 (정답 미포함)")
-data class BibleOxQuestionResponse(
+data class OxQuestionResponse(
     @field:Schema(description = "문제 ID", example = "101")
     val questionId: Long,
 
@@ -31,7 +31,7 @@ data class BibleOxQuestionResponse(
 )
 
 @Schema(description = "O/X 퀴즈 스테이지 시작 응답")
-data class BibleOxStageStartResponse(
+data class OxStageStartResponse(
     @field:Schema(description = "스테이지 시도 ID", example = "1")
     val stageAttemptId: Long,
 
@@ -49,7 +49,7 @@ data class BibleOxStageStartResponse(
 )
 
 @Schema(description = "O/X 퀴즈 답안 제출 응답")
-data class BibleOxAnswerResponse(
+data class OxAnswerResponse(
     @field:Schema(description = "정답 여부", example = "true")
     val isCorrect: Boolean,
 
@@ -64,7 +64,7 @@ data class BibleOxAnswerResponse(
 )
 
 @Schema(description = "O/X 퀴즈 스테이지 완료 응답")
-data class BibleOxCompleteResponse(
+data class OxCompleteResponse(
     @field:Schema(description = "최종 점수", example = "8")
     val score: Int,
 
@@ -79,16 +79,16 @@ data class BibleOxCompleteResponse(
 )
 
 @Schema(description = "O/X 퀴즈 스테이지 목록 응답")
-data class BibleOxStageListResponse(
+data class OxStageListResponse(
     @field:Schema(description = "총 스테이지 수", example = "66")
     val totalStages: Int,
 
     @field:Schema(description = "스테이지 요약 목록")
-    val stages: List<BibleOxStageSummaryResponse>
+    val stages: List<OxStageSummaryResponse>
 )
 
 @Schema(description = "O/X 퀴즈 스테이지 요약 응답")
-data class BibleOxStageSummaryResponse(
+data class OxStageSummaryResponse(
     @field:Schema(description = "스테이지 번호", example = "1")
     val stageNumber: Int,
 

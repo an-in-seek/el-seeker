@@ -1,5 +1,5 @@
 -- Bible O/X Quiz Stages (66권)
-INSERT INTO bible_ox_stage (id, stage_number, book_name, created_at, updated_at)
+INSERT INTO ox_quiz_stage (id, stage_number, book_name, created_at, updated_at)
 VALUES
 -- 구약 (39권)
 (1, 1, '창세기', NOW(), NOW()),
@@ -71,7 +71,7 @@ VALUES
 (66, 66, '요한계시록', NOW(), NOW());
 
 -- Stage 1: 창세기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (1, 1, '하나님이 천지를 창조하신 기간은 6일이다.', true, 'EASY', 1, NOW(), NOW()),
 (2, 1, '아담은 에덴동산에서 창조되었다.', true, 'EASY', 2, NOW(), NOW()),
@@ -85,7 +85,7 @@ VALUES
 (10, 1, '요셉은 애굽의 총리가 되었다.', true, 'EASY', 10, NOW(), NOW());
 
 -- Stage 2: 출애굽기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (11, 2, '모세는 바로의 궁에서 자랐다.', true, 'EASY', 1, NOW(), NOW()),
 (12, 2, '모세는 불타는 떨기나무에서 하나님을 만났다.', true, 'EASY', 2, NOW(), NOW()),
@@ -99,7 +99,7 @@ VALUES
 (20, 2, '성막 건축 지시는 출애굽기에 기록되어 있다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 3: 레위기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (21, 3, '레위기는 제사와 율법에 관한 책이다.', true, 'EASY', 1, NOW(), NOW()),
 (22, 3, '번제는 제물 전체를 불에 태우는 제사이다.', true, 'NORMAL', 2, NOW(), NOW()),
@@ -113,7 +113,7 @@ VALUES
 (30, 3, '나병 환자의 정결 의식이 레위기에 기록되어 있다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 4: 민수기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (31, 4, '민수기는 이스라엘 백성의 인구 조사로 시작한다.', true, 'EASY', 1, NOW(), NOW()),
 (32, 4, '이스라엘 백성은 광야에서 40년을 방황했다.', true, 'EASY', 2, NOW(), NOW()),
@@ -127,7 +127,7 @@ VALUES
 (40, 4, '아론의 지팡이에서 포도가 열렸다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 5: 신명기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (41, 5, '신명기는 "두 번째 율법"이라는 뜻이다.', true, 'NORMAL', 1, NOW(), NOW()),
 (42, 5, '신명기는 모세의 마지막 설교를 담고 있다.', true, 'EASY', 2, NOW(), NOW()),
@@ -141,7 +141,7 @@ VALUES
 (50, 5, '여호수아가 모세의 후계자로 임명되었다.', true, 'EASY', 10, NOW(), NOW());
 
 -- Stage 6: 여호수아 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (51, 6, '여호수아는 모세의 후계자이다.', true, 'EASY', 1, NOW(), NOW()),
 (52, 6, '이스라엘 백성은 요단강을 배로 건넜다.', false, 'EASY', 2, NOW(), NOW()),
@@ -155,7 +155,7 @@ VALUES
 (60, 6, '여호수아서의 마지막 말씀은 "오직 여호와만 섬기라"이다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 7: 사사기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (61, 7, '사사기는 이스라엘에 왕이 없던 시대를 다룬다.', true, 'EASY', 1, NOW(), NOW()),
 (62, 7, '드보라는 이스라엘의 유일한 여자 사사였다.', true, 'NORMAL', 2, NOW(), NOW()),
@@ -169,7 +169,7 @@ VALUES
 (70, 7, '사사기에는 "각자 자기 소견에 옳은 대로 행하였다"는 표현이 나온다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 8: 룻기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (71, 8, '룻은 모압 여인이었다.', true, 'EASY', 1, NOW(), NOW()),
 (72, 8, '나오미는 룻의 시어머니이다.', true, 'EASY', 2, NOW(), NOW()),
@@ -183,7 +183,7 @@ VALUES
 (80, 8, '룻은 예수님의 족보에 포함되어 있다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 9: 사무엘상 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (81, 9, '사무엘은 한나의 아들이다.', true, 'EASY', 1, NOW(), NOW()),
 (82, 9, '사무엘은 성전에서 엘리 제사장에게 맡겨졌다.', true, 'EASY', 2, NOW(), NOW()),
@@ -197,7 +197,7 @@ VALUES
 (90, 9, '사울과 요나단은 블레셋과의 전투에서 죽었다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 10: 사무엘하 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (91, 10, '다윗은 예루살렘을 정복하여 수도로 삼았다.', true, 'EASY', 1, NOW(), NOW()),
 (92, 10, '다윗은 언약궤를 예루살렘으로 옮겼다.', true, 'EASY', 2, NOW(), NOW()),
@@ -211,7 +211,7 @@ VALUES
 (100, 10, '다윗은 이스라엘의 두 번째 왕이다.', true, 'EASY', 10, NOW(), NOW());
 
 -- Stage 11: 열왕기상 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (101, 11, '솔로몬은 다윗의 아들이다.', true, 'EASY', 1, NOW(), NOW()),
 (102, 11, '솔로몬은 하나님께 지혜를 구했다.', true, 'EASY', 2, NOW(), NOW()),
@@ -225,7 +225,7 @@ VALUES
 (110, 11, '이세벨은 아합의 아내로 바알 숭배를 퍼뜨렸다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 12: 열왕기하 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (111, 12, '엘리야는 불 수레를 타고 하늘로 올라갔다.', true, 'EASY', 1, NOW(), NOW()),
 (112, 12, '엘리사는 엘리야의 제자이다.', true, 'EASY', 2, NOW(), NOW()),
@@ -239,7 +239,7 @@ VALUES
 (120, 12, '엘리사가 죽은 후 그의 뼈에 닿은 시체가 살아났다.', true, 'HARD', 10, NOW(), NOW());
 
 -- Stage 13: 역대상 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (121, 13, '역대상은 아담의 족보로 시작한다.', true, 'NORMAL', 1, NOW(), NOW()),
 (122, 13, '역대상은 주로 다윗 왕의 이야기를 다룬다.', true, 'EASY', 2, NOW(), NOW()),
@@ -253,7 +253,7 @@ VALUES
 (130, 13, '다윗은 솔로몬에게 성전 건축 설계도를 전해주었다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 14: 역대하 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (131, 14, '솔로몬은 역대하에서 성전을 완공했다.', true, 'EASY', 1, NOW(), NOW()),
 (132, 14, '솔로몬의 성전 봉헌 기도는 역대하에 기록되어 있다.', true, 'NORMAL', 2, NOW(), NOW()),
@@ -267,7 +267,7 @@ VALUES
 (140, 14, '역대하는 북이스라엘 왕들의 역사를 주로 다룬다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 15: 에스라 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (141, 15, '에스라는 바벨론 포로 귀환 후의 이야기를 다룬다.', true, 'EASY', 1, NOW(), NOW()),
 (142, 15, '고레스 왕이 유대인의 귀환을 허락했다.', true, 'EASY', 2, NOW(), NOW()),
@@ -281,7 +281,7 @@ VALUES
 (150, 15, '에스라는 모세의 율법을 백성에게 읽어주었다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 16: 느헤미야 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (151, 16, '느헤미야는 페르시아 왕의 술 관원이었다.', true, 'NORMAL', 1, NOW(), NOW()),
 (152, 16, '느헤미야는 예루살렘 성벽을 재건했다.', true, 'EASY', 2, NOW(), NOW()),
@@ -295,7 +295,7 @@ VALUES
 (160, 16, '느헤미야서에는 하나님이라는 단어가 등장하지 않는다.', false, 'HARD', 10, NOW(), NOW());
 
 -- Stage 17: 에스더 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (161, 17, '에스더는 페르시아의 왕비가 되었다.', true, 'EASY', 1, NOW(), NOW()),
 (162, 17, '에스더는 유대인이었다.', true, 'EASY', 2, NOW(), NOW()),
@@ -309,7 +309,7 @@ VALUES
 (170, 17, '와스디 왕비가 폐위된 후 에스더가 왕비가 되었다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 18: 욥기 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (171, 18, '욥은 우스 땅에 살았다.', true, 'NORMAL', 1, NOW(), NOW()),
 (172, 18, '하나님은 사탄에게 욥을 시험하도록 허락하셨다.', true, 'EASY', 2, NOW(), NOW()),
@@ -323,7 +323,7 @@ VALUES
 (180, 18, '욥기는 지혜문학에 속한다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 19: 시편 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (181, 19, '시편은 150편으로 구성되어 있다.', true, 'EASY', 1, NOW(), NOW()),
 (182, 19, '시편의 대부분은 다윗이 기록했다.', true, 'EASY', 2, NOW(), NOW()),
@@ -337,7 +337,7 @@ VALUES
 (190, 19, '시편은 모두 다윗이 기록했다.', false, 'EASY', 10, NOW(), NOW());
 
 -- Stage 20: 잠언 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (191, 20, '잠언의 대부분은 솔로몬이 기록했다.', true, 'EASY', 1, NOW(), NOW()),
 (192, 20, '잠언은 지혜문학에 속한다.', true, 'EASY', 2, NOW(), NOW()),
@@ -351,7 +351,7 @@ VALUES
 (200, 20, '잠언은 모두 솔로몬이 기록했다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 21: 전도서 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (201, 21, '전도서의 저자는 솔로몬으로 추정된다.', true, 'EASY', 1, NOW(), NOW()),
 (202, 21, '"헛되고 헛되며 헛되고 헛되니 모든 것이 헛되도다"는 전도서의 말씀이다.', true, 'EASY', 2, NOW(), NOW()),
@@ -365,7 +365,7 @@ VALUES
 (210, 21, '전도서는 낙관적인 인생관을 주로 표현한다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 22: 아가 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (211, 22, '아가는 솔로몬의 아가라고도 불린다.', true, 'EASY', 1, NOW(), NOW()),
 (212, 22, '아가는 사랑의 노래를 담은 책이다.', true, 'EASY', 2, NOW(), NOW()),
@@ -379,7 +379,7 @@ VALUES
 (220, 22, '아가는 성경에서 가장 짧은 책이다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 23: 이사야 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (221, 23, '이사야는 대선지서에 속한다.', true, 'EASY', 1, NOW(), NOW()),
 (222, 23, '이사야는 66장으로 구성되어 있다.', true, 'NORMAL', 2, NOW(), NOW()),
@@ -393,7 +393,7 @@ VALUES
 (230, 23, '이사야는 메시아에 대한 예언이 가장 많은 선지서이다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 24: 예레미야 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (231, 24, '예레미야는 "눈물의 선지자"로 불린다.', true, 'EASY', 1, NOW(), NOW()),
 (232, 24, '예레미야는 대선지서에 속한다.', true, 'EASY', 2, NOW(), NOW()),
@@ -407,7 +407,7 @@ VALUES
 (240, 24, '예레미야는 북이스라엘의 선지자였다.', false, 'EASY', 10, NOW(), NOW());
 
 -- Stage 25: 예레미야애가 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (241, 25, '예레미야애가는 예루살렘의 멸망을 애도하는 책이다.', true, 'EASY', 1, NOW(), NOW()),
 (242, 25, '예레미야애가의 저자는 예레미야로 추정된다.', true, 'EASY', 2, NOW(), NOW()),
@@ -421,7 +421,7 @@ VALUES
 (250, 25, '예레미야애가는 대선지서에 속한다.', false, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 40: 마태복음 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (391, 40, '예수님은 베들레헴에서 태어나셨다.', true, 'EASY', 1, NOW(), NOW()),
 (392, 40, '동방박사는 12명이었다.', false, 'NORMAL', 2, NOW(), NOW()),
@@ -435,7 +435,7 @@ VALUES
 (400, 40, '대위임령은 마태복음의 마지막 장에 기록되어 있다.', true, 'NORMAL', 10, NOW(), NOW());
 
 -- Stage 43: 요한복음 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (421, 43, '요한복음은 "태초에 말씀이 계시니라"로 시작한다.', true, 'EASY', 1, NOW(), NOW()),
 (422, 43, '예수님의 첫 번째 이적은 물을 포도주로 바꾸신 것이다.', true, 'EASY', 2, NOW(), NOW()),
@@ -449,7 +449,7 @@ VALUES
 (430, 43, '요한복음 3:16은 성경에서 가장 유명한 구절 중 하나이다.', true, 'EASY', 10, NOW(), NOW());
 
 -- Stage 66: 요한계시록 (10문제)
-INSERT INTO bible_ox_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
+INSERT INTO ox_quiz_question (id, stage_id, question_text, correct_answer, difficulty, order_index, created_at, updated_at)
 VALUES
 (651, 66, '요한계시록은 성경의 마지막 책이다.', true, 'EASY', 1, NOW(), NOW()),
 (652, 66, '요한계시록은 밧모섬에서 기록되었다.', true, 'NORMAL', 2, NOW(), NOW()),

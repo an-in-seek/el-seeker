@@ -1,17 +1,17 @@
 package com.elseeker.game.adapter.output.jpa
 
-import com.elseeker.game.domain.model.BibleOxStageAttempt
+import com.elseeker.game.domain.model.OxMemberStageAttempt
 import com.elseeker.member.domain.model.Member
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Long> {
+interface OxMemberStageAttemptRepository : JpaRepository<OxMemberStageAttempt, Long> {
 
     @Query(
         """
-        SELECT a FROM BibleOxStageAttempt a
+        SELECT a FROM OxMemberStageAttempt a
         WHERE a.member = :member
         AND a.stageNumber = :stageNumber
         AND a.completedAt IS NULL
@@ -21,11 +21,11 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
     fun findInProgressAttempt(
         @Param("member") member: Member,
         @Param("stageNumber") stageNumber: Int
-    ): BibleOxStageAttempt?
+    ): OxMemberStageAttempt?
 
     @Query(
         """
-        SELECT a FROM BibleOxStageAttempt a
+        SELECT a FROM OxMemberStageAttempt a
         LEFT JOIN FETCH a._questionAttempts
         WHERE a.member = :member
         AND a.stageNumber = :stageNumber
@@ -36,11 +36,11 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
     fun findInProgressAttemptWithQuestions(
         @Param("member") member: Member,
         @Param("stageNumber") stageNumber: Int
-    ): BibleOxStageAttempt?
+    ): OxMemberStageAttempt?
 
     @Query(
         """
-        SELECT a FROM BibleOxStageAttempt a
+        SELECT a FROM OxMemberStageAttempt a
         WHERE a.member = :member
         AND a.stageNumber = :stageNumber
         ORDER BY a.completedAt DESC NULLS FIRST
@@ -49,22 +49,22 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
     fun findByMemberAndStageNumber(
         @Param("member") member: Member,
         @Param("stageNumber") stageNumber: Int
-    ): List<BibleOxStageAttempt>
+    ): List<OxMemberStageAttempt>
 
     @Query(
         """
-        SELECT a FROM BibleOxStageAttempt a
+        SELECT a FROM OxMemberStageAttempt a
         WHERE a.member = :member
         AND a.completedAt IS NOT NULL
         ORDER BY a.stageNumber ASC, a.completedAt DESC
         """
     )
-    fun findCompletedAttemptsByMember(@Param("member") member: Member): List<BibleOxStageAttempt>
+    fun findCompletedAttemptsByMember(@Param("member") member: Member): List<OxMemberStageAttempt>
 
     @Query(
         """
         SELECT a.stageNumber AS stageNumber, MAX(a.score) AS bestScore
-        FROM BibleOxStageAttempt a
+        FROM OxMemberStageAttempt a
         WHERE a.member = :member
         AND a.completedAt IS NOT NULL
         GROUP BY a.stageNumber
@@ -74,7 +74,7 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
 
     @Query(
         """
-        SELECT a.stageNumber FROM BibleOxStageAttempt a
+        SELECT a.stageNumber FROM OxMemberStageAttempt a
         WHERE a.member = :member
         AND a.completedAt IS NULL
         """
@@ -84,7 +84,7 @@ interface BibleOxStageAttemptRepository : JpaRepository<BibleOxStageAttempt, Lon
     @Modifying
     @Query(
         """
-        DELETE FROM BibleOxStageAttempt a
+        DELETE FROM OxMemberStageAttempt a
         WHERE a.member.id = :memberId
         """
     )

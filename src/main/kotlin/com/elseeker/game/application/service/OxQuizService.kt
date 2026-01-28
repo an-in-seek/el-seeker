@@ -2,15 +2,15 @@ package com.elseeker.game.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.request.BibleOxQuizAnswerRequest
+import com.elseeker.game.adapter.input.api.request.OxQuizAnswerRequest
 import com.elseeker.game.adapter.input.api.response.*
-import com.elseeker.game.adapter.output.jpa.BibleOxQuestionAttemptRepository
-import com.elseeker.game.adapter.output.jpa.BibleOxQuestionRepository
-import com.elseeker.game.adapter.output.jpa.BibleOxStageAttemptRepository
-import com.elseeker.game.adapter.output.jpa.BibleOxStageRepository
-import com.elseeker.game.domain.model.BibleOxQuestionAttempt
-import com.elseeker.game.domain.model.BibleOxStage
-import com.elseeker.game.domain.model.BibleOxStageAttempt
+import com.elseeker.game.adapter.output.jpa.OxMemberQuestionAttemptRepository
+import com.elseeker.game.adapter.output.jpa.OxQuestionRepository
+import com.elseeker.game.adapter.output.jpa.OxMemberStageAttemptRepository
+import com.elseeker.game.adapter.output.jpa.OxStageRepository
+import com.elseeker.game.domain.model.OxMemberQuestionAttempt
+import com.elseeker.game.domain.model.OxStage
+import com.elseeker.game.domain.model.OxMemberStageAttempt
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
@@ -19,26 +19,26 @@ import java.time.Instant
 import java.util.*
 
 @Service
-class BibleOxQuizService(
-    private val stageRepository: BibleOxStageRepository,
-    private val questionRepository: BibleOxQuestionRepository,
-    private val stageAttemptRepository: BibleOxStageAttemptRepository,
-    private val questionAttemptRepository: BibleOxQuestionAttemptRepository,
+class OxQuizService(
+    private val stageRepository: OxStageRepository,
+    private val questionRepository: OxQuestionRepository,
+    private val stageAttemptRepository: OxMemberStageAttemptRepository,
+    private val questionAttemptRepository: OxMemberQuestionAttemptRepository,
     private val memberRepository: MemberRepository
 ) {
 
     @Transactional(readOnly = true)
-    fun getStage(stageNumber: Int, memberUid: UUID): BibleOxStageResponse {
+    fun getStage(stageNumber: Int, memberUid: UUID): OxStageResponse {
         validateStageNumber(stageNumber)
         val stage = getStageOrThrowWithQuestions(stageNumber)
         val questions = stage.questions
 
-        return BibleOxStageResponse(
+        return OxStageResponse(
             stageNumber = stage.stageNumber,
             bookName = stage.bookName,
             totalQuestions = questions.size,
             questions = questions.map { q ->
-                BibleOxQuestionResponse(
+                OxQuestionResponse(
                     questionId = requireNotNull(q.id) { "Question ID is null" },
                     questionText = q.questionText,
                     orderIndex = q.orderIndex
@@ -48,7 +48,7 @@ class BibleOxQuizService(
     }
 
     @Transactional(readOnly = true)
-    fun getStages(memberUid: UUID): BibleOxStageListResponse {
+    fun getStages(memberUid: UUID): OxStageListResponse {
         val member = getMember(memberUid)
         val stages = stageRepository.findAllOrderByStageNumber()
         val bestScoreMap = stageAttemptRepository.findBestScoresByMember(member)
@@ -64,7 +64,7 @@ class BibleOxQuizService(
             val hasInProgress = stageNumber in inProgressStageNumbers
             val questionCount = questionCountMap[stageNumber] ?: 0
 
-            BibleOxStageSummaryResponse(
+            OxStageSummaryResponse(
                 stageNumber = stageNumber,
                 bookName = stage.bookName,
                 totalQuestions = questionCount,
@@ -74,21 +74,21 @@ class BibleOxQuizService(
             )
         }
 
-        return BibleOxStageListResponse(
+        return OxStageListResponse(
             totalStages = stages.size,
             stages = stageSummaries
         )
     }
 
     @Transactional
-    fun startStage(stageNumber: Int, memberUid: UUID): BibleOxStageStartResponse {
+    fun startStage(stageNumber: Int, memberUid: UUID): OxStageStartResponse {
         validateStageNumber(stageNumber)
         val member = getMember(memberUid)
 
         // 진행 중인 attempt가 있으면 재사용
         val existingAttempt = stageAttemptRepository.findInProgressAttemptWithQuestions(member, stageNumber)
         if (existingAttempt != null) {
-            return BibleOxStageStartResponse(
+            return OxStageStartResponse(
                 stageAttemptId = requireNotNull(existingAttempt.id) { "Attempt ID is null" },
                 stageNumber = existingAttempt.stageNumber,
                 startedAt = existingAttempt.startedAt,
@@ -99,14 +99,14 @@ class BibleOxQuizService(
 
         // 새 attempt 생성
         val now = Instant.now()
-        val newAttempt = BibleOxStageAttempt(
+        val newAttempt = OxMemberStageAttempt(
             member = member,
             stageNumber = stageNumber,
             startedAt = now
         )
         val savedAttempt = stageAttemptRepository.save(newAttempt)
 
-        return BibleOxStageStartResponse(
+        return OxStageStartResponse(
             stageAttemptId = requireNotNull(savedAttempt.id) { "Attempt ID is null" },
             stageNumber = savedAttempt.stageNumber,
             startedAt = savedAttempt.startedAt,
@@ -119,9 +119,9 @@ class BibleOxQuizService(
     fun submitAnswer(
         stageNumber: Int,
         questionId: Long,
-        request: BibleOxQuizAnswerRequest,
+        request: OxQuizAnswerRequest,
         memberUid: UUID
-    ): BibleOxAnswerResponse {
+    ): OxAnswerResponse {
         validateStageNumber(stageNumber)
         val member = getMember(memberUid)
 
@@ -148,7 +148,7 @@ class BibleOxQuizService(
         val now = Instant.now()
 
         // QuestionAttempt 저장
-        val questionAttempt = BibleOxQuestionAttempt(
+        val questionAttempt = OxMemberQuestionAttempt(
             stageAttempt = attempt,
             question = question,
             selectedAnswer = request.selectedAnswer,
@@ -158,7 +158,7 @@ class BibleOxQuizService(
         attempt.addQuestionAttempt(questionAttempt)
         questionAttemptRepository.save(questionAttempt)
 
-        return BibleOxAnswerResponse(
+        return OxAnswerResponse(
             isCorrect = isCorrect,
             correctAnswer = question.correctAnswer,
             currentScore = attempt.score,
@@ -167,7 +167,7 @@ class BibleOxQuizService(
     }
 
     @Transactional
-    fun completeStage(stageNumber: Int, memberUid: UUID): BibleOxCompleteResponse {
+    fun completeStage(stageNumber: Int, memberUid: UUID): OxCompleteResponse {
         validateStageNumber(stageNumber)
         val member = getMember(memberUid)
 
@@ -183,7 +183,7 @@ class BibleOxQuizService(
             (attempt.score * 100) / totalQuestions
         } else 0
 
-        return BibleOxCompleteResponse(
+        return OxCompleteResponse(
             score = attempt.score,
             totalQuestions = totalQuestions,
             accuracyPercent = accuracyPercent,
@@ -192,15 +192,15 @@ class BibleOxQuizService(
     }
 
     private fun validateStageNumber(stageNumber: Int) {
-        if (!BibleOxStage.isValidStageNumber(stageNumber)) {
+        if (!OxStage.isValidStageNumber(stageNumber)) {
             throwError(
                 ErrorType.INVALID_PARAMETER,
-                "stageNumber must be between ${BibleOxStage.MIN_STAGE} and ${BibleOxStage.MAX_STAGE}"
+                "stageNumber must be between ${OxStage.MIN_STAGE} and ${OxStage.MAX_STAGE}"
             )
         }
     }
 
-    private fun getStageOrThrowWithQuestions(stageNumber: Int): BibleOxStage {
+    private fun getStageOrThrowWithQuestions(stageNumber: Int): OxStage {
         return stageRepository.findByStageNumberWithQuestions(stageNumber)
             ?: throwError(ErrorType.OX_QUIZ_STAGE_NOT_FOUND, "stageNumber=$stageNumber")
     }

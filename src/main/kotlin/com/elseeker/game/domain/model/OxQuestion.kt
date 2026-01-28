@@ -6,25 +6,25 @@ import jakarta.persistence.*
 
 @Entity
 @Table(
-    name = "bible_ox_question",
+    name = "ox_quiz_question",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_bible_ox_question_stage_order",
+            name = "UK_ox_quiz_question_stage_order",
             columnNames = ["stage_id", "order_index"]
         )
     ],
     indexes = [
         Index(
-            name = "IDX_bible_ox_question_stage",
+            name = "IDX_ox_quiz_question_stage",
             columnList = "stage_id"
         )
     ]
 )
-class BibleOxQuestion(
+class OxQuestion(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_id", nullable = false)
-    val stage: BibleOxStage,
+    val stage: OxStage,
 
     @Column(name = "question_text", nullable = false, length = 500)
     val questionText: String,

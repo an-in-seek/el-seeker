@@ -1,9 +1,9 @@
 package com.elseeker.game.adapter.input.api
 
 import com.elseeker.common.security.jwt.JwtPrincipal
-import com.elseeker.game.adapter.input.api.request.BibleOxQuizAnswerRequest
+import com.elseeker.game.adapter.input.api.request.OxQuizAnswerRequest
 import com.elseeker.game.adapter.input.api.response.*
-import com.elseeker.game.application.service.BibleOxQuizService
+import com.elseeker.game.application.service.OxQuizService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.*
 @Validated
 @RestController
 @RequestMapping("/api/v1/game/bible-ox-quiz")
-class BibleOxQuizApi(
-    private val bibleOxQuizService: BibleOxQuizService
-) : BibleOxQuizApiDocument {
+class OxQuizApi(
+    private val oxQuizService: OxQuizService
+) : OxQuizApiDocument {
 
     @GetMapping("/stages")
     override fun getStages(
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<BibleOxStageListResponse> {
-        val response = bibleOxQuizService.getStages(principal.memberUid)
+    ): ResponseEntity<OxStageListResponse> {
+        val response = oxQuizService.getStages(principal.memberUid)
         return ResponseEntity.ok(response)
     }
 
@@ -29,8 +29,8 @@ class BibleOxQuizApi(
     override fun getStage(
         @PathVariable stageNumber: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<BibleOxStageResponse> {
-        val response = bibleOxQuizService.getStage(stageNumber, principal.memberUid)
+    ): ResponseEntity<OxStageResponse> {
+        val response = oxQuizService.getStage(stageNumber, principal.memberUid)
         return ResponseEntity.ok(response)
     }
 
@@ -38,8 +38,8 @@ class BibleOxQuizApi(
     override fun startStage(
         @PathVariable stageNumber: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<BibleOxStageStartResponse> {
-        val response = bibleOxQuizService.startStage(stageNumber, principal.memberUid)
+    ): ResponseEntity<OxStageStartResponse> {
+        val response = oxQuizService.startStage(stageNumber, principal.memberUid)
         return ResponseEntity.ok(response)
     }
 
@@ -47,10 +47,10 @@ class BibleOxQuizApi(
     override fun submitAnswer(
         @PathVariable stageNumber: Int,
         @PathVariable questionId: Long,
-        @Valid @RequestBody request: BibleOxQuizAnswerRequest,
+        @Valid @RequestBody request: OxQuizAnswerRequest,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<BibleOxAnswerResponse> {
-        val response = bibleOxQuizService.submitAnswer(stageNumber, questionId, request, principal.memberUid)
+    ): ResponseEntity<OxAnswerResponse> {
+        val response = oxQuizService.submitAnswer(stageNumber, questionId, request, principal.memberUid)
         return ResponseEntity.ok(response)
     }
 
@@ -58,8 +58,8 @@ class BibleOxQuizApi(
     override fun completeStage(
         @PathVariable stageNumber: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<BibleOxCompleteResponse> {
-        val response = bibleOxQuizService.completeStage(stageNumber, principal.memberUid)
+    ): ResponseEntity<OxCompleteResponse> {
+        val response = oxQuizService.completeStage(stageNumber, principal.memberUid)
         return ResponseEntity.ok(response)
     }
 }
