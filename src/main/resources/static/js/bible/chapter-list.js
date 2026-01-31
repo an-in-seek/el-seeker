@@ -232,26 +232,35 @@ const App = {
         if (!books || books.length === 0) {
             return;
         }
+        App._books = books;
+        App.updatePrevNextState();
+    },
+
+    updatePrevNextState: () => {
+        const books = App._books;
+        if (!books) {
+            return;
+        }
         const currentIndex = books.findIndex(book => book.bookOrder === App.state.bookOrder);
         if (App.elements.prevBtn) {
             App.elements.prevBtn.disabled = currentIndex <= 0;
-            App.elements.prevBtn.addEventListener("click", () => {
+            App.elements.prevBtn.onclick = () => {
                 if (currentIndex > 0) {
                     const prevBook = books[currentIndex - 1];
                     BookStore.saveCurrentBook(prevBook);
-                    App.navigateToBook(prevBook.bookOrder);
+                    App.navigateToBook(prevBook.bookOrder, prevBook.bookName);
                 }
-            });
+            };
         }
         if (App.elements.nextBtn) {
             App.elements.nextBtn.disabled = currentIndex >= books.length - 1;
-            App.elements.nextBtn.addEventListener("click", () => {
+            App.elements.nextBtn.onclick = () => {
                 if (currentIndex < books.length - 1) {
                     const nextBook = books[currentIndex + 1];
                     BookStore.saveCurrentBook(nextBook);
-                    App.navigateToBook(nextBook.bookOrder);
+                    App.navigateToBook(nextBook.bookOrder, nextBook.bookName);
                 }
-            });
+            };
         }
     },
 
@@ -315,12 +324,25 @@ const App = {
         }
     },
 
-    navigateToBook: bookOrder => {
+    navigateToBook: async (bookOrder, bookName) => {
         App.state.bookOrder = bookOrder;
         const targetUrl = new URL(ROUTES.CHAPTER_LIST, window.location.origin);
         targetUrl.searchParams.set("translationId", App.state.translationId);
         targetUrl.searchParams.set("bookOrder", App.state.bookOrder);
-        window.location.href = `${targetUrl.pathname}${targetUrl.search}`;
+        history.pushState({translationId: App.state.translationId, bookOrder}, "", `${targetUrl.pathname}${targetUrl.search}`);
+
+        if (bookName) {
+            App.updateHeader(TranslationStore.getCurrentTranslationType(), bookName);
+        }
+        if (App.elements.bookDescription) {
+            App.elements.bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
+        }
+
+        App.updatePrevNextState();
+
+        if (!App.renderFromSessionStorage()) {
+            await App.fetchChaptersFromAPI();
+        }
     },
 
     redirectToTranslation: () => {
@@ -335,3 +357,22 @@ const App = {
 };
 
 document.addEventListener("DOMContentLoaded", App.init);
+
+window.addEventListener("popstate", async () => {
+    App.initStateFromUrl();
+    if (!App.state.translationId || !App.state.bookOrder) {
+        return;
+    }
+    const books = App._books || await App.ensureBookList();
+    const bookName = App.resolveBookName(books);
+    if (bookName) {
+        App.updateHeader(TranslationStore.getCurrentTranslationType(), bookName);
+    }
+    if (App.elements.bookDescription) {
+        App.elements.bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
+    }
+    App.updatePrevNextState();
+    if (!App.renderFromSessionStorage()) {
+        await App.fetchChaptersFromAPI();
+    }
+});
