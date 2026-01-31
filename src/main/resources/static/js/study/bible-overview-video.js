@@ -48,27 +48,27 @@ const BIBLE_VIDEOS = [
     {bookOrder: 43, bookName: "요한복음", youtubeUrl: "https://youtu.be/FV55I_rX4Kg?si=iVtQVscV-w9culCm"},
     {bookOrder: 44, bookName: "사도행전", youtubeUrl: "https://youtu.be/kOCqsPst9Ag?si=3Cvcnh021APNElhs"},
     {bookOrder: 45, bookName: "로마서", youtubeUrl: "https://youtu.be/PT4C0ley074?si=53vTkQrIngpYIwnk"},
-    {bookOrder: 46, bookName: "고린도전서", youtubeUrl: ""},
-    {bookOrder: 47, bookName: "고린도후서", youtubeUrl: ""},
-    {bookOrder: 48, bookName: "갈라디아서", youtubeUrl: ""},
-    {bookOrder: 49, bookName: "에베소서", youtubeUrl: ""},
-    {bookOrder: 50, bookName: "빌립보서", youtubeUrl: ""},
-    {bookOrder: 51, bookName: "골로새서", youtubeUrl: ""},
-    {bookOrder: 52, bookName: "데살로니가전서", youtubeUrl: ""},
-    {bookOrder: 53, bookName: "데살로니가후서", youtubeUrl: ""},
-    {bookOrder: 54, bookName: "디모데전서", youtubeUrl: ""},
-    {bookOrder: 55, bookName: "디모데후서", youtubeUrl: ""},
-    {bookOrder: 56, bookName: "디도서", youtubeUrl: ""},
-    {bookOrder: 57, bookName: "빌레몬서", youtubeUrl: ""},
-    {bookOrder: 58, bookName: "히브리서", youtubeUrl: ""},
-    {bookOrder: 59, bookName: "야고보서", youtubeUrl: ""},
-    {bookOrder: 60, bookName: "베드로전서", youtubeUrl: ""},
-    {bookOrder: 61, bookName: "베드로후서", youtubeUrl: ""},
-    {bookOrder: 62, bookName: "요한1서", youtubeUrl: ""},
-    {bookOrder: 63, bookName: "요한2서", youtubeUrl: ""},
-    {bookOrder: 64, bookName: "요한3서", youtubeUrl: ""},
-    {bookOrder: 65, bookName: "유다서", youtubeUrl: ""},
-    {bookOrder: 66, bookName: "요한계시록", youtubeUrl: "https://youtu.be/U4UVf3dE1wc?si=fFvVbf5ew0sOpCCl"},
+    {bookOrder: 46, bookName: "고린도전서", youtubeUrl: "https://youtu.be/SoxLSx5DOjg?si=k0EgqKkHRg5a5SM7"},
+    {bookOrder: 47, bookName: "고린도후서", youtubeUrl: "https://youtu.be/xZFXdP7CCcc?si=VAnxhV0fJ8wbY0bl"},
+    {bookOrder: 48, bookName: "갈라디아서", youtubeUrl: "https://youtu.be/IRaMP5i4ROc?si=iAcgoMxfjAhagzRk"},
+    {bookOrder: 49, bookName: "에베소서", youtubeUrl: "https://youtu.be/1Cvb3mjw7WQ?si=hE4cVlGtU1gdgSGd"},
+    {bookOrder: 50, bookName: "빌립보서", youtubeUrl: "https://youtu.be/P2stOv4EuD8?si=alrr0SBbo-7Et_nx"},
+    {bookOrder: 51, bookName: "골로새서", youtubeUrl: "https://youtu.be/PToo8H3ESmI?si=OlgLQIjZRxGA10LQ"},
+    {bookOrder: 52, bookName: "데살로니가전서", youtubeUrl: "https://youtu.be/78mjPkm3gNU?si=hpBcGWkde1pr1xh4"},
+    {bookOrder: 53, bookName: "데살로니가후서", youtubeUrl: "https://youtu.be/aSvUcBhd4hQ?si=5Jxi0LlA09vZZurI"},
+    {bookOrder: 54, bookName: "디모데전서", youtubeUrl: "https://youtu.be/TPaaXttsgzY?si=BcHNsmJzwcjQYEz3"},
+    {bookOrder: 55, bookName: "디모데후서", youtubeUrl: "https://youtu.be/2rbLGN90JyE?si=fVapJBla3MbLQj0f"},
+    {bookOrder: 56, bookName: "디도서", youtubeUrl: "https://youtu.be/tdTrkbn8plI?si=iQgG7r9Gek6k06ig"},
+    {bookOrder: 57, bookName: "빌레몬서", youtubeUrl: "https://youtu.be/FF52ylLRH3g?si=ZbTkr34dzX_T0npL"},
+    {bookOrder: 58, bookName: "히브리서", youtubeUrl: "https://youtu.be/_y4X0Y1nu5E?si=SYd1VjlQHZtU-CFc"},
+    {bookOrder: 59, bookName: "야고보서", youtubeUrl: "https://youtu.be/PKic-DpY3O4?si=d248N_38IUJUKBO2"},
+    {bookOrder: 60, bookName: "베드로전서", youtubeUrl: "https://youtu.be/5te24c_61aI?si=MV_X3Kd4qYRa2Che"},
+    {bookOrder: 61, bookName: "베드로후서", youtubeUrl: "https://youtu.be/Ii-v2hGv-zk?si=C93Z5HtM8xpAe5Ux"},
+    {bookOrder: 62, bookName: "요한1서", youtubeUrl: "https://youtu.be/cMKPbDZhToo?si=I-SO7O8SGtdhLWGJ"},
+    {bookOrder: 63, bookName: "요한2서", youtubeUrl: "https://youtu.be/cMKPbDZhToo?si=I-SO7O8SGtdhLWGJ"},
+    {bookOrder: 64, bookName: "요한3서", youtubeUrl: "https://youtu.be/cMKPbDZhToo?si=I-SO7O8SGtdhLWGJ"},
+    {bookOrder: 65, bookName: "유다서", youtubeUrl: "https://youtu.be/ggYH-spyKHY?si=ku7cTUbVsFJBO67D"},
+    {bookOrder: 66, bookName: "요한계시록", youtubeUrl: "https://youtu.be/ue4ZFykrMJ8?si=b1XSktafOvar288A"},
 ];
 
 class BibleOverviewVideo {
@@ -115,10 +115,18 @@ class BibleOverviewVideo {
         this.contentEl.classList.remove("d-none");
     }
 
+    extractVideoId(url) {
+        const match = url.match(/youtu\.be\/([^?]+)/);
+        return match ? match[1] : null;
+    }
+
     createCard(book) {
         const hasVideo = book.youtubeUrl !== "";
 
         if (hasVideo) {
+            const videoId = this.extractVideoId(book.youtubeUrl);
+            const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : "";
+
             const link = document.createElement("a");
             link.className = "bible-overview-video-card";
             link.href = book.youtubeUrl;
@@ -126,7 +134,11 @@ class BibleOverviewVideo {
             link.rel = "noopener noreferrer";
             link.setAttribute("aria-label", `${book.bookName} 영상 보기`);
             link.innerHTML = `
-                <span class="bible-overview-video-icon" aria-hidden="true">▶</span>
+                <div class="bible-overview-video-thumb">
+                    <img src="${thumbnailUrl}" alt="" loading="lazy"
+                         onerror="this.parentElement.classList.add('is-fallback');this.remove();">
+                    <span class="bible-overview-video-play" aria-hidden="true">▶</span>
+                </div>
                 <span class="bible-overview-video-book-name">${book.bookName}</span>
             `;
             return link;
@@ -135,6 +147,9 @@ class BibleOverviewVideo {
         const div = document.createElement("div");
         div.className = "bible-overview-video-card is-disabled";
         div.innerHTML = `
+            <div class="bible-overview-video-thumb is-fallback">
+                <span class="bible-overview-video-play" aria-hidden="true"></span>
+            </div>
             <span class="bible-overview-video-book-name">${book.bookName}</span>
             <span class="bible-overview-video-badge">준비중</span>
         `;

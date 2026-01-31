@@ -18,23 +18,19 @@
 
 .bible-overview-video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1rem;
 }
 
 .bible-overview-video-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.25rem 1rem;
+    overflow: hidden;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-height: 100px;
-    text-align: center;
     text-decoration: none;
     color: inherit;
 }
@@ -51,16 +47,56 @@
     opacity: 0.55;
 }
 
-.bible-overview-video-icon {
-    font-size: 1.5rem;
-    color: #dc2626;
-    margin-bottom: 0.4rem;
+/* Thumbnail */
+.bible-overview-video-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #f1f5f9;
+}
+
+.bible-overview-video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.bible-overview-video-thumb.is-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+}
+
+.bible-overview-video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.bible-overview-video-card:hover:not(.is-disabled) .bible-overview-video-play {
+    background: rgba(220, 38, 38, 0.85);
 }
 
 .bible-overview-video-book-name {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #1e293b;
+    padding: 0.6rem 0.75rem 0.5rem;
+    text-align: center;
 }
 
 .bible-overview-video-badge {
@@ -70,27 +106,29 @@
     border-radius: 999px;
     background: rgba(148, 163, 184, 0.2);
     color: #64748b;
-    margin-top: 0.3rem;
+    margin: 0 auto 0.5rem;
 }
 
 @media (max-width: 576px) {
     .bible-overview-video-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 0.75rem;
     }
 
-    .bible-overview-video-card {
-        padding: 1rem 0.75rem;
-        min-height: 85px;
+    .bible-overview-video-book-name {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.5rem 0.4rem;
     }
 
-    .bible-overview-video-book-name {
-        font-size: 0.85rem;
+    .bible-overview-video-play {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
     }
 }
 
 @media (min-width: 768px) {
     .bible-overview-video-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }
