@@ -81,15 +81,7 @@ class BibleOxQuiz {
         }
         this.backButton.classList.remove("d-none");
         this.backButton.addEventListener("click", () => {
-            const isSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
-            if (isSameOrigin) {
-                window.history.back();
-                return;
-            }
-            if (this.stageNumber) {
-                window.location.href = "/web/game/bible-ox-quiz/map";
-            } else {
-                window.location.href = "/web/game";
+            window.location.href = "/web/game/bible-ox-quiz/map";
             }
         });
     }

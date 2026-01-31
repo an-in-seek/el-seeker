@@ -46,11 +46,6 @@ class BibleOxQuizMap {
         }
         this.backButton.classList.remove("d-none");
         this.backButton.addEventListener("click", () => {
-            const isSameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
-            if (isSameOrigin) {
-                window.history.back();
-                return;
-            }
             window.location.href = "/web/game";
         });
     }
