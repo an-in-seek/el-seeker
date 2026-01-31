@@ -358,16 +358,33 @@
     color: #1e293b;
 }
 
-.mypage-action-grid .btn-outline-danger {
-    color: #dc2626;
-    border-color: #fee2e2;
-    background: #fff;
+.mypage-withdraw-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #f8fafc;
 }
 
-.mypage-action-grid .btn-outline-danger:hover {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
+.mypage-withdraw-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 0 0 0.2rem;
+}
+
+.mypage-withdraw-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.mypage-withdraw-btn {
+    flex-shrink: 0;
+    width: 100%;
 }
 
 .mypage-tips {

@@ -33,8 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const roleBadge = document.getElementById("mypageRole");
     const providerBadge = document.getElementById("mypageProvider");
     const avatar = document.getElementById("mypageAvatar");
-    const dailyVerseText = document.getElementById("dailyVerseText");
-    const dailyVerseRef = document.getElementById("dailyVerseRef");
     const errorMessage = document.getElementById("mypageErrorMessage");
     const successMessage = document.getElementById("mypageSuccessMessage");
     const editForm = document.getElementById("mypageEditForm");
@@ -93,11 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessage.classList.add("d-none");
             errorMessage.textContent = "";
         }
-    };
-
-    const setDailyVerseFallback = (message) => {
-        updateText(dailyVerseText, message);
-        updateText(dailyVerseRef, "개역한글(KRV)");
     };
 
     const formatConnectedAt = (value) => {
@@ -338,31 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const loadDailyVerse = async () => {
-        if (!dailyVerseText || !dailyVerseRef) {
-            return;
-        }
-
-        try {
-            const response = await fetchWithAuthRetry("/api/v1/bibles/daily?translationType=KRV", {
-                headers: {
-                    Accept: "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("daily verse fetch failed");
-            }
-
-            const data = await response.json();
-            const reference = `${data.translationName}(${data.translationType}) · ${data.bookName} ${data.chapterNumber}:${data.verseNumber}`;
-            updateText(dailyVerseText, data.text);
-            updateText(dailyVerseRef, reference);
-        } catch (error) {
-            setDailyVerseFallback("오늘의 묵상을 불러오지 못했습니다.");
-        }
-    };
-
     setFormEnabled(false);
     if (homeButton) {
         homeButton.addEventListener("click", () => {
@@ -506,5 +474,4 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    loadDailyVerse();
 });

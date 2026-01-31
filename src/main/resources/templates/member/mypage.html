@@ -22,7 +22,7 @@
     </section>
 
     <div class="row g-3">
-        <div class="col-12 col-lg-7">
+        <div class="col-12">
             <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
                     <form id="mypageEditForm" class="mypage-edit-form">
@@ -123,24 +123,14 @@
 
                     <div id="mypageSuccessMessage" class="alert alert-success mt-3 d-none" role="alert"></div>
                     <div id="mypageErrorMessage" class="alert alert-warning mt-3 d-none" role="alert"></div>
-                </div>
-            </article>
-        </div>
-        <div class="col-12 col-lg-5">
-            <article class="card card-panel card-soft mypage-action-card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="h5 fw-bold mb-3">빠른 이동</h2>
-                    <p class="text-muted small mb-4">말씀 읽기부터 퀴즈까지 자주 쓰는 메뉴를 모았습니다.</p>
-                    <div class="mypage-action-grid">
-                        <a class="btn btn-outline-secondary" href="/web/bible/translation">성경 읽기</a>
-                        <a class="btn btn-outline-secondary" href="/web/game">성경 퀴즈</a>
-                        <a class="btn btn-outline-secondary" href="/web/study/dictionary">성경 사전</a>
-                        <a class="btn btn-outline-danger" href="/web/member/withdraw">회원탈퇴</a>
-                    </div>
-                    <div class="mypage-tips mt-4">
-                        <h3 class="h6 fw-bold mb-2">오늘의 성경 구절</h3>
-                        <p id="dailyVerseText" class="mypage-daily-verse-text">오늘의 성경 구절을 불러오는 중입니다.</p>
-                        <p id="dailyVerseRef" class="mypage-daily-verse-ref mb-0">개역한글(KRV)</p>
+
+                    <div class="mypage-withdraw-card">
+                        <div class="mypage-withdraw-body">
+                            <h3 class="mypage-withdraw-title">회원탈퇴</h3>
+                            <p class="mypage-withdraw-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
+                        </div>
+                        <a class="btn btn-outline-danger mypage-withdraw-btn"
+                           href="/web/member/withdraw">회원탈퇴</a>
                     </div>
                 </div>
             </article>
