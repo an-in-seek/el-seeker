@@ -893,20 +893,21 @@ const loadVerses = async (selection) => {
 
     state.verses = verses;
     resetSessionState();
+    toggleButton(elements.actionBar, false);
     renderVerses();
     updateHeader();
     updateMetrics();
 
     try {
         const progress = await fetchLatestProgress(selection);
-        if (!progress) return;
-
-        const resumed = applyResumeProgress(progress, selection);
-        if (!resumed) return;
-
+        if (progress) {
+            applyResumeProgress(progress, selection);
+        }
     } catch {
         showMessage("이어하기 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
     }
+
+    updateActionButtons();
 };
 
 
