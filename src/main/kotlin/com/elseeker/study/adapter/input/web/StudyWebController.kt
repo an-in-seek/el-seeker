@@ -17,4 +17,9 @@ class StudyWebController {
     fun showBibleOverviewVideo(): String {
         return "study/bible-overview-video"
     }
+
+    @GetMapping("/bible-genealogy")
+    fun showBibleGenealogy(): String {
+        return "study/bible-genealogy"
+    }
 }

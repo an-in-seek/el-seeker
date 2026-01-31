@@ -1,0 +1,163 @@
+.genealogy-loading {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+/* Section */
+.genealogy-section {
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+}
+
+.genealogy-section-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.genealogy-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.2rem;
+}
+
+.genealogy-section-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Timeline */
+.genealogy-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Connector */
+.genealogy-connector {
+    width: 2px;
+    height: 28px;
+    background: #cbd5e1;
+}
+
+/* Node */
+.genealogy-node {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    text-align: center;
+    transition: box-shadow 0.15s ease;
+}
+
+.genealogy-node:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.genealogy-node-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.genealogy-node-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.genealogy-node-note {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Highlight */
+.genealogy-node.is-highlight {
+    border-color: #93c5fd;
+    background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.genealogy-node.is-highlight .genealogy-node-name {
+    color: #1e40af;
+    font-weight: 700;
+}
+
+/* Origin (하나님) */
+.genealogy-node.is-origin {
+    border-color: #c4b5fd;
+    background: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%);
+}
+
+.genealogy-node.is-origin .genealogy-node-name {
+    color: #5b21b6;
+    font-size: 1.05rem;
+}
+
+/* Final (예수 그리스도) */
+.genealogy-node.is-final {
+    border-color: #fca5a5;
+    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
+    padding: 1rem 1.25rem;
+}
+
+.genealogy-node.is-final .genealogy-node-name {
+    color: #991b1b;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+/* Toggle */
+.genealogy-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.genealogy-toggle:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.genealogy-toggle-icon {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 576px) {
+    .genealogy-section {
+        margin-bottom: 2rem;
+    }
+
+    .genealogy-node {
+        max-width: 100%;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .genealogy-node-name {
+        font-size: 0.88rem;
+    }
+
+    .genealogy-node.is-final .genealogy-node-name {
+        font-size: 1rem;
+    }
+
+    .genealogy-connector {
+        height: 22px;
+    }
+}
