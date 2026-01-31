@@ -46,3 +46,4 @@ out/
 
 ### Docs ###
 /docs/auth/
+/.claude/settings.local.json

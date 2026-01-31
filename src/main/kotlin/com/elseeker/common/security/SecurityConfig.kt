@@ -58,6 +58,11 @@ class SecurityConfig(
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
 
+            // Spring Security 기본 Cache-Control 헤더 비활성화 (불변 API에 브라우저 캐시 허용)
+            .headers { headers ->
+                headers.cacheControl { it.disable() }
+            }
+
             // CORS 설정 적용
             .cors { it.configurationSource(corsConfigurationSource()) }
 
