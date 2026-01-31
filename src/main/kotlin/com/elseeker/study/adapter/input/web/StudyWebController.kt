@@ -12,4 +12,9 @@ class StudyWebController {
     fun showStudyHome(): String {
         return "study/study"
     }
+
+    @GetMapping("/bible-overview-video")
+    fun showBibleOverviewVideo(): String {
+        return "study/bible-overview-video"
+    }
 }

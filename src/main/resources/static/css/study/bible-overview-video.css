@@ -1,0 +1,96 @@
+.bible-overview-video-loading {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.bible-overview-video-section {
+    margin-bottom: 2rem;
+}
+
+.bible-overview-video-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.bible-overview-video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.bible-overview-video-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 100px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.bible-overview-video-card:hover:not(.is-disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+    color: inherit;
+}
+
+.bible-overview-video-card.is-disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+
+.bible-overview-video-icon {
+    font-size: 1.5rem;
+    color: #dc2626;
+    margin-bottom: 0.4rem;
+}
+
+.bible-overview-video-book-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.bible-overview-video-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+    color: #64748b;
+    margin-top: 0.3rem;
+}
+
+@media (max-width: 576px) {
+    .bible-overview-video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .bible-overview-video-card {
+        padding: 1rem 0.75rem;
+        min-height: 85px;
+    }
+
+    .bible-overview-video-book-name {
+        font-size: 0.85rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .bible-overview-video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
