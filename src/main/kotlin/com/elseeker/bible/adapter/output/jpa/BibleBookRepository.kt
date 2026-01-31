@@ -14,6 +14,7 @@ interface BibleBookRepository : JpaRepository<BibleBook, Long> {
             FROM BibleBook book
             LEFT JOIN FETCH book.chapters
             WHERE book.translationId = :translationId
+            ORDER BY book.bookOrder ASC
         """
     )
     fun findByTranslationId(translationId: Long): List<BibleBook>
