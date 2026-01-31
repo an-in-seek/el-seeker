@@ -74,8 +74,7 @@ class BibleOxQuizMap {
             card.className = "ox-stage-card";
             if (stage.isCompleted) {
                 card.classList.add("is-completed");
-            }
-            if (stage.hasInProgress) {
+            } else if (stage.hasInProgress) {
                 card.classList.add("has-progress");
             }
 
