@@ -5,7 +5,7 @@
   - `common`: shared config, error model, common web components.
   - `auth`: authentication/authorization, OAuth2, JWT.
   - `bible`: Bible domain (domain, application, adapter/in, adapter/out).
-  - `study`: Study domain (dictionary/history) with the same adapter structure.
+  - `study`: Study domain (dictionary/history/bible-overview-video/bible-genealogy) with the same adapter structure.
   - `game`: Bible quiz domain (domain, application, adapter/in, adapter/out).
   - `member`: member profile and account management.
 - `src/main/resources`: configuration and assets.

@@ -20,6 +20,8 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
     * 번역본/책/장 단위 타자 연습 세션 생성 및 진행
     * 연습 진행도 저장 및 조회
     * 타자 정확도 및 속도 측정
+* **성경 개요 영상(Bible Overview Video)** 66권 유튜브 영상 목록 웹 UI 제공
+* **성경 족보(Bible Genealogy)** 마태복음/누가복음 족보 비교 웹 UI 제공
 * 스터디(사전/역사) 조회 REST API 및 웹 UI 제공
 * OAuth2 로그인/로그아웃 및 회원 정보 관리 API 제공
 * SpringDoc 기반 OpenAPI 및 Swagger UI 제공
@@ -157,6 +159,8 @@ GET /web/member/mypage
 GET /web/member/withdraw
 GET /web/member/withdraw/complete
 GET /web/study
+GET /web/study/bible-overview-video
+GET /web/study/bible-genealogy
 GET /web/study/history
 GET /web/study/history/{era}
 GET /web/study/history/event/{id}
@@ -187,6 +191,8 @@ member/withdraw-complete -> member/withdraw-complete.html
 legal/terms -> legal/terms.html
 legal/privacy -> legal/privacy.html
 study/study -> study/study.html
+study/bible-overview-video -> study/bible-overview-video.html
+study/bible-genealogy -> study/bible-genealogy.html
 study/history -> study/history.html
 study/history-era -> study/history-era.html
 study/history-event -> study/history-event.html
