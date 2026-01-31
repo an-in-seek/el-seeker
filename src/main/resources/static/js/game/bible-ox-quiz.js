@@ -82,7 +82,6 @@ class BibleOxQuiz {
         this.backButton.classList.remove("d-none");
         this.backButton.addEventListener("click", () => {
             window.location.href = "/web/game/bible-ox-quiz/map";
-            }
         });
     }
 
