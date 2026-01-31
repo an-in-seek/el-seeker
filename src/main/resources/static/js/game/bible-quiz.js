@@ -93,6 +93,9 @@ const DomHelper = {
     getElements: () => {
         const get = (id) => document.getElementById(id);
         return {
+            quizLoading: get("quizLoading"),
+            quizError: get("quizError"),
+            quizHero: get("quizHero"),
             quizPanel: get("quizPanel"),
             quizComplete: get("quizComplete"),
             quizQuestionProgress: get("quizQuestionProgress"),
@@ -182,9 +185,13 @@ const App = {
 
         const data = await ApiService.fetchStageData(stageNumber);
         if (!data) {
-            App.showError("퀴즈를 불러올 수 없습니다", "잠시 후 다시 시도해주세요.");
+            App.hideLoading();
+            App.showGlobalError("퀴즈를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.");
             return;
         }
+
+        App.hideLoading();
+        DomHelper.toggleVisibility(App.elements.quizHero, true);
 
         App.state.stage = data.stageNumber;
         App.state.questionCount = data.questionCount ?? 0;
@@ -556,6 +563,19 @@ const App = {
                 DomHelper.setElementText(summaryAccuracy, accuracyText);
             }
             DomHelper.setElementText(summaryCount, `${completion.reviewCount}회`);
+        }
+    },
+
+    hideLoading: () => {
+        DomHelper.toggleVisibility(App.elements.quizLoading, false);
+    },
+
+    showGlobalError: (message) => {
+        App.hideLoading();
+        const {quizError} = App.elements;
+        if (quizError) {
+            quizError.textContent = message;
+            DomHelper.toggleVisibility(quizError, true);
         }
     },
 

@@ -6,8 +6,19 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper">
+    <!-- 에러 메시지 영역 -->
+    <div id="typingError" class="alert alert-danger d-none" role="alert"></div>
+
+    <!-- 로딩 상태 -->
+    <div id="typingLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">로딩 중...</span>
+        </div>
+        <p class="mt-3 text-muted">데이터를 불러오는 중입니다...</p>
+    </div>
+
     <!-- Main Workspace: 중앙 집중형 1단 레이아웃 -->
-    <div class="row justify-content-center">
+    <div id="typingContent" class="row justify-content-center d-none">
         <div class="col-12">
 
             <!-- 1. Selection Bar: 옵션 선택 -->

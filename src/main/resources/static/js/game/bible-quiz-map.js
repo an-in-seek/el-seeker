@@ -153,6 +153,9 @@ const DomHelper = {
         const quizMapProgressBar = document.getElementById("quizMapProgressBar");
         const quizMapProgressFill = document.getElementById("quizMapProgressFill");
         const resetProgressButton = document.getElementById("resetProgressButton");
+        const quizMapLoading = document.getElementById("quizMapLoading");
+        const quizMapError = document.getElementById("quizMapError");
+        const quizMapContent = document.getElementById("quizMapContent");
         return (stageList && quizMapNote)
             ? {
                 stageList,
@@ -161,7 +164,10 @@ const DomHelper = {
                 quizMapProgress,
                 quizMapProgressBar,
                 quizMapProgressFill,
-                resetProgressButton
+                resetProgressButton,
+                quizMapLoading,
+                quizMapError,
+                quizMapContent
             }
             : null;
     },
@@ -302,7 +308,10 @@ const DomHelper = {
     },
 
     showError: (elements) => {
-        elements.quizMapNote.textContent = "퀴즈 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+        if (elements.quizMapError) {
+            elements.quizMapError.textContent = "퀴즈 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+            elements.quizMapError.classList.remove("d-none");
+        }
     },
 
     showIntro: (elements) => {
@@ -358,9 +367,13 @@ const App = {
 
         const response = await ApiService.fetchStages();
         if (!response || !response.stages || !response.stages.length) {
+            if (elements.quizMapLoading) elements.quizMapLoading.classList.add("d-none");
             DomHelper.showError(elements);
             return;
         }
+
+        if (elements.quizMapLoading) elements.quizMapLoading.classList.add("d-none");
+        if (elements.quizMapContent) elements.quizMapContent.classList.remove("d-none");
 
         const context = {
             currentStage: response.currentStage,

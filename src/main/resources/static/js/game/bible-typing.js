@@ -30,7 +30,10 @@ const elements = {
     sessionSummary: document.getElementById("typingSessionSummary"),
     sessionSummaryText: document.getElementById("typingSessionSummaryText"),
     backButton: document.getElementById("topNavBackButton"),
-    pageTitleLabel: document.getElementById("pageTitleLabel")
+    pageTitleLabel: document.getElementById("pageTitleLabel"),
+    loadingEl: document.getElementById("typingLoading"),
+    errorEl: document.getElementById("typingError"),
+    contentEl: document.getElementById("typingContent")
 };
 
 const state = {
@@ -965,7 +968,15 @@ const initialize = async () => {
             elements.pageTitleLabel.classList.remove("d-none");
         }
         const selection = await loadSelections();
-        if (!selection) return;
+        if (elements.loadingEl) elements.loadingEl.classList.add("d-none");
+        if (!selection) {
+            if (elements.errorEl) {
+                elements.errorEl.textContent = "데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+                elements.errorEl.classList.remove("d-none");
+            }
+            return;
+        }
+        if (elements.contentEl) elements.contentEl.classList.remove("d-none");
         await loadVerses(selection);
         bindEvents();
         window.addEventListener("popstate", async () => {
@@ -973,7 +984,11 @@ const initialize = async () => {
             if (updatedSelection) await loadVerses(updatedSelection);
         });
     } catch (error) {
-        showMessage("데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+        if (elements.loadingEl) elements.loadingEl.classList.add("d-none");
+        if (elements.errorEl) {
+            elements.errorEl.textContent = "데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+            elements.errorEl.classList.remove("d-none");
+        }
     }
 };
 
