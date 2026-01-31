@@ -2,7 +2,7 @@
 INSERT INTO dictionary (id, term, description, related_verses, created_at, updated_at)
 VALUES (1, '은혜', '값 없이 베풀어지는 호의나 선물로, 하나님이 주시는 호의와 은사를 가리킨다.', '에베소서 2:8-9, 요한복음 1:16', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (2, '믿음', '하나님과 그 말씀을 신뢰하고 의지하는 태도를 뜻하며, 보이지 않는 것을 확신하는 믿음을 가리킨다.', '히브리서 11:1, 로마서 10:17', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       (3, '의', '옳고 바른 상태나 행위를 뜻하며, 하나님의 기준에 맞는 상태를 가리킨다.', '로마서 1:17, 신명기 6:25', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       (3, '의', '하나님 자신이 옳고 바르신 기준이 되시며, 그 기준에 따라 하나님 앞에서 올바른 관계에 있는 상태를 뜻한다. 이는 행위의 성취가 아니라 하나님께서 믿는 자에게 은혜로 주시는 의로, 예수 그리스도를 통해 드러나고 적용된다.', '로마서 1:17, 신명기 6:25, 창세기 15:6, 고린도후서 5:21', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (4, '칭의', '의롭다고 인정하거나 선언하는 일을 뜻하며, 하나님이 의롭다 하시는 선언을 가리킨다.', '로마서 5:1, 갈라디아서 2:16', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (5, '성화', '거룩하게 구별됨과 거룩함에 이르는 것을 뜻하며, 거룩함을 이루어 가는 상태를 가리킨다.', '데살로니가전서 4:3, 히브리서 12:14', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
        (6, '영화', '영광스럽게 됨을 뜻하며, 영광 가운데 세워지거나 변화되는 상태를 가리킨다.', '로마서 8:30, 빌립보서 3:21', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
