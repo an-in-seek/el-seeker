@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 족보 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/study/bible-genealogy.css?v=1.0')}"></head>
+<head th:replace="~{fragments/head :: head('성경 족보 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/search.css?v=2.1,/css/study/bible-genealogy.css?v=1.0')}"></head>
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
@@ -16,9 +16,19 @@
 
     <!-- 족보 콘텐츠 -->
     <div id="genealogyContent" class="d-none">
-        <div id="genealogySections"></div>
+        <div class="genealogy-tabs" role="tablist" aria-label="족보 선택">
+            <button class="genealogy-tab is-active" role="tab" aria-selected="true"
+                    data-tab="matthew" id="tabMatthew" aria-controls="genealogySections">마태복음 족보
+            </button>
+            <button class="genealogy-tab" role="tab" aria-selected="false"
+                    data-tab="luke" id="tabLuke" aria-controls="genealogySections">누가복음 족보
+            </button>
+        </div>
+        <div id="genealogySections" role="tabpanel" aria-labelledby="tabMatthew"></div>
     </div>
 </main>
+
+<button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">↑</button>
 
 <script type="module" src="/js/study/bible-genealogy.js?v=1.0"></script>
 </body>
