@@ -240,39 +240,55 @@ document.addEventListener("DOMContentLoaded", () => {
         history.replaceState(null, "", `${targetUrl.pathname}${targetUrl.search}`);
     };
 
+    let _books = null;
+
     const setupPrevNext = books => {
         if (!books || books.length === 0) {
             return;
         }
-        const currentIndex = books.findIndex(book => book.bookOrder === state.bookOrder);
+        _books = books;
+        updatePrevNextState();
+    };
+
+    const updatePrevNextState = () => {
+        if (!_books) {
+            return;
+        }
+        const currentIndex = _books.findIndex(book => book.bookOrder === state.bookOrder);
         if (dom.prevBtn) {
             dom.prevBtn.disabled = currentIndex <= 0;
-            dom.prevBtn.addEventListener("click", () => {
+            dom.prevBtn.onclick = () => {
                 if (currentIndex > 0) {
-                    const prevBook = books[currentIndex - 1];
-                    BookStore.saveCurrentBook(prevBook);
-                    updateDescriptionUrl(prevBook.bookOrder);
-                    if (dom.chapterSelectLink) {
-                        dom.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${prevBook.bookOrder}`;
-                    }
-                    window.location.reload();
+                    navigateToBook(_books[currentIndex - 1]);
                 }
-            });
+            };
         }
         if (dom.nextBtn) {
-            dom.nextBtn.disabled = currentIndex >= books.length - 1;
-            dom.nextBtn.addEventListener("click", () => {
-                if (currentIndex < books.length - 1) {
-                    const nextBook = books[currentIndex + 1];
-                    BookStore.saveCurrentBook(nextBook);
-                    updateDescriptionUrl(nextBook.bookOrder);
-                    if (dom.chapterSelectLink) {
-                        dom.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${nextBook.bookOrder}`;
-                    }
-                    window.location.reload();
+            dom.nextBtn.disabled = currentIndex >= _books.length - 1;
+            dom.nextBtn.onclick = () => {
+                if (currentIndex < _books.length - 1) {
+                    navigateToBook(_books[currentIndex + 1]);
                 }
-            });
+            };
         }
+    };
+
+    const navigateToBook = async book => {
+        BookStore.saveCurrentBook(book);
+        state.bookOrder = book.bookOrder;
+        state.bookName = book.bookName;
+
+        const targetUrl = new URL("/web/bible/book/description", window.location.origin);
+        targetUrl.searchParams.set("translationId", state.translationId);
+        targetUrl.searchParams.set("bookOrder", state.bookOrder);
+        history.pushState({translationId: state.translationId, bookOrder: state.bookOrder}, "", `${targetUrl.pathname}${targetUrl.search}`);
+
+        updateHeader();
+        if (dom.chapterSelectLink) {
+            dom.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
+        }
+        updatePrevNextState();
+        await loadBookDetail();
     };
 
     const loadBookDetail = async () => {
@@ -320,6 +336,22 @@ document.addEventListener("DOMContentLoaded", () => {
         bookUrl.searchParams.set("translationId", state.translationId);
         window.location.href = `${bookUrl.pathname}${bookUrl.search}`;
     };
+
+    window.addEventListener("popstate", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const parsedBookOrder = parseInt(urlParams.get("bookOrder"), 10);
+        if (!Number.isNaN(parsedBookOrder)) {
+            state.bookOrder = parsedBookOrder;
+            const books = _books || await ensureBookList();
+            state.bookName = resolveBookName(books);
+            updateHeader();
+            if (dom.chapterSelectLink) {
+                dom.chapterSelectLink.href = `/web/bible/chapter?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
+            }
+            updatePrevNextState();
+            await loadBookDetail();
+        }
+    });
 
     init();
 });
