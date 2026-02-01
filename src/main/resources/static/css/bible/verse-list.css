@@ -71,6 +71,11 @@
     vertical-align: baseline;
     padding-top: 0.35rem;
     padding-bottom: 0.35rem;
+    border-bottom: 1px solid #eef1f4;
+}
+
+.verse-table tbody tr:first-child td {
+    border-top: 1px solid #eef1f4;
 }
 
 .verse-table td:first-child {
