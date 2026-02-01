@@ -355,6 +355,9 @@ body.admin-sidebar-open {
     .admin-form-actions {
         flex-direction: column;
     }
+    .admin-card-actions {
+        justify-content: flex-end;
+    }
     .admin-table-wrapper {
         display: none;
     }
