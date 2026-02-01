@@ -420,6 +420,10 @@ const App = {
     },
 
     handleVerseClick: async event => {
+        if (App.selection.menuOpen) {
+            App.closeFabMenu();
+            return;
+        }
         if (event.target.classList.contains("memo-save-btn")) {
             const verseNum = event.target.dataset.verse;
             await App.saveMemo(verseNum);
