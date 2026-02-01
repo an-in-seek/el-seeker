@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>관리자 | ElSeeker</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin/admin.css" rel="stylesheet">
@@ -9,7 +10,14 @@
 <body>
 <div class="admin-layout">
     <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
     <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
         <h2>관리자 대시보드</h2>
         <div class="row g-3">
             <div class="col-md-4">
@@ -33,5 +41,9 @@
         </div>
     </main>
 </div>
+<script type="module">
+    import {initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+</script>
 </body>
 </html>

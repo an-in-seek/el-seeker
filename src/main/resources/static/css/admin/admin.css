@@ -1,6 +1,11 @@
 .admin-layout {
     display: flex;
     min-height: 100vh;
+    background: #f8f9fa;
+}
+
+body.admin-sidebar-open {
+    overflow: hidden;
 }
 
 .admin-sidebar {
@@ -17,6 +22,60 @@
     padding: 0.5rem 1rem 1rem;
     border-bottom: 1px solid #34495e;
     margin-bottom: 0.5rem;
+}
+
+.admin-topbar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.admin-topbar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.admin-sidebar-toggle {
+    width: 40px;
+    height: 36px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.admin-sidebar-toggle span,
+.admin-sidebar-toggle span::before,
+.admin-sidebar-toggle span::after {
+    content: "";
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: #2c3e50;
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+}
+
+.admin-sidebar-toggle span::before {
+    transform: translateY(-6px);
+}
+
+.admin-sidebar-toggle span::after {
+    transform: translateY(4px);
+}
+
+.admin-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 9;
 }
 
 .admin-sidebar-nav {
@@ -43,13 +102,70 @@
 .admin-content {
     flex: 1;
     padding: 1.5rem 2rem;
-    background: #f8f9fa;
     overflow-x: auto;
 }
 
 .admin-content h2 {
     font-size: 1.3rem;
     margin-bottom: 1rem;
+}
+
+.admin-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.admin-card-list {
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+}
+
+.admin-card-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.admin-card-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.admin-card-row:last-of-type {
+    border-bottom: none;
+}
+
+.admin-card-label {
+    color: #6c757d;
+    flex: 0 0 80px;
+}
+
+.admin-card-value {
+    flex: 1;
+    text-align: right;
+    word-break: break-word;
+}
+
+.admin-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
 }
 
 .admin-table {
@@ -79,6 +195,7 @@
 .admin-actions {
     display: flex;
     gap: 0.3rem;
+    flex-wrap: wrap;
 }
 
 .admin-pagination {
@@ -133,6 +250,16 @@
     text-decoration: underline;
 }
 
+.admin-search-input {
+    width: 200px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.admin-search-button {
+    min-width: 80px;
+}
+
 .admin-form {
     max-width: 600px;
     background: #fff;
@@ -163,7 +290,7 @@
 }
 
 .admin-form textarea {
-    min-height: 100px;
+    min-height: 200px;
     resize: vertical;
 }
 
@@ -173,14 +300,65 @@
     margin-top: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .admin-layout {
-        flex-direction: column;
+        position: relative;
     }
     .admin-sidebar {
-        width: 100%;
+        position: fixed;
+        top: 0;
+        left: -260px;
+        width: 240px;
+        height: 100%;
+        transition: left 0.2s ease;
+        z-index: 10;
     }
     .admin-content {
         padding: 1rem;
+    }
+    .admin-topbar {
+        display: flex;
+    }
+    .admin-table-wrapper {
+        border-radius: 4px;
+    }
+    .admin-table {
+        min-width: 640px;
+    }
+    body.admin-sidebar-open .admin-sidebar {
+        left: 0;
+    }
+    body.admin-sidebar-open .admin-sidebar-overlay {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content h2 {
+        font-size: 1.15rem;
+    }
+    .admin-search-input {
+        width: 100%;
+    }
+    .admin-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-toolbar form {
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+    .admin-form {
+        max-width: 100%;
+        padding: 1rem;
+    }
+    .admin-form-actions {
+        flex-direction: column;
+    }
+    .admin-table-wrapper {
+        display: none;
+    }
+    .admin-card-list {
+        display: flex;
     }
 }

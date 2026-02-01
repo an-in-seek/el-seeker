@@ -26,3 +26,17 @@ export const handleDelete = async (url, displayName, onSuccess) => {
         alert(e.message);
     }
 };
+
+export const initAdminSidebarToggle = () => {
+    const toggleButtons = document.querySelectorAll("[data-admin-sidebar-toggle]");
+    if (!toggleButtons.length) return;
+    const closeTargets = document.querySelectorAll("[data-admin-sidebar-close]");
+    const closeSidebar = () => document.body.classList.remove("admin-sidebar-open");
+    const toggleSidebar = () => document.body.classList.toggle("admin-sidebar-open");
+
+    toggleButtons.forEach((btn) => btn.addEventListener("click", toggleSidebar));
+    closeTargets.forEach((target) => target.addEventListener("click", closeSidebar));
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 992) closeSidebar();
+    });
+};

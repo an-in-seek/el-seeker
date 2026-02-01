@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>절 등록/수정 | ElSeeker</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin/admin.css" rel="stylesheet">
@@ -9,7 +10,14 @@
 <body>
 <div class="admin-layout">
     <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
     <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
         <div class="admin-breadcrumb">
             <a href="/web/admin/bible/translations">번역본 목록</a> &gt;
             <a th:href="@{/web/admin/bible/chapters/{cid}/verses(cid=${chapterId})}">절 목록</a> &gt;
@@ -37,7 +45,8 @@
     const chapterId = /*[[${chapterId}]]*/ null;
 </script>
 <script type="module">
-    import {fetchAdmin} from "/js/admin/admin-common.js";
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
     document.getElementById("saveBtn").addEventListener("click", async () => {
         const body = {
             verseNumber: parseInt(document.getElementById("verseNumber").value),

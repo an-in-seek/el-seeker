@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>책 관리 | ElSeeker</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin/admin.css" rel="stylesheet">
@@ -9,7 +10,14 @@
 <body>
 <div class="admin-layout">
     <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
     <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
         <div class="admin-breadcrumb">
             <a href="/web/admin/bible/translations">번역본 목록</a> &gt;
             <span th:text="${translation.name}">번역본</span> &gt; 책 목록
@@ -19,37 +27,70 @@
             <div></div>
             <a th:href="@{/web/admin/bible/translations/{tid}/books/new(tid=${translationId})}" class="btn btn-primary btn-sm">등록</a>
         </div>
-        <table class="admin-table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>순서</th>
-                <th>키</th>
-                <th>이름</th>
-                <th>약어</th>
-                <th>구분</th>
-                <th>작업</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="b : ${page.content}">
-                <td th:text="${b.id}"></td>
-                <td th:text="${b.bookOrder}"></td>
-                <td th:text="${b.bookKey}"></td>
-                <td th:text="${b.name}"></td>
-                <td th:text="${b.abbreviation}"></td>
-                <td th:text="${b.testamentType}"></td>
-                <td class="admin-actions">
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>순서</th>
+                    <th>키</th>
+                    <th>이름</th>
+                    <th>약어</th>
+                    <th>구분</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${page.content}">
+                    <td th:text="${b.id}"></td>
+                    <td th:text="${b.bookOrder}"></td>
+                    <td th:text="${b.bookKey}"></td>
+                    <td th:text="${b.name}"></td>
+                    <td th:text="${b.abbreviation}"></td>
+                    <td th:text="${b.testamentType}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${b.id})}" class="btn btn-outline-info btn-sm">장 목록</a>
+                        <a th:href="@{/web/admin/bible/translations/{tid}/books/{id}/edit(tid=${translationId},id=${b.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                        <button class="btn btn-outline-danger btn-sm" th:data-id="${b.id}" th:data-name="${b.name}" th:data-tid="${translationId}" onclick="deleteBook(this)">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="7" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="b : ${page.content}">
+                <div class="admin-card-title" th:text="${b.name}">책</div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">ID</span>
+                    <span class="admin-card-value" th:text="${b.id}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">순서</span>
+                    <span class="admin-card-value" th:text="${b.bookOrder}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">키</span>
+                    <span class="admin-card-value" th:text="${b.bookKey}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">약어</span>
+                    <span class="admin-card-value" th:text="${b.abbreviation}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">구분</span>
+                    <span class="admin-card-value" th:text="${b.testamentType}"></span>
+                </div>
+                <div class="admin-card-actions">
                     <a th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${b.id})}" class="btn btn-outline-info btn-sm">장 목록</a>
                     <a th:href="@{/web/admin/bible/translations/{tid}/books/{id}/edit(tid=${translationId},id=${b.id})}" class="btn btn-outline-primary btn-sm">수정</a>
                     <button class="btn btn-outline-danger btn-sm" th:data-id="${b.id}" th:data-name="${b.name}" th:data-tid="${translationId}" onclick="deleteBook(this)">삭제</button>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(page.content)}">
-                <td colspan="7" class="text-center text-muted">데이터가 없습니다.</td>
-            </tr>
-            </tbody>
-        </table>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
         <div class="admin-pagination" th:if="${page.totalPages > 1}">
             <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
                 <a th:if="${i != page.number}" th:href="@{/web/admin/bible/translations/{tid}/books(tid=${translationId},page=${i},size=${page.size})}" th:text="${i + 1}"></a>
@@ -59,7 +100,8 @@
     </main>
 </div>
 <script type="module">
-    import {handleDelete} from "/js/admin/admin-common.js";
+    import {handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
     window.deleteBook = (btn) => {
         handleDelete(`/api/v1/admin/bible/translations/${btn.dataset.tid}/books/${btn.dataset.id}`, btn.dataset.name);
     };
