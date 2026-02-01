@@ -1,6 +1,8 @@
 package com.elseeker.bible.adapter.output.jpa
 
 import com.elseeker.bible.domain.model.BibleChapter
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -17,12 +19,14 @@ interface BibleChapterRepository : JpaRepository<BibleChapter, Long> {
     )
     fun findMaxChapterNumberByBookId(bookId: Long): Int?
 
+    fun findByBookId(bookId: Long, pageable: Pageable): Page<BibleChapter>
+
     @Query(
         """
-            SELECT c 
+            SELECT c
             FROM BibleChapter c
             LEFT JOIN FETCH c.verses
-            WHERE 1=1 
+            WHERE 1=1
             AND c.bookId = :bookId
             AND c.chapterNumber = :chapterNumber
         """

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>장 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <main class="admin-content">
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/bible/translations">번역본 목록</a> &gt;
+            <a th:href="@{/web/admin/bible/translations/{tid}/books(tid=${book.translationId})}">책 목록</a> &gt;
+            <span th:text="${book.name}">책</span> &gt; 장 목록
+        </div>
+        <h2>장 관리 — <span th:text="${book.name}"></span></h2>
+        <div class="admin-toolbar">
+            <div></div>
+            <a th:href="@{/web/admin/bible/books/{bid}/chapters/new(bid=${bookId})}" class="btn btn-primary btn-sm">등록</a>
+        </div>
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>장 번호</th>
+                <th>작업</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${page.content}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.chapterNumber}"></td>
+                <td class="admin-actions">
+                    <a th:href="@{/web/admin/bible/chapters/{cid}/verses(cid=${c.id})}" class="btn btn-outline-info btn-sm">절 목록</a>
+                    <a th:href="@{/web/admin/bible/books/{bid}/chapters/{id}/edit(bid=${bookId},id=${c.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                    <button class="btn btn-outline-danger btn-sm" th:data-id="${c.id}" th:data-name="${c.chapterNumber + '장'}" th:data-bid="${bookId}" onclick="deleteChapter(this)">삭제</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(page.content)}">
+                <td colspan="3" class="text-center text-muted">데이터가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}" th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${bookId},page=${i},size=${page.size})}" th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {handleDelete} from "/js/admin/admin-common.js";
+    window.deleteChapter = (btn) => {
+        handleDelete(`/api/v1/admin/bible/books/${btn.dataset.bid}/chapters/${btn.dataset.id}`, btn.dataset.name);
+    };
+</script>
+</body>
+</html>

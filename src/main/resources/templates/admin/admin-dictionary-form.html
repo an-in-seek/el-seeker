@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사전 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <main class="admin-content">
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/dictionaries">사전 목록</a> &gt; <span th:text="${dictionary != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${dictionary != null} ? '사전 수정' : '사전 등록'">사전 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="term">용어</label>
+                <input type="text" id="term" th:value="${dictionary?.term}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">설명</label>
+                <textarea id="description" th:text="${dictionary?.description}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="relatedVerses">관련 구절</label>
+                <textarea id="relatedVerses" th:text="${dictionary?.relatedVerses}"></textarea>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a href="/web/admin/dictionaries" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${dictionary?.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin} from "/js/admin/admin-common.js";
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            term: document.getElementById("term").value,
+            description: document.getElementById("description").value || null,
+            relatedVerses: document.getElementById("relatedVerses").value || null,
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/dictionaries/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin("/api/v1/admin/dictionaries", {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = "/web/admin/dictionaries";
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

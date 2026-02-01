@@ -73,7 +73,10 @@ class SecurityConfig(
 
             // 요청 URL별 접근 권한 설정
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers(
+                auth
+                    // 관리자 전용 페이지 및 API
+                    .requestMatchers("/web/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
+                    .requestMatchers(
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos",
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo"
                 ).authenticated()
@@ -139,6 +142,17 @@ class SecurityConfig(
                         response.sendRedirect("/web/auth/login?returnUrl=$returnUrl")
                     } else {
                         response.sendError(HttpStatus.UNAUTHORIZED.value())
+                    }
+                }
+                it.accessDeniedHandler { request, response, _ ->
+                    val acceptHeader = request.getHeader("Accept").orEmpty()
+                    val isHtmlRequest = acceptHeader.contains("text/html")
+                    if (isHtmlRequest) {
+                        response.sendError(HttpStatus.FORBIDDEN.value())
+                    } else {
+                        response.status = HttpStatus.FORBIDDEN.value()
+                        response.contentType = "application/json"
+                        response.writer.write("""{"status":403,"message":"관리자 권한이 필요합니다."}""")
                     }
                 }
             }

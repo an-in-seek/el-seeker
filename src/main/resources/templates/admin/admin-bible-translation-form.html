@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>번역본 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <main class="admin-content">
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/bible/translations">번역본 목록</a> &gt; <span th:text="${translation != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${translation != null} ? '번역본 수정' : '번역본 등록'">번역본 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="translationType">번역 타입</label>
+                <input type="text" id="translationType" th:value="${translation?.translationType}" placeholder="예: KRV" required>
+            </div>
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" th:value="${translation?.name}" required>
+            </div>
+            <div class="form-group">
+                <label for="translationOrder">순서</label>
+                <input type="number" id="translationOrder" th:value="${translation?.translationOrder}" required>
+            </div>
+            <div class="form-group">
+                <label for="languageCode">언어 코드</label>
+                <input type="text" id="languageCode" th:value="${translation?.languageCode}" placeholder="예: ko" required>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a href="/web/admin/bible/translations" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${translation?.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin} from "/js/admin/admin-common.js";
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            translationType: document.getElementById("translationType").value,
+            name: document.getElementById("name").value,
+            translationOrder: parseInt(document.getElementById("translationOrder").value),
+            languageCode: document.getElementById("languageCode").value,
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/bible/translations/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin("/api/v1/admin/bible/translations", {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = "/web/admin/bible/translations";
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

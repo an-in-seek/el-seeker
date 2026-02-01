@@ -2,6 +2,7 @@ package com.elseeker.bible.adapter.output.jpa
 
 import com.elseeker.bible.adapter.input.api.response.BibleSearchResponse
 import com.elseeker.bible.domain.model.BibleVerse
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
+
+    fun findByChapterId(chapterId: Long, pageable: Pageable): Page<BibleVerse>
 
     @Query(
         """

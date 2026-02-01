@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>책 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <main class="admin-content">
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/bible/translations">번역본 목록</a> &gt;
+            <a th:href="@{/web/admin/bible/translations/{tid}/books(tid=${translationId})}">책 목록</a> &gt;
+            <span th:text="${book != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${book != null} ? '책 수정' : '책 등록'">책 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="bookKey">책 키</label>
+                <input type="text" id="bookKey" th:value="${book?.bookKey}" placeholder="예: GEN" required>
+            </div>
+            <div class="form-group">
+                <label for="bookOrder">순서</label>
+                <input type="number" id="bookOrder" th:value="${book?.bookOrder}" required>
+            </div>
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" th:value="${book?.name}" required>
+            </div>
+            <div class="form-group">
+                <label for="abbreviation">약어</label>
+                <input type="text" id="abbreviation" th:value="${book?.abbreviation}" required>
+            </div>
+            <div class="form-group">
+                <label for="testamentType">구분</label>
+                <select id="testamentType">
+                    <option value="OLD" th:selected="${book?.testamentType?.name() == 'OLD'}">구약</option>
+                    <option value="NEW" th:selected="${book?.testamentType?.name() == 'NEW'}">신약</option>
+                </select>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a th:href="@{/web/admin/bible/translations/{tid}/books(tid=${translationId})}" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${book?.id}]]*/ null;
+    const translationId = /*[[${translationId}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin} from "/js/admin/admin-common.js";
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            bookKey: document.getElementById("bookKey").value,
+            bookOrder: parseInt(document.getElementById("bookOrder").value),
+            name: document.getElementById("name").value,
+            abbreviation: document.getElementById("abbreviation").value,
+            testamentType: document.getElementById("testamentType").value,
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/bible/translations/${translationId}/books/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin(`/api/v1/admin/bible/translations/${translationId}/books`, {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = `/web/admin/bible/translations/${translationId}/books`;
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

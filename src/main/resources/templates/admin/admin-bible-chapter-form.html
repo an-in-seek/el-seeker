@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>장 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <main class="admin-content">
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/bible/translations">번역본 목록</a> &gt;
+            <a th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${bookId})}">장 목록</a> &gt;
+            <span th:text="${chapter != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${chapter != null} ? '장 수정' : '장 등록'">장 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="chapterNumber">장 번호</label>
+                <input type="number" id="chapterNumber" th:value="${chapter?.chapterNumber}" required>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${bookId})}" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${chapter?.id}]]*/ null;
+    const bookId = /*[[${bookId}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin} from "/js/admin/admin-common.js";
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {chapterNumber: parseInt(document.getElementById("chapterNumber").value)};
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/bible/books/${bookId}/chapters/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin(`/api/v1/admin/bible/books/${bookId}/chapters`, {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = `/web/admin/bible/books/${bookId}/chapters`;
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>
