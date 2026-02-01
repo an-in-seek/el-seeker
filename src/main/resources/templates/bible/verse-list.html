@@ -11,6 +11,38 @@
     </table>
 </main>
 
+<div id="verseFab" class="verse-fab d-none" aria-label="선택 구절 메뉴">
+    <button type="button" class="verse-fab-toggle" data-fab-toggle aria-label="선택 메뉴 열기" aria-expanded="false">
+        <svg class="verse-fab-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+    <div class="verse-fab-menu" data-fab-menu role="menu" aria-hidden="true">
+        <button type="button" class="verse-fab-item" data-action="copy" role="menuitem" aria-label="복사">
+            <span class="verse-fab-item-icon" aria-hidden="true">📋</span>
+            <span class="verse-fab-item-label">복사</span>
+        </button>
+        <button type="button" class="verse-fab-item" data-action="highlight" role="menuitem" aria-label="색칠">
+            <span class="verse-fab-item-icon" aria-hidden="true">🖍️</span>
+            <span class="verse-fab-item-label">색칠</span>
+        </button>
+        <button type="button" class="verse-fab-item" data-action="memo" role="menuitem" aria-label="메모">
+            <span class="verse-fab-item-icon" aria-hidden="true">📝</span>
+            <span class="verse-fab-item-label">메모</span>
+        </button>
+        <button type="button" class="verse-fab-item" data-action="share" role="menuitem" aria-label="공유">
+            <span class="verse-fab-item-icon" aria-hidden="true">🔗</span>
+            <span class="verse-fab-item-label">공유</span>
+        </button>
+        <div class="verse-fab-submenu" data-fab-highlight aria-hidden="true">
+            <button type="button" class="verse-fab-color verse-fab-color-yellow" data-highlight="yellow" aria-label="노랑 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-green" data-highlight="green" aria-label="초록 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-pink" data-highlight="pink" aria-label="핑크 형광펜"></button>
+        </div>
+    </div>
+</div>
+
 <!-- 하단 네비게이션 -->
 <div class="fixed-bottom-nav">
     <div class="nav-container">

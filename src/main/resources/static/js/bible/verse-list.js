@@ -7,7 +7,8 @@ const UI_CLASSES = {
 
 const API_CONFIG = {
     TRANSLATIONS: "/api/v1/bibles/translations",
-    MEMOS_BASE: "/api/v1/bibles/translations"
+    MEMOS_BASE: "/api/v1/bibles/translations",
+    HIGHLIGHTS_BASE: "/api/v1/bibles/translations"
 };
 
 const ROUTES = {
@@ -30,22 +31,42 @@ const DomHelper = {
             prevBtn: get("prevChapterBtn"),
             chapterSelectLink: get("chapterSelectLink"),
             chapterSelectLinkLabel: get("chapterSelectLinkLabel"),
-            nextBtn: get("nextChapterBtn")
+            nextBtn: get("nextChapterBtn"),
+            fab: get("verseFab")
         };
     }
 };
+
+const HIGHLIGHT_COLORS = [
+    {id: "yellow", label: "노랑", className: "verse-highlight-yellow"},
+    {id: "green", label: "초록", className: "verse-highlight-green"},
+    {id: "pink", label: "핑크", className: "verse-highlight-pink"}
+];
 
 const App = {
     elements: null,
     state: {
         translationId: null,
         translationType: null,
+        translationName: null,
         bookOrder: null,
         bookName: null,
         chapterNumber: null,
         verseNumber: null,
         fromSearch: false,
         fromHome: false
+    },
+    selection: {
+        selected: new Set(),
+        menuOpen: false,
+        highlightOpen: false,
+        highlightMap: new Map()
+    },
+    highlightAuth: {
+        checked: false,
+        allowed: false,
+        checking: false,
+        redirected: false
     },
     memoAuth: {
         checked: false,
@@ -66,6 +87,7 @@ const App = {
 
         const translationInfo = await App.ensureTranslationInfo();
         App.state.translationType = translationInfo.type;
+        App.state.translationName = translationInfo.name;
 
         if (!App.state.bookOrder) {
             App.redirectToBookList();
@@ -89,6 +111,7 @@ const App = {
         App.updateVerseUrl();
         App.saveLastRead();
         App.bindEvents();
+        App.initFabMenu();
 
         await App.loadChapter("CURRENT");
     },
@@ -179,6 +202,7 @@ const App = {
             verseTable.addEventListener("keydown", App.handleMemoInputAttempt);
             verseTable.addEventListener("beforeinput", App.handleMemoInputAttempt);
         }
+        document.addEventListener("click", App.handleOutsideFabClick);
     },
 
     updateLabels: () => {
@@ -302,8 +326,9 @@ const App = {
             const data = await response.json();
             App.updateStateFromChapter(data);
             App.memoCache = await App.fetchMemosForChapter();
+            const highlights = await App.fetchHighlightsForChapter();
             App.updateVerseUrl();
-            App.renderChapter(data);
+            App.renderChapter(data, highlights);
         } catch (error) {
             App.showAlert("장 정보를 불러오지 못했습니다.", "danger");
             console.error(error);
@@ -330,7 +355,7 @@ const App = {
         App.saveLastRead();
     },
 
-    renderChapter: data => {
+    renderChapter: (data, highlights) => {
         const chapter = data.book.chapter;
         App.updateLabels();
         if (App.elements.verseTable) {
@@ -352,6 +377,8 @@ const App = {
         } else {
             window.scrollTo(0, 0);
         }
+        App.applyHighlights(highlights);
+        App.resetSelectionState();
     },
 
     highlightVerse: verseNumber => {
@@ -393,21 +420,25 @@ const App = {
     },
 
     handleVerseClick: async event => {
-        const verseEl = event.target.closest("[data-verse]");
-        if (!verseEl) {
-            return;
-        }
-        const verseNum = verseEl.getAttribute("data-verse");
         if (event.target.classList.contains("memo-save-btn")) {
+            const verseNum = event.target.dataset.verse;
             await App.saveMemo(verseNum);
             return;
         }
         if (event.target.classList.contains("memo-delete-btn")) {
+            const verseNum = event.target.dataset.verse;
             await App.deleteMemo(verseNum);
             return;
         }
-        App.toggleMemo(verseNum);
-        App.applyVerseHighlight(verseNum);
+        if (event.target.closest(".memo-container")) {
+            return;
+        }
+        const verseEl = event.target.closest(".verse-text[data-verse]");
+        if (!verseEl) {
+            return;
+        }
+        const verseNum = verseEl.getAttribute("data-verse");
+        App.toggleVerseSelection(verseNum);
     },
 
     handleMemoInputAttempt: event => {
@@ -459,16 +490,39 @@ const App = {
         });
     },
 
-    toggleMemo: verseNum => {
-        document.querySelectorAll(".memo-container").forEach(el => {
-            const isTarget = el.id === `memo-${verseNum}`;
-            if (isTarget) {
-                el.classList.toggle("d-none");
-            } else {
-                el.classList.add("d-none");
+    checkHighlightAuth: () => {
+        App.highlightAuth.checking = true;
+        checkAuthStatus({
+            onAuthenticated: () => {
+                App.highlightAuth.checked = true;
+                App.highlightAuth.allowed = true;
+                App.highlightAuth.checking = false;
+            },
+            onUnauthenticated: () => {
+                App.highlightAuth.checked = true;
+                App.highlightAuth.allowed = false;
+                App.highlightAuth.checking = false;
+                if (App.highlightAuth.redirected) {
+                    return;
+                }
+                App.highlightAuth.redirected = true;
+                alert("형광펜 기능은 로그인 후 사용할 수 있습니다.");
+                window.location.href = buildLoginRedirectUrl();
+            },
+            onError: () => {
+                App.highlightAuth.checked = true;
+                App.highlightAuth.allowed = false;
+                App.highlightAuth.checking = false;
             }
         });
+    },
 
+    showMemo: verseNum => {
+        const memoContainer = document.getElementById(`memo-${verseNum}`);
+        if (!memoContainer) {
+            return;
+        }
+        memoContainer.classList.remove("d-none");
         const textarea = document.getElementById(`memo-input-${verseNum}`);
         if (textarea) {
             const memo = App.memoCache.get(String(verseNum));
@@ -476,15 +530,11 @@ const App = {
         }
     },
 
-    applyVerseHighlight: verseNum => {
-        document.querySelectorAll(".verse-text").forEach(el => {
-            const isTarget = el.id === `verse-text-${verseNum}`;
-            if (isTarget) {
-                el.classList.toggle("active");
-            } else {
-                el.classList.remove("active");
-            }
-        });
+    hideMemo: verseNum => {
+        const memoContainer = document.getElementById(`memo-${verseNum}`);
+        if (memoContainer) {
+            memoContainer.classList.add("d-none");
+        }
     },
 
     saveMemo: async verseNum => {
@@ -526,8 +576,7 @@ const App = {
             if (verseTextEl) {
                 verseTextEl.classList.add("verse-has-memo");
             }
-            App.toggleMemo(verseNum);
-            App.applyVerseHighlight(verseNum);
+            App.hideMemo(verseNum);
         } catch (error) {
             App.showAlert("메모 저장 중 오류가 발생했습니다.", "danger");
             console.error(error);
@@ -556,8 +605,7 @@ const App = {
             if (verseTextEl) {
                 verseTextEl.classList.remove("verse-has-memo");
             }
-            App.toggleMemo(verseNum);
-            App.applyVerseHighlight(verseNum);
+            App.hideMemo(verseNum);
         } catch (error) {
             App.showAlert("메모 삭제 중 오류가 발생했습니다.", "danger");
             console.error(error);
@@ -598,6 +646,12 @@ const App = {
     buildMemoUrl: verseNum =>
         `${API_CONFIG.MEMOS_BASE}/${App.state.translationId}/books/${App.state.bookOrder}/chapters/${App.state.chapterNumber}/verses/${parseInt(verseNum, 10)}/memo`,
 
+    buildChapterHighlightUrl: () =>
+        `${API_CONFIG.HIGHLIGHTS_BASE}/${App.state.translationId}/books/${App.state.bookOrder}/chapters/${App.state.chapterNumber}/highlights`,
+
+    buildHighlightUrl: verseNum =>
+        `${API_CONFIG.HIGHLIGHTS_BASE}/${App.state.translationId}/books/${App.state.bookOrder}/chapters/${App.state.chapterNumber}/verses/${parseInt(verseNum, 10)}/highlight`,
+
     showAlert: (message, type = "success") => {
         alert(`${type}: ` + message);
     },
@@ -617,6 +671,379 @@ const App = {
         chapterUrl.searchParams.set("translationId", App.state.translationId);
         chapterUrl.searchParams.set("bookOrder", App.state.bookOrder);
         window.location.href = `${chapterUrl.pathname}${chapterUrl.search}`;
+    },
+
+    initFabMenu: () => {
+        const fab = App.elements.fab;
+        if (!fab) {
+            return;
+        }
+        const toggle = fab.querySelector("[data-fab-toggle]");
+        const menu = fab.querySelector("[data-fab-menu]");
+        const highlightMenu = fab.querySelector("[data-fab-highlight]");
+        if (toggle) {
+            toggle.addEventListener("click", () => App.toggleFabMenu());
+        }
+        if (menu) {
+            menu.addEventListener("click", App.handleFabMenuClick);
+        }
+        if (highlightMenu) {
+            highlightMenu.addEventListener("click", App.handleHighlightPick);
+        }
+        App.updateFabVisibility();
+    },
+
+    handleOutsideFabClick: event => {
+        const fab = App.elements?.fab;
+        if (!fab || fab.classList.contains("d-none")) {
+            return;
+        }
+        if (!event.target.closest("#verseFab")) {
+            App.closeFabMenu();
+        }
+    },
+
+    toggleVerseSelection: verseNum => {
+        const number = String(verseNum);
+        const verseEl = document.querySelector(`.verse-text[data-verse="${number}"]`);
+        if (!verseEl) {
+            return;
+        }
+        if (App.selection.selected.has(number)) {
+            App.selection.selected.delete(number);
+            verseEl.classList.remove("active");
+        } else {
+            App.selection.selected.add(number);
+            verseEl.classList.add("active");
+        }
+        App.updateFabVisibility();
+    },
+
+    resetSelectionState: () => {
+        App.selection.selected.clear();
+        App.selection.menuOpen = false;
+        App.selection.highlightOpen = false;
+        document.querySelectorAll(".verse-text.active").forEach(el => el.classList.remove("active"));
+        App.updateFabVisibility();
+        App.closeFabMenu();
+    },
+
+    updateFabVisibility: () => {
+        const fab = App.elements?.fab;
+        if (!fab) {
+            return;
+        }
+        if (App.selection.selected.size > 0) {
+            fab.classList.remove(UI_CLASSES.HIDDEN);
+        } else {
+            fab.classList.add(UI_CLASSES.HIDDEN);
+        }
+    },
+
+    toggleFabMenu: () => {
+        App.selection.menuOpen = !App.selection.menuOpen;
+        const fab = App.elements?.fab;
+        if (!fab) {
+            return;
+        }
+        fab.classList.toggle("is-open", App.selection.menuOpen);
+        const toggle = fab.querySelector("[data-fab-toggle]");
+        const menu = fab.querySelector("[data-fab-menu]");
+        if (toggle) {
+            toggle.setAttribute("aria-expanded", String(App.selection.menuOpen));
+        }
+        if (menu) {
+            menu.setAttribute("aria-hidden", String(!App.selection.menuOpen));
+        }
+        if (!App.selection.menuOpen) {
+            App.closeHighlightMenu();
+        }
+    },
+
+    closeFabMenu: () => {
+        if (!App.selection.menuOpen) {
+            return;
+        }
+        App.selection.menuOpen = false;
+        const fab = App.elements?.fab;
+        if (fab) {
+            fab.classList.remove("is-open");
+            const toggle = fab.querySelector("[data-fab-toggle]");
+            const menu = fab.querySelector("[data-fab-menu]");
+            if (toggle) {
+                toggle.setAttribute("aria-expanded", "false");
+            }
+            if (menu) {
+                menu.setAttribute("aria-hidden", "true");
+            }
+        }
+        App.closeHighlightMenu();
+    },
+
+    handleFabMenuClick: event => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) {
+            return;
+        }
+        const action = actionButton.dataset.action;
+        switch (action) {
+            case "copy":
+                App.copySelectedVerses();
+                App.closeFabMenu();
+                break;
+            case "highlight":
+                App.toggleHighlightMenu();
+                break;
+            case "memo":
+                App.openMemoForSelected();
+                App.closeFabMenu();
+                break;
+            case "share":
+                App.shareSelectedVerses();
+                App.closeFabMenu();
+                break;
+            default:
+                break;
+        }
+    },
+
+    toggleHighlightMenu: () => {
+        App.selection.highlightOpen = !App.selection.highlightOpen;
+        const menu = App.elements?.fab?.querySelector("[data-fab-highlight]");
+        if (menu) {
+            menu.setAttribute("aria-hidden", String(!App.selection.highlightOpen));
+            menu.classList.toggle("is-open", App.selection.highlightOpen);
+        }
+    },
+
+    closeHighlightMenu: () => {
+        App.selection.highlightOpen = false;
+        const menu = App.elements?.fab?.querySelector("[data-fab-highlight]");
+        if (menu) {
+            menu.setAttribute("aria-hidden", "true");
+            menu.classList.remove("is-open");
+        }
+    },
+
+    handleHighlightPick: async event => {
+        const colorButton = event.target.closest("[data-highlight]");
+        if (!colorButton) {
+            return;
+        }
+        const colorId = colorButton.dataset.highlight;
+        await App.applyHighlightToSelection(colorId);
+        App.closeHighlightMenu();
+        App.closeFabMenu();
+    },
+
+    applyHighlightToSelection: async colorId => {
+        if (!App.highlightAuth.allowed) {
+            App.checkHighlightAuth();
+            return;
+        }
+        const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === colorId);
+        if (!colorConfig) {
+            return;
+        }
+        const verseNumbers = App.getSelectedVerseNumbers();
+        if (verseNumbers.length === 0) {
+            return;
+        }
+        await Promise.all(verseNumbers.map(async verseNum => {
+            const current = App.selection.highlightMap.get(String(verseNum));
+            if (current && current.id === colorConfig.id) {
+                await App.deleteHighlight(verseNum);
+            } else {
+                await App.upsertHighlight(verseNum, colorConfig.id);
+            }
+        }));
+    },
+
+    openMemoForSelected: () => {
+        if (!App.memoAuth.allowed) {
+            App.checkMemoAuth();
+            return;
+        }
+        const verseNumbers = App.getSelectedVerseNumbers();
+        verseNumbers.forEach(verseNum => App.showMemo(verseNum));
+        if (verseNumbers.length > 0) {
+            const firstTextarea = document.getElementById(`memo-input-${verseNumbers[0]}`);
+            if (firstTextarea) {
+                firstTextarea.focus();
+            }
+        }
+    },
+
+    fetchHighlightsForChapter: async () => {
+        const url = new URL(App.buildChapterHighlightUrl(), window.location.origin);
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json"
+                }
+            });
+            if (response.status === 401) {
+                App.highlightAuth.checked = false;
+                App.highlightAuth.allowed = false;
+                return [];
+            }
+            if (!response.ok) {
+                throw new Error("형광펜 조회 실패");
+            }
+            const data = await response.json();
+            App.highlightAuth.checked = true;
+            App.highlightAuth.allowed = true;
+            return data;
+        } catch (error) {
+            console.warn(error.message);
+            return [];
+        }
+    },
+
+    applyHighlights: highlights => {
+        const colorClasses = HIGHLIGHT_COLORS.map(color => color.className);
+        document.querySelectorAll(".verse-text").forEach(el => {
+            colorClasses.forEach(className => el.classList.remove(className));
+        });
+        App.selection.highlightMap.clear();
+        if (!highlights || highlights.length === 0) {
+            return;
+        }
+        highlights.forEach(item => {
+            const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === item.color);
+            if (!colorConfig) {
+                return;
+            }
+            App.setHighlightFromServer(item.verseNumber, colorConfig);
+        });
+    },
+
+    setHighlightFromServer: (verseNum, colorConfig) => {
+        const verseEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+        if (!verseEl) {
+            return;
+        }
+        verseEl.classList.add(colorConfig.className);
+        App.selection.highlightMap.set(String(verseNum), colorConfig);
+    },
+
+    upsertHighlight: async (verseNum, colorId) => {
+        const response = await fetch(App.buildHighlightUrl(verseNum), {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({color: colorId})
+        });
+        if (response.status === 401) {
+            App.checkHighlightAuth();
+            return;
+        }
+        if (!response.ok) {
+            App.showAlert("형광펜 저장에 실패했습니다.", "danger");
+            return;
+        }
+        const highlight = await response.json();
+        const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === highlight.color);
+        if (!colorConfig) {
+            return;
+        }
+        App.setHighlightFromServer(highlight.verseNumber, colorConfig);
+    },
+
+    deleteHighlight: async verseNum => {
+        const response = await fetch(App.buildHighlightUrl(verseNum), {
+            method: "DELETE",
+            credentials: "include"
+        });
+        if (response.status === 401) {
+            App.checkHighlightAuth();
+            return;
+        }
+        if (!response.ok) {
+            App.showAlert("형광펜 삭제에 실패했습니다.", "danger");
+            return;
+        }
+        const verseEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+        if (verseEl) {
+            const current = App.selection.highlightMap.get(String(verseNum));
+            if (current) {
+                verseEl.classList.remove(current.className);
+            }
+        }
+        App.selection.highlightMap.delete(String(verseNum));
+    },
+
+    getSelectedVerseNumbers: () => {
+        return Array.from(App.selection.selected)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map(String);
+    },
+
+    buildSelectedText: () => {
+        const verseNumbers = App.getSelectedVerseNumbers();
+        const translationLabel = App.state.translationType || App.state.translationName || "";
+        const header = `${translationLabel} ${App.state.bookName} ${App.state.chapterNumber}장`.trim();
+        const lines = verseNumbers.map(verseNum => {
+            const verseEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+            const text = verseEl ? verseEl.textContent.trim() : "";
+            return `${verseNum} ${text}`.trim();
+        });
+        return [header, ...lines].filter(Boolean).join("\n");
+    },
+
+    copySelectedVerses: async () => {
+        const text = App.buildSelectedText();
+        if (!text) {
+            return;
+        }
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                App.fallbackCopy(text);
+            }
+            App.showAlert("선택한 구절이 복사되었습니다.", "success");
+        } catch (error) {
+            App.fallbackCopy(text);
+            App.showAlert("복사에 실패했습니다.", "danger");
+        }
+    },
+
+    shareSelectedVerses: async () => {
+        const text = App.buildSelectedText();
+        if (!text) {
+            return;
+        }
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: "성경 구절 공유",
+                    text
+                });
+                return;
+            } catch (error) {
+                // ignore and fallback
+            }
+        }
+        App.copySelectedVerses();
+        App.showAlert("공유 텍스트가 복사되었습니다.", "success");
+    },
+
+    fallbackCopy: text => {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
     }
 };
 
