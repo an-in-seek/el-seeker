@@ -78,7 +78,9 @@ class SecurityConfig(
                     .requestMatchers("/web/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers(
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos",
-                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo"
+                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo",
+                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/highlights",
+                    "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/highlight"
                 ).authenticated()
                     .requestMatchers(
                         "/",

@@ -1,5 +1,6 @@
 package com.elseeker.member.application.service
 
+import com.elseeker.bible.adapter.output.jpa.BibleHighlightRepository
 import com.elseeker.bible.adapter.output.jpa.BibleMemoRepository
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
@@ -24,6 +25,7 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val memberOAuthAccountRepository: MemberOAuthAccountRepository,
     private val bibleMemoRepository: BibleMemoRepository,
+    private val bibleHighlightRepository: BibleHighlightRepository,
     private val bibleTypingSessionRepository: BibleTypingSessionRepository,
     private val quizProgressRepository: QuizProgressRepository,
     private val quizStageAttemptRepository: QuizStageAttemptRepository,
@@ -61,6 +63,7 @@ class MemberService(
             )
         )
         bibleMemoRepository.deleteAllByMember(member)
+        bibleHighlightRepository.deleteAllByMember(member)
         bibleTypingSessionRepository.deleteAllByMember(member)
         quizQuestionAttemptRepository.deleteAllByMember(member)
         quizStageAttemptRepository.deleteAllByMember(member)
