@@ -93,6 +93,33 @@
     z-index: 1050;
 }
 
+/* 배경 딤 처리 (Backdrop) */
+.verse-fab::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    /* 배경을 어둡게 눌러줌 */
+    backdrop-filter: blur(2px);
+    /* 블러 효과로 포커스 집중 */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: -1;
+    /* 버튼과 메뉴보다 뒤에 위치 */
+    pointer-events: none;
+}
+
+.verse-fab.is-open::before {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    /* 배경 클릭 시 닫기 처리를 위해 (JS 별도 처리 필요하지만 시각적 차단 효과) */
+}
+
 .verse-fab-toggle {
     width: 56px;
     height: 56px;
@@ -163,7 +190,8 @@
     font-weight: 500;
     white-space: nowrap;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    /* 0.03 -> 0.08 경계선 강화 */
     opacity: 0;
     transform: translateY(20px) scale(0.9);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
