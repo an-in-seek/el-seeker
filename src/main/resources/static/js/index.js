@@ -1,5 +1,5 @@
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
-import {LastReadStore, TranslationStore} from "/js/storage-util.js?v=2.1";
+import {LastReadStore, SessionStore, STORAGE_KEYS, TranslationStore} from "/js/storage-util.js?v=2.1";
 
 const updateText = (element, value) => {
     if (!element) {
@@ -9,9 +9,10 @@ const updateText = (element, value) => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const isInternalNavigation = document.referrer && new URL(document.referrer).origin === window.location.origin;
+    const homeVisited = SessionStore.get(STORAGE_KEYS.HOME_VISITED);
     const lastRead = LastReadStore.get();
-    if (lastRead && !isInternalNavigation) {
+    if (lastRead && !homeVisited) {
+        SessionStore.set(STORAGE_KEYS.HOME_VISITED, true);
         const verseUrl = new URL("/web/bible/verse", window.location.origin);
         verseUrl.searchParams.set("translationId", lastRead.translationId);
         verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.replace(`${verseUrl.pathname}${verseUrl.search}`);
         return;
     }
+    SessionStore.set(STORAGE_KEYS.HOME_VISITED, true);
 
     const dailyVerseText = document.getElementById("dailyVerseText");
     const dailyVerseReference = document.getElementById("dailyVerseReference");

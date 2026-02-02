@@ -12,7 +12,7 @@ export const STORAGE_KEYS = Object.freeze({
     VERSE_ID: "verseId",
     VERSE_NUMBER: "verseNumber",
     LAST_READ_LOCATION: "lastReadLocation",
-    SKIP_HOME_REDIRECT: "skipHomeRedirect"
+    HOME_VISITED: "homeVisited"
 });
 
 // === Local Storage Utility ===
