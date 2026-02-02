@@ -1,5 +1,5 @@
-import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
-import {formatNumberWithComma} from "/js/common-util.js?v=2.1";
+import { BookStore, ChapterStore, TranslationStore, VerseStore } from "/js/storage-util.js?v=2.1";
+import { formatNumberWithComma } from "/js/common-util.js?v=2.1";
 
 const UI_CLASSES = {
     HIDDEN: "d-none",
@@ -38,8 +38,7 @@ const DomHelper = {
             emptyState: get("searchEmptyState"),
             searchLoading: get("searchLoading"),
             searchLoadingMessage: get("searchLoadingMessage"),
-            searchResultTable: get("searchResultTable"),
-            searchResultBody: get("searchResultBody"),
+            searchResultList: get("searchResultList"),
             scrollToTopBtn: get("scrollToTopBtn")
         };
     }
@@ -77,7 +76,7 @@ const App = {
         App.initFormControls();
         App.initResultHandlers();
         App.initScrollToTop();
-        window.addEventListener("scroll", App.maybeLoadNextPage, {passive: true});
+        window.addEventListener("scroll", App.maybeLoadNextPage, { passive: true });
 
         if (App.state.initialKeyword) {
             if (App.elements.keywordInput) {
@@ -103,7 +102,7 @@ const App = {
     },
 
     initNav: () => {
-        const {backButton, translationLink, searchLink, pageTitleLabel} = App.elements;
+        const { backButton, translationLink, searchLink, pageTitleLabel } = App.elements;
         if (backButton) {
             backButton.classList.remove(UI_CLASSES.HIDDEN);
             backButton.addEventListener("click", () => {
@@ -127,14 +126,14 @@ const App = {
     },
 
     updateTranslationTypeLabel: () => {
-        const {translationTypeLabel} = App.elements;
+        const { translationTypeLabel } = App.elements;
         if (translationTypeLabel) {
             translationTypeLabel.textContent = App.state.translationType ?? "";
         }
     },
 
     initFormControls: () => {
-        const {clearBtn, keywordInput, searchForm} = App.elements;
+        const { clearBtn, keywordInput, searchForm } = App.elements;
         if (clearBtn && keywordInput) {
             clearBtn.addEventListener("click", () => {
                 keywordInput.value = "";
@@ -161,28 +160,28 @@ const App = {
     },
 
     initResultHandlers: () => {
-        const {searchResultBody} = App.elements;
-        if (searchResultBody) {
-            searchResultBody.addEventListener("click", App.handleResultClick);
+        const { searchResultList } = App.elements;
+        if (searchResultList) {
+            searchResultList.addEventListener("click", App.handleResultClick);
         }
     },
 
     initScrollToTop: () => {
-        const {scrollToTopBtn} = App.elements;
+        const { scrollToTopBtn } = App.elements;
         if (!scrollToTopBtn) {
             return;
         }
 
         scrollToTopBtn.addEventListener("click", () => {
-            window.scrollTo({top: 0, behavior: "smooth"});
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
-        window.addEventListener("scroll", App.updateScrollToTopVisibility, {passive: true});
+        window.addEventListener("scroll", App.updateScrollToTopVisibility, { passive: true });
         App.updateScrollToTopVisibility();
     },
 
     updateScrollToTopVisibility: () => {
-        const {scrollToTopBtn} = App.elements;
+        const { scrollToTopBtn } = App.elements;
         if (!scrollToTopBtn) {
             return;
         }
@@ -191,37 +190,37 @@ const App = {
     },
 
     setEmptyState: message => {
-        const {emptyState, searchResultTable} = App.elements;
+        const { emptyState, searchResultList } = App.elements;
         if (emptyState) {
             emptyState.textContent = message;
             emptyState.classList.remove(UI_CLASSES.HIDDEN);
         }
         App.hideLoading();
-        if (searchResultTable) {
-            searchResultTable.classList.add(UI_CLASSES.HIDDEN);
+        if (searchResultList) {
+            searchResultList.classList.add(UI_CLASSES.HIDDEN);
         }
     },
 
     setResultsVisible: () => {
-        const {emptyState, searchResultTable} = App.elements;
+        const { emptyState, searchResultList } = App.elements;
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
         }
         App.hideLoading();
-        if (searchResultTable) {
-            searchResultTable.classList.remove(UI_CLASSES.HIDDEN);
+        if (searchResultList) {
+            searchResultList.classList.remove(UI_CLASSES.HIDDEN);
         }
     },
 
     hideEmptyState: () => {
-        const {emptyState} = App.elements;
+        const { emptyState } = App.elements;
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
         }
     },
 
     showLoading: message => {
-        const {searchLoading, searchLoadingMessage} = App.elements;
+        const { searchLoading, searchLoadingMessage } = App.elements;
         if (searchLoading) {
             searchLoading.classList.remove(UI_CLASSES.HIDDEN);
             searchLoading.setAttribute("aria-busy", "true");
@@ -232,7 +231,7 @@ const App = {
     },
 
     hideLoading: () => {
-        const {searchLoading} = App.elements;
+        const { searchLoading } = App.elements;
         if (searchLoading) {
             searchLoading.classList.add(UI_CLASSES.HIDDEN);
             searchLoading.removeAttribute("aria-busy");
@@ -240,7 +239,7 @@ const App = {
     },
 
     setLoading: loading => {
-        const {searchBtn, keywordInput, clearBtn} = App.elements;
+        const { searchBtn, keywordInput, clearBtn } = App.elements;
         if (searchBtn) {
             searchBtn.disabled = loading;
         }
@@ -253,7 +252,7 @@ const App = {
     },
 
     setLoadingState: message => {
-        const {resultCount} = App.elements;
+        const { resultCount } = App.elements;
         if (!resultCount) {
             return;
         }
@@ -285,16 +284,16 @@ const App = {
     },
 
     updateResultCount: () => {
-        const {resultCount} = App.elements;
+        const { resultCount } = App.elements;
         if (resultCount && App.state.totalCount !== null && App.state.activeKeyword) {
             resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${formatNumberWithComma(App.state.totalCount)}건`;
         }
     },
 
     clearResults: () => {
-        const {searchResultBody, resultCount} = App.elements;
-        if (searchResultBody) {
-            searchResultBody.innerHTML = "";
+        const { searchResultList, resultCount } = App.elements;
+        if (searchResultList) {
+            searchResultList.innerHTML = "";
         }
         if (resultCount) {
             resultCount.textContent = "";
@@ -303,29 +302,37 @@ const App = {
     },
 
     appendResults: items => {
-        const {searchResultBody} = App.elements;
-        if (!searchResultBody) {
+        const { searchResultList } = App.elements;
+        if (!searchResultList) {
             return;
         }
         items.forEach(item => {
-            const row = document.createElement("tr");
+            const resultItem = document.createElement("div");
+            resultItem.className = "search-result-item verse-link";
+
+            // 데이터 속성 설정 (클릭 이벤트용)
+            resultItem.dataset.bookId = item.bookId;
+            resultItem.dataset.bookOrder = item.bookOrder;
+            resultItem.dataset.bookName = item.bookName;
+            resultItem.dataset.chapterId = item.chapterId;
+            resultItem.dataset.chapterNumber = item.chapterNumber;
+            resultItem.dataset.verseId = item.verseId;
+            resultItem.dataset.verseNumber = item.verseNumber;
+
             const highlightedText = item.text.replace(
                 new RegExp(`(${App.state.activeKeyword})`, "gi"),
                 "<span class=\"highlight-keyword\">$1</span>"
             );
-            row.innerHTML = `
-                  <td class="verse-link" style="cursor:pointer"
-                      data-book-id="${item.bookId}"
-                      data-book-order="${item.bookOrder}"
-                      data-book-name="${item.bookName}"
-                      data-chapter-id="${item.chapterId}"
-                      data-chapter-number="${item.chapterNumber}"
-                      data-verse-id="${item.verseId}"
-                      data-verse-number="${item.verseNumber}">
-                      ${highlightedText} (${item.bookName} ${item.chapterNumber}:${item.verseNumber})
-                  </td>
-                `;
-            searchResultBody.appendChild(row);
+
+            resultItem.innerHTML = `
+                <div class="search-result-meta">
+                    <span class="search-result-badge">${item.bookName} ${item.chapterNumber}:${item.verseNumber}</span>
+                </div>
+                <div class="search-result-text">
+                    ${highlightedText}
+                </div>
+            `;
+            searchResultList.appendChild(resultItem);
         });
     },
 
@@ -367,7 +374,7 @@ const App = {
             App.state.hasNext = data.hasNext === true;
         } catch (error) {
             if (page === 0) {
-                const {resultCount} = App.elements;
+                const { resultCount } = App.elements;
                 if (resultCount) {
                     resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 }
