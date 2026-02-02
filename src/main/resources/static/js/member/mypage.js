@@ -37,6 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
+    const saveToast = document.getElementById("mypageToast");
+    const saveToastBody = document.getElementById("mypageToastMessage");
+    const saveToastClose = document.getElementById("mypageToastClose");
     const oauthActionButtons = document.querySelectorAll(".mypage-oauth-action");
     const confirmModal = document.getElementById("mypageOAuthConfirmModal");
     const confirmCancel = document.getElementById("mypageOAuthConfirmCancel");
@@ -47,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let memberEmail = "";
     let initialNickname = "";
     let pendingOAuthUnlink = null;
+    let saveToastTimer = null;
 
     const redirectToLogin = () => {
         window.location.replace(buildLoginRedirectUrl());
@@ -89,6 +93,43 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessage.classList.add("d-none");
             errorMessage.textContent = "";
         }
+        if (saveToast) {
+            saveToast.classList.remove("show");
+            saveToast.setAttribute("aria-hidden", "true");
+        }
+        if (saveToastTimer) {
+            clearTimeout(saveToastTimer);
+            saveToastTimer = null;
+        }
+    };
+
+    const hideSaveToast = () => {
+        if (!saveToast) {
+            return;
+        }
+        saveToast.classList.remove("show");
+        saveToast.setAttribute("aria-hidden", "true");
+        if (saveToastTimer) {
+            clearTimeout(saveToastTimer);
+            saveToastTimer = null;
+        }
+    };
+
+    const showSaveToast = (message) => {
+        if (!saveToast) {
+            return;
+        }
+        if (saveToastBody) {
+            saveToastBody.textContent = message;
+        }
+        saveToast.classList.add("show");
+        saveToast.removeAttribute("aria-hidden");
+        if (saveToastTimer) {
+            clearTimeout(saveToastTimer);
+        }
+        saveToastTimer = setTimeout(() => {
+            hideSaveToast();
+        }, 2500);
     };
 
     const formatConnectedAt = (value) => {
@@ -341,6 +382,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirmSubmit) {
         confirmSubmit.addEventListener("click", confirmOAuthUnlink);
     }
+    if (saveToastClose) {
+        saveToastClose.addEventListener("click", hideSaveToast);
+    }
     if (confirmModal) {
         confirmModal.addEventListener("click", (event) => {
             const target = event.target;
@@ -455,10 +499,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 initialNickname = updatedNickname;
 
-                if (successMessage) {
-                    successMessage.textContent = "회원 정보가 저장되었습니다.";
-                    successMessage.classList.remove("d-none");
-                }
+                showSaveToast("회원 정보가 저장되었습니다.");
             } catch (error) {
                 showAuthError(errorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
             } finally {
