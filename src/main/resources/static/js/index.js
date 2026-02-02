@@ -1,5 +1,5 @@
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
-import {LastReadStore, SessionStore, STORAGE_KEYS, TranslationStore} from "/js/storage-util.js?v=2.1";
+import {LastReadStore, TranslationStore} from "/js/storage-util.js?v=2.1";
 
 const updateText = (element, value) => {
     if (!element) {
@@ -9,9 +9,9 @@ const updateText = (element, value) => {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const skipAutoRedirect = SessionStore.consume(STORAGE_KEYS.SKIP_HOME_REDIRECT);
+    const isInternalNavigation = document.referrer && new URL(document.referrer).origin === window.location.origin;
     const lastRead = LastReadStore.get();
-    if (lastRead && !skipAutoRedirect) {
+    if (lastRead && !isInternalNavigation) {
         const verseUrl = new URL("/web/bible/verse", window.location.origin);
         verseUrl.searchParams.set("translationId", lastRead.translationId);
         verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
@@ -117,7 +117,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         dailyVerseLink.addEventListener("click", () => {
             const targetUrl = dailyVerseLink.dataset.verseUrl;
             if (targetUrl) {
-                SessionStore.set(STORAGE_KEYS.SKIP_HOME_REDIRECT, true);
                 window.location.href = targetUrl;
             }
         });
@@ -126,7 +125,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 event.preventDefault();
                 const targetUrl = dailyVerseLink.dataset.verseUrl;
                 if (targetUrl) {
-                    SessionStore.set(STORAGE_KEYS.SKIP_HOME_REDIRECT, true);
                     window.location.href = targetUrl;
                 }
             }
