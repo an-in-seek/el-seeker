@@ -1,6 +1,5 @@
 import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
-import {LastReadStore} from "/js/storage-util.js?v=2.1";
 
 const roleLabels = {
     ADMIN: "관리자",
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
-    const homeButton = document.querySelector(".top-nav-home-button");
     const oauthActionButtons = document.querySelectorAll(".mypage-oauth-action");
     const confirmModal = document.getElementById("mypageOAuthConfirmModal");
     const confirmCancel = document.getElementById("mypageOAuthConfirmCancel");
@@ -332,11 +330,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     setFormEnabled(false);
-    if (homeButton) {
-        homeButton.addEventListener("click", () => {
-            LastReadStore.clear();
-        });
-    }
     if (oauthActionButtons && oauthActionButtons.length > 0) {
         oauthActionButtons.forEach((button) => {
             button.addEventListener("click", handleOAuthAction);
