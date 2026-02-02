@@ -1038,7 +1038,6 @@ const App = {
             }
         }
         App.copySelectedVerses();
-        App.showAlert("공유 텍스트가 복사되었습니다.", "success");
     },
 
     fallbackCopy: text => {
