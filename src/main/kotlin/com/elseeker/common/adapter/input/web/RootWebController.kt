@@ -2,12 +2,14 @@ package com.elseeker.common.adapter.input.web
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.ui.Model
 
 @Controller
 class RootWebController {
 
     @GetMapping("/")
-    fun showIndex(): String {
+    fun showIndex(model: Model): String {
+        model.addAttribute("hideHomeButton", true)
         return "index" // 루트 URL에서 index.html 로 연결
     }
 }
