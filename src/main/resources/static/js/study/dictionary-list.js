@@ -25,6 +25,7 @@ const DomHelper = {
             clearBtn: get("dictionaryClearBtn"),
             resultCount: get("dictionaryResultCount"),
             emptyState: get("dictionaryEmptyState"),
+            dictionaryLoading: get("dictionaryLoading"),
             listContainer: get("dictionaryList"),
             scrollToTopBtn: get("scrollToTopBtn"),
         };
@@ -51,7 +52,7 @@ const DomHelper = {
 };
 
 const ApiService = {
-    fetchDictionaryPage: async ({keyword, page, size}) => {
+    fetchDictionaryPage: async ({ keyword, page, size }) => {
         const url = new URL(API_CONFIG.BASE_URL, window.location.origin);
         if (keyword) {
             url.searchParams.set("keyword", keyword);
@@ -93,7 +94,7 @@ const App = {
     },
 
     initNav: () => {
-        const {pageTitleLabel, backButton} = App.elements;
+        const { pageTitleLabel, backButton } = App.elements;
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "성경 사전";
             pageTitleLabel.classList.remove(UI_CLASSES.HIDDEN);
@@ -107,7 +108,7 @@ const App = {
     },
 
     bindEvents: () => {
-        const {keywordInput, clearBtn, searchForm, scrollToTopBtn} = App.elements;
+        const { keywordInput, clearBtn, searchForm, scrollToTopBtn } = App.elements;
 
         if (keywordInput) {
             keywordInput.focus();
@@ -140,17 +141,17 @@ const App = {
 
         if (scrollToTopBtn) {
             scrollToTopBtn.addEventListener("click", () => {
-                window.scrollTo({top: 0, behavior: "smooth"});
+                window.scrollTo({ top: 0, behavior: "smooth" });
             });
-            window.addEventListener("scroll", App.updateScrollToTopVisibility, {passive: true});
+            window.addEventListener("scroll", App.updateScrollToTopVisibility, { passive: true });
             App.updateScrollToTopVisibility();
         }
 
-        window.addEventListener("scroll", App.maybeLoadNextPage, {passive: true});
+        window.addEventListener("scroll", App.maybeLoadNextPage, { passive: true });
     },
 
     updateScrollToTopVisibility: () => {
-        const {scrollToTopBtn} = App.elements;
+        const { scrollToTopBtn } = App.elements;
         if (!scrollToTopBtn) {
             return;
         }
@@ -159,7 +160,7 @@ const App = {
     },
 
     setEmptyState: (message, detail) => {
-        const {emptyState, listContainer} = App.elements;
+        const { emptyState, listContainer, dictionaryLoading } = App.elements;
         if (emptyState) {
             emptyState.innerHTML = "";
             const title = document.createElement("p");
@@ -175,31 +176,41 @@ const App = {
             DomHelper.toggleVisibility(emptyState, true);
         }
         DomHelper.toggleVisibility(listContainer, false);
+        DomHelper.toggleVisibility(dictionaryLoading, false);
     },
 
     setResultsVisible: () => {
-        const {emptyState, listContainer} = App.elements;
+        const { emptyState, listContainer, dictionaryLoading } = App.elements;
         DomHelper.toggleVisibility(emptyState, false);
         DomHelper.toggleVisibility(listContainer, true);
+        DomHelper.toggleVisibility(dictionaryLoading, false);
     },
 
     setLoading: loading => {
-        const {searchBtn, keywordInput, clearBtn} = App.elements;
+        const { searchBtn, keywordInput, clearBtn } = App.elements;
         if (searchBtn) searchBtn.disabled = loading;
         if (keywordInput) keywordInput.disabled = loading;
         if (clearBtn) clearBtn.disabled = loading;
     },
 
     setLoadingState: message => {
-        const {resultCount} = App.elements;
-        if (!resultCount) {
-            return;
+        const { resultCount, emptyState, dictionaryLoading, listContainer } = App.elements;
+
+        // Hide other states
+        DomHelper.toggleVisibility(emptyState, false);
+        DomHelper.toggleVisibility(listContainer, false);
+
+        // Show spinner
+        DomHelper.toggleVisibility(dictionaryLoading, true);
+
+        // Update valid result count if needed or clear it
+        if (resultCount) {
+            // Optional: Show "Loading..." text in result count if strictly needed, 
+            // but usually the spinner is enough. 
+            // For consistency with other pages, we might want to clear it or leave it.
+            // Let's clear it to reduce noise while spinner is valid.
+            resultCount.textContent = "";
         }
-        DomHelper.toggleVisibility(App.elements.emptyState, false);
-        DomHelper.setElementHtml(resultCount, `
-                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                ${message}
-            `);
     },
 
     resetSearchState: () => {
@@ -211,7 +222,7 @@ const App = {
     },
 
     updateResultCount: () => {
-        const {resultCount} = App.elements;
+        const { resultCount } = App.elements;
         if (!resultCount) {
             return;
         }
@@ -247,7 +258,7 @@ const App = {
     },
 
     appendResults: items => {
-        const {listContainer} = App.elements;
+        const { listContainer } = App.elements;
         if (!listContainer) {
             return;
         }
@@ -330,7 +341,7 @@ const App = {
         } catch (error) {
             console.error(error);
             if (page === 0) {
-                const {resultCount} = App.elements;
+                const { resultCount } = App.elements;
                 if (resultCount) {
                     resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 }
@@ -358,7 +369,7 @@ const App = {
     normalizeKeyword: keyword => (keyword ?? "").trim(),
 
     clearResults: () => {
-        const {listContainer, resultCount} = App.elements;
+        const { listContainer, resultCount } = App.elements;
         if (listContainer) {
             listContainer.innerHTML = "";
         }

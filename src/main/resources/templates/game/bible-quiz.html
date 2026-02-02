@@ -1,85 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-quiz.css?v=2.1')}"></head>
+
+<head
+    th:replace="~{fragments/head :: head('성경 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-quiz.css?v=2.1')}">
+</head>
+
 <body class="has-fixed-nav">
 
-<header th:replace="~{fragments/header :: header}"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="container content-wrapper">
-    <!-- 에러 메시지 영역 -->
-    <div id="quizError" class="alert alert-danger d-none" role="alert"></div>
+    <main class="container content-wrapper">
+        <!-- 에러 메시지 영역 -->
+        <div id="quizError" class="alert alert-danger d-none" role="alert"></div>
 
-    <!-- 로딩 상태 -->
-    <div id="quizLoading" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">로딩 중...</span>
-        </div>
-        <p class="mt-3 text-muted">퀴즈를 불러오는 중입니다...</p>
-    </div>
-
-    <section class="quiz-hero page-hero d-none" id="quizHero" aria-labelledby="quizTitle">
-        <div class="quiz-hero-content page-hero-content">
-            <h2 id="quizTitle" class="quiz-hero-title page-hero-title mb-2">Quiz</h2>
-            <span class="quiz-mode-label" id="quizModeLabel" aria-live="polite"></span>
-            <p class="quiz-hero-lead page-hero-lead d-none text-danger" id="quizHeroLead"></p>
-        </div>
-    </section>
-
-    <section class="quiz-mode card card-panel card-soft d-none" id="quizReviewSelect" aria-live="polite">
-        <div class="card-body text-center">
-            <h3 class="h5 fw-semibold mb-2">복습 방식을 선택하세요</h3>
-            <p class="text-muted small mb-3" id="quizReviewNote">복습 모드는 기록과 랭킹에 반영되지 않습니다.</p>
-            <div class="flex-wrap quiz-action-group">
-                <button class="btn btn-primary btn-sm" id="quizReviewFullButton" type="button">복습</button>
+        <!-- 로딩 상태 -->
+        <div id="quizLoading" class="text-center py-5">
+            <div class="spinner-container">
+                <div class="custom-spinner"></div>
+                <p class="mt-3 text-muted fw-medium">퀴즈를 불러오는 중입니다...</p>
             </div>
         </div>
-    </section>
 
-    <section class="quiz-card card card-panel card-soft d-none" id="quizPanel" aria-busy="true">
-        <div class="card-body">
-            <div class="quiz-progress">
-                <div class="quiz-progress-block">
-                    <span class="quiz-progress-label">문제</span>
-                    <progress class="quiz-progress-bar"
-                              id="quizQuestionProgressBar"
-                              value="1"
-                              max="10"
-                              aria-valuemin="1"
-                              aria-valuemax="10"
-                              aria-valuenow="1"></progress>
-                    <span class="quiz-progress-item" id="quizQuestionProgress"></span>
+        <section class="quiz-hero page-hero d-none" id="quizHero" aria-labelledby="quizTitle">
+            <div class="quiz-hero-content page-hero-content">
+                <h2 id="quizTitle" class="quiz-hero-title page-hero-title mb-2">Quiz</h2>
+                <span class="quiz-mode-label" id="quizModeLabel" aria-live="polite"></span>
+                <p class="quiz-hero-lead page-hero-lead d-none text-danger" id="quizHeroLead"></p>
+            </div>
+        </section>
+
+        <section class="quiz-mode card card-panel card-soft d-none" id="quizReviewSelect" aria-live="polite">
+            <div class="card-body text-center">
+                <h3 class="h5 fw-semibold mb-2">복습 방식을 선택하세요</h3>
+                <p class="text-muted small mb-3" id="quizReviewNote">복습 모드는 기록과 랭킹에 반영되지 않습니다.</p>
+                <div class="flex-wrap quiz-action-group">
+                    <button class="btn btn-primary btn-sm" id="quizReviewFullButton" type="button">복습</button>
                 </div>
             </div>
-            <h3 class="quiz-question h5 fw-semibold mb-3" id="quizQuestion">문제를 불러오는 중입니다…</h3>
-            <div class="quiz-options" id="quizOptions">문제를 불러오는 중입니다…</div>
-            <p class="quiz-feedback text-center" id="quizFeedback" role="status" aria-live="polite"></p>
-            <button class="btn btn-primary quiz-next" id="quizNext" type="button" disabled>다음 문제</button>
-        </div>
-    </section>
+        </section>
 
-    <section class="quiz-complete card card-panel card-soft d-none" id="quizComplete">
-        <div class="card-body text-center">
-            <div class="quiz-complete-icon" aria-hidden="true">✅</div>
-            <h3 class="h5 fw-semibold mb-2">스테이지를 완료했어요</h3>
-            <p class="quiz-score text-muted small mb-1" id="quizScore"></p>
-            <div class="quiz-stat-grid" id="quizSummary">
-                <div class="quiz-stat" id="summaryAccuracyStat">
-                    <span class="quiz-stat-label">정답률</span>
-                    <span class="quiz-stat-value" id="summaryAccuracy">-</span>
+        <section class="quiz-card card card-panel card-soft d-none" id="quizPanel" aria-busy="true">
+            <div class="card-body">
+                <div class="quiz-progress">
+                    <div class="quiz-progress-block">
+                        <span class="quiz-progress-label">문제</span>
+                        <progress class="quiz-progress-bar" id="quizQuestionProgressBar" value="1" max="10"
+                            aria-valuemin="1" aria-valuemax="10" aria-valuenow="1"></progress>
+                        <span class="quiz-progress-item" id="quizQuestionProgress"></span>
+                    </div>
                 </div>
-                <div class="quiz-stat">
-                    <span class="quiz-stat-label">복습 횟수</span>
-                    <span class="quiz-stat-value" id="summaryCount">-</span>
+                <h3 class="quiz-question h5 fw-semibold mb-3" id="quizQuestion">문제를 불러오는 중입니다…</h3>
+                <div class="quiz-options" id="quizOptions">문제를 불러오는 중입니다…</div>
+                <p class="quiz-feedback text-center" id="quizFeedback" role="status" aria-live="polite"></p>
+                <button class="btn btn-primary quiz-next" id="quizNext" type="button" disabled>다음 문제</button>
+            </div>
+        </section>
+
+        <section class="quiz-complete card card-panel card-soft d-none" id="quizComplete">
+            <div class="card-body text-center">
+                <div class="quiz-complete-icon" aria-hidden="true">✅</div>
+                <h3 class="h5 fw-semibold mb-2">스테이지를 완료했어요</h3>
+                <p class="quiz-score text-muted small mb-1" id="quizScore"></p>
+                <div class="quiz-stat-grid" id="quizSummary">
+                    <div class="quiz-stat" id="summaryAccuracyStat">
+                        <span class="quiz-stat-label">정답률</span>
+                        <span class="quiz-stat-value" id="summaryAccuracy">-</span>
+                    </div>
+                    <div class="quiz-stat">
+                        <span class="quiz-stat-label">복습 횟수</span>
+                        <span class="quiz-stat-value" id="summaryCount">-</span>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">다음 스테이지가 바로 이어집니다.</p>
+                <div class="flex-wrap quiz-action-group mt-3">
+                    <a class="btn btn-outline-secondary btn-sm" id="quizNextStageButton" href="/web/game/bible-quiz">다음
+                        스테이지로</a>
                 </div>
             </div>
-            <p class="text-muted small mb-0">다음 스테이지가 바로 이어집니다.</p>
-            <div class="flex-wrap quiz-action-group mt-3">
-                <a class="btn btn-outline-secondary btn-sm" id="quizNextStageButton" href="/web/game/bible-quiz">다음 스테이지로</a>
-            </div>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
 
-<script type="module" src="/js/game/bible-quiz.js?v=2.1"></script>
+    <script type="module" src="/js/game/bible-quiz.js?v=2.1"></script>
 </body>
+
 </html>

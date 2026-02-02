@@ -56,23 +56,29 @@
 .search-result-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    /* Reduced gap from 0.75rem */
     padding-bottom: 2rem;
 }
 
 .search-result-item {
     background-color: #fff;
     border: 1px solid #eef1f4;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    /* Slightly reduced border radius */
+    padding: 0.75rem 1rem;
+    /* Reduced padding from 1rem 1.25rem */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    /* More subtle shadow */
 }
 
 .search-result-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+    /* reduced elevation */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* reduced shadow */
     background-color: #fff;
     border-color: #dee2e6;
 }
@@ -83,7 +89,8 @@
 }
 
 .search-result-meta {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.2rem;
+    /* Reduced margin from 0.4rem */
     font-size: 0.85rem;
     font-weight: 600;
     color: #0d6efd;
@@ -95,9 +102,11 @@
 .search-result-badge {
     background-color: #f0f7ff;
     color: #0d6efd;
-    padding: 0.2rem 0.6rem;
+    padding: 0.15rem 0.5rem;
+    /* Slightly reduced padding */
     border-radius: 6px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    /* Slightly reduced font size */
     letter-spacing: -0.01em;
 }
 
@@ -110,48 +119,19 @@
 }
 
 /* Modern Loading Spinner */
+/* Modern Loading Spinner (Common UI used) */
 .search-loading {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 3rem 0;
     width: 100%;
-    animation: fadeIn 0.3s ease-out;
+    /* Animation definition moved to common.css */
 }
 
-.spinner-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+/* .spinner-container, .custom-spinner styles are inherited from common.css */
 
-.custom-spinner {
-    width: 48px;
-    height: 48px;
-    border: 3px solid rgba(13, 110, 253, 0.1);
-    border-radius: 50%;
-    border-top-color: #0d6efd;
-    animation: spin 0.8s ease-in-out infinite;
-    margin-bottom: 0.5rem;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+/* Legacy styles removed: .search-loading-card, .search-loading-hint */
 
 /* Legacy styles removed: .search-loading-card, .search-loading-hint */
 
