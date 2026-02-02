@@ -39,7 +39,6 @@ const state = {
 const selection = {
     selected: new Set(),
     menuOpen: false,
-    highlightOpen: false,
     highlightMap: new Map()
 };
 
@@ -751,14 +750,9 @@ function syncFabStateFromDom() {
         return;
     }
     const menu = fab.querySelector("[data-fab-menu]");
-    const highlightMenu = fab.querySelector("[data-fab-highlight]");
     const menuOpen = fab.classList.contains("is-open")
         || (menu && menu.getAttribute("aria-hidden") === "false");
-    const highlightOpen = highlightMenu
-        && (highlightMenu.classList.contains("is-open")
-            || highlightMenu.getAttribute("aria-hidden") === "false");
     selection.menuOpen = Boolean(menuOpen);
-    selection.highlightOpen = Boolean(highlightOpen);
 }
 
 function toggleFabMenu() {
@@ -777,7 +771,9 @@ function toggleFabMenu() {
     if (menu) {
         menu.setAttribute("aria-hidden", String(!selection.menuOpen));
     }
-    if (!selection.menuOpen) {
+    if (selection.menuOpen) {
+        openHighlightMenu();
+    } else {
         closeHighlightMenu();
     }
 }
@@ -810,9 +806,6 @@ function handleFabMenuClick(event) {
             copySelectedVerses();
             closeFabMenu();
             break;
-        case "highlight":
-            toggleHighlightMenu();
-            break;
         case "memo":
             openMemoForSelected();
             closeFabMenu();
@@ -826,22 +819,24 @@ function handleFabMenuClick(event) {
     }
 }
 
-function toggleHighlightMenu() {
-    syncFabStateFromDom();
-    selection.highlightOpen = !selection.highlightOpen;
+function openHighlightMenu() {
     const menu = elements?.fab?.querySelector("[data-fab-highlight]");
-    if (menu) {
-        menu.setAttribute("aria-hidden", String(!selection.highlightOpen));
-        menu.classList.toggle("is-open", selection.highlightOpen);
+    if (!menu) {
+        return;
     }
+    menu.setAttribute("aria-hidden", "false");
+    menu.classList.add("is-open");
 }
 
 function closeHighlightMenu() {
-    selection.highlightOpen = false;
     const menu = elements?.fab?.querySelector("[data-fab-highlight]");
     if (menu) {
-        menu.setAttribute("aria-hidden", "true");
-        menu.classList.remove("is-open");
+        menu.setAttribute("aria-hidden", String(!selection.menuOpen));
+        if (selection.menuOpen) {
+            menu.classList.add("is-open");
+        } else {
+            menu.classList.remove("is-open");
+        }
     }
 }
 
