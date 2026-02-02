@@ -27,8 +27,55 @@
     min-height: 1.5rem;
 }
 
+/* Modern Loading Spinner */
+.search-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 0;
+    width: 100%;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.custom-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+    border-top-color: #0d6efd;
+    animation: spin 0.8s ease-in-out infinite;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Legacy styles removed: .search-loading-card, .search-loading-hint */
+
 .highlight-keyword {
-    background-color: #fff59d; /* 연한 형광 노랑 */
+    background-color: #fff59d;
+    /* 연한 형광 노랑 */
     font-weight: bold;
     border-radius: 2px;
     padding: 0 2px;

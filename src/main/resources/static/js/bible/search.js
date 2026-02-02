@@ -36,6 +36,8 @@ const DomHelper = {
             searchBtn: get("searchBtn"),
             resultCount: get("resultCount"),
             emptyState: get("searchEmptyState"),
+            searchLoading: get("searchLoading"),
+            searchLoadingMessage: get("searchLoadingMessage"),
             searchResultTable: get("searchResultTable"),
             searchResultBody: get("searchResultBody"),
             scrollToTopBtn: get("scrollToTopBtn")
@@ -194,6 +196,7 @@ const App = {
             emptyState.textContent = message;
             emptyState.classList.remove(UI_CLASSES.HIDDEN);
         }
+        App.hideLoading();
         if (searchResultTable) {
             searchResultTable.classList.add(UI_CLASSES.HIDDEN);
         }
@@ -204,6 +207,7 @@ const App = {
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
         }
+        App.hideLoading();
         if (searchResultTable) {
             searchResultTable.classList.remove(UI_CLASSES.HIDDEN);
         }
@@ -213,6 +217,25 @@ const App = {
         const {emptyState} = App.elements;
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
+        }
+    },
+
+    showLoading: message => {
+        const {searchLoading, searchLoadingMessage} = App.elements;
+        if (searchLoading) {
+            searchLoading.classList.remove(UI_CLASSES.HIDDEN);
+            searchLoading.setAttribute("aria-busy", "true");
+        }
+        if (searchLoadingMessage) {
+            searchLoadingMessage.textContent = message;
+        }
+    },
+
+    hideLoading: () => {
+        const {searchLoading} = App.elements;
+        if (searchLoading) {
+            searchLoading.classList.add(UI_CLASSES.HIDDEN);
+            searchLoading.removeAttribute("aria-busy");
         }
     },
 
@@ -235,10 +258,8 @@ const App = {
             return;
         }
         App.hideEmptyState();
-        resultCount.innerHTML = `
-                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                ${message}
-            `;
+        App.showLoading(message);
+        resultCount.textContent = message;
     },
 
     resetSearchState: () => {
@@ -278,6 +299,7 @@ const App = {
         if (resultCount) {
             resultCount.textContent = "";
         }
+        App.hideLoading();
     },
 
     appendResults: items => {
@@ -356,6 +378,7 @@ const App = {
             App.state.isLoading = false;
             if (page === 0) {
                 App.setLoading(false);
+                App.hideLoading();
             }
         }
     },
