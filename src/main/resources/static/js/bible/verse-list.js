@@ -1015,7 +1015,6 @@ const App = {
             } else {
                 App.fallbackCopy(text);
             }
-            App.showAlert("선택한 구절이 복사되었습니다.", "success");
         } catch (error) {
             App.fallbackCopy(text);
             App.showAlert("복사에 실패했습니다.", "danger");
