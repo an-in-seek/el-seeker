@@ -420,10 +420,6 @@ const App = {
     },
 
     handleVerseClick: async event => {
-        if (App.selection.menuOpen) {
-            App.closeFabMenu();
-            return;
-        }
         if (event.target.classList.contains("memo-save-btn")) {
             const verseNum = event.target.dataset.verse;
             await App.saveMemo(verseNum);
@@ -694,7 +690,14 @@ const App = {
         if (highlightMenu) {
             highlightMenu.addEventListener("click", App.handleHighlightPick);
         }
+        fab.addEventListener("click", App.handleFabBackdropClick);
         App.updateFabVisibility();
+    },
+
+    handleFabBackdropClick: event => {
+        if (event.target === App.elements.fab) {
+            App.closeFabMenu();
+        }
     },
 
     handleOutsideFabClick: event => {
