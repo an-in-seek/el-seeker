@@ -17,6 +17,7 @@ class OxStage(
 
     id: Long? = null,
 
+    // 성경 책 순서 (개신교 66권 기준)
     @Column(name = "stage_number", nullable = false)
     val stageNumber: Int,
 
