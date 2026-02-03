@@ -19,8 +19,7 @@ import java.io.Serializable
 class BibleBookDescription(
 
     @Id
-    @Enumerated(EnumType.STRING)
-    @Column(name = "book_key", nullable = false, length = 32)
+    @Column(name = "book_key", nullable = false, length = 4)
     val bookKey: BibleBookKey,
 
     @Id

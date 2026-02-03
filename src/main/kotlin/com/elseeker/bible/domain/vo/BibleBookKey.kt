@@ -82,4 +82,13 @@ enum class BibleBookKey(val code: String) {
 
     JUD("JUD"),
     REV("REV");
+
+    companion object {
+        private val CODE_MAP = entries.associateBy { it.code }
+
+        fun fromCode(code: String): BibleBookKey =
+            CODE_MAP[code] ?: throw IllegalArgumentException("Unknown BibleBookKey code: $code")
+
+        fun fromCodeOrNull(code: String): BibleBookKey? = CODE_MAP[code]
+    }
 }
