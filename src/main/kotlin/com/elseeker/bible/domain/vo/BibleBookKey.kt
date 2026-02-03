@@ -88,7 +88,5 @@ enum class BibleBookKey(val code: String) {
 
         fun fromCode(code: String): BibleBookKey =
             CODE_MAP[code] ?: throw IllegalArgumentException("Unknown BibleBookKey code: $code")
-
-        fun fromCodeOrNull(code: String): BibleBookKey? = CODE_MAP[code]
     }
 }

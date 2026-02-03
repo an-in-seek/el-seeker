@@ -19,16 +19,6 @@ import jakarta.persistence.*
             name = "UK_translation_book_key",
             columnNames = ["translation_id", "book_key"]
         )
-    ],
-    indexes = [
-        Index(
-            name = "IDX_book_translation_order",
-            columnList = "translation_id, book_order"
-        ),
-        Index(
-            name = "IDX_book_translation_key",
-            columnList = "translation_id, book_key"
-        )
     ]
 )
 class BibleBook(
