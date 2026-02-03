@@ -48,6 +48,8 @@ import java.util.*
 )
 class BibleTypingSession(
 
+    id: Long? = null,
+    
     /** 외부 노출용 세션 키 */
     @Column(nullable = false, unique = true)
     val sessionKey: UUID = UUID.randomUUID(),
@@ -139,7 +141,9 @@ class BibleTypingSession(
     )
     val verses: MutableList<BibleTypingVerse> = mutableListOf()
 
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     /**
      * 구절 타이핑 결과를 세션 상태에 반영한다.

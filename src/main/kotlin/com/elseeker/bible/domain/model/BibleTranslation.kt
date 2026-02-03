@@ -2,15 +2,14 @@ package com.elseeker.bible.domain.model
 
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.LanguageCode
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "bible_translation")
 class BibleTranslation(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
@@ -28,4 +27,6 @@ class BibleTranslation(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "translationId")
     val books: MutableList<BibleBook> = mutableListOf()
+) : BaseEntity(
+    id = id,
 )

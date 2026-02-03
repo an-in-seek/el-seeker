@@ -8,12 +8,14 @@ import jakarta.persistence.*
     name = "ox_quiz_stage",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_ox_quiz_stage_number",
+            name = "uk_ox_quiz_stage_number",
             columnNames = ["stage_number"]
         )
     ]
 )
 class OxStage(
+
+    id: Long? = null,
 
     @Column(name = "stage_number", nullable = false)
     val stageNumber: Int,
@@ -24,7 +26,9 @@ class OxStage(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stage", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     private val _questions: MutableList<OxQuestion> = mutableListOf()
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     // 외부에는 불변 리스트로 노출
     val questions: List<OxQuestion>

@@ -1,5 +1,6 @@
 package com.elseeker.bible.domain.model
 
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 /**
@@ -17,9 +18,7 @@ import jakarta.persistence.*
 )
 class BibleChapter(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @JoinColumn(name = "book_id", nullable = false)
     val bookId: Long,
@@ -29,7 +28,10 @@ class BibleChapter(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "chapterId")
     val verses: MutableList<BibleVerse> = mutableListOf()
+) : BaseEntity(
+    id = id,
 ) {
+
     companion object {
         fun of(
             bookId: Long,

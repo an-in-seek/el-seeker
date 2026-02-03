@@ -1,5 +1,6 @@
 package com.elseeker.game.domain.model
 
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 @Entity
@@ -14,9 +15,7 @@ import jakarta.persistence.*
 )
 class QuizQuestionOption(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
@@ -26,5 +25,7 @@ class QuizQuestionOption(
     val optionText: String,
 
     @Column(name = "option_index", nullable = false)
-    val optionIndex: Int
+    val optionIndex: Int,
+) : BaseEntity(
+    id = id,
 )

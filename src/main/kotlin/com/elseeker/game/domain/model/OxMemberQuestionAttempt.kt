@@ -9,7 +9,7 @@ import java.time.Instant
     name = "ox_quiz_member_question_attempt",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_ox_quiz_member_question_attempt_stage_question",
+            name = "uk_ox_quiz_member_question_attempt_stage_question",
             columnNames = ["stage_attempt_id", "question_id"]
         )
     ],
@@ -18,6 +18,8 @@ import java.time.Instant
     ]
 )
 class OxMemberQuestionAttempt(
+
+    id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_attempt_id", nullable = false)
@@ -35,4 +37,6 @@ class OxMemberQuestionAttempt(
 
     @Column(name = "answered_at", nullable = false)
     val answeredAt: Instant
-) : BaseTimeEntity()
+) : BaseTimeEntity(
+    id = id,
+)

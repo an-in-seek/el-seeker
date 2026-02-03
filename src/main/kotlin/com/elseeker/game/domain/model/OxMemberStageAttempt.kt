@@ -16,6 +16,8 @@ import java.time.Instant
 )
 class OxMemberStageAttempt(
 
+    id: Long? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -35,7 +37,9 @@ class OxMemberStageAttempt(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stageAttempt", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")
     private val _questionAttempts: MutableList<OxMemberQuestionAttempt> = mutableListOf()
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     val questionAttempts: List<OxMemberQuestionAttempt>
         get() = _questionAttempts.toList()

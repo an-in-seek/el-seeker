@@ -1,5 +1,6 @@
 package com.elseeker.game.domain.model
 
+import com.elseeker.common.domain.BaseEntity
 import com.elseeker.game.domain.vo.QuizDifficulty
 import jakarta.persistence.*
 import org.hibernate.annotations.BatchSize
@@ -16,9 +17,7 @@ import org.hibernate.annotations.BatchSize
 )
 class QuizQuestion(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_id", nullable = false)
@@ -38,7 +37,10 @@ class QuizQuestion(
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty")
     val difficulty: QuizDifficulty? = null
+) : BaseEntity(
+    id = id,
 ) {
+
     val options: List<QuizQuestionOption>
         get() = _options.toList()
 

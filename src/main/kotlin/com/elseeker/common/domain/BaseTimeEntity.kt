@@ -10,13 +10,16 @@ import java.time.Instant
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class BaseTimeEntity : BaseEntity() {
+abstract class BaseTimeEntity(
+    id: Long?,
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    var createdAt: Instant = Instant.now()
+    val createdAt: Instant = Instant.now(),
 
     @LastModifiedDate
     @Column(nullable = false)
-    var updatedAt: Instant = Instant.now()
-}
+    val updatedAt: Instant = Instant.now(),
+) : BaseEntity(
+    id = id,
+)

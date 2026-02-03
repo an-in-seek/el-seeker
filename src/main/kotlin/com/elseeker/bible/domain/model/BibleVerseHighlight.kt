@@ -12,12 +12,14 @@ import jakarta.persistence.*
     name = "bible_verse_highlight",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_bible_verse_highlight_member_verse",
+            name = "uk_bible_verse_highlight_member_verse",
             columnNames = ["member_id", "translation_id", "book_order", "chapter_number", "verse_number"]
         )
     ]
 )
 class BibleVerseHighlight(
+
+    id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -38,7 +40,9 @@ class BibleVerseHighlight(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 12)
     var color: BibleHighlightColor
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     fun updateColor(color: BibleHighlightColor) {
         this.color = color

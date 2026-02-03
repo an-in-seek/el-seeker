@@ -7,11 +7,11 @@ import java.io.Serializable
 
 @MappedSuperclass // 1. 이 클래스는 테이블로 생성되지 않고, 상속받는 엔티티에 매핑 정보만 제공함
 @EntityListeners(AuditingEntityListener::class) // Auditing 기능 포함 (선택 사항)
-abstract class BaseEntity : Serializable {
-
+abstract class BaseEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    val id: Long?
+) : Serializable {
 
     // 2. 공통 equals 구현
     override fun equals(other: Any?): Boolean {

@@ -34,7 +34,6 @@ class AdminDictionaryService(
             term = term,
             description = description,
             relatedVerses = relatedVerses,
-            createdAt = existing.createdAt,
         )
         return dictionaryRepository.save(updated)
     }

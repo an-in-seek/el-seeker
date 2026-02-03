@@ -9,7 +9,7 @@ import jakarta.persistence.*
     name = "ox_quiz_question",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_ox_quiz_question_stage_order",
+            name = "uk_ox_quiz_question_stage_order",
             columnNames = ["stage_id", "order_index"]
         )
     ],
@@ -22,6 +22,8 @@ import jakarta.persistence.*
 )
 class OxQuestion(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_id", nullable = false)
     val stage: OxStage,
@@ -38,4 +40,6 @@ class OxQuestion(
 
     @Column(name = "order_index", nullable = false)
     val orderIndex: Int
-) : BaseTimeEntity()
+) : BaseTimeEntity(
+    id = id,
+)

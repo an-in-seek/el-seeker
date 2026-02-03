@@ -1,7 +1,10 @@
 package com.elseeker.study.domain.model
 
-import jakarta.persistence.*
-import java.time.Instant
+import com.elseeker.common.domain.BaseTimeEntity
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 
 /**
  * 성경 사전
@@ -15,9 +18,7 @@ import java.time.Instant
 )
 class Dictionary(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @Column(nullable = false)
     val term: String,
@@ -27,16 +28,6 @@ class Dictionary(
 
     @Column(name = "related_verses", columnDefinition = "TEXT")
     val relatedVerses: String? = null,
-
-    @Column(name = "created_at", nullable = false)
-    val createdAt: Instant = Instant.now(),
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.now()
-) {
-
-    @PreUpdate
-    fun updateTimestamp() {
-        updatedAt = Instant.now()
-    }
-}
+) : BaseTimeEntity(
+    id = id,
+)

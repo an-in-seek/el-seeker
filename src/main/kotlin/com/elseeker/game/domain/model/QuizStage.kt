@@ -1,5 +1,6 @@
 package com.elseeker.game.domain.model
 
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 @Entity
@@ -7,7 +8,7 @@ import jakarta.persistence.*
     name = "quiz_stage",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_quiz_stage_number",
+            name = "uk_quiz_stage_number",
             columnNames = ["stage_number"]
         )
     ],
@@ -20,9 +21,7 @@ import jakarta.persistence.*
 )
 class QuizStage(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @Column(name = "stage_number", nullable = false)
     val stageNumber: Int,
@@ -33,7 +32,10 @@ class QuizStage(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stage", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")
     private val _questions: MutableList<QuizQuestion> = mutableListOf()
+) : BaseEntity(
+    id = id,
 ) {
+
     val questions: List<QuizQuestion>
         get() = _questions.toList()
 

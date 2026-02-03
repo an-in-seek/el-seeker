@@ -26,6 +26,8 @@ import java.util.*
 @EntityListeners(AuditingEntityListener::class)
 class Member(
 
+    id: Long? = null,
+
     @Column(nullable = false, unique = true, columnDefinition = "uuid default gen_random_uuid()")
     var uid: UUID = UUID.randomUUID(),
 
@@ -41,7 +43,9 @@ class Member(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     var memberRole: MemberRole = MemberRole.USER,
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val oauthAccounts: MutableSet<MemberOAuthAccount> = mutableSetOf()

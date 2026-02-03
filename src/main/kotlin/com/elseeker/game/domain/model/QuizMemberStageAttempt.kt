@@ -16,6 +16,8 @@ import java.time.Instant
 )
 class QuizMemberStageAttempt(
 
+    id: Long? = null,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -42,7 +44,9 @@ class QuizMemberStageAttempt(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "stageAttempt", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")
     private val _questionAttempts: MutableList<QuizMemberQuestionAttempt> = mutableListOf()
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     // 외부 노출용 (불변)
     val questionAttempts: List<QuizMemberQuestionAttempt>

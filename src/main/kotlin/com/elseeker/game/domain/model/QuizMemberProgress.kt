@@ -11,13 +11,15 @@ import kotlin.math.min
     name = "quiz_member_progress",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_quiz_progress_member",
+            name = "uk_quiz_progress_member",
             columnNames = ["member_id"]
         )
     ]
 )
 class QuizMemberProgress(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -27,7 +29,9 @@ class QuizMemberProgress(
 
     @Column(name = "last_completed_stage", nullable = false)
     var lastCompletedStage: Int = 0
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     fun normalizeCurrentStage(stageCount: Int): Int {
         val storedCurrentStage = normalizeStage(currentStageNumber, stageCount)

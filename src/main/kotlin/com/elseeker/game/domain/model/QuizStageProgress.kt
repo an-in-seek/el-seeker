@@ -10,7 +10,7 @@ import jakarta.persistence.*
     name = "quiz_stage_progress",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_quiz_stage_progress_member_stage",
+            name = "uk_quiz_stage_progress_member_stage",
             columnNames = ["member_id", "stage_number"]
         )
     ],
@@ -27,6 +27,8 @@ import jakarta.persistence.*
 )
 class QuizStageProgress(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -48,7 +50,9 @@ class QuizStageProgress(
 
     @Column(name = "current_review_type", length = 20)
     var currentReviewType: String? = null
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     fun start(mode: QuizStageAttemptMode, reviewType: String?) {
         if (mode == QuizStageAttemptMode.REVIEW) {

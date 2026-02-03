@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
     name = "quiz_member_question_stat",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_quiz_question_stat_member_question",
+            name = "uk_quiz_question_stat_member_question",
             columnNames = ["member_id", "question_id"]
         )
     ],
@@ -23,6 +23,8 @@ import kotlin.math.roundToInt
 )
 class QuizMemberQuestionStat(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     val member: Member,
@@ -36,11 +38,15 @@ class QuizMemberQuestionStat(
 
     @Column(nullable = false)
     var correct: Int = 0
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
+
     companion object {
         fun accuracyPercent(attempts: Long, correct: Long): Int? {
             if (attempts <= 0) return null
             return ((correct.toDouble() / attempts.toDouble()) * 100).roundToInt()
         }
     }
+
 }

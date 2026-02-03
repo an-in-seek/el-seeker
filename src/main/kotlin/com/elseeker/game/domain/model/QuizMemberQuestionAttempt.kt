@@ -9,7 +9,7 @@ import java.time.Instant
     name = "quiz_member_question_attempt",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_quiz_question_attempt_stage_question",
+            name = "uk_quiz_question_attempt_stage_question",
             columnNames = ["stage_attempt_id", "question_id"]
         )
     ],
@@ -19,6 +19,8 @@ import java.time.Instant
 )
 class QuizMemberQuestionAttempt(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stage_attempt_id", nullable = false)
     val stageAttempt: QuizMemberStageAttempt,
@@ -35,4 +37,6 @@ class QuizMemberQuestionAttempt(
 
     @Column(name = "answered_at", nullable = false)
     val answeredAt: Instant
-) : BaseTimeEntity()
+) : BaseTimeEntity(
+    id = id,
+)

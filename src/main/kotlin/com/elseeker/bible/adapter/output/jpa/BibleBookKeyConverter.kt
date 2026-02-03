@@ -1,5 +1,6 @@
-package com.elseeker.bible.domain.vo
+package com.elseeker.bible.adapter.output.jpa
 
+import com.elseeker.bible.domain.vo.BibleBookKey
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
@@ -11,6 +12,6 @@ class BibleBookKeyConverter : AttributeConverter<BibleBookKey, String> {
     }
 
     override fun convertToEntityAttribute(dbData: String?): BibleBookKey? {
-        return dbData?.let { BibleBookKey.fromCode(it) }
+        return dbData?.let { BibleBookKey.Companion.fromCode(it) }
     }
 }

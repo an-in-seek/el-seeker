@@ -18,6 +18,8 @@ import java.time.Instant
 )
 class MemberOAuthAccount(
 
+    id: Long? = null,
+    
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     var member: Member,
@@ -41,7 +43,9 @@ class MemberOAuthAccount(
     @Column(name = "last_synced_at")
     var lastSyncedAt: Instant? = null
 
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     companion object {
         fun create(

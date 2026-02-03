@@ -1,5 +1,6 @@
 package com.elseeker.bible.domain.model
 
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 /**
@@ -17,9 +18,7 @@ import jakarta.persistence.*
 )
 class BibleVerse(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @JoinColumn(name = "chapter_id", nullable = false)
     val chapterId: Long, // 어떤 장에 속하는지
@@ -29,4 +28,6 @@ class BibleVerse(
 
     @Column(nullable = false, columnDefinition = "TEXT")
     val text: String // 성경 구절 내용
+) : BaseEntity(
+    id = id,
 )

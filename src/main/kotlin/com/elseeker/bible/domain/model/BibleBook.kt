@@ -1,7 +1,9 @@
 package com.elseeker.bible.domain.model
 
+import com.elseeker.bible.adapter.output.jpa.BibleBookKeyConverter
 import com.elseeker.bible.domain.vo.BibleBookKey
 import com.elseeker.bible.domain.vo.BibleTestamentType
+import com.elseeker.common.domain.BaseEntity
 import jakarta.persistence.*
 
 /**
@@ -12,24 +14,23 @@ import jakarta.persistence.*
     name = "bible_book",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_translation_book_order",
+            name = "uk_translation_book_order",
             columnNames = ["translation_id", "book_order"]
         ),
         UniqueConstraint(
-            name = "UK_translation_book_key",
+            name = "uk_translation_book_key",
             columnNames = ["translation_id", "book_key"]
         )
     ]
 )
 class BibleBook(
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    id: Long? = null,
 
     @JoinColumn(name = "translation_id", nullable = false)
     val translationId: Long,
 
+    @Convert(converter = BibleBookKeyConverter::class)
     @Column(name = "book_key", nullable = false, length = 4)
     val bookKey: BibleBookKey,
 
@@ -48,4 +49,6 @@ class BibleBook(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bookId")
     val chapters: MutableList<BibleChapter> = mutableListOf()
+) : BaseEntity(
+    id = id,
 )

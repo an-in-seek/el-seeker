@@ -11,6 +11,8 @@ import java.util.*
 @Table(name = "member_withdraw_audit")
 class MemberWithdrawalAudit(
 
+    id: Long? = null,
+
     @Column(name = "member_uid", nullable = false)
     val memberUid: UUID,
 
@@ -22,4 +24,6 @@ class MemberWithdrawalAudit(
 
     @Column(name = "deleted_at", nullable = false)
     val deletedAt: Instant = Instant.now()
-) : BaseEntity()
+) : BaseEntity(
+    id = id,
+)

@@ -12,12 +12,14 @@ import jakarta.persistence.*
     name = "bible_verse_memo",
     uniqueConstraints = [
         UniqueConstraint(
-            name = "UK_bible_verse_memo_member_verse",
+            name = "uk_bible_verse_memo_member_verse",
             columnNames = ["member_id", "translation_id", "book_order", "chapter_number", "verse_number"]
         )
     ]
 )
 class BibleVerseMemo(
+
+    id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -37,7 +39,9 @@ class BibleVerseMemo(
 
     @Column(nullable = false, columnDefinition = "TEXT")
     var content: String
-) : BaseTimeEntity() {
+) : BaseTimeEntity(
+    id = id,
+) {
 
     fun updateContent(content: String) {
         this.content = content
