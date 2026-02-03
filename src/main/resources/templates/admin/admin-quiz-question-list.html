@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>성경 객관식 퀴즈 문제 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/quiz/stages">스테이지 목록</a> &gt; <span th:text="${stage.stageNumber}">스테이지</span>
+        </div>
+        <h2>성경 객관식 퀴즈 문제</h2>
+        <div class="admin-toolbar">
+            <div class="text-muted" th:text="${'스테이지 ' + stage.stageNumber + (stage.title != null ? ' - ' + stage.title : '')}"></div>
+            <a th:href="@{/web/admin/quiz/stages/{id}/questions/new(id=${stage.id})}" class="btn btn-primary btn-sm">등록</a>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>문제</th>
+                    <th>정답 인덱스</th>
+                    <th>난이도</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="q : ${page.content}">
+                    <td th:text="${q.id}"></td>
+                    <td th:text="${q.questionText}"></td>
+                    <td th:text="${q.answerIndex}"></td>
+                    <td th:text="${q.difficulty}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/web/admin/quiz/questions/{id}/edit(id=${q.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                        <button class="btn btn-outline-danger btn-sm" th:data-id="${q.id}" th:data-name="${q.questionText}" onclick="deleteQuestion(this)">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="5" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="q : ${page.content}">
+                <div class="admin-card-title" th:text="${q.questionText}">문제</div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">정답</span>
+                    <span class="admin-card-value" th:text="${q.answerIndex}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">난이도</span>
+                    <span class="admin-card-value" th:text="${q.difficulty}"></span>
+                </div>
+                <div class="admin-card-actions">
+                    <a th:href="@{/web/admin/quiz/questions/{id}/edit(id=${q.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                    <button class="btn btn-outline-danger btn-sm" th:data-id="${q.id}" th:data-name="${q.questionText}" onclick="deleteQuestion(this)">삭제</button>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}" th:href="@{/web/admin/quiz/stages/{id}/questions(id=${stage.id},page=${i},size=${page.size})}" th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+    window.deleteQuestion = (btn) => {
+        handleDelete(`/api/v1/admin/quiz/questions/${btn.dataset.id}`, btn.dataset.name);
+    };
+</script>
+</body>
+</html>

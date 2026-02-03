@@ -29,6 +29,7 @@ enum class ErrorType(
     CHAPTER_NOT_FOUND(HttpStatus.NOT_FOUND, "장을 찾을 수 없습니다.", LogLevel.WARN),
     DICTIONARY_NOT_FOUND(HttpStatus.NOT_FOUND, "성경 사전 용어를 찾을 수 없습니다.", LogLevel.WARN),
     QUIZ_STAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "퀴즈 스테이지를 찾을 수 없습니다.", LogLevel.WARN),
+    QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "퀴즈 문제를 찾을 수 없습니다.", LogLevel.WARN),
     OX_QUIZ_STAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "O/X 퀴즈 스테이지를 찾을 수 없습니다.", LogLevel.WARN),
     OX_QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "O/X 퀴즈 문제를 찾을 수 없습니다.", LogLevel.WARN),
     OX_QUIZ_ATTEMPT_NOT_FOUND(HttpStatus.NOT_FOUND, "진행 중인 O/X 퀴즈 시도를 찾을 수 없습니다.", LogLevel.WARN),

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>O/X 스테이지 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/ox-quiz/stages">스테이지 목록</a> &gt; <span th:text="${stage != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${stage != null} ? 'O/X 스테이지 수정' : 'O/X 스테이지 등록'">O/X 스테이지 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="stageNumber">스테이지 번호</label>
+                <input type="number" id="stageNumber" min="1" max="66" th:value="${stage?.stageNumber}" required>
+            </div>
+            <div class="form-group">
+                <label for="bookName">책 이름</label>
+                <input type="text" id="bookName" th:value="${stage?.bookName}" required>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a href="/web/admin/ox-quiz/stages" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${stage?.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            stageNumber: Number(document.getElementById("stageNumber").value),
+            bookName: document.getElementById("bookName").value,
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/ox/stages/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin("/api/v1/admin/ox/stages", {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = "/web/admin/ox-quiz/stages";
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>성경 객관식 퀴즈 문제 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a th:href="@{/web/admin/quiz/stages/{id}/questions(id=${stage.id})}">문제 목록</a> &gt;
+            <span th:text="${question != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${question != null} ? '객관식 문제 수정' : '객관식 문제 등록'">객관식 문제 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label>스테이지</label>
+                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + (stage.title != null ? ' - ' + stage.title : '')}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="questionText">문제</label>
+                <textarea id="questionText" th:text="${question?.questionText}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="difficulty">난이도</label>
+                <select id="difficulty">
+                    <option value="">선택 안 함</option>
+                    <option th:each="level : ${T(com.elseeker.game.domain.vo.QuizDifficulty).values()}"
+                            th:value="${level}"
+                            th:text="${level}"
+                            th:selected="${question?.difficulty} == ${level}">
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="answerIndex">정답 인덱스</label>
+                <input type="number" id="answerIndex" min="1" th:value="${question?.answerIndex}" required>
+            </div>
+            <div class="form-group">
+                <label>보기 목록</label>
+                <div id="optionList" class="d-flex flex-column gap-2">
+                    <div class="d-flex gap-2 align-items-center" th:each="opt : ${question?.options}">
+                        <input type="number" class="form-control form-control-sm option-index" style="max-width: 110px;" th:value="${opt.optionIndex}" placeholder="인덱스">
+                        <input type="text" class="form-control form-control-sm option-text" th:value="${opt.optionText}" placeholder="보기 내용">
+                        <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addOptionBtn">보기 추가</button>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a th:href="@{/web/admin/quiz/stages/{id}/questions(id=${stage.id})}" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${question?.id}]]*/ null;
+    const stageId = /*[[${stage.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+
+    const optionList = document.getElementById("optionList");
+    const addOptionBtn = document.getElementById("addOptionBtn");
+
+    const bindRemoveButtons = () => {
+        optionList.querySelectorAll(".option-remove").forEach((btn) => {
+            btn.addEventListener("click", () => btn.parentElement.remove());
+        });
+    };
+    bindRemoveButtons();
+
+    addOptionBtn.addEventListener("click", () => {
+        const row = document.createElement("div");
+        row.className = "d-flex gap-2 align-items-center";
+        row.innerHTML = `
+            <input type="number" class="form-control form-control-sm option-index" style="max-width: 110px;" placeholder="인덱스">
+            <input type="text" class="form-control form-control-sm option-text" placeholder="보기 내용">
+            <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
+        `;
+        optionList.appendChild(row);
+        bindRemoveButtons();
+    });
+
+    const collectOptions = () => {
+        return Array.from(optionList.querySelectorAll(".d-flex")).map((row) => {
+            const optionIndex = Number(row.querySelector(".option-index").value);
+            const optionText = row.querySelector(".option-text").value;
+            return {optionIndex, optionText};
+        }).filter((opt) => !Number.isNaN(opt.optionIndex) && opt.optionText);
+    };
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            questionText: document.getElementById("questionText").value,
+            answerIndex: Number(document.getElementById("answerIndex").value),
+            difficulty: document.getElementById("difficulty").value || null,
+            options: collectOptions(),
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/quiz/questions/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin(`/api/v1/admin/quiz/stages/${stageId}/questions`, {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = `/web/admin/quiz/stages/${stageId}/questions`;
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

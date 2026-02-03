@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>O/X 문제 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a th:href="@{/web/admin/ox-quiz/stages/{id}/questions(id=${stage.id})}">문제 목록</a> &gt;
+            <span th:text="${question != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${question != null} ? 'O/X 문제 수정' : 'O/X 문제 등록'">O/X 문제 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label>스테이지</label>
+                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + ' - ' + stage.bookName}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="questionText">문제</label>
+                <textarea id="questionText" th:text="${question?.questionText}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="correctAnswer">정답</label>
+                <select id="correctAnswer">
+                    <option value="true" th:selected="${question?.correctAnswer} == true">O</option>
+                    <option value="false" th:selected="${question?.correctAnswer} == false">X</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="difficulty">난이도</label>
+                <select id="difficulty">
+                    <option th:each="level : ${T(com.elseeker.game.domain.vo.QuizDifficulty).values()}"
+                            th:value="${level}"
+                            th:text="${level}"
+                            th:selected="${question?.difficulty} == ${level}">
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="orderIndex">순서</label>
+                <input type="number" id="orderIndex" min="1" th:value="${question?.orderIndex}" required>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a th:href="@{/web/admin/ox-quiz/stages/{id}/questions(id=${stage.id})}" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${question?.id}]]*/ null;
+    const stageId = /*[[${stage.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            questionText: document.getElementById("questionText").value,
+            correctAnswer: document.getElementById("correctAnswer").value === "true",
+            difficulty: document.getElementById("difficulty").value,
+            orderIndex: Number(document.getElementById("orderIndex").value),
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/ox/questions/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin(`/api/v1/admin/ox/stages/${stageId}/questions`, {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = `/web/admin/ox-quiz/stages/${stageId}/questions`;
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

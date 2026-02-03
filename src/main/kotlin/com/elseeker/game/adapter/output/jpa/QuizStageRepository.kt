@@ -2,7 +2,9 @@ package com.elseeker.game.adapter.output.jpa
 
 import com.elseeker.game.domain.model.QuizStage
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -47,6 +49,21 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
         """
     )
     fun findStageSummaries(): List<QuizStageSummaryProjection>
+
+    @Modifying
+    @Query(
+        """
+        UPDATE QuizStage stage
+        SET stage.stageNumber = :stageNumber,
+            stage.title = :title
+        WHERE stage.id = :id
+        """
+    )
+    fun updateStage(
+        @Param("id") id: Long,
+        @Param("stageNumber") stageNumber: Int,
+        @Param("title") title: String?
+    ): Int
 }
 
 interface QuizStageSummaryProjection {
