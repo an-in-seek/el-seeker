@@ -1,4 +1,4 @@
-import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 
 const apiBase = "/api/v1/bible";
 const sessionApi = "/api/v1/game/bible-typing/sessions";

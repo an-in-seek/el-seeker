@@ -1,4 +1,4 @@
-import {BookStore, ChapterStore, LastReadStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.1";
+import {BookStore, ChapterStore, LastReadStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.2";
 import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
 
 const UI_CLASSES = {

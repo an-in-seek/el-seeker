@@ -1,5 +1,5 @@
-import { BookStore, ChapterStore, TranslationStore, VerseStore } from "/js/storage-util.js?v=2.1";
-import { formatNumberWithComma } from "/js/common-util.js?v=2.1";
+import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.2";
+import {formatNumberWithComma} from "/js/common-util.js?v=2.2";
 
 const UI_CLASSES = {
     HIDDEN: "d-none",
@@ -76,7 +76,7 @@ const App = {
         App.initFormControls();
         App.initResultHandlers();
         App.initScrollToTop();
-        window.addEventListener("scroll", App.maybeLoadNextPage, { passive: true });
+        window.addEventListener("scroll", App.maybeLoadNextPage, {passive: true});
 
         if (App.state.initialKeyword) {
             if (App.elements.keywordInput) {
@@ -102,7 +102,7 @@ const App = {
     },
 
     initNav: () => {
-        const { backButton, translationLink, searchLink, pageTitleLabel } = App.elements;
+        const {backButton, translationLink, searchLink, pageTitleLabel} = App.elements;
         if (backButton) {
             backButton.classList.remove(UI_CLASSES.HIDDEN);
             backButton.addEventListener("click", () => {
@@ -126,14 +126,14 @@ const App = {
     },
 
     updateTranslationTypeLabel: () => {
-        const { translationTypeLabel } = App.elements;
+        const {translationTypeLabel} = App.elements;
         if (translationTypeLabel) {
             translationTypeLabel.textContent = App.state.translationType ?? "";
         }
     },
 
     initFormControls: () => {
-        const { clearBtn, keywordInput, searchForm } = App.elements;
+        const {clearBtn, keywordInput, searchForm} = App.elements;
         if (clearBtn && keywordInput) {
             clearBtn.addEventListener("click", () => {
                 keywordInput.value = "";
@@ -160,28 +160,28 @@ const App = {
     },
 
     initResultHandlers: () => {
-        const { searchResultList } = App.elements;
+        const {searchResultList} = App.elements;
         if (searchResultList) {
             searchResultList.addEventListener("click", App.handleResultClick);
         }
     },
 
     initScrollToTop: () => {
-        const { scrollToTopBtn } = App.elements;
+        const {scrollToTopBtn} = App.elements;
         if (!scrollToTopBtn) {
             return;
         }
 
         scrollToTopBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.scrollTo({top: 0, behavior: "smooth"});
         });
 
-        window.addEventListener("scroll", App.updateScrollToTopVisibility, { passive: true });
+        window.addEventListener("scroll", App.updateScrollToTopVisibility, {passive: true});
         App.updateScrollToTopVisibility();
     },
 
     updateScrollToTopVisibility: () => {
-        const { scrollToTopBtn } = App.elements;
+        const {scrollToTopBtn} = App.elements;
         if (!scrollToTopBtn) {
             return;
         }
@@ -190,7 +190,7 @@ const App = {
     },
 
     setEmptyState: message => {
-        const { emptyState, searchResultList } = App.elements;
+        const {emptyState, searchResultList} = App.elements;
         if (emptyState) {
             emptyState.textContent = message;
             emptyState.classList.remove(UI_CLASSES.HIDDEN);
@@ -202,7 +202,7 @@ const App = {
     },
 
     setResultsVisible: () => {
-        const { emptyState, searchResultList } = App.elements;
+        const {emptyState, searchResultList} = App.elements;
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
         }
@@ -213,14 +213,14 @@ const App = {
     },
 
     hideEmptyState: () => {
-        const { emptyState } = App.elements;
+        const {emptyState} = App.elements;
         if (emptyState) {
             emptyState.classList.add(UI_CLASSES.HIDDEN);
         }
     },
 
     showLoading: message => {
-        const { searchLoading, searchLoadingMessage } = App.elements;
+        const {searchLoading, searchLoadingMessage} = App.elements;
         if (searchLoading) {
             searchLoading.classList.remove(UI_CLASSES.HIDDEN);
             searchLoading.setAttribute("aria-busy", "true");
@@ -231,7 +231,7 @@ const App = {
     },
 
     hideLoading: () => {
-        const { searchLoading } = App.elements;
+        const {searchLoading} = App.elements;
         if (searchLoading) {
             searchLoading.classList.add(UI_CLASSES.HIDDEN);
             searchLoading.removeAttribute("aria-busy");
@@ -239,7 +239,7 @@ const App = {
     },
 
     setLoading: loading => {
-        const { searchBtn, keywordInput, clearBtn } = App.elements;
+        const {searchBtn, keywordInput, clearBtn} = App.elements;
         if (searchBtn) {
             searchBtn.disabled = loading;
         }
@@ -252,7 +252,7 @@ const App = {
     },
 
     setLoadingState: message => {
-        const { resultCount } = App.elements;
+        const {resultCount} = App.elements;
         if (!resultCount) {
             return;
         }
@@ -284,14 +284,14 @@ const App = {
     },
 
     updateResultCount: () => {
-        const { resultCount } = App.elements;
+        const {resultCount} = App.elements;
         if (resultCount && App.state.totalCount !== null && App.state.activeKeyword) {
             resultCount.textContent = `"${App.state.activeKeyword}"에 대한 결과 ${formatNumberWithComma(App.state.totalCount)}건`;
         }
     },
 
     clearResults: () => {
-        const { searchResultList, resultCount } = App.elements;
+        const {searchResultList, resultCount} = App.elements;
         if (searchResultList) {
             searchResultList.innerHTML = "";
         }
@@ -302,7 +302,7 @@ const App = {
     },
 
     appendResults: items => {
-        const { searchResultList } = App.elements;
+        const {searchResultList} = App.elements;
         if (!searchResultList) {
             return;
         }
@@ -374,7 +374,7 @@ const App = {
             App.state.hasNext = data.hasNext === true;
         } catch (error) {
             if (page === 0) {
-                const { resultCount } = App.elements;
+                const {resultCount} = App.elements;
                 if (resultCount) {
                     resultCount.textContent = "검색 중 오류가 발생했습니다.";
                 }

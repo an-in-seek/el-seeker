@@ -1,5 +1,5 @@
 import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
-import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 
 const roleLabels = {
     ADMIN: "관리자",

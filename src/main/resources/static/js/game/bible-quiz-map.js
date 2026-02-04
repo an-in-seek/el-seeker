@@ -1,4 +1,4 @@
-import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 
 // Module-scope script
 // ==========================================

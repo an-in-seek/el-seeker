@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
-<head th:replace="~{fragments/head :: head('성경 검색 | ElSeeker', true, '/css/search.css?v=2.1')}"></head>
+<head th:replace="~{fragments/head :: head('성경 검색 | ElSeeker', true, '/css/search.css?v=2.2')}"></head>
 
 <body class="has-fixed-nav">
 
-    <header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <main class="container search-page content-wrapper">
-        <div class="search-controls">
-            <form id="searchForm" role="search" class="mb-2">
-                <div class="input-group">
-                    <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요"
-                        th:value="${keyword}" autocomplete="off" inputmode="search">
-                    <button id="clearBtn" type="button" class="btn btn-outline-secondary">지우기</button>
-                    <button id="searchBtn" type="submit" class="btn btn-outline-primary">🔍</button>
-                </div>
-            </form>
-            <div id="resultCount" class="search-result-meta text-muted small" role="status" aria-live="polite"></div>
-            <div id="searchEmptyState" class="text-muted small">검색어를 입력하고 검색을 시작하세요.</div>
-        </div>
-
-        <div id="searchLoading" class="search-loading d-none" role="status" aria-live="polite">
-            <div class="spinner-container">
-                <div class="custom-spinner"></div>
-                <p class="mt-3 text-muted fw-medium" id="searchLoadingMessage">검색 중...</p>
+<main class="container search-page content-wrapper">
+    <div class="search-controls">
+        <form id="searchForm" role="search" class="mb-2">
+            <div class="input-group">
+                <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요"
+                       th:value="${keyword}" autocomplete="off" inputmode="search">
+                <button id="clearBtn" type="button" class="btn btn-outline-secondary">지우기</button>
+                <button id="searchBtn" type="submit" class="btn btn-outline-primary">🔍</button>
             </div>
+        </form>
+        <div id="resultCount" class="search-result-meta text-muted small" role="status" aria-live="polite"></div>
+        <div id="searchEmptyState" class="text-muted small">검색어를 입력하고 검색을 시작하세요.</div>
+    </div>
+
+    <div id="searchLoading" class="search-loading d-none" role="status" aria-live="polite">
+        <div class="spinner-container">
+            <div class="custom-spinner"></div>
+            <p class="mt-3 text-muted fw-medium" id="searchLoadingMessage">검색 중...</p>
         </div>
+    </div>
 
-        <div id="searchResultList" class="search-result-list mt-3 d-none search-results-scroll">
-        </div>
-    </main>
+    <div id="searchResultList" class="search-result-list mt-3 d-none search-results-scroll">
+    </div>
+</main>
 
-    <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
-        ↑
-    </button>
+<button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
+    ↑
+</button>
 
-    <script type="module" src="/js/bible/search.js?v=2.1"></script>
+<script type="module" src="/js/bible/search.js?v=2.2"></script>
 </body>
 
 </html>

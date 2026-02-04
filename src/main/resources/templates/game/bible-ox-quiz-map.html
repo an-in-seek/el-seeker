@@ -2,36 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-    th:replace="~{fragments/head :: head('성경 O/X 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/game/bible-ox-quiz-map.css?v=2.0')}">
+        th:replace="~{fragments/head :: head('성경 O/X 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/game/bible-ox-quiz-map.css?v=2.0')}">
 </head>
 
 <body class="has-fixed-nav">
 
-    <header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <main class="container content-wrapper">
-        <!-- 에러 메시지 영역 -->
-        <div id="oxQuizError" class="alert alert-danger d-none" role="alert"></div>
+<main class="container content-wrapper">
+    <!-- 에러 메시지 영역 -->
+    <div id="oxQuizError" class="alert alert-danger d-none" role="alert"></div>
 
-        <!-- 로딩 상태 -->
-        <div id="oxQuizLoading" class="ox-quiz-loading text-center py-5">
-            <div class="spinner-container">
-                <div class="custom-spinner"></div>
-                <p class="mt-3 text-muted fw-medium">퀴즈를 불러오는 중입니다...</p>
+    <!-- 로딩 상태 -->
+    <div id="oxQuizLoading" class="ox-quiz-loading text-center py-5">
+        <div class="spinner-container">
+            <div class="custom-spinner"></div>
+            <p class="mt-3 text-muted fw-medium">퀴즈를 불러오는 중입니다...</p>
+        </div>
+    </div>
+
+    <!-- 스테이지 목록 -->
+    <section id="oxStageList" class="quiz-map-card card card-panel card-soft d-none" aria-live="polite">
+        <div class="card-body">
+            <div class="ox-stage-grid" id="oxStageGrid">
+                <!-- 스테이지 카드들이 동적으로 생성됩니다 -->
             </div>
         </div>
+    </section>
+</main>
 
-        <!-- 스테이지 목록 -->
-        <section id="oxStageList" class="quiz-map-card card card-panel card-soft d-none" aria-live="polite">
-            <div class="card-body">
-                <div class="ox-stage-grid" id="oxStageGrid">
-                    <!-- 스테이지 카드들이 동적으로 생성됩니다 -->
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script type="module" src="/js/game/bible-ox-quiz-map.js?v=2.0"></script>
+<script type="module" src="/js/game/bible-ox-quiz-map.js?v=2.0"></script>
 </body>
 
 </html>

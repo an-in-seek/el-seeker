@@ -1,5 +1,5 @@
-import {fetchWithAuthRetry} from "/js/common-util.js?v=2.1";
-import {LastReadStore, SessionStore, STORAGE_KEYS, TranslationStore} from "/js/storage-util.js?v=2.1";
+import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
+import {LastReadStore, SessionStore, STORAGE_KEYS, TranslationStore} from "/js/storage-util.js?v=2.2";
 
 const updateText = (element, value) => {
     if (!element) {
