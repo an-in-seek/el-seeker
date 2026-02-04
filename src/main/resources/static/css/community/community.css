@@ -219,39 +219,6 @@
     flex-wrap: wrap;
 }
 
-/* Step Cards */
-.community-step-card {
-    background: var(--comm-card-bg);
-    border: none;
-    border-radius: var(--comm-border-radius);
-    padding: 2rem;
-    height: 100%;
-    box-shadow: var(--comm-shadow);
-    position: relative;
-    border-top: 4px solid transparent;
-    transition: border-color 0.3s;
-}
-
-.community-step-card:hover {
-    border-top-color: var(--comm-primary);
-}
-
-.community-step-num {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #f1f5f9;
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    line-height: 1;
-    z-index: 0;
-}
-
-.community-step-content {
-    position: relative;
-    z-index: 1;
-}
-
 /* Animations */
 .community-animate {
     opacity: 0;
@@ -300,10 +267,6 @@
         grid-template-columns: 1fr;
     }
 
-    .community-step-card {
-        border-left: none;
-        border-top: 3px solid rgba(53, 89, 162, 0.7);
-    }
 }
 
 /* --- New Additions for UX Improvements --- */
