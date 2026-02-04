@@ -41,7 +41,51 @@
             </div>
         </section>
 
-        <!-- 2. Categories (Full Width 3-Column Grid) -->
+        <!-- 2. Notices (Top) -->
+        <section class="community-section mt-4">
+            <div class="community-section-header mt-0">
+                <h3 class="h5 fw-bold text-dark mb-0">공지사항</h3>
+                <a href="#" class="text-decoration-none small text-muted">더보기</a>
+            </div>
+            <div class="row g-4">
+                <div class="col-12 col-lg-7">
+                    <div class="card border-0 shadow-sm community-animate" style="--delay: 0.08s;" id="communityNotices">
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush community-notice-list small">
+                                <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                    <span class="text-truncate">커뮤니티 오픈 준비 중</span>
+                                    <span class="badge bg-light text-muted">공지</span>
+                                </li>
+                                <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                    <span class="text-truncate">이용 가이드 안내</span>
+                                    <span class="badge bg-light text-muted">필독</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-5">
+                    <div class="card border-0 shadow-sm community-animate" style="--delay: 0.12s;" id="communityGuide">
+                        <div class="card-body">
+                            <h3 class="h6 fw-bold text-secondary mb-3">📖 이용 가이드</h3>
+                            <ul class="list-unstyled mb-0 community-guide text-muted small px-2">
+                                <li class="mb-2">
+                                    <span class="me-1">✔</span> 서로 존중하는 대화
+                                </li>
+                                <li class="mb-2">
+                                    <span class="me-1">✔</span> 이단/사이비 논쟁 금지
+                                </li>
+                                <li>
+                                    <span class="me-1">✔</span> 개인정보 공유 주의
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Categories (Full Width 3-Column Grid) -->
         <section class="community-section mt-5">
             <div class="community-section-header">
                 <h3 class="h5 fw-bold text-dark mb-0">이야기 주제</h3>
@@ -106,10 +150,9 @@
             </div>
         </section>
 
-        <!-- 3. Main Content Split (Feed + Sidebar) -->
+        <!-- 4. Main Content Feed -->
         <div class="row g-4 mt-1">
-            <!-- Left: Trending Feed (Col-8) -->
-            <div class="col-lg-8">
+            <div class="col-12">
                 <section class="community-section h-100">
                     <div class="community-section-header mt-0 pt-0 border-0 mb-3">
                         <div class="feed-header mb-0">
@@ -172,54 +215,9 @@
                     </div>
                 </section>
             </div>
-
-            <!-- Right: Sidebar (Col-4) -->
-            <div class="col-lg-4">
-                <div class="d-flex flex-column gap-4 h-100">
-                    <!-- Notices Section -->
-                    <div class="card border-0 shadow-sm community-animate" style="--delay: 0.2s;" id="communityNotices">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="h6 fw-bold text-secondary mb-0">📌 공지사항</h3>
-                                <a href="#" class="text-decoration-none small text-muted">더보기</a>
-                            </div>
-                            <ul class="list-group list-group-flush community-notice-list small">
-                                <li
-                                    class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
-                                    <span class="text-truncate">커뮤니티 오픈 준비 중</span>
-                                    <span class="badge bg-light text-muted">공지</span>
-                                </li>
-                                <li
-                                    class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-bottom">
-                                    <span class="text-truncate">이용 가이드 안내</span>
-                                    <span class="badge bg-light text-muted">필독</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Guide Section -->
-                    <div class="card border-0 shadow-sm community-animate" style="--delay: 0.3s;" id="communityGuide">
-                        <div class="card-body">
-                            <h3 class="h6 fw-bold text-secondary mb-3">📖 이용 가이드</h3>
-                            <ul class="list-unstyled mb-0 community-guide text-muted small px-2">
-                                <li class="mb-2">
-                                    <span class="me-1">✔</span> 서로 존중하는 대화
-                                </li>
-                                <li class="mb-2">
-                                    <span class="me-1">✔</span> 이단/사이비 논쟁 금지
-                                </li>
-                                <li>
-                                    <span class="me-1">✔</span> 개인정보 공유 주의
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- 4. Participation Steps (Bottom) -->
+        <!-- 5. Participation Steps (Bottom) -->
         <section class="community-section mt-5 mb-5">
             <div class="community-section-header">
                 <h3 class="h6 fw-bold text-secondary mb-0">참여 방법</h3>
