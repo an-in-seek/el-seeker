@@ -108,6 +108,7 @@ class SecurityConfig(
                     // 정적 리소스
                     .requestMatchers(
                         "/favicon.ico",
+                        "/robots.txt",
                         "/css/**",
                         "/js/**",
                         "/images/**",
