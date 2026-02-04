@@ -1,0 +1,172 @@
+/* Dictionary Detail Premium Styles */
+
+:root {
+    --dict-primary: #0d6efd;
+    --dict-bg: #f8f9fa;
+    --dict-card-bg: #ffffff;
+    --dict-text-main: #2c3e50;
+    --dict-text-muted: #6c757d;
+    --dict-section-bg: #fcfcfc;
+    --dict-verse-bg: #fdfdfe;
+    --dict-verse-border: #e9ecef;
+}
+
+body {
+    background-color: var(--dict-bg);
+    color: var(--dict-text-main);
+}
+
+/* Card Container */
+.dictionary-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    /* Soft, premium shadow */
+    overflow: hidden;
+    /* For header image/gradient */
+    background-color: var(--dict-card-bg);
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    transition: transform 0.3s ease;
+}
+
+/* Hero / Term Header */
+.dictionary-header {
+    background: linear-gradient(135deg, #eef2f8 0%, #ffffff 100%);
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+    position: relative;
+}
+
+.dictionary-header::before {
+    /* Decorative accent line */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: var(--dict-primary);
+    border-radius: 0 0 4px 4px;
+}
+
+.dictionary-term {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+    font-family: 'Merriweather', 'Noto Serif KR', serif;
+    /* Biblical feel */
+}
+
+.dictionary-term-label {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--dict-primary);
+    background-color: rgba(13, 110, 253, 0.1);
+    padding: 0.35em 0.8em;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+/* Content Body */
+.dictionary-body {
+    padding: 3rem 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .dictionary-body {
+        padding: 2rem 1.5rem;
+    }
+
+    .dictionary-term {
+        font-size: 1.75rem;
+    }
+}
+
+/* Section Common */
+.dictionary-section {
+    margin-bottom: 3rem;
+}
+
+.dictionary-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--dict-text-main);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title::after {
+    /* Line after title */
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: #eee;
+}
+
+.section-icon {
+    color: var(--dict-primary);
+    font-size: 1.2rem;
+}
+
+/* Definition Text */
+.dictionary-definition {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #4a5568;
+    white-space: pre-line;
+    text-align: justify;
+    word-break: keep-all;
+}
+
+.empty-text {
+    color: var(--dict-text-muted);
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+/* Related Verses */
+.related-verses-box {
+    background-color: var(--dict-verse-bg);
+    border: 1px solid var(--dict-verse-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem 2rem;
+    position: relative;
+    border-left: 4px solid var(--dict-primary);
+    /* Biblical ribbon style */
+}
+
+.related-verses-content {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #2d3748;
+    position: relative;
+    z-index: 1;
+}
+
+/* Decorative Quote Icon */
+.related-verses-box::before {
+    content: '“';
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    font-size: 5rem;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.03);
+    font-family: serif;
+    pointer-events: none;
+}
