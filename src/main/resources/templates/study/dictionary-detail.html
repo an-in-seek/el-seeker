@@ -12,14 +12,14 @@
 
             <div class="mb-4">
                 <h2 class="h6 text-muted">설명</h2>
-                <p class="mb-0" th:text="${dictionary.description.isBlank()} ? '등록된 설명이 없습니다.' : ${dictionary.description}">
+                <p class="mb-0" style="white-space: pre-line" th:text="${dictionary.description.isBlank()} ? '등록된 설명이 없습니다.' : ${dictionary.description}">
                     설명 내용
                 </p>
             </div>
 
             <div>
                 <h2 class="h6 text-muted">관련 성경 구절</h2>
-                <p class="mb-0" th:text="${dictionary.relatedVerses.isBlank()} ? '등록된 구절이 없습니다.' : ${dictionary.relatedVerses}">
+                <p class="mb-0" style="white-space: pre-line" th:text="${dictionary.relatedVerses.isBlank()} ? '등록된 구절이 없습니다.' : ${dictionary.relatedVerses}">
                     관련 성경 구절
                 </p>
             </div>
