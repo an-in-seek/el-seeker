@@ -22,4 +22,14 @@ class StudyWebController {
     fun showBibleGenealogy(): String {
         return "study/bible-genealogy"
     }
+
+    @GetMapping("/twelve-tribes")
+    fun showTwelveTribes(): String {
+        return "study/twelve-tribes"
+    }
+
+    @GetMapping("/twelve-disciples")
+    fun showTwelveDisciples(): String {
+        return "study/twelve-disciples"
+    }
 }
