@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('학습 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/study/study.css?v=2.1')}"></head>
+
+<head
+        th:replace="~{fragments/head :: head('학습 | ElSeeker', true, '/css/hero.css?v=2.1,/css/card.css?v=2.1,/css/study/study.css?v=2.1')}">
+</head>
+
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
@@ -54,7 +58,10 @@
             <a class="text-decoration-none study-card-link card-lift" href="/web/study/twelve-tribes">
                 <div class="card card-panel card-soft">
                     <div class="card-body">
-                        <h3 class="h6 fw-semibold mb-1"><span class="me-2" aria-hidden="true">🏕️</span>이스라엘 12지파</h3>
+                        <h3 class="h6 fw-semibold mb-1">
+                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Tribes Icon">
+                            이스라엘 12지파
+                        </h3>
                         <p class="text-muted small mb-0">야곱의 열두 아들과 이스라엘 12지파를 살펴봅니다.</p>
                     </div>
                 </div>
@@ -65,7 +72,10 @@
             <a class="text-decoration-none study-card-link card-lift" href="/web/study/twelve-disciples">
                 <div class="card card-panel card-soft">
                     <div class="card-body">
-                        <h3 class="h6 fw-semibold mb-1"><span class="me-2" aria-hidden="true">✝️</span>예수님의 12제자</h3>
+                        <h3 class="h6 fw-semibold mb-1">
+                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Disciples Icon">
+                            예수님의 12제자
+                        </h3>
                         <p class="text-muted small mb-0">예수님이 선택하신 열두 제자를 살펴봅니다.</p>
                     </div>
                 </div>
@@ -77,7 +87,8 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📝</span>성경 주석</h3>
+                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📝</span>성경 주석
+                            </h3>
                             <span class="badge text-bg-warning text-uppercase small">준비중</span>
                         </div>
                         <p class="text-muted small mb-0">준비중</p>
@@ -91,7 +102,8 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📄</span>성경 논문</h3>
+                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">📄</span>성경 논문
+                            </h3>
                             <span class="badge text-bg-warning text-uppercase small">준비중</span>
                         </div>
                         <p class="text-muted small mb-0">준비중</p>
@@ -104,7 +116,8 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🗺️</span>성경 지도</h3>
+                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🗺️</span>성경 지도
+                            </h3>
                             <span class="badge text-bg-warning text-uppercase small">준비중</span>
                         </div>
                         <p class="text-muted small mb-0">준비중</p>
@@ -117,7 +130,8 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🎓</span>성경 강의</h3>
+                            <h3 class="h6 fw-semibold mb-0"><span class="me-2" aria-hidden="true">🎓</span>성경 강의
+                            </h3>
                             <span class="badge text-bg-warning text-uppercase small">준비중</span>
                         </div>
                         <p class="text-muted small mb-0">준비중</p>
@@ -133,4 +147,5 @@
 
 <script type="module" src="/js/study/study.js?v=2.1"></script>
 </body>
+
 </html>
