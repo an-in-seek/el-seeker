@@ -1026,7 +1026,6 @@ async function copySelectedVerses() {
         }
     } catch (error) {
         fallbackCopy(text);
-        showAlert("복사에 실패했습니다.", "danger");
     }
 }
 
