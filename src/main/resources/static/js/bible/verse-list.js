@@ -52,6 +52,7 @@ const highlightState = {
 };
 
 let elements = null;
+let isAuthenticated = false;
 
 function createAuthState(message) {
     return {
@@ -155,7 +156,33 @@ async function init() {
     bindEvents();
     initFabMenu();
 
+    await initAuthStatus();
     await loadChapter("CURRENT");
+}
+
+async function initAuthStatus() {
+    return new Promise(resolve => {
+        checkAuthStatus({
+            onAuthenticated: () => {
+                isAuthenticated = true;
+                setAuthState(memoState.auth, true);
+                setAuthState(highlightState.auth, true);
+                resolve();
+            },
+            onUnauthenticated: () => {
+                isAuthenticated = false;
+                setAuthState(memoState.auth, false);
+                setAuthState(highlightState.auth, false);
+                resolve();
+            },
+            onError: () => {
+                isAuthenticated = false;
+                setAuthState(memoState.auth, false);
+                setAuthState(highlightState.auth, false);
+                resolve();
+            }
+        });
+    });
 }
 
 function initNav() {
@@ -596,6 +623,9 @@ async function deleteMemo(verseNum) {
 }
 
 async function fetchMemosForChapter() {
+    if (!isAuthenticated) {
+        return new Map();
+    }
     const url = new URL(buildChapterMemoUrl(), window.location.origin);
     try {
         const response = await fetch(url, {
@@ -606,17 +636,15 @@ async function fetchMemosForChapter() {
             }
         });
         if (response.status === 401) {
-            memoState.auth.checked = false;
-            memoState.auth.allowed = false;
+            isAuthenticated = false;
+            setAuthState(memoState.auth, false);
+            setAuthState(highlightState.auth, false);
             return new Map();
         }
         if (!response.ok) {
             throw new Error("메모 조회 실패");
         }
-        const data = await response.json();
-        memoState.auth.checked = true;
-        memoState.auth.allowed = true;
-        return new Map(data.map(item => [String(item.verseNumber), item]));
+        return new Map((await response.json()).map(item => [String(item.verseNumber), item]));
     } catch (error) {
         console.warn(error.message);
         return new Map();
@@ -891,6 +919,9 @@ function openMemoForSelected() {
 }
 
 async function fetchHighlightsForChapter() {
+    if (!isAuthenticated) {
+        return [];
+    }
     const url = new URL(buildChapterHighlightUrl(), window.location.origin);
     try {
         const response = await fetch(url, {
@@ -901,17 +932,15 @@ async function fetchHighlightsForChapter() {
             }
         });
         if (response.status === 401) {
-            highlightState.auth.checked = false;
-            highlightState.auth.allowed = false;
+            isAuthenticated = false;
+            setAuthState(memoState.auth, false);
+            setAuthState(highlightState.auth, false);
             return [];
         }
         if (!response.ok) {
             throw new Error("형광펜 조회 실패");
         }
-        const data = await response.json();
-        highlightState.auth.checked = true;
-        highlightState.auth.allowed = true;
-        return data;
+        return await response.json();
     } catch (error) {
         console.warn(error.message);
         return [];
