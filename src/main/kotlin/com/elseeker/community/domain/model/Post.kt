@@ -8,6 +8,7 @@ import com.elseeker.member.domain.model.Member
 import com.neovisionaries.i18n.CountryCode
 import com.neovisionaries.i18n.LanguageCode
 import jakarta.persistence.*
+import java.time.Instant
 
 @Entity
 @Table(name = "community_post")
@@ -55,7 +56,14 @@ class Post(
 
     @Column(nullable = false)
     val isWrittenByAdmin: Boolean,
-) : BaseTimeEntity(id = id) {
+
+    createdAt: Instant = Instant.now(),
+    updatedAt: Instant = Instant.now(),
+) : BaseTimeEntity(
+    id = id,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+) {
 
     companion object {
         fun create(

@@ -18,7 +18,7 @@ abstract class BaseTimeEntity(
     var createdAt: Instant = Instant.now(),
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = true)
     var updatedAt: Instant = Instant.now(),
 ) : BaseEntity(
     id = id,
