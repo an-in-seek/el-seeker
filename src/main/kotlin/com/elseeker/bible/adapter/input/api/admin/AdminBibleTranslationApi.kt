@@ -4,8 +4,8 @@ import com.elseeker.bible.adapter.input.api.admin.request.AdminBibleTranslationR
 import com.elseeker.bible.application.service.AdminBibleTranslationService
 import com.elseeker.bible.domain.model.BibleTranslation
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.neovisionaries.i18n.LanguageCode
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity

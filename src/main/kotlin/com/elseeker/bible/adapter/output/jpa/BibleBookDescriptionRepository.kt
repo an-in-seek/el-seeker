@@ -2,7 +2,7 @@ package com.elseeker.bible.adapter.output.jpa
 
 import com.elseeker.bible.domain.model.BibleBookDescription
 import com.elseeker.bible.domain.vo.BibleBookKey
-import com.elseeker.bible.domain.vo.LanguageCode
+import com.neovisionaries.i18n.LanguageCode
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

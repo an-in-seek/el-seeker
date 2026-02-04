@@ -1,7 +1,7 @@
 package com.elseeker.bible.adapter.input.api.admin.request
 
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
+import com.neovisionaries.i18n.LanguageCode
 
 data class AdminBibleTranslationRequest(
     val translationType: BibleTranslationType,

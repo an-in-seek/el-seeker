@@ -11,7 +11,6 @@ import com.elseeker.bible.domain.model.BibleVerse
 import com.elseeker.bible.domain.vo.BibleBookKey
 import com.elseeker.bible.domain.vo.BibleTestamentType
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.IntegrationTest
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.ServiceError
@@ -20,6 +19,7 @@ import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
 import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
+import com.neovisionaries.i18n.LanguageCode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull

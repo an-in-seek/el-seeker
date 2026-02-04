@@ -38,6 +38,9 @@ dependencies {
     implementation("org.webjars:bootstrap:5.3.0")
     implementation("org.webjars:jquery:3.6.0")
 
+    // i18n
+    implementation("com.neovisionaries:nv-i18n:1.29")
+
     //
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

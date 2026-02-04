@@ -3,9 +3,9 @@ package com.elseeker.bible.application.service
 import com.elseeker.bible.adapter.output.jpa.BibleTranslationRepository
 import com.elseeker.bible.domain.model.BibleTranslation
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
+import com.neovisionaries.i18n.LanguageCode
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull

@@ -2,8 +2,8 @@ package com.elseeker.bible.domain.model
 
 import com.elseeker.bible.adapter.output.jpa.BibleBookKeyConverter
 import com.elseeker.bible.domain.vo.BibleBookKey
-import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.domain.BaseEntity
+import com.neovisionaries.i18n.LanguageCode
 import jakarta.persistence.*
 
 @Entity

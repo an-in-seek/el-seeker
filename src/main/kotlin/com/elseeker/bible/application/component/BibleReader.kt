@@ -7,9 +7,9 @@ import com.elseeker.bible.adapter.output.jpa.*
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.DirectionType
-import com.elseeker.bible.domain.vo.LanguageCode
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
+import com.neovisionaries.i18n.LanguageCode
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

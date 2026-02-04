@@ -2,7 +2,7 @@ package com.elseeker.bible.adapter.input.web.response
 
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
+import com.neovisionaries.i18n.LanguageCode
 
 object BibleViewResponse {
 

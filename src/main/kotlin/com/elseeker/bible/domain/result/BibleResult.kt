@@ -3,7 +3,7 @@ package com.elseeker.bible.domain.result
 import com.elseeker.bible.domain.model.*
 import com.elseeker.bible.domain.vo.BibleTestamentType
 import com.elseeker.bible.domain.vo.BibleTranslationType
-import com.elseeker.bible.domain.vo.LanguageCode
+import com.neovisionaries.i18n.LanguageCode
 
 object BibleResult {
 
