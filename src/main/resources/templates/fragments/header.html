@@ -37,6 +37,15 @@
                        title="본문 검색">
                         🔍
                     </a>
+                    <button id="topNavNotificationButton"
+                            type="button"
+                            class="top-nav-notification-button top-nav-btn btn btn-outline-secondary d-none"
+                            aria-label="알림"
+                            title="알림"
+                            disabled>
+                        🔔
+                        <span id="topNavNotificationBadge" class="top-nav-notification-badge d-none"></span>
+                    </button>
                     <div class="top-nav-account">
                         <button id="topNavAccountButton"
                                 type="button"
@@ -101,11 +110,16 @@
             loginLink.href = buildLoginRedirectUrl(returnUrl);
             logoutLink.href = `/web/auth/logout?returnUrl=${encodeURIComponent(returnUrl)}`;
 
+            const notificationButton = document.getElementById("topNavNotificationButton");
+
             checkAuthStatus({
                 onAuthenticated: () => {
                     logoutLink.classList.remove("d-none");
                     myPageLink.classList.remove("d-none");
                     accountDivider.classList.remove("d-none");
+                    if (notificationButton) {
+                        notificationButton.classList.remove("d-none");
+                    }
                 },
                 onUnauthenticated: () => {
                     loginLink.classList.remove("d-none");
