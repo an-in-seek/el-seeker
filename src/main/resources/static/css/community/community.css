@@ -4,7 +4,6 @@
     --comm-primary: #3559a2;
     --comm-primary-light: #eef4ff;
     --comm-accent: #f59e0b;
-    /* Gold/Amber */
     --comm-bg-soft: #f8fafc;
     --comm-text-main: #1e293b;
     --comm-text-muted: #64748b;
@@ -52,7 +51,7 @@
 .community-intro-card .card-body {
     position: relative;
     z-index: 1;
-    padding: 2.5rem;
+    padding: 2rem;
 }
 
 .community-kicker {
@@ -75,76 +74,11 @@
     border-radius: 2px;
 }
 
-.community-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--comm-text-main);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-}
-
 .community-intro-desc {
     font-size: 1.05rem;
     color: var(--comm-text-muted);
     max-width: 480px;
     line-height: 1.6;
-}
-
-/* Action Cards (Mini) */
-.community-intro-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.community-action {
-    flex: 1;
-    min-width: 140px;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-}
-
-.community-action:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
-}
-
-.community-action .card-body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-}
-
-.community-action-icon {
-    font-size: 1.5rem;
-    background: #fff;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    margin-bottom: 0.25rem;
-}
-
-.community-action-title {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--comm-text-main);
-}
-
-.community-action-desc {
-    font-size: 0.8rem;
-    color: var(--comm-text-muted);
 }
 
 /* Section Header */
@@ -157,13 +91,88 @@
     border-bottom: 1px solid #edf2f7;
 }
 
-/* Category Tabs */
+/* =====================
+   인기글 (Popular Posts)
+   ===================== */
+.popular-posts {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+.popular-card {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.popular-card:last-child {
+    border-bottom: none;
+}
+
+.popular-card:hover {
+    background: #fafbfd;
+}
+
+.popular-rank {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--comm-primary);
+    min-width: 24px;
+    text-align: center;
+}
+
+.popular-rank.top {
+    color: var(--comm-accent);
+}
+
+.popular-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.popular-content .feed-category {
+    font-size: 0.7rem;
+    padding: 1px 6px;
+}
+
+.popular-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--comm-text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.popular-stats {
+    font-size: 0.75rem;
+    color: var(--comm-text-muted);
+    white-space: nowrap;
+}
+
+/* =====================
+   Category Tabs (Pill Style)
+   ===================== */
 .community-tabs-wrapper {
     position: sticky;
     top: 56px;
     z-index: 10;
     background: var(--comm-bg-soft);
-    padding: 0.75rem 0 0;
+    padding: 0.5rem 0 0.75rem;
     margin-bottom: 1rem;
 }
 
@@ -173,8 +182,7 @@
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding-bottom: 2px;
-    border-bottom: 2px solid #edf2f7;
+    padding: 0.25rem 0;
 }
 
 .community-tabs::-webkit-scrollbar {
@@ -184,128 +192,38 @@
 .community-tab {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 1.1rem;
-    border: none;
-    background: transparent;
+    gap: 0.35rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    background: white;
     color: var(--comm-text-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.2s, border-color 0.2s;
-    border-radius: 0;
+    border-radius: 20px;
+    transition: all 0.2s ease;
 }
 
 .community-tab:hover {
-    color: var(--comm-text-main);
+    background: var(--comm-primary-light);
+    border-color: var(--comm-primary-light);
+    color: var(--comm-primary);
 }
 
 .community-tab.active {
-    color: var(--comm-primary);
-    border-bottom-color: var(--comm-primary);
-}
-
-.tab-icon {
-    font-size: 1rem;
+    background: var(--comm-primary);
+    border-color: var(--comm-primary);
+    color: #fff;
 }
 
 .tab-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
-/* Feed Empty State */
-.feed-empty {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--comm-text-muted);
-    font-size: 0.95rem;
-}
-
-/* Feed card hide/show for tab filtering */
-.feed-card.hidden {
-    display: none;
-}
-
-/* Animations */
-.community-animate {
-    opacity: 0;
-    animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: var(--delay, 0s);
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Coming Soon State */
-.coming-soon {
-    filter: grayscale(100%);
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-.coming-soon .badge-warning {
-    filter: none;
-    /* Keep the badge colored if possible, or style specifically */
-    background-color: #cbd5e1 !important;
-    color: #475569 !important;
-}
-
-@media (max-width: 768px) {
-    .community-intro-card .card-body {
-        padding: 1.5rem;
-    }
-
-    .community-title {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .community-intro-actions {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-/* Feed Section (Content Discovery) */
-.feed-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.fire-icon {
-    font-size: 1.2rem;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
+/* =====================
+   Feed Section (최신글)
+   ===================== */
 .feed-list {
     display: flex;
     flex-direction: column;
@@ -330,6 +248,10 @@
     transform: translateX(4px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     border-color: var(--comm-primary-light);
+}
+
+.feed-card.hidden {
+    display: none;
 }
 
 .feed-meta {
@@ -370,7 +292,6 @@
     line-height: 1.5;
 }
 
-/* Light Interaction Triggers */
 .feed-actions {
     display: flex;
     gap: 1rem;
@@ -395,6 +316,17 @@
     border-color: var(--comm-primary-light);
 }
 
+/* Feed Empty State */
+.feed-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--comm-text-muted);
+    font-size: 0.95rem;
+}
+
+/* =====================
+   Floating Action Button
+   ===================== */
 .writer-fab {
     position: fixed;
     bottom: 2rem;
@@ -417,4 +349,72 @@
 
 .writer-fab:hover {
     transform: scale(1.1) rotate(90deg);
+}
+
+/* =====================
+   Coming Soon State
+   ===================== */
+.coming-soon {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* =====================
+   Animations
+   ===================== */
+.community-animate {
+    opacity: 0;
+    animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =====================
+   Responsive
+   ===================== */
+@media (max-width: 768px) {
+    .community-intro-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .popular-card {
+        padding: 0.875rem 1rem;
+    }
+
+    .popular-title {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .community-tabs {
+        gap: 0.375rem;
+    }
+
+    .community-tab {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .feed-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .action-pill {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+    }
 }
