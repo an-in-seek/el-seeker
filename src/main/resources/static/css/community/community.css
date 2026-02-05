@@ -45,11 +45,19 @@ body {
    ===================== */
 .community-tabs-wrapper {
     position: sticky;
-    top: 56px;
+    top: 50px;
     z-index: 20;
-    background: var(--comm-bg-page);
-    /* Mask content scrolling behind */
-    padding: 10px 0;
+    background: var(--comm-bg-card);
+    /* Distinct background for separation */
+    padding: 0.75rem 0.5rem;
+    /* Added side padding for better aesthetics on white */
+    margin: 0 -0.5rem 1rem -0.5rem;
+    /* Negative margin to pull it to edges of grid column if needed, or just stay within */
+    /* Actually, better to just keep it simple first */
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--comm-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow for depth */
 }
 
 .community-tabs {
@@ -474,6 +482,37 @@ body {
     display: none;
 }
 
+/* Mobile Widgets Area (Hidden by default on Desktop) */
+.mobile-widgets-area {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    padding: 0 0 1.5rem 0;
+    border-bottom: 1px solid var(--comm-border);
+}
+
+.mobile-notice {
+    padding-bottom: 1.5rem;
+}
+
+.mobile-top3 {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--comm-border);
+}
+
+/* Mobile Widget Styling */
+.mobile-widget .sidebar-widget {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+}
+
+.mobile-widget .widget-header {
+    margin-bottom: 0.5rem;
+}
+
 @media (max-width: 992px) {
     .community-layout {
         grid-template-columns: 1fr;
@@ -481,10 +520,13 @@ body {
     }
 
     .community-sidebar {
-        /* display: none; Removed to show widgets on mobile */
-        order: -1;
-        /* Move to top on mobile */
-        gap: 1rem;
+        display: none;
+        /* Hide Desktop Sidebar on Mobile */
+    }
+
+    .mobile-widgets-area {
+        display: flex;
+        /* Show Mobile Widgets */
     }
 
     /* Hide Desktop Write Button on Mobile */
@@ -492,7 +534,7 @@ body {
         display: none;
     }
 
-    /* Re-enable FAB for mobile since Sidebar is hidden/modified */
+    /* Re-enable FAB for mobile since Sidebar is hidden */
     .writer-fab.mobile-only {
         display: flex;
         position: fixed;
@@ -510,6 +552,38 @@ body {
         z-index: 100;
         border: none;
     }
+}
+
+/* Mobile Top 3 Card Styling */
+.top3-card-mobile {
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid var(--comm-border);
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: white;
+    background: #94a3b8;
+}
+
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    box-shadow: 0 2px 5px rgba(251, 191, 36, 0.3);
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
 }
 
 @media (max-width: 576px) {

@@ -46,8 +46,13 @@ const App = {
                 const category = tab.dataset.category;
 
                 // Show/hide TOP3 section (only in "전체" tab)
+                const mobileTop3 = document.getElementById("mobileTop3");
+                
                 if (feedTop3) {
                     feedTop3.classList.toggle("hidden", category !== "all");
+                }
+                if (mobileTop3) {
+                    mobileTop3.classList.toggle("hidden", category !== "all");
                 }
 
                 // Handle feed filtering and sorting
