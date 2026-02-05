@@ -56,140 +56,90 @@
         </div>
     </section>
 
-    <!-- 3. Categories (Full Width 3-Column Grid) -->
+    <!-- 3. Category Tabs + Feed -->
     <section class="community-section mt-5">
-        <div class="community-section-header">
-            <h3 class="h5 fw-bold text-dark mb-0">이야기 주제</h3>
-            <span class="text-muted small">오픈 준비중</span>
+        <div class="community-tabs-wrapper community-animate" style="--delay: 0.1s;">
+            <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
+                <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
+                    <span class="tab-icon">🔥</span>
+                    <span class="tab-label">전체</span>
+                </button>
+                <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
+                    <span class="tab-icon">📝</span>
+                    <span class="tab-label">자유 게시판</span>
+                </button>
+                <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
+                    <span class="tab-icon">🙏</span>
+                    <span class="tab-label">기도 나눔</span>
+                </button>
+                <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
+                    <span class="tab-icon">❓</span>
+                    <span class="tab-label">성경 Q&amp;A</span>
+                </button>
+            </nav>
         </div>
-        <div class="row g-4 row-cols-1 row-cols-md-3 community-animate" style="--delay: 0.1s;">
-            <!-- Free Board -->
-            <div class="col">
-                <a href="#" class="community-card-link coming-soon">
-                    <div class="community-card">
-                        <div class="community-card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="community-icon-wrapper mb-0">📝</div>
-                                <span class="badge bg-light text-dark border">New</span>
-                            </div>
-                            <h3 class="community-card-title">자유 게시판</h3>
-                            <div class="community-stat-row">
-                                <span class="stat-item">👥 12명 활동중</span>
-                                <span class="stat-item">• 5분 전 새글</span>
-                            </div>
-                            <p class="community-card-text mb-0">
-                                일상의 은혜와 고민을 나누세요.
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <!-- Prayer -->
-            <div class="col">
-                <a href="#" class="community-card-link coming-soon">
-                    <div class="community-card">
-                        <div class="community-card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="community-icon-wrapper mb-0">🙏</div>
-                                <span class="badge bg-light text-dark border">Hot</span>
-                            </div>
-                            <h3 class="community-card-title">기도 나눔</h3>
-                            <div class="community-stat-row">
-                                <span class="stat-item">🔥 34명 기도로 동역</span>
-                            </div>
-                            <p class="community-card-text mb-0">
-                                중보의 힘이 필요한 순간입니다.
-                            </p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <!-- Q&A -->
-            <div class="col">
-                <a href="#" class="community-card-link coming-soon">
-                    <div class="community-card">
-                        <div class="community-card-body">
-                            <div class="community-icon-wrapper">❓</div>
-                            <h3 class="community-card-title">성경 Q&amp;A</h3>
-                            <p class="community-card-text">
-                                말씀에 대한 궁금증을 풀어가세요.
-                            </p>
-                        </div>
-                    </div>
-                </a>
+
+        <div class="feed-list community-animate" style="--delay: 0.15s;">
+            <!-- Feed Item 1: 자유 -->
+            <a href="#" class="feed-card coming-soon" data-category="자유">
+                <div class="feed-meta">
+                    <span class="feed-category">자유</span>
+                    <span>•</span>
+                    <span>3시간 전</span>
+                </div>
+                <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
+                <div class="feed-preview">
+                    가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
+                </div>
+                <div class="feed-actions">
+                    <span class="action-pill">👀 조회 95</span>
+                    <span class="action-pill">❤️ 좋아요 42</span>
+                    <span class="action-pill">💬 댓글 8</span>
+                </div>
+            </a>
+
+            <!-- Feed Item 2: Q&A -->
+            <a href="#" class="feed-card coming-soon" data-category="Q&A">
+                <div class="feed-meta">
+                    <span class="feed-category">Q&A</span>
+                    <span>•</span>
+                    <span>1시간 전</span>
+                </div>
+                <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
+                <div class="feed-preview">
+                    합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
+                </div>
+                <div class="feed-actions">
+                    <span class="action-pill">👀 조회 128</span>
+                    <span class="action-pill">❤️ 좋아요 15</span>
+                    <span class="action-pill">💬 댓글 3</span>
+                </div>
+            </a>
+
+            <!-- Feed Item 3: 기도 나눔 -->
+            <a href="#" class="feed-card coming-soon" data-category="기도나눔">
+                <div class="feed-meta">
+                    <span class="feed-category">기도나눔</span>
+                    <span>•</span>
+                    <span>10분 전</span>
+                </div>
+                <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
+                <div class="feed-preview">
+                    준비하는 임원들과 참여하는 모든 지체들이 은혜 받을 수 있도록 기도로 함께 해주시길 부탁드립니다.
+                </div>
+                <div class="feed-actions">
+                    <span class="action-pill">👀 조회 67</span>
+                    <span class="action-pill active">🙏 아멘 24</span>
+                    <span class="action-pill">💬 댓글 5</span>
+                </div>
+            </a>
+
+            <!-- Empty State -->
+            <div class="feed-empty" style="display: none;">
+                <p>아직 등록된 글이 없습니다.</p>
             </div>
         </div>
     </section>
-
-    <!-- 4. Main Content Feed -->
-    <div class="row g-4 mt-1">
-        <div class="col-12">
-            <section class="community-section h-100">
-                <div class="community-section-header mt-0 pt-0 border-0 mb-3">
-                    <div class="feed-header mb-0">
-                        <span class="fire-icon">🔥</span>
-                        <h3 class="h5 fw-bold text-dark mb-0">실시간 인기글</h3>
-                    </div>
-                </div>
-
-                <div class="feed-list">
-                    <!-- Feed Item 1: 자유 -->
-                    <a href="#" class="feed-card community-animate coming-soon" style="--delay: 0.2s;">
-                        <div class="feed-meta">
-                            <span class="feed-category">자유</span>
-                            <span>•</span>
-                            <span>3시간 전</span>
-                        </div>
-                        <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
-                        <div class="feed-preview">
-                            가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill">👀 조회 95</span>
-                            <span class="action-pill">❤️ 좋아요 42</span>
-                            <span class="action-pill">💬 댓글 8</span>
-                        </div>
-                    </a>
-
-                    <!-- Feed Item 2: Q&A -->
-                    <a href="#" class="feed-card community-animate coming-soon" style="--delay: 0.3s;">
-                        <div class="feed-meta">
-                            <span class="feed-category">Q&A</span>
-                            <span>•</span>
-                            <span>1시간 전</span>
-                        </div>
-                        <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-                        <div class="feed-preview">
-                            합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill">👀 조회 128</span>
-                            <span class="action-pill">❤️ 좋아요 15</span>
-                            <span class="action-pill">💬 댓글 3</span>
-                        </div>
-                    </a>
-
-                    <!-- Feed Item 3: 기도 나눔 -->
-                    <a href="#" class="feed-card community-animate coming-soon" style="--delay: 0.4s;">
-                        <div class="feed-meta">
-                            <span class="feed-category">기도나눔</span>
-                            <span>•</span>
-                            <span>10분 전</span>
-                        </div>
-                        <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-                        <div class="feed-preview">
-                            준비하는 임원들과 참여하는 모든 지체들이 은혜 받을 수 있도록 기도로 함께 해주시길 부탁드립니다.
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill">👀 조회 67</span>
-                            <span class="action-pill active">🙏 아멘 24</span>
-                            <span class="action-pill">💬 댓글 5</span>
-                        </div>
-                    </a>
-                </div>
-            </section>
-        </div>
-    </div>
     <!-- Floating Write Button -->
     <button class="writer-fab coming-soon" aria-label="글쓰기">
         <span>✎</span>
