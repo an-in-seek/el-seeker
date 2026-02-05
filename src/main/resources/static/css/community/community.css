@@ -92,79 +92,6 @@
 }
 
 /* =====================
-   인기글 (Popular Posts)
-   ===================== */
-.popular-posts {
-    display: flex;
-    flex-direction: column;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f1f5f9;
-    overflow: hidden;
-}
-
-.popular-card {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    padding: 1rem 1.25rem;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.15s ease;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.popular-card:last-child {
-    border-bottom: none;
-}
-
-.popular-card:hover {
-    background: #fafbfd;
-}
-
-.popular-rank {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--comm-primary);
-    min-width: 24px;
-    text-align: center;
-}
-
-.popular-rank.top {
-    color: var(--comm-accent);
-}
-
-.popular-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.popular-content .feed-category {
-    font-size: 0.7rem;
-    padding: 1px 6px;
-}
-
-.popular-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--comm-text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0;
-}
-
-.popular-stats {
-    font-size: 0.75rem;
-    color: var(--comm-text-muted);
-    white-space: nowrap;
-}
-
-/* =====================
    Category Tabs (Underline Style)
    ===================== */
 .community-tabs-wrapper {
@@ -173,7 +100,7 @@
     z-index: 10;
     background: var(--comm-bg-soft);
     padding: 0.75rem 0 0;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .community-tabs {
@@ -226,32 +153,87 @@
 }
 
 /* =====================
-   Feed Section (최신글)
+   Feed Container & Sort Bar
+   ===================== */
+.feed-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+.feed-sort-bar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #fafbfc;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.feed-sort-group {
+    display: flex;
+    gap: 0.25rem;
+    background: #eef2f6;
+    padding: 3px;
+    border-radius: 8px;
+}
+
+.feed-sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.75rem;
+    border: none;
+    background: transparent;
+    color: var(--comm-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.feed-sort-btn:hover {
+    color: var(--comm-text-main);
+}
+
+.feed-sort-btn.active {
+    background: white;
+    color: var(--comm-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.feed-sort-btn span {
+    font-size: 0.85rem;
+}
+
+/* =====================
+   Feed List
    ===================== */
 .feed-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
 }
 
 .feed-card {
-    background: white;
-    border-radius: 16px;
     padding: 1.25rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f1f5f9;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.feed-card:last-of-type {
+    border-bottom: none;
 }
 
 .feed-card:hover {
-    transform: translateX(4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border-color: var(--comm-primary-light);
+    background: #fafbfd;
 }
 
 .feed-card.hidden {
@@ -393,12 +375,8 @@
         padding: 1.5rem;
     }
 
-    .popular-card {
-        padding: 0.875rem 1rem;
-    }
-
-    .popular-title {
-        font-size: 0.85rem;
+    .feed-card {
+        padding: 1rem;
     }
 }
 
@@ -410,6 +388,11 @@
 
     .tab-icon {
         font-size: 0.9rem;
+    }
+
+    .feed-sort-btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
     }
 
     .feed-actions {
