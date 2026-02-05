@@ -54,7 +54,7 @@ body {
     margin: 0 -0.75rem 1rem -0.75rem;
     /* Negative margin to pull it to edges of grid column if needed, or just stay within */
     /* Actually, better to just keep it simple first */
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     border-bottom: 1px solid var(--comm-border);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     /* Subtle shadow for depth */
