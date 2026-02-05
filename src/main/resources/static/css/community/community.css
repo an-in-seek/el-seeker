@@ -343,94 +343,9 @@ body {
     gap: 0.75rem;
 }
 
-.top3-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    text-decoration: none;
-    padding: 0.5rem;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-}
+/* Legacy Top 3 Styles (removed) */
 
-.top3-item:hover {
-    background: #f8fafc;
-    transform: translateX(2px);
-}
-
-.top3-rank-box {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #f1f5f9;
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: #64748b;
-    margin-top: 2px;
-}
-
-/* Rank Colors */
-.top3-item[data-rank="1"] .top3-rank-box {
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-    color: white;
-    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
-}
-
-.top3-item[data-rank="2"] .top3-rank-box {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.top3-item[data-rank="3"] .top3-rank-box {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.top3-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    min-width: 0;
-    /* Enable truncation flex child */
-}
-
-.top3-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--comm-text-main);
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.top3-footer {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.top3-cat-badge {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--comm-text-sub);
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.top3-stats {
-    font-size: 0.75rem;
-    color: var(--comm-text-sub);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-}
+/* Rank Colors - preserved if needed for reference, but legacy classes removed */
 
 /* =====================
    Empty State
@@ -554,8 +469,9 @@ body {
     }
 }
 
-/* Mobile Top 3 Card Styling */
-.top3-card-mobile {
+/* Top 3 Card Styling (Mobile & Desktop) */
+.top3-card-mobile,
+.top3-card-desktop {
     padding: 1rem;
     background: #ffffff;
     border: 1px solid var(--comm-border);
