@@ -12,6 +12,7 @@ const App = {
 
         App.initComingSoon();
         App.initCategoryTabs();
+        App.initSortToggle();
     },
 
     initComingSoon: () => {
@@ -56,6 +57,50 @@ const App = {
                 }
             });
         });
+    },
+
+    initSortToggle: () => {
+        const sortBtns = document.querySelectorAll(".feed-sort-btn");
+        const feedList = document.querySelector(".feed-list");
+
+        if (sortBtns.length === 0 || !feedList) return;
+
+        sortBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                sortBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                const sortType = btn.dataset.sort;
+                App.sortFeed(feedList, sortType);
+            });
+        });
+    },
+
+    sortFeed: (feedList, sortType) => {
+        const feedCards = Array.from(feedList.querySelectorAll(".feed-card[data-category]"));
+        const emptyState = feedList.querySelector(".feed-empty");
+
+        feedCards.sort((a, b) => {
+            if (sortType === "popular") {
+                const aLikes = parseInt(a.dataset.likes) || 0;
+                const bLikes = parseInt(b.dataset.likes) || 0;
+                return bLikes - aLikes;
+            } else {
+                // latest - based on DOM order (assumes initial order is latest)
+                // For demo, we'll reverse the popular sort
+                const aLikes = parseInt(a.dataset.likes) || 0;
+                const bLikes = parseInt(b.dataset.likes) || 0;
+                return aLikes - bLikes;
+            }
+        });
+
+        // Re-append in sorted order
+        feedCards.forEach(card => feedList.appendChild(card));
+
+        // Keep empty state at the end
+        if (emptyState) {
+            feedList.appendChild(emptyState);
+        }
     }
 };
 
