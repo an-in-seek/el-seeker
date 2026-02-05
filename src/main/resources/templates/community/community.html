@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/community/community.css?v=2.2')}">
+        th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/community/community.css?v=2.3')}">
 </head>
 
 <body class="has-fixed-nav">
@@ -13,28 +13,15 @@
     <section class="community-intro community-animate" style="--delay: 0s;" aria-labelledby="communityIntroTitle">
         <div class="community-intro-card">
             <div class="card-body">
-                <div class="community-intro-header">
-                    <div class="community-intro-text">
-                        <div class="community-kicker">Together</div>
-                        <p class="community-intro-desc mb-4">
-                            말씀 안에서 서로를 격려하고<br>함께 성장하는 은혜의 공간입니다.
-                        </p>
-                    </div>
-                    <div class="community-intro-actions">
-                        <div class="community-action coming-soon">
-                            <div class="card-body">
-                                <div class="community-action-icon">🏆</div>
-                                <div class="community-action-title">베스트</div>
-                                <div class="community-action-desc">인기글 모음</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="community-kicker">Together</div>
+                <p class="community-intro-desc mb-0">
+                    말씀 안에서 서로를 격려하고<br>함께 성장하는 은혜의 공간입니다.
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- 2. Notices (Top) -->
+    <!-- 2. Notices -->
     <section class="community-section mt-4">
         <div class="community-section-header mt-0">
             <h3 class="h5 fw-bold text-dark mb-0">공지사항</h3>
@@ -56,67 +43,63 @@
         </div>
     </section>
 
-    <!-- 3. Category Tabs + Feed -->
+    <!-- 3. 인기글 Section -->
+    <section class="community-section mt-4">
+        <div class="community-section-header mt-0">
+            <h3 class="h5 fw-bold text-dark mb-0">🔥 인기글</h3>
+        </div>
+        <div class="popular-posts community-animate" style="--delay: 0.1s;">
+            <a href="#" class="popular-card coming-soon">
+                <span class="popular-rank top">1</span>
+                <div class="popular-content">
+                    <span class="feed-category">Q&amp;A</span>
+                    <h4 class="popular-title">로마서 8장 28절 해석 질문입니다</h4>
+                </div>
+                <div class="popular-stats">❤️ 15 · 💬 3</div>
+            </a>
+            <a href="#" class="popular-card coming-soon">
+                <span class="popular-rank top">2</span>
+                <div class="popular-content">
+                    <span class="feed-category">자유</span>
+                    <h4 class="popular-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
+                </div>
+                <div class="popular-stats">❤️ 42 · 💬 8</div>
+            </a>
+            <a href="#" class="popular-card coming-soon">
+                <span class="popular-rank">3</span>
+                <div class="popular-content">
+                    <span class="feed-category">기도나눔</span>
+                    <h4 class="popular-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
+                </div>
+                <div class="popular-stats">🙏 24 · 💬 5</div>
+            </a>
+        </div>
+    </section>
+
+    <!-- 4. 최신글 Section with Category Tabs -->
     <section class="community-section mt-5">
-        <div class="community-tabs-wrapper community-animate" style="--delay: 0.1s;">
+        <div class="community-section-header mt-0 mb-2">
+            <h3 class="h5 fw-bold text-dark mb-0">최신글</h3>
+        </div>
+        <div class="community-tabs-wrapper community-animate" style="--delay: 0.12s;">
             <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
                 <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
-                    <span class="tab-icon">🔥</span>
                     <span class="tab-label">전체</span>
                 </button>
                 <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
-                    <span class="tab-icon">📝</span>
                     <span class="tab-label">자유 게시판</span>
                 </button>
                 <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
-                    <span class="tab-icon">🙏</span>
                     <span class="tab-label">기도 나눔</span>
                 </button>
                 <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
-                    <span class="tab-icon">❓</span>
                     <span class="tab-label">성경 Q&amp;A</span>
                 </button>
             </nav>
         </div>
 
         <div class="feed-list community-animate" style="--delay: 0.15s;">
-            <!-- Feed Item 1: 자유 -->
-            <a href="#" class="feed-card coming-soon" data-category="자유">
-                <div class="feed-meta">
-                    <span class="feed-category">자유</span>
-                    <span>•</span>
-                    <span>3시간 전</span>
-                </div>
-                <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
-                <div class="feed-preview">
-                    가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
-                </div>
-                <div class="feed-actions">
-                    <span class="action-pill">👀 조회 95</span>
-                    <span class="action-pill">❤️ 좋아요 42</span>
-                    <span class="action-pill">💬 댓글 8</span>
-                </div>
-            </a>
-
-            <!-- Feed Item 2: Q&A -->
-            <a href="#" class="feed-card coming-soon" data-category="Q&A">
-                <div class="feed-meta">
-                    <span class="feed-category">Q&A</span>
-                    <span>•</span>
-                    <span>1시간 전</span>
-                </div>
-                <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-                <div class="feed-preview">
-                    합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
-                </div>
-                <div class="feed-actions">
-                    <span class="action-pill">👀 조회 128</span>
-                    <span class="action-pill">❤️ 좋아요 15</span>
-                    <span class="action-pill">💬 댓글 3</span>
-                </div>
-            </a>
-
-            <!-- Feed Item 3: 기도 나눔 -->
+            <!-- Feed Item 1: 기도나눔 (most recent) -->
             <a href="#" class="feed-card coming-soon" data-category="기도나눔">
                 <div class="feed-meta">
                     <span class="feed-category">기도나눔</span>
@@ -134,12 +117,49 @@
                 </div>
             </a>
 
+            <!-- Feed Item 2: Q&A -->
+            <a href="#" class="feed-card coming-soon" data-category="Q&A">
+                <div class="feed-meta">
+                    <span class="feed-category">Q&amp;A</span>
+                    <span>•</span>
+                    <span>1시간 전</span>
+                </div>
+                <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
+                <div class="feed-preview">
+                    합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
+                </div>
+                <div class="feed-actions">
+                    <span class="action-pill">👀 조회 128</span>
+                    <span class="action-pill">❤️ 좋아요 15</span>
+                    <span class="action-pill">💬 댓글 3</span>
+                </div>
+            </a>
+
+            <!-- Feed Item 3: 자유 -->
+            <a href="#" class="feed-card coming-soon" data-category="자유">
+                <div class="feed-meta">
+                    <span class="feed-category">자유</span>
+                    <span>•</span>
+                    <span>3시간 전</span>
+                </div>
+                <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
+                <div class="feed-preview">
+                    가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
+                </div>
+                <div class="feed-actions">
+                    <span class="action-pill">👀 조회 95</span>
+                    <span class="action-pill">❤️ 좋아요 42</span>
+                    <span class="action-pill">💬 댓글 8</span>
+                </div>
+            </a>
+
             <!-- Empty State -->
             <div class="feed-empty" style="display: none;">
                 <p>아직 등록된 글이 없습니다.</p>
             </div>
         </div>
     </section>
+
     <!-- Floating Write Button -->
     <button class="writer-fab coming-soon" aria-label="글쓰기">
         <span>✎</span>
@@ -148,7 +168,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/community/community.js?v=2.2"></script>
+<script type="module" src="/js/community/community.js?v=2.3"></script>
 </body>
 
 </html>
