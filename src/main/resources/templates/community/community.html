@@ -2,184 +2,199 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.2,/css/community/community.css?v=2.5')}">
+    th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.2,/css/community/community.css?v=2.5')}">
 </head>
 
 <body class="has-fixed-nav">
-<header th:replace="~{fragments/header :: header}"></header>
+    <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="container content-wrapper">
-    <!-- Feed Section with Category Tabs -->
+    <main class="container content-wrapper">
+        <!-- Feed Section with Category Tabs -->
 
 
-    <div class="community-layout">
-        <!-- Main Content: Feed & Tabs -->
-        <div class="community-main">
-            <div class="community-tabs-wrapper community-animate" style="--delay: 0.05s;">
-                <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
-                    <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
-                        <span class="tab-label">전체</span>
-                    </button>
-                    <button class="community-tab" role="tab" aria-selected="false" data-category="인기">
-                        <span class="tab-label">🔥 인기</span>
-                    </button>
-                    <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
-                        <span class="tab-label">자유</span>
-                    </button>
-                    <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
-                        <span class="tab-label">질문</span>
-                    </button>
-                    <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
-                        <span class="tab-label">기도</span>
-                    </button>
-                </nav>
-            </div>
+        <div class="community-layout">
+            <!-- Main Content: Feed & Tabs -->
+            <div class="community-main">
+                <div class="community-tabs-wrapper community-animate" style="--delay: 0.05s;">
+                    <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
+                        <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
+                            <span class="tab-label">전체</span>
+                        </button>
+                        <button class="community-tab" role="tab" aria-selected="false" data-category="인기">
+                            <span class="tab-label">🔥 인기</span>
+                        </button>
+                        <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
+                            <span class="tab-label">자유</span>
+                        </button>
+                        <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
+                            <span class="tab-label">질문</span>
+                        </button>
+                        <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
+                            <span class="tab-label">기도</span>
+                        </button>
+                    </nav>
+                </div>
 
-            <div class="feed-container community-animate" style="--delay: 0.1s;">
-                <!-- Feed List -->
-                <div class="feed-list">
-                    <!-- Feed Item 1: 자유 -->
-                    <a href="#" class="feed-card coming-soon" data-category="자유" data-likes="42">
-                        <div class="feed-header">
-                            <div class="feed-user-info">
-                                <div class="feed-avatar"></div>
-                                <div class="feed-meta-col">
-                                    <span class="feed-author">익명의 성도</span>
-                                    <span class="feed-time">3시간 전</span>
+                <div class="feed-container community-animate" style="--delay: 0.1s;">
+                    <!-- Feed List -->
+                    <div class="feed-list">
+                        <!-- Feed Item 1: 자유 -->
+                        <a href="#" class="feed-card coming-soon" data-category="자유" data-likes="42">
+                            <div class="feed-header">
+                                <div class="feed-user-info">
+                                    <div class="feed-avatar"></div>
+                                    <div class="feed-meta-col">
+                                        <span class="feed-author">익명의 성도</span>
+                                        <span class="feed-time">3시간 전</span>
+                                    </div>
                                 </div>
+                                <span class="feed-category-badge">자유</span>
                             </div>
-                            <span class="feed-category-badge">자유</span>
-                        </div>
-                        <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
-                        <div class="feed-preview">
-                            가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill"><i class="icon">👀</i> 95</span>
-                            <span class="action-pill"><i class="icon">❤️</i> 42</span>
-                            <span class="action-pill"><i class="icon">💬</i> 8</span>
-                        </div>
-                    </a>
+                            <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
+                            <div class="feed-preview">
+                                가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
+                            </div>
+                            <div class="feed-actions">
+                                <span class="action-pill"><i class="icon">👀</i> 95</span>
+                                <span class="action-pill"><i class="icon">❤️</i> 42</span>
+                                <span class="action-pill"><i class="icon">💬</i> 8</span>
+                            </div>
+                        </a>
 
-                    <!-- Feed Item 2: 기도나눔 -->
-                    <a href="#" class="feed-card coming-soon" data-category="기도나눔" data-likes="24">
-                        <div class="feed-header">
-                            <div class="feed-user-info">
-                                <div class="feed-avatar color-2"></div>
-                                <div class="feed-meta-col">
-                                    <span class="feed-author">기도하는 청년</span>
-                                    <span class="feed-time">10분 전</span>
+                        <!-- Feed Item 2: 기도나눔 -->
+                        <a href="#" class="feed-card coming-soon" data-category="기도나눔" data-likes="24">
+                            <div class="feed-header">
+                                <div class="feed-user-info">
+                                    <div class="feed-avatar color-2"></div>
+                                    <div class="feed-meta-col">
+                                        <span class="feed-author">기도하는 청년</span>
+                                        <span class="feed-time">10분 전</span>
+                                    </div>
                                 </div>
+                                <span class="feed-category-badge">기도</span>
                             </div>
-                            <span class="feed-category-badge">기도</span>
-                        </div>
-                        <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-                        <div class="feed-preview">
-                            준비하는 임원들과 참여하는 모든 지체들이 은혜 받을 수 있도록 기도로 함께 해주시길 부탁드립니다.
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill"><i class="icon">👀</i> 67</span>
-                            <span class="action-pill"><i class="icon">❤️</i> 24</span>
-                            <span class="action-pill"><i class="icon">💬</i> 5</span>
-                        </div>
-                    </a>
+                            <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
+                            <div class="feed-preview">
+                                준비하는 임원들과 참여하는 모든 지체들이 은혜 받을 수 있도록 기도로 함께 해주시길 부탁드립니다.
+                            </div>
+                            <div class="feed-actions">
+                                <span class="action-pill"><i class="icon">👀</i> 67</span>
+                                <span class="action-pill"><i class="icon">🙏</i> 24</span>
+                                <span class="action-pill"><i class="icon">💬</i> 5</span>
+                            </div>
+                        </a>
 
-                    <!-- Feed Item 3: Q&A -->
-                    <a href="#" class="feed-card coming-soon" data-category="Q&A" data-likes="15">
-                        <div class="feed-header">
-                            <div class="feed-user-info">
-                                <div class="feed-avatar color-3"></div>
-                                <div class="feed-meta-col">
-                                    <span class="feed-author">궁금한 초신자</span>
-                                    <span class="feed-time">1시간 전</span>
+                        <!-- Feed Item 3: Q&A -->
+                        <a href="#" class="feed-card coming-soon" data-category="Q&A" data-likes="15">
+                            <div class="feed-header">
+                                <div class="feed-user-info">
+                                    <div class="feed-avatar color-3"></div>
+                                    <div class="feed-meta-col">
+                                        <span class="feed-author">궁금한 초신자</span>
+                                        <span class="feed-time">1시간 전</span>
+                                    </div>
                                 </div>
+                                <span class="feed-category-badge">Q&A</span>
                             </div>
-                            <span class="feed-category-badge">Q&A</span>
-                        </div>
-                        <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-                        <div class="feed-preview">
-                            합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
-                        </div>
-                        <div class="feed-actions">
-                            <span class="action-pill"><i class="icon">👀</i> 128</span>
-                            <span class="action-pill"><i class="icon">❤️</i> 15</span>
-                            <span class="action-pill"><i class="icon">💬</i> 3</span>
-                        </div>
-                    </a>
+                            <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
+                            <div class="feed-preview">
+                                합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
+                            </div>
+                            <div class="feed-actions">
+                                <span class="action-pill"><i class="icon">👀</i> 128</span>
+                                <span class="action-pill"><i class="icon">❤️</i> 15</span>
+                                <span class="action-pill"><i class="icon">💬</i> 3</span>
+                            </div>
+                        </a>
 
-                    <!-- Empty State -->
-                    <div class="feed-empty" style="display: none;">
-                        <div class="empty-icon">📭</div>
-                        <p>아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
+                        <!-- Empty State -->
+                        <div class="feed-empty" style="display: none;">
+                            <div class="empty-icon">📭</div>
+                            <p>아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Sidebar: Widgets -->
+            <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
+                <!-- Write Button Widget -->
+                <div class="sidebar-widget write-widget">
+                    <button class="btn-write-full coming-soon">
+                        <span class="btn-icon">✏️</span>
+                        <span class="btn-text">새 글 작성하기</span>
+                    </button>
+                    <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
+                </div>
+
+                <!-- Pinned Notice -->
+                <div class="sidebar-widget notice-widget">
+                    <div class="widget-header">
+                        <span class="widget-title">📢 공지사항</span>
+                    </div>
+                    <a href="#" class="pinned-notice-item coming-soon">
+                        <span class="pinned-title">커뮤니티 이용 가이드 안내</span>
+                        <span class="pinned-date">2026.02.01</span>
+                    </a>
+                </div>
+
+                <!-- TOP3 Popular -->
+                <div class="sidebar-widget top3-widget" id="feedTop3">
+                    <div class="widget-header">
+                        <span class="widget-title">🔥 주간 인기글</span>
+                        <a href="#" class="widget-more" data-category="인기">더보기</a>
+                    </div>
+                    <div class="top3-list">
+                        <a href="#" class="top3-item coming-soon" data-rank="1">
+                            <div class="top3-rank-box">
+                                <span class="rank-num">1</span>
+                            </div>
+                            <div class="top3-content">
+                                <span class="top3-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요</span>
+                                <div class="top3-footer">
+                                    <span class="top3-cat-badge">자유</span>
+                                    <span class="top3-stats">❤️ 42 · 💬 8</span>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="top3-item coming-soon" data-rank="2">
+                            <div class="top3-rank-box">
+                                <span class="rank-num">2</span>
+                            </div>
+                            <div class="top3-content">
+                                <span class="top3-title">이번 주 청년부 수련회를 위해 기도해주세요</span>
+                                <div class="top3-footer">
+                                    <span class="top3-cat-badge">기도</span>
+                                    <span class="top3-stats">🙏 24 · 💬 5</span>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="top3-item coming-soon" data-rank="3">
+                            <div class="top3-rank-box">
+                                <span class="rank-num">3</span>
+                            </div>
+                            <div class="top3-content">
+                                <span class="top3-title">로마서 8장 28절 해석 질문입니다</span>
+                                <div class="top3-footer">
+                                    <span class="top3-cat-badge">Q&A</span>
+                                    <span class="top3-stats">❤️ 15 · 💬 3</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </aside>
         </div>
 
-        <!-- Sidebar: Widgets -->
-        <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
-            <!-- Write Button Widget -->
-            <div class="sidebar-widget write-widget">
-                <button class="btn-write-full coming-soon">
-                    <span class="btn-icon">✏️</span>
-                    <span class="btn-text">새 글 작성하기</span>
-                </button>
-                <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
-            </div>
+        <!-- Floating Write Button (Mobile Only) -->
+        <button class="writer-fab mobile-only coming-soon" aria-label="글쓰기">
+            <span>✏️</span>
+        </button>
+    </main>
 
-            <!-- Pinned Notice -->
-            <div class="sidebar-widget notice-widget">
-                <div class="widget-header">
-                    <span class="widget-title">📢 공지사항</span>
-                </div>
-                <a href="#" class="pinned-notice-item coming-soon">
-                    <span class="pinned-title">커뮤니티 이용 가이드 안내</span>
-                    <span class="pinned-date">2026.02.01</span>
-                </a>
-            </div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-            <!-- TOP3 Popular -->
-            <div class="sidebar-widget top3-widget" id="feedTop3">
-                <div class="widget-header">
-                    <span class="widget-title">🔥 주간 인기글</span>
-                    <a href="#" class="widget-more" data-category="인기">더보기</a>
-                </div>
-                <div class="top3-list">
-                    <a href="#" class="top3-item coming-soon" data-rank="1">
-                        <span class="top3-rank rank-1">1</span>
-                        <div class="top3-info">
-                            <span class="top3-item-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요</span>
-                            <span class="top3-meta">자유 • 👀 24 ❤️ 42 💬 5</span>
-                        </div>
-                    </a>
-                    <a href="#" class="top3-item coming-soon" data-rank="2">
-                        <span class="top3-rank rank-2">2</span>
-                        <div class="top3-info">
-                            <span class="top3-item-title">이번 주 청년부 수련회를 위해 기도해주세요</span>
-                            <span class="top3-meta">기도 • 👀 24 ❤️ 42 💬 5</span>
-                        </div>
-                    </a>
-                    <a href="#" class="top3-item coming-soon" data-rank="3">
-                        <span class="top3-rank rank-3">3</span>
-                        <div class="top3-info">
-                            <span class="top3-item-title">로마서 8장 28절 해석 질문입니다</span>
-                            <span class="top3-meta">Q&A • 👀 24 ❤️ 15 💬 5</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <!-- Floating Write Button (Mobile Only) -->
-    <button class="writer-fab mobile-only coming-soon" aria-label="글쓰기">
-        <span>✏️</span>
-    </button>
-</main>
-
-<footer th:replace="~{fragments/footer :: footer}"></footer>
-
-<script type="module" src="/js/community/community.js?v=2.5"></script>
+    <script type="module" src="/js/community/community.js?v=2.5"></script>
 </body>
 
 </html>

@@ -22,10 +22,6 @@ body {
 /* =====================
    Layout & Grid
    ===================== */
-.container.content-wrapper {
-    max-width: 1200px;
-}
-
 .community-layout {
     display: grid;
     grid-template-columns: 1fr 340px;
@@ -336,60 +332,96 @@ body {
 .top3-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .top3-item {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    align-items: flex-start;
+    gap: 0.8rem;
     text-decoration: none;
     padding: 0.5rem;
-    border-radius: 8px;
-    transition: background 0.1s;
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
 .top3-item:hover {
+    background: #f8fafc;
+    transform: translateX(2px);
+}
+
+.top3-rank-box {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
     background: #f1f5f9;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-top: 2px;
 }
 
-.top3-rank {
-    font-size: 1.1rem;
-    font-weight: 900;
-    width: 24px;
-    text-align: center;
+/* Rank Colors */
+.top3-item[data-rank="1"] .top3-rank-box {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
 }
 
-.rank-1 {
-    color: #f59e0b;
+.top3-item[data-rank="2"] .top3-rank-box {
+    background: #e2e8f0;
+    color: #475569;
 }
 
-.rank-2 {
-    color: #94a3b8;
+.top3-item[data-rank="3"] .top3-rank-box {
+    background: #e2e8f0;
+    color: #475569;
 }
 
-.rank-3 {
-    color: #b45309;
-}
-
-.top3-info {
+.top3-content {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    gap: 0.3rem;
+    min-width: 0;
+    /* Enable truncation flex child */
 }
 
-.top3-item-title {
-    font-size: 0.9rem;
+.top3-title {
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--comm-text-main);
-    white-space: nowrap;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.top3-meta {
+.top3-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top3-cat-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--comm-text-sub);
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.top3-stats {
     font-size: 0.75rem;
     color: var(--comm-text-sub);
+    font-weight: 500;
+    letter-spacing: 0.02em;
 }
 
 /* =====================
@@ -449,11 +481,18 @@ body {
     }
 
     .community-sidebar {
-        display: none;
-        /* Hide sidebar widgets on mobile for simplicity, or stack them */
+        /* display: none; Removed to show widgets on mobile */
+        order: -1;
+        /* Move to top on mobile */
+        gap: 1rem;
     }
 
-    /* Re-enable FAB for mobile since Sidebar is hidden */
+    /* Hide Desktop Write Button on Mobile */
+    .write-widget {
+        display: none;
+    }
+
+    /* Re-enable FAB for mobile since Sidebar is hidden/modified */
     .writer-fab.mobile-only {
         display: flex;
         position: fixed;
