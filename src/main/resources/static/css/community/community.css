@@ -49,24 +49,28 @@ body {
     z-index: 20;
     background: var(--comm-bg-card);
     /* Distinct background for separation */
-    padding: 0.75rem 0.5rem;
-    /* Added side padding for better aesthetics on white */
-    margin: 0 -0.75rem 1rem -0.75rem;
-    /* Negative margin to pull it to edges of grid column if needed, or just stay within */
-    /* Actually, better to just keep it simple first */
+    padding: 0 0.75rem 0 0.75rem;
+    /* Added side padding to align text with content while border bleeds */
+    margin: 0 -0.75rem;
+    /* Negative margin to extend border edge-to-edge */
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--comm-border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    /* Subtle shadow for depth */
+    box-shadow: none;
+    /* Removed shadow for cleaner look */
 }
 
 .community-tabs {
     display: flex;
-    gap: 0.5rem;
+    gap: 1.5rem;
+    /* Increased gap for text links */
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding-bottom: 0;
+    /* Removing extra padding */
     scrollbar-width: none;
     /* Hide scrollbar Firefox */
+    position: relative;
+    top: 1px;
+    /* Overlap with container border */
 }
 
 .community-tabs::-webkit-scrollbar {
@@ -76,28 +80,37 @@ body {
 /* Hide scrollbar Chrome/Safari */
 
 .community-tab {
-    background: var(--comm-bg-card);
-    border: 1px solid var(--comm-border);
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 600;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 0.25rem;
+    border-radius: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: var(--comm-text-sub);
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    margin-bottom: -1px;
+    /* Overlap with container border */
 }
 
 .community-tab:hover {
-    background: #f1f5f9;
+    background: transparent;
     color: var(--comm-text-main);
+    border-bottom-color: #cbd5e1;
 }
 
 .community-tab.active {
-    background: var(--comm-text-main);
-    color: white;
-    border-color: var(--comm-text-main);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    color: var(--comm-primary);
+    border-color: transparent;
+    /* Reset standard border */
+    border-bottom: 3px solid var(--comm-primary);
+    font-weight: 700;
+    box-shadow: none;
+    padding-bottom: calc(0.75rem - 1px);
+    /* Compensate for thicker border to prevent jump */
 }
 
 /* =====================
