@@ -2,9 +2,9 @@ package com.elseeker.game.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
-import com.elseeker.game.adapter.input.api.request.QuizStageCompleteRequest
-import com.elseeker.game.adapter.input.api.request.QuizStageStartRequest
+import com.elseeker.game.adapter.input.api.client.request.QuizStageAnswerRequest
+import com.elseeker.game.adapter.input.api.client.request.QuizStageCompleteRequest
+import com.elseeker.game.adapter.input.api.client.request.QuizStageStartRequest
 import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.application.component.QuizAttemptPolicy
 import com.elseeker.game.application.component.QuizStageValidator

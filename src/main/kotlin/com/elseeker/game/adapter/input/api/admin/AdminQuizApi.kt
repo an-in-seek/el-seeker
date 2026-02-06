@@ -1,6 +1,6 @@
 package com.elseeker.game.adapter.input.api.admin
 
-import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.elseeker.common.adapter.input.api.admin.response.AdminPageResponse
 import com.elseeker.game.adapter.input.api.admin.request.AdminQuizQuestionRequest
 import com.elseeker.game.adapter.input.api.admin.request.AdminQuizStageRequest
 import com.elseeker.game.application.service.AdminQuizService

@@ -1,6 +1,6 @@
 package com.elseeker.community.application.mapper
 
-import com.elseeker.community.adapter.input.api.response.CommentResponse
+import com.elseeker.community.adapter.input.api.client.response.CommentResponse
 import com.elseeker.community.domain.model.Comment
 
 fun Comment.toResponse() = CommentResponse(

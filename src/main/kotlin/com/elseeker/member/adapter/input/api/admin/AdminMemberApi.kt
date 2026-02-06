@@ -1,6 +1,6 @@
 package com.elseeker.member.adapter.input.api.admin
 
-import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.elseeker.common.adapter.input.api.admin.response.AdminPageResponse
 import com.elseeker.member.adapter.input.api.admin.request.AdminMemberUpdateRequest
 import com.elseeker.member.application.service.AdminMemberService
 import com.elseeker.member.domain.model.Member

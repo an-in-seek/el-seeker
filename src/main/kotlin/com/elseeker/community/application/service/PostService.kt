@@ -2,12 +2,12 @@ package com.elseeker.community.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.community.adapter.input.api.request.CreatePostRequest
-import com.elseeker.community.adapter.input.api.request.UpdatePostRequest
-import com.elseeker.community.adapter.input.api.response.PostDetailResponse
-import com.elseeker.community.adapter.input.api.response.PostPageResponse
-import com.elseeker.community.adapter.input.api.response.PostSliceResponse
-import com.elseeker.community.adapter.input.api.response.PostSummaryResponse
+import com.elseeker.community.adapter.input.api.client.request.CreatePostRequest
+import com.elseeker.community.adapter.input.api.client.request.UpdatePostRequest
+import com.elseeker.community.adapter.input.api.client.response.PostDetailResponse
+import com.elseeker.community.adapter.input.api.client.response.PostPageResponse
+import com.elseeker.community.adapter.input.api.client.response.PostSliceResponse
+import com.elseeker.community.adapter.input.api.client.response.PostSummaryResponse
 import com.elseeker.community.adapter.output.jpa.PostKotlinJDSL
 import com.elseeker.community.adapter.output.jpa.PostReportRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository

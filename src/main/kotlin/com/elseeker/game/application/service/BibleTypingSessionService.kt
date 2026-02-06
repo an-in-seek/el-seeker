@@ -3,10 +3,10 @@ package com.elseeker.game.application.service
 import com.elseeker.bible.application.component.BibleReader
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
-import com.elseeker.game.adapter.input.api.response.BibleTypingVersesResponse
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingSessionCreateRequest
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingSessionEndRequest
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingVerseProgressRequest
+import com.elseeker.game.adapter.input.api.client.response.BibleTypingVersesResponse
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
 import com.elseeker.game.domain.model.BibleTypingSession

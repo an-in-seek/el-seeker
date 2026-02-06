@@ -1,6 +1,6 @@
 package com.elseeker.study.adapter.input.api.admin
 
-import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.elseeker.common.adapter.input.api.admin.response.AdminPageResponse
 import com.elseeker.study.adapter.input.api.admin.request.AdminDictionaryRequest
 import com.elseeker.study.application.service.AdminDictionaryService
 import com.elseeker.study.domain.model.Dictionary

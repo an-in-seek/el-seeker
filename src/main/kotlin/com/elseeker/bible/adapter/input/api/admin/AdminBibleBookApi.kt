@@ -5,7 +5,7 @@ import com.elseeker.bible.application.service.AdminBibleBookService
 import com.elseeker.bible.domain.model.BibleBook
 import com.elseeker.bible.domain.vo.BibleBookKey
 import com.elseeker.bible.domain.vo.BibleTestamentType
-import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.elseeker.common.adapter.input.api.admin.response.AdminPageResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity

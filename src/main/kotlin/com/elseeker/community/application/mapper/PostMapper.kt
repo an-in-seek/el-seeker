@@ -1,7 +1,7 @@
 package com.elseeker.community.application.mapper
 
-import com.elseeker.community.adapter.input.api.response.PostDetailResponse
-import com.elseeker.community.adapter.input.api.response.PostSummaryResponse
+import com.elseeker.community.adapter.input.api.client.response.PostDetailResponse
+import com.elseeker.community.adapter.input.api.client.response.PostSummaryResponse
 import com.elseeker.community.domain.model.Post
 
 fun Post.toSummaryResponse() = PostSummaryResponse(

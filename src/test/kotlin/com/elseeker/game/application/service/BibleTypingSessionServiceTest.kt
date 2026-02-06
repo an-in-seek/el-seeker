@@ -14,9 +14,9 @@ import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.common.IntegrationTest
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.ServiceError
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionCreateRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingSessionEndRequest
-import com.elseeker.game.adapter.input.api.request.BibleTypingVerseProgressRequest
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingSessionCreateRequest
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingSessionEndRequest
+import com.elseeker.game.adapter.input.api.client.request.BibleTypingVerseProgressRequest
 import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
 import com.neovisionaries.i18n.LanguageCode

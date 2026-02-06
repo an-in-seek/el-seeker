@@ -2,10 +2,10 @@ package com.elseeker.community.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.community.adapter.input.api.response.CommentResponse
-import com.elseeker.community.adapter.input.api.response.CommentSliceResponse
-import com.elseeker.community.adapter.output.jpa.CommentRepository
+import com.elseeker.community.adapter.input.api.client.response.CommentResponse
+import com.elseeker.community.adapter.input.api.client.response.CommentSliceResponse
 import com.elseeker.community.adapter.output.jpa.CommentReportRepository
+import com.elseeker.community.adapter.output.jpa.CommentRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository
 import com.elseeker.community.application.mapper.toResponse
 import com.elseeker.community.domain.model.Comment

@@ -2,7 +2,7 @@ package com.elseeker.game.application.component
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.request.QuizStageAnswerRequest
+import com.elseeker.game.adapter.input.api.client.request.QuizStageAnswerRequest
 import com.elseeker.game.adapter.output.jpa.QuizQuestionAttemptRepository
 import com.elseeker.game.adapter.output.jpa.QuizQuestionStatRepository
 import com.elseeker.game.adapter.output.jpa.QuizStageAttemptRepository

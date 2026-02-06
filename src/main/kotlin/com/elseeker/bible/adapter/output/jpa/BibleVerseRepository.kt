@@ -1,6 +1,6 @@
 package com.elseeker.bible.adapter.output.jpa
 
-import com.elseeker.bible.adapter.input.api.response.BibleSearchResponse
+import com.elseeker.bible.adapter.input.api.client.response.BibleSearchResponse
 import com.elseeker.bible.domain.model.BibleVerse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -17,7 +17,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
 
     @Query(
         """
-        SELECT new com.elseeker.bible.adapter.input.api.response.BibleSearchResponse(
+        SELECT new com.elseeker.bible.adapter.input.api.client.response.BibleSearchResponse(
                     b.id,
                     b.bookOrder,
                     b.name,
@@ -56,7 +56,7 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
 
     @Query(
         """
-        SELECT new com.elseeker.bible.adapter.input.api.response.BibleSearchResponse(
+        SELECT new com.elseeker.bible.adapter.input.api.client.response.BibleSearchResponse(
                     b.id,
                     b.bookOrder,
                     b.name,

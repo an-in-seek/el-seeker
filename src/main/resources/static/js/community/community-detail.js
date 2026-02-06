@@ -1,4 +1,5 @@
-import { formatNumberWithComma } from "/js/common-util.js";
+import { formatNumberWithComma, fetchWithAuthRetry } from "/js/common-util.js";
+import { buildLoginRedirectUrl, checkAuthStatus } from "/js/auth/auth-check.js";
 
 const API = {
     POST_DETAIL: "/api/v1/community/posts",
@@ -24,6 +25,12 @@ const App = {
         commentPage: 0,
         commentHasNext: true,
         commentLoading: false,
+        auth: {
+            checked: false,
+            allowed: false,
+            checking: false,
+            user: null,
+        },
     },
 
     init() {
@@ -33,8 +40,12 @@ const App = {
             return;
         }
 
+        App.initAuth();
         App.initNav();
         App.initScrollTop();
+        App.bindCommentForm();
+        App.bindCommentActions();
+        App.bindReportPost();
         App.loadPost();
         App.loadComments();
         App.bindCommentMore();
@@ -48,9 +59,74 @@ const App = {
         return Number.isNaN(parsed) ? null : parsed;
     },
 
+    initAuth() {
+        if (App.state.auth.checked || App.state.auth.checking) return;
+        App.resolveAuth();
+    },
+
+    resolveAuth() {
+        if (App.state.auth.checked) {
+            return Promise.resolve(App.state.auth.allowed);
+        }
+        if (App.state.auth.checking) {
+            return new Promise(resolve => {
+                const timer = setInterval(() => {
+                    if (!App.state.auth.checking) {
+                        clearInterval(timer);
+                        resolve(App.state.auth.allowed);
+                    }
+                }, 50);
+            });
+        }
+        App.state.auth.checking = true;
+        return new Promise(resolve => {
+            checkAuthStatus({
+                onAuthenticated: (data) => {
+                    App.setAuthState(true, data);
+                    resolve(true);
+                },
+                onUnauthenticated: () => {
+                    App.setAuthState(false, null);
+                    resolve(false);
+                },
+                onError: () => {
+                    App.setAuthState(false, null);
+                    resolve(false);
+                },
+            });
+        });
+    },
+
+    setAuthState(allowed, user) {
+        App.state.auth.checked = true;
+        App.state.auth.allowed = allowed;
+        App.state.auth.user = user;
+        App.state.auth.checking = false;
+        App.refreshCommentActions();
+    },
+
+    async ensureAuth() {
+        const allowed = await App.resolveAuth();
+        if (!allowed) {
+            App.redirectToLogin();
+            return false;
+        }
+        return true;
+    },
+
+    redirectToLogin() {
+        alert("로그인이 필요합니다.");
+        window.location.href = buildLoginRedirectUrl();
+    },
+
     async loadPost() {
         try {
-            const response = await fetch(`${API.POST_DETAIL}/${App.state.postId}`);
+            const response = await fetch(`${API.POST_DETAIL}/${App.state.postId}`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
             if (!response.ok) {
                 throw new Error(`게시글 조회 실패 (${response.status})`);
             }
@@ -69,6 +145,7 @@ const App = {
         App.setText("postReactionCount", formatNumberWithComma(post.reactionCount || 0));
         App.setText("postCommentCount", formatNumberWithComma(post.commentCount || 0));
         App.setText("commentCountLabel", formatNumberWithComma(post.commentCount || 0));
+        App.setText("likeCountLabel", formatNumberWithComma(post.reactionCount || 0));
 
         const typeLabel = TYPE_LABELS[post.type] || post.type || "기타";
         App.setText("postTypeBadge", typeLabel);
@@ -117,7 +194,12 @@ const App = {
         params.set("size", String(COMMENT_PAGE_SIZE));
 
         try {
-            const response = await fetch(`${API.COMMENTS}/${App.state.postId}/comments?${params.toString()}`);
+            const response = await fetch(`${API.COMMENTS}/${App.state.postId}/comments?${params.toString()}`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
             if (!response.ok) {
                 throw new Error(`댓글 조회 실패 (${response.status})`);
             }
@@ -154,11 +236,14 @@ const App = {
 
         list.appendChild(fragment);
         App.toggleCommentEmpty(false);
+        App.refreshCommentActions();
     },
 
     createCommentItem(comment) {
         const item = document.createElement("div");
         item.className = "comment-item";
+        item.dataset.commentId = String(comment.id || "");
+        item.dataset.authorNickname = comment.authorNickname || "";
 
         // Avatar
         const avatar = document.createElement("div");
@@ -183,6 +268,7 @@ const App = {
 
         meta.appendChild(author);
         meta.appendChild(time);
+        meta.appendChild(App.createCommentActions(comment));
 
         const content = document.createElement("div");
         content.className = "comment-content";
@@ -195,6 +281,344 @@ const App = {
         return item;
     },
 
+    createCommentActions(comment) {
+        const actions = document.createElement("div");
+        actions.className = "comment-actions";
+
+        const editBtn = App.createCommentAction("edit", "수정");
+        editBtn.classList.add("comment-action-owner");
+        actions.appendChild(editBtn);
+
+        const deleteBtn = App.createCommentAction("delete", "삭제");
+        deleteBtn.classList.add("comment-action-owner");
+        actions.appendChild(deleteBtn);
+
+        const reportBtn = App.createCommentAction("report", "신고");
+        actions.appendChild(reportBtn);
+
+        App.applyOwnerActionVisibility(actions, comment);
+        return actions;
+    },
+
+    createCommentAction(action, label) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "comment-action";
+        button.dataset.action = action;
+        button.textContent = label;
+        return button;
+    },
+
+    applyOwnerActionVisibility(container, comment) {
+        const canManage = App.canManageComment(comment);
+        container.querySelectorAll(".comment-action-owner").forEach(button => {
+            button.hidden = !canManage;
+        });
+    },
+
+    canManageComment(comment) {
+        const user = App.state.auth.user;
+        if (!user) return false;
+        if (user.role === "ADMIN") return true;
+        const nickname = (comment.authorNickname || "").trim();
+        return nickname && nickname === user.nickname;
+    },
+
+    refreshCommentActions() {
+        const list = document.getElementById("commentList");
+        if (!list) return;
+        list.querySelectorAll(".comment-item").forEach(item => {
+            const nickname = item.dataset.authorNickname || "";
+            const canManage = App.canManageComment({ authorNickname: nickname });
+            item.querySelectorAll(".comment-action-owner").forEach(button => {
+                button.hidden = !canManage;
+            });
+        });
+    },
+
+    bindCommentActions() {
+        const list = document.getElementById("commentList");
+        if (!list) return;
+
+        list.addEventListener("click", (event) => {
+            const actionButton = event.target.closest("button[data-action]");
+            if (!actionButton) return;
+            const item = actionButton.closest(".comment-item");
+            if (!item) return;
+
+            const action = actionButton.dataset.action;
+            if (action === "edit") {
+                App.startEditComment(item);
+                return;
+            }
+            if (action === "delete") {
+                App.deleteComment(item);
+                return;
+            }
+            if (action === "report") {
+                App.reportComment(item);
+            }
+        });
+    },
+
+    startEditComment(item) {
+        if (item.classList.contains("is-editing")) return;
+        const contentEl = item.querySelector(".comment-content");
+        if (!contentEl) return;
+
+        const original = contentEl.textContent || "";
+        item.dataset.originalContent = original;
+        item.classList.add("is-editing");
+
+        const editor = App.createCommentEditor(original, item);
+        contentEl.replaceWith(editor);
+    },
+
+    createCommentEditor(original, item) {
+        const editor = document.createElement("div");
+        editor.className = "comment-editor";
+
+        const textarea = document.createElement("textarea");
+        textarea.value = original;
+        editor.appendChild(textarea);
+
+        const actions = document.createElement("div");
+        actions.className = "comment-editor-actions";
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.className = "primary";
+        saveBtn.textContent = "저장";
+        saveBtn.addEventListener("click", () => {
+            App.saveCommentEdit(item, textarea.value);
+        });
+
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.textContent = "취소";
+        cancelBtn.addEventListener("click", () => {
+            App.cancelEditComment(item);
+        });
+
+        actions.appendChild(saveBtn);
+        actions.appendChild(cancelBtn);
+        editor.appendChild(actions);
+        return editor;
+    },
+
+    cancelEditComment(item) {
+        const original = item.dataset.originalContent || "";
+        const editor = item.querySelector(".comment-editor");
+        if (!editor) return;
+
+        const content = document.createElement("div");
+        content.className = "comment-content";
+        content.textContent = original;
+        editor.replaceWith(content);
+        item.classList.remove("is-editing");
+    },
+
+    async saveCommentEdit(item, content) {
+        const commentId = item.dataset.commentId;
+        if (!commentId) return;
+        const trimmed = (content || "").trim();
+        if (!trimmed) {
+            alert("댓글 내용을 입력해주세요.");
+            return;
+        }
+
+        const allowed = await App.ensureAuth();
+        if (!allowed) return;
+
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.COMMENTS}/${App.state.postId}/comments/${commentId}`,
+                {
+                    method: "PUT",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ content: trimmed }),
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`댓글 수정 실패 (${response.status})`);
+            }
+
+            const updated = await response.json();
+            const editor = item.querySelector(".comment-editor");
+            if (!editor) return;
+            const contentEl = document.createElement("div");
+            contentEl.className = "comment-content";
+            contentEl.textContent = updated.content || trimmed;
+            editor.replaceWith(contentEl);
+            item.classList.remove("is-editing");
+            item.dataset.originalContent = updated.content || trimmed;
+        } catch (error) {
+            alert("댓글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    },
+
+    async deleteComment(item) {
+        const commentId = item.dataset.commentId;
+        if (!commentId) return;
+
+        const confirmed = window.confirm("댓글을 삭제하시겠습니까?");
+        if (!confirmed) return;
+
+        const allowed = await App.ensureAuth();
+        if (!allowed) return;
+
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.COMMENTS}/${App.state.postId}/comments/${commentId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`댓글 삭제 실패 (${response.status})`);
+            }
+
+            item.remove();
+            App.updateCommentCountBy(-1);
+            const list = document.getElementById("commentList");
+            if (list && list.children.length === 0) {
+                App.toggleCommentEmpty(true, "등록된 댓글이 없습니다.");
+            }
+        } catch (error) {
+            alert("댓글 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    },
+
+    async reportComment(item) {
+        const commentId = item.dataset.commentId;
+        if (!commentId) return;
+
+        const allowed = await App.ensureAuth();
+        if (!allowed) return;
+
+        const reason = App.promptReportReason();
+        if (!reason) return;
+
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.COMMENTS}/${App.state.postId}/comments/${commentId}/reports`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ reason }),
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`댓글 신고 실패 (${response.status})`);
+            }
+            alert("신고가 접수되었습니다.");
+        } catch (error) {
+            alert("댓글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    },
+
+    bindReportPost() {
+        const button = document.getElementById("btnReportPost");
+        if (!button) return;
+
+        button.addEventListener("click", async () => {
+            const allowed = await App.ensureAuth();
+            if (!allowed) return;
+
+            const reason = App.promptReportReason();
+            if (!reason) return;
+
+            try {
+                const response = await fetchWithAuthRetry(
+                    `${API.POST_DETAIL}/${App.state.postId}/reports`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                        },
+                        body: JSON.stringify({ reason }),
+                    }
+                );
+
+                if (response.status === 401) {
+                    App.redirectToLogin();
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`게시글 신고 실패 (${response.status})`);
+                }
+                alert("신고가 접수되었습니다.");
+            } catch (error) {
+                alert("게시글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            }
+        });
+    },
+
+    promptReportReason() {
+        const reasons = ["SPAM", "ABUSE", "HATE", "ADULT", "ETC"];
+        const value = window.prompt(
+            "신고 사유를 입력해주세요. (SPAM, ABUSE, HATE, ADULT, ETC)",
+            "SPAM"
+        );
+        if (!value) return null;
+        const normalized = value.trim().toUpperCase();
+        if (!reasons.includes(normalized)) {
+            alert("유효하지 않은 신고 사유입니다.");
+            return null;
+        }
+        return normalized;
+    },
+
+    updateCommentCountBy(delta) {
+        const targets = ["postCommentCount", "commentCountLabel"];
+        targets.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) return;
+            const current = App.parseNumber(element.textContent);
+            const next = Math.max(current + delta, 0);
+            element.textContent = formatNumberWithComma(next);
+        });
+    },
+
+    parseNumber(value) {
+        if (!value) return 0;
+        const numeric = Number(String(value).replace(/,/g, ""));
+        return Number.isNaN(numeric) ? 0 : numeric;
+    },
+
     bindCommentMore() {
         const button = document.getElementById("commentMoreBtn");
         if (!button) return;
@@ -202,6 +626,61 @@ const App = {
         button.addEventListener("click", () => {
             App.loadComments();
         });
+    },
+
+    bindCommentForm() {
+        const form = document.getElementById("commentForm");
+        const input = document.getElementById("commentInput");
+        if (!form || !input) return;
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const content = input.value.trim();
+            if (!content) return;
+            const allowed = await App.ensureAuth();
+            if (!allowed) return;
+            App.submitComment(content);
+        });
+    },
+
+    async submitComment(content) {
+        const url = `${API.COMMENTS}/${App.state.postId}/comments`;
+        try {
+            const response = await fetchWithAuthRetry(url, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ content }),
+            });
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`댓글 작성 실패 (${response.status})`);
+            }
+
+            const saved = await response.json();
+            App.appendNewComment(saved);
+            App.updateCommentCountBy(1);
+            const input = document.getElementById("commentInput");
+            if (input) input.value = "";
+        } catch (error) {
+            alert("댓글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    },
+
+    appendNewComment(comment) {
+        const list = document.getElementById("commentList");
+        if (!list) return;
+        const item = App.createCommentItem(comment);
+        list.appendChild(item);
+        App.toggleCommentEmpty(false);
     },
 
     toggleCommentMore(visible) {

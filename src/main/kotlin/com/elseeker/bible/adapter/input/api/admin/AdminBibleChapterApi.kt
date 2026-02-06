@@ -3,7 +3,7 @@ package com.elseeker.bible.adapter.input.api.admin
 import com.elseeker.bible.adapter.input.api.admin.request.AdminBibleChapterRequest
 import com.elseeker.bible.application.service.AdminBibleChapterService
 import com.elseeker.bible.domain.model.BibleChapter
-import com.elseeker.common.adapter.input.api.response.AdminPageResponse
+import com.elseeker.common.adapter.input.api.admin.response.AdminPageResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity

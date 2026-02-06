@@ -2,15 +2,15 @@ package com.elseeker.game.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.game.adapter.input.api.request.OxQuizAnswerRequest
-import com.elseeker.game.adapter.input.api.response.*
+import com.elseeker.game.adapter.input.api.client.request.OxQuizAnswerRequest
+import com.elseeker.game.adapter.input.api.client.response.*
 import com.elseeker.game.adapter.output.jpa.OxMemberQuestionAttemptRepository
-import com.elseeker.game.adapter.output.jpa.OxQuestionRepository
 import com.elseeker.game.adapter.output.jpa.OxMemberStageAttemptRepository
+import com.elseeker.game.adapter.output.jpa.OxQuestionRepository
 import com.elseeker.game.adapter.output.jpa.OxStageRepository
 import com.elseeker.game.domain.model.OxMemberQuestionAttempt
-import com.elseeker.game.domain.model.OxStage
 import com.elseeker.game.domain.model.OxMemberStageAttempt
+import com.elseeker.game.domain.model.OxStage
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service

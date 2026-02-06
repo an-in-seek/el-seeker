@@ -187,6 +187,10 @@ const App = {
         try {
             const response = await fetch(`${API.POSTS}?${params.toString()}`, {
                 signal: controller.signal,
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
             });
 
             if (!response.ok) {
@@ -422,7 +426,12 @@ const App = {
 
     async loadTopPosts() {
         try {
-            const response = await fetch(API.TOP_POSTS);
+            const response = await fetch(API.TOP_POSTS, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
             if (!response.ok) {
                 throw new Error(`인기글 조회 실패 (${response.status})`);
             }
