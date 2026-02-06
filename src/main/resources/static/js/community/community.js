@@ -84,14 +84,14 @@ const App = {
     },
 
     initScrollTop() {
-        const scrollTopBtn = document.getElementById("scrollTopBtn");
+        const scrollTopBtn = document.getElementById("scrollToTopBtn");
         if (!scrollTopBtn) return;
 
         window.addEventListener("scroll", () => {
             if (window.scrollY > 300) {
-                scrollTopBtn.classList.add("show");
+                scrollTopBtn.classList.add("is-visible");
             } else {
-                scrollTopBtn.classList.remove("show");
+                scrollTopBtn.classList.remove("is-visible");
             }
         });
 

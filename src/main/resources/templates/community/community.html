@@ -2,99 +2,97 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-    th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community.css?v=2.7')}">
+        th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community.css?v=2.8')}">
 </head>
 
 <body class="has-fixed-nav">
-    <header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <main class="container content-wrapper">
-        <!-- Feed Section with Category Tabs -->
+<main class="container content-wrapper">
+    <!-- Feed Section with Category Tabs -->
 
 
-        <div class="community-layout">
-            <!-- Main Content: Feed & Tabs -->
-            <div class="community-main">
-                <div class="community-tabs-wrapper community-animate" style="--delay: 0.05s;">
-                    <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
-                        <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
-                            <span class="tab-label">전체</span>
-                        </button>
-                        <button class="community-tab" role="tab" aria-selected="false" data-category="인기">
-                            <span class="tab-label">🔥인기</span>
-                        </button>
-                        <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
-                            <span class="tab-label">자유</span>
-                        </button>
-                        <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
-                            <span class="tab-label">질문</span>
-                        </button>
-                        <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
-                            <span class="tab-label">기도</span>
-                        </button>
-                    </nav>
-                </div>
+    <div class="community-layout">
+        <!-- Main Content: Feed & Tabs -->
+        <div class="community-main">
+            <div class="community-tabs-wrapper community-animate" style="--delay: 0.05s;">
+                <nav class="community-tabs" role="tablist" aria-label="게시판 카테고리">
+                    <button class="community-tab active" role="tab" aria-selected="true" data-category="all">
+                        <span class="tab-label">전체</span>
+                    </button>
+                    <button class="community-tab" role="tab" aria-selected="false" data-category="인기">
+                        <span class="tab-label">🔥인기</span>
+                    </button>
+                    <button class="community-tab" role="tab" aria-selected="false" data-category="자유">
+                        <span class="tab-label">자유</span>
+                    </button>
+                    <button class="community-tab" role="tab" aria-selected="false" data-category="Q&A">
+                        <span class="tab-label">질문</span>
+                    </button>
+                    <button class="community-tab" role="tab" aria-selected="false" data-category="기도나눔">
+                        <span class="tab-label">기도</span>
+                    </button>
+                </nav>
+            </div>
 
-                <div class="feed-container community-animate" style="--delay: 0.1s;">
-                    <!-- Mobile Widgets (Visible only on mobile) -->
-                    <div class="mobile-widgets-area">
-                        <!-- Mobile Pinned Notice -->
-                        <div class="mobile-widget mobile-notice">
-                            <div th:replace="~{fragments/community-widgets :: notice}"></div>
-                        </div>
-
-                        <!-- Mobile Top 3 (Toggles based on tab) -->
-                        <div class="mobile-widget mobile-top3" id="mobileTop3">
-                            <div th:replace="~{fragments/community-widgets :: top3('top3-card-mobile')}"></div>
-                        </div>
+            <div class="feed-container community-animate" style="--delay: 0.1s;">
+                <!-- Mobile Widgets (Visible only on mobile) -->
+                <div class="mobile-widgets-area">
+                    <!-- Mobile Pinned Notice -->
+                    <div class="mobile-widget mobile-notice">
+                        <div th:replace="~{fragments/community-widgets :: notice}"></div>
                     </div>
 
-                    <!-- Feed List -->
-                    <div class="feed-list">
-                        <!-- Empty State -->
-                        <div class="feed-empty" style="display: none;">
-                            <div class="empty-icon">📭</div>
-                            <p class="empty-text">아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
-                        </div>
+                    <!-- Mobile Top 3 (Toggles based on tab) -->
+                    <div class="mobile-widget mobile-top3" id="mobileTop3">
+                        <div th:replace="~{fragments/community-widgets :: top3('top3-card-mobile')}"></div>
+                    </div>
+                </div>
+
+                <!-- Feed List -->
+                <div class="feed-list">
+                    <!-- Empty State -->
+                    <div class="feed-empty" style="display: none;">
+                        <div class="empty-icon">📭</div>
+                        <p class="empty-text">아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Sidebar: Widgets -->
-            <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
-                <!-- Write Button Widget -->
-                <div class="sidebar-widget write-widget">
-                    <button class="btn-write-full coming-soon">
-                        <span class="btn-icon">✏️</span>
-                        <span class="btn-text">새 글 작성하기</span>
-                    </button>
-                    <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
-                </div>
-
-                <!-- Pinned Notice -->
-                <div th:replace="~{fragments/community-widgets :: notice}"></div>
-
-                <!-- TOP3 Popular -->
-                <div id="feedTop3">
-                    <div th:replace="~{fragments/community-widgets :: top3('top3-card-desktop')}"></div>
-                </div>
-            </aside>
         </div>
 
-        <!-- Floating Write Button (Mobile Only) -->
-        <button class="writer-fab mobile-only coming-soon" aria-label="글쓰기">
-            <span>✏️</span>
-        </button>
+        <!-- Sidebar: Widgets -->
+        <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
+            <!-- Write Button Widget -->
+            <div class="sidebar-widget write-widget">
+                <button class="btn-write-full coming-soon">
+                    <span class="btn-icon">✏️</span>
+                    <span class="btn-text">새 글 작성하기</span>
+                </button>
+                <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
+            </div>
 
-        <!-- Scroll to Top Button -->
-        <button id="scrollTopBtn" class="scroll-top-btn" aria-label="맨 위로">
-            <span>⬆️</span>
-        </button>
-    </main>
+            <!-- Pinned Notice -->
+            <div th:replace="~{fragments/community-widgets :: notice}"></div>
 
-    <footer th:replace="~{fragments/footer :: footer}"></footer>
+            <!-- TOP3 Popular -->
+            <div id="feedTop3">
+                <div th:replace="~{fragments/community-widgets :: top3('top3-card-desktop')}"></div>
+            </div>
+        </aside>
+    </div>
 
-    <script type="module" src="/js/community/community.js?v=2.7"></script>
+    <!-- Floating Write Button (Mobile Only) -->
+    <button class="writer-fab mobile-only coming-soon" aria-label="글쓰기">
+        <span>✏️</span>
+    </button>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
+        ↑
+    </button>
+</main>
+
+<script type="module" src="/js/community/community.js?v=2.8"></script>
 </body>
 
 </html>
