@@ -160,6 +160,16 @@ const App = {
         const item = document.createElement("div");
         item.className = "comment-item";
 
+        // Avatar
+        const avatar = document.createElement("div");
+        avatar.className = "comment-avatar";
+        avatar.textContent = (comment.authorNickname || "익").charAt(0);
+        item.appendChild(avatar);
+
+        // Body (Meta + Content)
+        const body = document.createElement("div");
+        body.className = "comment-body";
+
         const meta = document.createElement("div");
         meta.className = "comment-meta";
 
@@ -168,6 +178,7 @@ const App = {
         author.textContent = comment.authorNickname || "익명";
 
         const time = document.createElement("span");
+        time.className = "comment-time";
         time.textContent = App.formatRelativeTime(comment.createdAt);
 
         meta.appendChild(author);
@@ -177,8 +188,10 @@ const App = {
         content.className = "comment-content";
         content.textContent = comment.content || "";
 
-        item.appendChild(meta);
-        item.appendChild(content);
+        body.appendChild(meta);
+        body.appendChild(content);
+
+        item.appendChild(body);
         return item;
     },
 
