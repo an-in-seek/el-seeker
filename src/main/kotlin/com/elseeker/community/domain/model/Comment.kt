@@ -7,7 +7,19 @@ import jakarta.persistence.*
 import java.time.Instant
 
 @Entity
-@Table(name = "community_comment")
+@Table(
+    name = "community_comment",
+    indexes = [
+        Index(
+            name = "idx_comment_post_created_at",
+            columnList = "post_id, created_at"
+        ),
+        Index(
+            name = "idx_comment_author_created_at",
+            columnList = "author_id, created_at"
+        )
+    ]
+)
 class Comment(
 
     id: Long? = null,

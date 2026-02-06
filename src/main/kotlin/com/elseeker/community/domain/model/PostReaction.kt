@@ -15,7 +15,13 @@ import java.time.Instant
             name = "uk_post_reaction_member_type",
             columnNames = ["post_id", "member_id", "reaction_type"]
         )
-    ]
+    ],
+    indexes = [
+        Index(
+            name = "idx_post_reaction_member_created_at",
+            columnList = "member_id, created_at"
+        )
+    ],
 )
 class PostReaction(
 
