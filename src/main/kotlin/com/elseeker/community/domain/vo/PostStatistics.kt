@@ -5,19 +5,19 @@ import jakarta.persistence.Embeddable
 
 @Embeddable
 data class PostStatistics private constructor(
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     var viewCount: Long = 0,
 
-    @Column(nullable = false)
+    @Column(name = "reaction_count", nullable = false)
     var reactionCount: Long = 0,
 
-    @Column(nullable = false)
+    @Column(name = "comment_count", nullable = false)
     var commentCount: Long = 0,
 
-    @Column(nullable = false)
+    @Column(name = "report_count", nullable = false)
     var reportCount: Long = 0,
 
-    @Column(nullable = false)
+    @Column(name = "score", nullable = false)
     var score: Long = 0,
 ) {
     companion object {
