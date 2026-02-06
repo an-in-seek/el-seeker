@@ -1,5 +1,6 @@
 package com.elseeker.community.adapter.input.api.response
 
+import com.elseeker.community.domain.vo.CommentStatus
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.PostType
 import com.neovisionaries.i18n.CountryCode
@@ -107,8 +108,8 @@ data class CommentResponse(
     val authorNickname: String,
     @field:Schema(description = "작성자 프로필 이미지 URL")
     val authorProfileImageUrl: String?,
-    @field:Schema(description = "삭제 여부")
-    val deleted: Boolean,
+    @field:Schema(description = "댓글 상태")
+    val status: CommentStatus,
     @field:Schema(description = "작성일시 (UTC)")
     val createdAt: Instant,
 )

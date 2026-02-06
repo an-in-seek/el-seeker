@@ -1,9 +1,11 @@
 package com.elseeker.community.domain.model
 
-import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.common.domain.BaseEntity
 import com.elseeker.community.domain.vo.ReactionType
 import com.elseeker.member.domain.model.Member
 import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import java.time.Instant
 
 @Entity
 @Table(
@@ -31,7 +33,10 @@ class PostReaction(
     @Column(name = "reaction_type", nullable = false, length = 10)
     val type: ReactionType,
 
-) : BaseTimeEntity(id = id) {
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    val createdAt: Instant = Instant.now(),
+) : BaseEntity(id = id) {
 
     companion object {
         fun create(
