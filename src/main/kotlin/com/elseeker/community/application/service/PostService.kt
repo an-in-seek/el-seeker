@@ -37,9 +37,7 @@ class PostService(
         sort: String,
         pageable: Pageable,
     ): PostSliceResponse {
-        val slice = postRepository.findSlice(pageable) {
-            PostKotlinJDSL.of(type, sort)
-        }
+        val slice = postRepository.findSlice(pageable) { PostKotlinJDSL.of(type, sort) }
         return PostSliceResponse(
             content = slice.filterNotNull().map(Post::toSummaryResponse),
             hasNext = slice.hasNext(),
@@ -54,9 +52,7 @@ class PostService(
         status: PostStatus?,
         pageable: Pageable,
     ): PostPageResponse {
-        val page = postRepository.findPage(pageable) {
-            PostKotlinJDSL.of(type, status)
-        }
+        val page = postRepository.findPage(pageable) { PostKotlinJDSL.of(type, status) }
         return PostPageResponse(
             content = page.filterNotNull().map(Post::toSummaryResponse),
             totalElements = page.totalElements,
@@ -70,11 +66,8 @@ class PostService(
     fun getPostDetail(postId: Long): PostDetailResponse {
         postRepository.incrementViewCount(postId)
         postRepository.updateScore(postId)
-        val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
-            ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-        if (post.status == PostStatus.HIDDEN) {
-            throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        }
+        val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        if (post.status == PostStatus.HIDDEN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         return post.toDetailResponse()
     }
 
@@ -86,8 +79,7 @@ class PostService(
 
     @Transactional
     fun createPost(memberUid: UUID, request: CreatePostRequest): PostDetailResponse {
-        val member = memberRepository.findByUid(memberUid)
-            ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         val post = Post.create(
             author = member,
             postType = request.type,
@@ -105,41 +97,26 @@ class PostService(
 
     @Transactional
     fun updatePost(postId: Long, memberUid: UUID, request: UpdatePostRequest): PostDetailResponse {
-        val post = postRepository.findByIdWithAuthor(postId)
-            ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-
-        val member = memberRepository.findByUid(memberUid)
-            ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-
-        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) {
-            throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        }
-
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         post.update(title = request.title, content = request.content)
         return post.toDetailResponse()
     }
 
     @Transactional
     fun deletePost(postId: Long, memberUid: UUID) {
-        val post = postRepository.findByIdWithAuthor(postId)
-            ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-        val member = memberRepository.findByUid(memberUid)
-            ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) {
-            throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        }
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         post.delete()
     }
 
     @Transactional
     fun hidePost(postId: Long, memberUid: UUID) {
-        val post = postRepository.findByIdWithAuthor(postId)
-            ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-        val member = memberRepository.findByUid(memberUid)
-            ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (member.memberRole != MemberRole.ADMIN) {
-            throwError(ErrorType.ADMIN_ACCESS_DENIED)
-        }
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
         post.hide()
     }
 
