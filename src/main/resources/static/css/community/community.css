@@ -38,6 +38,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    position: sticky;
+    top: 90px;
+    align-self: start;
 }
 
 /* =====================

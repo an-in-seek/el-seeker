@@ -2,99 +2,100 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-    th:replace="~{fragments/head :: head('커뮤니티 상세 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community-detail.css?v=1.0')}">
+        th:replace="~{fragments/head :: head('커뮤니티 상세 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community-detail.css?v=1.0')}">
 </head>
 
 <body class="has-fixed-nav" th:attr="data-post-id=${postId}, data-back-link='/web/community'">
-    <header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"></header>
 
-    <main class="container content-wrapper">
-        <div class="community-layout">
-            <!-- Main Content -->
-            <div class="community-main">
-                <article class="detail-card" aria-live="polite">
-                    <div class="detail-badges">
-                        <span id="postTypeBadge" class="detail-badge">카테고리</span>
-                        <span id="postPopularBadge" class="detail-badge detail-badge-popular" hidden>인기</span>
+<main class="container content-wrapper">
+    <div class="community-layout">
+        <!-- Main Content -->
+        <div class="community-main">
+            <article class="detail-card" aria-live="polite">
+                <div class="detail-badges">
+                    <span id="postTypeBadge" class="detail-badge">카테고리</span>
+                    <span id="postPopularBadge" class="detail-badge detail-badge-popular" hidden>인기</span>
+                </div>
+
+                <h1 id="postTitle" class="detail-title">게시글 제목</h1>
+
+                <div class="detail-meta">
+                    <div class="detail-author">
+                        <span id="postAuthor" class="detail-author-name">작성자</span>
+                        <span id="postTime" class="detail-time">시간</span>
                     </div>
-
-                    <h1 id="postTitle" class="detail-title">게시글 제목</h1>
-
-                    <div class="detail-meta">
-                        <div class="detail-author">
-                            <span id="postAuthor" class="detail-author-name">작성자</span>
-                            <span id="postTime" class="detail-time">시간</span>
-                        </div>
-                        <div class="detail-actions">
-                            <span class="detail-pill">👀 <span id="postViewCount">0</span></span>
-                            <span class="detail-pill">❤️ <span id="postReactionCount">0</span></span>
-                            <span class="detail-pill">💬 <span id="postCommentCount">0</span></span>
-                        </div>
+                    <div class="detail-actions">
+                        <span class="detail-pill">👀 <span id="postViewCount">0</span></span>
+                        <span class="detail-pill">❤️ <span id="postReactionCount">0</span></span>
+                        <span class="detail-pill">💬 <span id="postCommentCount">0</span></span>
                     </div>
+                </div>
 
-                    <div id="postContent" class="detail-content">내용을 불러오는 중...</div>
+                <div id="postContent" class="detail-content">내용을 불러오는 중...</div>
 
-                    <!-- Action Buttons (Like/Share) -->
-                    <div class="post-footer-actions">
-                        <button id="btnLike" class="btn-action btn-like">
-                            <span class="icon">❤️</span> 좋아요 <span id="likeCountLabel">0</span>
-                        </button>
-                        <button id="btnShare" class="btn-action btn-share">
-                            <span class="icon">🔗</span> 공유하기
-                        </button>
-                    </div>
-                </article>
-
-                <section class="detail-comments" aria-live="polite">
-                    <div class="comment-header">
-                        <h2 class="comment-title">댓글 <span id="commentCountLabel"
-                                class="comment-count-highlight">0</span></h2>
-                    </div>
-
-                    <!-- Comment Input Form -->
-                    <div class="comment-form-wrapper">
-                        <form id="commentForm" class="comment-form">
-                            <textarea id="commentInput" class="comment-input" placeholder="따뜻한 댓글을 남겨주세요..." rows="3"
-                                required></textarea>
-                            <div class="comment-form-footer">
-                                <button type="submit" class="btn-submit-comment">등록</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="commentList" class="comment-list"></div>
-                    <div id="commentEmpty" class="comment-empty" hidden>첫 번째 댓글의 주인공이 되어보세요!</div>
-                    <button id="commentMoreBtn" class="comment-more" type="button" hidden>댓글 더 보기</button>
-                </section>
-            </div>
-
-            <!-- Sidebar: Widgets -->
-            <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
-                <!-- Write Button Widget -->
-                <div class="sidebar-widget write-widget">
-                    <button class="btn-write-full coming-soon">
-                        <span class="btn-icon">✏️</span>
-                        <span class="btn-text">새 글 작성하기</span>
+                <!-- Action Buttons (Like/Share) -->
+                <div class="post-footer-actions">
+                    <button id="btnLike" class="btn-action btn-like">
+                        <span class="icon">❤️</span> 좋아요 <span id="likeCountLabel">0</span>
                     </button>
-                    <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
+                    <button id="btnShare" class="btn-action btn-share">
+                        <span class="icon">🔗</span> 공유하기
+                    </button>
+                </div>
+            </article>
+
+            <section class="detail-comments" aria-live="polite">
+                <div class="comment-header">
+                    <h2 class="comment-title">댓글 <span id="commentCountLabel"
+                                                       class="comment-count-highlight">0</span></h2>
                 </div>
 
-                <!-- Pinned Notice -->
-                <div th:replace="~{fragments/community-widgets :: notice}"></div>
-
-                <!-- TOP3 Popular -->
-                <div id="feedTop3">
-                    <div th:replace="~{fragments/community-widgets :: top3('top3-card-desktop')}"></div>
+                <!-- Comment Input Form -->
+                <div class="comment-form-wrapper">
+                    <form id="commentForm" class="comment-form">
+                            <textarea id="commentInput" class="comment-input" placeholder="따뜻한 댓글을 남겨주세요..." rows="3"
+                                      required></textarea>
+                        <div class="comment-form-footer">
+                            <button type="submit" class="btn-submit-comment">등록</button>
+                        </div>
+                    </form>
                 </div>
-            </aside>
+
+                <div id="commentList" class="comment-list"></div>
+                <div id="commentEmpty" class="comment-empty" hidden>첫 번째 댓글의 주인공이 되어보세요!</div>
+                <button id="commentMoreBtn" class="comment-more" type="button" hidden>댓글 더 보기</button>
+            </section>
         </div>
 
-        <!-- Scroll to Top Button -->
-        <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
-            ↑
-        </button>
+        <!-- Sidebar: Widgets -->
+        <aside class="community-sidebar community-animate" style="--delay: 0.2s;">
+            <!-- Write Button Widget -->
+            <div class="sidebar-widget write-widget">
+                <button class="btn-write-full coming-soon">
+                    <span class="btn-icon">✏️</span>
+                    <span class="btn-text">새 글 작성하기</span>
+                </button>
+                <p class="write-help">은혜를 나누고 기도를 요청하세요</p>
+            </div>
 
-        <script type="module" src="/js/community/community-detail.js?v=1.0"></script>
+            <!-- Pinned Notice -->
+            <div th:replace="~{fragments/community-widgets :: notice}"></div>
+
+            <!-- TOP3 Popular -->
+            <div id="feedTop3">
+                <div th:replace="~{fragments/community-widgets :: top3('top3-card-desktop')}"></div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
+        ↑
+    </button>
+</main>
+
+<script type="module" src="/js/community/community-detail.js?v=1.0"></script>
 </body>
 
 </html>
