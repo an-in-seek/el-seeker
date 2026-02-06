@@ -1,4 +1,5 @@
 import { formatNumberWithComma } from "/js/common-util.js";
+import { checkAuthStatus, buildLoginRedirectUrl } from "/js/auth/auth-check.js";
 
 const API = {
     POSTS: "/api/v1/community/posts",
@@ -37,7 +38,7 @@ const App = {
 
     init() {
         App.setPageTitle();
-        App.initComingSoon();
+        App.initWriteButtons();
         App.initCategoryTabs();
         App.initTop3MoreLink();
         App.initScrollTop();
@@ -56,12 +57,32 @@ const App = {
         }
     },
 
-    initComingSoon() {
-        const comingSoonCards = document.querySelectorAll(".coming-soon");
-        comingSoonCards.forEach(card => {
-            card.addEventListener("click", event => {
-                event.preventDefault();
+    initWriteButtons() {
+        const buttons = [
+            document.getElementById("btnWriteDesktop"),
+            document.getElementById("btnWriteMobile"),
+        ].filter(Boolean);
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                App.handleWriteClick();
             });
+        });
+    },
+
+    handleWriteClick() {
+        checkAuthStatus({
+            onAuthenticated: () => {
+                window.location.href = "/web/community/write";
+            },
+            onUnauthenticated: () => {
+                alert("글 작성은 로그인 후 이용 가능합니다.");
+                window.location.href = buildLoginRedirectUrl("/web/community");
+            },
+            onError: () => {
+                alert("글 작성은 로그인 후 이용 가능합니다.");
+                window.location.href = buildLoginRedirectUrl("/web/community");
+            },
         });
     },
 
