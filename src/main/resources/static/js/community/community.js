@@ -238,9 +238,10 @@ const App = {
     },
 
     createPostCard(post) {
-        const card = document.createElement("article");
+        const card = document.createElement("a");
         card.className = "feed-card";
         card.dataset.category = App.getTypeLabel(post.type);
+        card.href = App.buildPostUrl(post.id);
 
         const topRow = document.createElement("div");
         topRow.className = "feed-top-row";
@@ -458,9 +459,10 @@ const App = {
     },
 
     createTopPostCard(post, rank, cardClass) {
-        const card = document.createElement("article");
+        const card = document.createElement("a");
         card.className = ["feed-card", cardClass].filter(Boolean).join(" ");
         card.dataset.rank = String(rank);
+        card.href = App.buildPostUrl(post.id);
 
         const topRow = document.createElement("div");
         topRow.className = "feed-top-row";
@@ -494,6 +496,11 @@ const App = {
         card.appendChild(footer);
 
         return card;
+    },
+
+    buildPostUrl(id) {
+        if (!id) return "#";
+        return `/web/community/${id}`;
     },
 };
 

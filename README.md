@@ -70,6 +70,7 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 ## 개발 가이드
 
 * Swagger/OpenAPI 어노테이션은 `*ApiDocument` 인터페이스에 작성하고, 컨트롤러는 해당 인터페이스를 구현합니다.
+* 웹 UI의 뒤로가기 동작은 공통 네비게이션바의 백버튼(`topNavBackButton`)을 사용합니다. 커스텀 이동 경로가 필요하면 `<body>`에 `data-back-link`를 지정합니다.
 
 ## 로컬 실행 방법
 
@@ -155,6 +156,8 @@ GET /web/game
 GET /web/game/bible-quiz
 GET /web/game/bible-quiz/map
 GET /web/game/bible-typing
+GET /web/community
+GET /web/community/{postId}
 GET /web/member/mypage
 GET /web/member/withdraw
 GET /web/member/withdraw/complete
