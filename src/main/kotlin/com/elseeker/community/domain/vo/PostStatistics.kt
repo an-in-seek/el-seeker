@@ -9,7 +9,7 @@ data class PostStatistics private constructor(
     var viewCount: Long = 0,
 
     @Column(nullable = false)
-    var likeCount: Long = 0,
+    var reactionCount: Long = 0,
 
     @Column(nullable = false)
     var commentCount: Long = 0,
@@ -23,7 +23,7 @@ data class PostStatistics private constructor(
     companion object {
         fun create() = PostStatistics(
             viewCount = 0,
-            likeCount = 0,
+            reactionCount = 0,
             commentCount = 0,
             reportCount = 0,
             score = 0

@@ -22,6 +22,7 @@ repositories {
 val springDocVersion = "2.8.14"
 val kotlinLogging = "3.0.5"
 val kotestVersion = "5.9.1"
+val kotlinJdslVersion = "3.5.5"
 
 dependencies {
     // kotlin-logging
@@ -47,6 +48,11 @@ dependencies {
 
     // SpringDoc
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}")
+
+    // Kotlin JDSL
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:${kotlinJdslVersion}")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:${kotlinJdslVersion}")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:${kotlinJdslVersion}")
 
     // DB
     implementation("org.postgresql:postgresql")

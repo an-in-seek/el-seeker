@@ -1,0 +1,59 @@
+package com.elseeker.community.adapter.output.jpa
+
+import com.elseeker.community.domain.model.Post
+import com.elseeker.community.domain.vo.PostStatus
+import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+
+interface PostRepository : JpaRepository<Post, Long>, KotlinJdslJpqlExecutor {
+
+    @Query(
+        """
+        SELECT p FROM Post p
+        JOIN FETCH p.author
+        WHERE p.id = :id AND p.status <> :excludedStatus
+        """
+    )
+    fun findByIdAndStatusNot(
+        @Param("id") id: Long,
+        @Param("excludedStatus") excludedStatus: PostStatus,
+    ): Post?
+
+    @Query(
+        """
+        SELECT p FROM Post p
+        JOIN FETCH p.author
+        WHERE p.id = :id
+        """
+    )
+    fun findByIdWithAuthor(@Param("id") id: Long): Post?
+
+    @Modifying
+    @Query("UPDATE Post p SET p.statistics.viewCount = p.statistics.viewCount + 1 WHERE p.id = :postId")
+    fun incrementViewCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query("UPDATE Post p SET p.statistics.reactionCount = p.statistics.reactionCount + 1 WHERE p.id = :postId")
+    fun incrementReactionCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query("UPDATE Post p SET p.statistics.reactionCount = p.statistics.reactionCount - 1 WHERE p.id = :postId AND p.statistics.reactionCount > 0")
+    fun decrementReactionCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query("UPDATE Post p SET p.statistics.commentCount = p.statistics.commentCount + 1 WHERE p.id = :postId")
+    fun incrementCommentCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query(
+        """
+        UPDATE Post p
+        SET p.statistics.score = p.statistics.viewCount + (p.statistics.reactionCount * 5) + (p.statistics.commentCount * 3)
+        WHERE p.id = :postId
+        """
+    )
+    fun updateScore(@Param("postId") postId: Long): Int
+}
