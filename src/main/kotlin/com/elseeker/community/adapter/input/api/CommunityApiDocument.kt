@@ -3,6 +3,8 @@ package com.elseeker.community.adapter.input.api
 import com.elseeker.community.adapter.input.api.request.CreateCommentRequest
 import com.elseeker.community.adapter.input.api.request.CreatePostRequest
 import com.elseeker.community.adapter.input.api.request.CreateReactionRequest
+import com.elseeker.community.adapter.input.api.request.CreateReportRequest
+import com.elseeker.community.adapter.input.api.request.UpdateCommentRequest
 import com.elseeker.community.adapter.input.api.request.UpdatePostRequest
 import com.elseeker.community.adapter.input.api.response.*
 import com.elseeker.community.domain.vo.PostStatus
@@ -127,6 +129,64 @@ interface CommunityApiDocument {
         @Valid request: CreateCommentRequest,
         @Parameter(hidden = true) principal: JwtPrincipal,
     ): ResponseEntity<CommentResponse>
+
+    @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음"),
+        ApiResponse(responseCode = "404", description = "댓글 없음"),
+    )
+    fun updateComment(
+        @Parameter(description = "댓글 ID") commentId: Long,
+        @Valid request: UpdateCommentRequest,
+        @Parameter(hidden = true) principal: JwtPrincipal,
+    ): ResponseEntity<CommentResponse>
+
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다 (soft delete).")
+    @ApiResponses(
+        ApiResponse(responseCode = "204", description = "삭제 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음"),
+        ApiResponse(responseCode = "404", description = "댓글 없음"),
+    )
+    fun deleteComment(
+        @Parameter(description = "댓글 ID") commentId: Long,
+        @Parameter(hidden = true) principal: JwtPrincipal,
+    ): ResponseEntity<Void>
+
+    @Operation(summary = "댓글 복구 (관리자)", description = "숨김/삭제된 댓글을 복구합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "복구 성공"),
+        ApiResponse(responseCode = "403", description = "관리자 권한 필요"),
+        ApiResponse(responseCode = "404", description = "댓글 없음"),
+    )
+    fun restoreComment(
+        @Parameter(description = "댓글 ID") commentId: Long,
+        @Parameter(hidden = true) principal: JwtPrincipal,
+    ): ResponseEntity<Void>
+
+    @Operation(summary = "게시글 신고", description = "게시글을 신고합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "신고 성공"),
+        ApiResponse(responseCode = "400", description = "이미 신고한 게시글"),
+        ApiResponse(responseCode = "404", description = "게시글 없음"),
+    )
+    fun reportPost(
+        @Parameter(description = "게시글 ID") postId: Long,
+        @Valid request: CreateReportRequest,
+        @Parameter(hidden = true) principal: JwtPrincipal,
+    ): ResponseEntity<Void>
+
+    @Operation(summary = "댓글 신고", description = "댓글을 신고합니다.")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "신고 성공"),
+        ApiResponse(responseCode = "400", description = "이미 신고한 댓글"),
+        ApiResponse(responseCode = "404", description = "댓글 없음"),
+    )
+    fun reportComment(
+        @Parameter(description = "댓글 ID") commentId: Long,
+        @Valid request: CreateReportRequest,
+        @Parameter(hidden = true) principal: JwtPrincipal,
+    ): ResponseEntity<Void>
 
     @Operation(summary = "주간 인기글 Top 3", description = "최근 7일간 인기글 상위 3개를 조회합니다.")
     @ApiResponses(

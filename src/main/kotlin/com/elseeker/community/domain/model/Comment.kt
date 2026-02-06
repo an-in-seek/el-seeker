@@ -39,6 +39,9 @@ class Comment(
     @Column(name = "status", nullable = false)
     var status: CommentStatus,
 
+    @Column(name = "report_count", nullable = false)
+    var reportCount: Long = 0,
+
     createdAt: Instant = Instant.now(),
     updatedAt: Instant = Instant.now(),
 ) : BaseTimeEntity(
@@ -66,5 +69,9 @@ class Comment(
 
     fun delete() {
         this.status = CommentStatus.DELETED
+    }
+
+    fun hide() {
+        this.status = CommentStatus.HIDDEN
     }
 }

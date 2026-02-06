@@ -9,14 +9,18 @@ import com.elseeker.community.adapter.input.api.response.PostPageResponse
 import com.elseeker.community.adapter.input.api.response.PostSliceResponse
 import com.elseeker.community.adapter.input.api.response.PostSummaryResponse
 import com.elseeker.community.adapter.output.jpa.PostKotlinJDSL
+import com.elseeker.community.adapter.output.jpa.PostReportRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository
 import com.elseeker.community.application.mapper.toDetailResponse
 import com.elseeker.community.application.mapper.toSummaryResponse
 import com.elseeker.community.domain.model.Post
+import com.elseeker.community.domain.model.PostReport
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.PostType
+import com.elseeker.community.domain.vo.ReportReason
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.vo.MemberRole
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -28,6 +32,7 @@ import java.util.*
 @Service
 class PostService(
     private val postRepository: PostRepository,
+    private val postReportRepository: PostReportRepository,
     private val memberRepository: MemberRepository,
 ) {
 
@@ -128,5 +133,35 @@ class PostService(
         return postRepository.findSlice(PageRequest.of(0, 3)) {
             PostKotlinJDSL.from(sevenDaysAgo)
         }.filterNotNull().map(Post::toSummaryResponse)
+    }
+
+    @Transactional
+    fun reportPost(postId: Long, memberUid: UUID, reason: ReportReason) {
+        val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        val memberId = requireNotNull(member.id)
+
+        if (postReportRepository.existsByPostIdAndReporterId(postId, memberId)) {
+            throwError(ErrorType.REPORT_ALREADY_EXISTS, "postId=$postId")
+        }
+
+        val report = PostReport.create(
+            post = post,
+            reporter = member,
+            reason = reason,
+        )
+        try {
+            postReportRepository.save(report)
+        } catch (ex: DataIntegrityViolationException) {
+            throwError(ErrorType.REPORT_ALREADY_EXISTS, "postId=$postId")
+        }
+
+        postRepository.incrementReportCount(postId)
+        postRepository.hideIfReported(
+            postId = postId,
+            threshold = 3,
+            publishedStatus = PostStatus.PUBLISHED,
+            hiddenStatus = PostStatus.HIDDEN,
+        )
     }
 }

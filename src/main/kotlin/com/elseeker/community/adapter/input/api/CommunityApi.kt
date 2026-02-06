@@ -4,6 +4,8 @@ import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.community.adapter.input.api.request.CreateCommentRequest
 import com.elseeker.community.adapter.input.api.request.CreatePostRequest
 import com.elseeker.community.adapter.input.api.request.CreateReactionRequest
+import com.elseeker.community.adapter.input.api.request.CreateReportRequest
+import com.elseeker.community.adapter.input.api.request.UpdateCommentRequest
 import com.elseeker.community.adapter.input.api.request.UpdatePostRequest
 import com.elseeker.community.adapter.input.api.response.*
 import com.elseeker.community.application.service.CommentService
@@ -124,6 +126,54 @@ class CommunityApi(
     ): ResponseEntity<CommentResponse> {
         val response = commentService.createComment(postId, principal.memberUid, request.content)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    @PutMapping("/comments/{commentId}")
+    override fun updateComment(
+        @PathVariable commentId: Long,
+        @Valid @RequestBody request: UpdateCommentRequest,
+        @AuthenticationPrincipal principal: JwtPrincipal,
+    ): ResponseEntity<CommentResponse> {
+        val response = commentService.updateComment(commentId, principal.memberUid, request.content)
+        return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    override fun deleteComment(
+        @PathVariable commentId: Long,
+        @AuthenticationPrincipal principal: JwtPrincipal,
+    ): ResponseEntity<Void> {
+        commentService.deleteComment(commentId, principal.memberUid)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/admin/comments/{commentId}/restore")
+    override fun restoreComment(
+        @PathVariable commentId: Long,
+        @AuthenticationPrincipal principal: JwtPrincipal,
+    ): ResponseEntity<Void> {
+        commentService.restoreComment(commentId, principal.memberUid)
+        return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/posts/{postId}/reports")
+    override fun reportPost(
+        @PathVariable postId: Long,
+        @Valid @RequestBody request: CreateReportRequest,
+        @AuthenticationPrincipal principal: JwtPrincipal,
+    ): ResponseEntity<Void> {
+        postService.reportPost(postId, principal.memberUid, request.reason)
+        return ResponseEntity.status(HttpStatus.CREATED).build()
+    }
+
+    @PostMapping("/comments/{commentId}/reports")
+    override fun reportComment(
+        @PathVariable commentId: Long,
+        @Valid @RequestBody request: CreateReportRequest,
+        @AuthenticationPrincipal principal: JwtPrincipal,
+    ): ResponseEntity<Void> {
+        commentService.reportComment(commentId, principal.memberUid, request.reason)
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 
     @GetMapping("/posts/top")

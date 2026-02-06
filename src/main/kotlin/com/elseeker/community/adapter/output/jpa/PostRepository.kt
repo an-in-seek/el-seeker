@@ -48,6 +48,31 @@ interface PostRepository : JpaRepository<Post, Long>, KotlinJdslJpqlExecutor {
     fun incrementCommentCount(@Param("postId") postId: Long): Int
 
     @Modifying
+    @Query("UPDATE Post p SET p.statistics.commentCount = p.statistics.commentCount - 1 WHERE p.id = :postId AND p.statistics.commentCount > 0")
+    fun decrementCommentCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query("UPDATE Post p SET p.statistics.reportCount = p.statistics.reportCount + 1 WHERE p.id = :postId")
+    fun incrementReportCount(@Param("postId") postId: Long): Int
+
+    @Modifying
+    @Query(
+        """
+        UPDATE Post p
+        SET p.status = :hiddenStatus
+        WHERE p.id = :postId
+          AND p.status = :publishedStatus
+          AND p.statistics.reportCount >= :threshold
+        """
+    )
+    fun hideIfReported(
+        @Param("postId") postId: Long,
+        @Param("threshold") threshold: Long,
+        @Param("publishedStatus") publishedStatus: PostStatus,
+        @Param("hiddenStatus") hiddenStatus: PostStatus,
+    ): Int
+
+    @Modifying
     @Query(
         """
         UPDATE Post p
