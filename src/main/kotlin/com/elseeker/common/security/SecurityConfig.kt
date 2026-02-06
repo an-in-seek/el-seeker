@@ -112,6 +112,8 @@ class SecurityConfig(
                         "/web/game/**",
                         "/game/**",
                     ).authenticated()
+                    // 커뮤니티 글쓰기 페이지는 인증 필수
+                    .requestMatchers("/web/community/write").authenticated()
                     // 정적 리소스
                     .requestMatchers(
                         "/favicon.ico",
