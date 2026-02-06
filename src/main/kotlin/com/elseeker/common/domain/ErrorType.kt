@@ -38,6 +38,12 @@ enum class ErrorType(
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다.", LogLevel.WARN),
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "세션을 찾을 수 없습니다.", LogLevel.WARN),
     VERSE_NOT_FOUND(HttpStatus.NOT_FOUND, "구절을 찾을 수 없습니다.", LogLevel.WARN),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다.", LogLevel.WARN),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다.", LogLevel.WARN),
+    REACTION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 반응한 게시글입니다.", LogLevel.WARN),
+    REACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "반응을 찾을 수 없습니다.", LogLevel.WARN),
+    POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "게시글에 대한 접근 권한이 없습니다.", LogLevel.WARN),
+    COMMENT_DISABLED(HttpStatus.BAD_REQUEST, "댓글이 비활성화된 게시글입니다.", LogLevel.WARN),
 
     // 403
     MEMBER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "요청한 회원 정보에 접근할 수 없습니다.", LogLevel.WARN),

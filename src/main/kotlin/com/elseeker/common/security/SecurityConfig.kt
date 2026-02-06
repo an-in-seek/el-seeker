@@ -76,6 +76,7 @@ class SecurityConfig(
                 auth
                     // 관리자 전용 페이지 및 API
                     .requestMatchers("/web/admin/**", "/api/v1/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/v1/community/admin/**").hasRole("ADMIN")
                     .requestMatchers(
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/memos",
                     "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/memo",
@@ -94,6 +95,13 @@ class SecurityConfig(
                         "/api/v1/bibles/**",
                         "/api/v1/study/dictionaries/**",
                         "/api/v1/auth/refresh"
+                    ).permitAll()
+                    .requestMatchers(
+                        org.springframework.http.HttpMethod.GET,
+                        "/api/v1/community/posts",
+                        "/api/v1/community/posts/top",
+                        "/api/v1/community/posts/{postId}",
+                        "/api/v1/community/posts/{postId}/comments"
                     ).permitAll()
                     .requestMatchers(
                         "/api/v1/auth/me",
