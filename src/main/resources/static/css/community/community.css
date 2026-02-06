@@ -89,7 +89,7 @@ body {
     font-weight: 500;
     color: var(--comm-text-sub);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
     white-space: nowrap;
     margin-bottom: -1px;
     /* Overlap with container border */
