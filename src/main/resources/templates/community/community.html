@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-    th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community.css?v=2.6')}">
+    th:replace="~{fragments/head :: head('커뮤니티 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community.css?v=2.7')}">
 </head>
 
 <body class="has-fixed-nav">
@@ -51,88 +51,10 @@
 
                     <!-- Feed List -->
                     <div class="feed-list">
-                        <!-- Feed Item 1: 자유 -->
-                        <a href="#" class="feed-card coming-soon" data-category="자유" data-likes="42">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">자유</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요 🎵</h4>
-                            <div class="feed-preview">
-                                가사가 정말 마음에 와닿네요. 다들 오늘 하루도 평안하세요. 은혜 아니면 살아갈 수가 없네...
-                            </div>
-                            <div class="feed-footer">
-                                <div class="feed-user-info">
-                                    <div class="feed-meta-col">
-                                        <span class="feed-author">익명의 성도</span>
-                                        <span class="feed-time">3시간 전</span>
-                                    </div>
-                                </div>
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 95</span>
-                                    <span class="action-pill"><i class="icon">❤️</i> 42</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 8</span>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- Feed Item 2: 기도나눔 -->
-                        <a href="#" class="feed-card coming-soon" data-category="기도나눔" data-likes="24">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">기도</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-                            <div class="feed-preview">
-                                준비하는 임원들과 참여하는 모든 지체들이 은혜 받을 수 있도록 기도로 함께 해주시길 부탁드립니다.
-                            </div>
-                            <div class="feed-footer">
-                                <div class="feed-user-info">
-                                    <div class="feed-meta-col">
-                                        <span class="feed-author">기도하는 청년</span>
-                                        <span class="feed-time">10분 전</span>
-                                    </div>
-                                </div>
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 67</span>
-                                    <span class="action-pill"><i class="icon">🙏</i> 24</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 5</span>
-                                </div>
-                            </div>
-                        </a>
-
-                        <!-- Feed Item 3: Q&A -->
-                        <a href="#" class="feed-card coming-soon" data-category="Q&A" data-likes="15">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">Q&A</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-                            <div class="feed-preview">
-                                합력하여 선을 이룬다는 것이 구체적으로 어떤 의미인지 궁금합니다. 상황이 힘들 때 이 말씀을 어떻게 붙잡아야 할까요?
-                            </div>
-                            <div class="feed-footer">
-                                <div class="feed-user-info">
-                                    <div class="feed-meta-col">
-                                        <span class="feed-author">궁금한 초신자</span>
-                                        <span class="feed-time">1시간 전</span>
-                                    </div>
-                                </div>
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 128</span>
-                                    <span class="action-pill"><i class="icon">❤️</i> 15</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 3</span>
-                                </div>
-                            </div>
-                        </a>
-
                         <!-- Empty State -->
                         <div class="feed-empty" style="display: none;">
                             <div class="empty-icon">📭</div>
-                            <p>아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
+                            <p class="empty-text">아직 등록된 글이 없습니다<br>첫 번째 글을 작성해보세요!</p>
                         </div>
                     </div>
                 </div>
@@ -163,11 +85,16 @@
         <button class="writer-fab mobile-only coming-soon" aria-label="글쓰기">
             <span>✏️</span>
         </button>
+
+        <!-- Scroll to Top Button -->
+        <button id="scrollTopBtn" class="scroll-top-btn" aria-label="맨 위로">
+            <span>⬆️</span>
+        </button>
     </main>
 
     <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-    <script type="module" src="/js/community/community.js?v=2.5"></script>
+    <script type="module" src="/js/community/community.js?v=2.7"></script>
 </body>
 
 </html>

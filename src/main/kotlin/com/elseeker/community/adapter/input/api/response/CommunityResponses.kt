@@ -12,10 +12,12 @@ import java.time.Instant
 data class PostSummaryResponse(
     @field:Schema(description = "게시글 ID", example = "1")
     val id: Long,
-    @field:Schema(description = "게시글 유형", example = "FREE")
+    @field:Schema(description = "게시글 유형 (NOTICE / FREE / QUESTION / PRAY)", example = "FREE")
     val type: PostType,
     @field:Schema(description = "제목", example = "오늘의 묵상")
     val title: String,
+    @field:Schema(description = "본문 미리보기", example = "오늘 말씀을 읽다가 마음에 와닿는 구절이 있어서 공유합니다.")
+    val preview: String,
     @field:Schema(description = "작성자 닉네임", example = "은혜")
     val authorNickname: String,
     @field:Schema(description = "게시글 상태", example = "PUBLISHED")
@@ -36,7 +38,7 @@ data class PostSummaryResponse(
 data class PostDetailResponse(
     @field:Schema(description = "게시글 ID", example = "1")
     val id: Long,
-    @field:Schema(description = "게시글 유형", example = "FREE")
+    @field:Schema(description = "게시글 유형 (NOTICE / FREE / QUESTION / PRAY)", example = "FREE")
     val type: PostType,
     @field:Schema(description = "언어 코드", example = "ko")
     val language: LanguageCode,

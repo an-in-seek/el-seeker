@@ -33,10 +33,10 @@ class CommunityApi(
     @GetMapping("/posts")
     override fun getClientPosts(
         @RequestParam(required = false) type: PostType?,
-        @RequestParam(defaultValue = "latest") sort: String,
+        @RequestParam(name = "order", defaultValue = "latest") order: String,
         @PageableDefault(size = 20) pageable: Pageable,
     ): ResponseEntity<PostSliceResponse> {
-        val response = postService.getClientPosts(type, sort, pageable)
+        val response = postService.getClientPosts(type, order, pageable)
         return ResponseEntity.ok(response)
     }
 

@@ -8,6 +8,7 @@ fun Post.toSummaryResponse() = PostSummaryResponse(
     id = requireNotNull(this.id),
     type = this.type,
     title = this.title,
+    preview = this.content.toPreview(),
     authorNickname = this.author.nickname,
     status = this.status,
     viewCount = this.statistics.viewCount,
@@ -37,3 +38,17 @@ fun Post.toDetailResponse() = PostDetailResponse(
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
 )
+
+private const val PREVIEW_LIMIT = 120
+
+private fun String.toPreview(): String {
+    val normalized = replace(Regex("<[^>]*>"), " ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+    if (normalized.isBlank()) return ""
+    return if (normalized.length > PREVIEW_LIMIT) {
+        normalized.take(PREVIEW_LIMIT) + "..."
+    } else {
+        normalized
+    }
+}

@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-data class PostStatistics private constructor(
+data class PostStatistics(
     @Column(name = "view_count", nullable = false)
     var viewCount: Long = 0,
 

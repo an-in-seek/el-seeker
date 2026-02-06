@@ -4,4 +4,5 @@ enum class PostType {
     NOTICE,
     QUESTION,
     FREE,
+    PRAY,
 }

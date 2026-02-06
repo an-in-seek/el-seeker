@@ -23,58 +23,8 @@
             <span class="widget-title">🔥 주간 인기글</span>
             <a href="#" class="widget-more" data-category="인기">더보기</a>
         </div>
-        <div class="top3-list">
-            <!-- Top 3 Item 1 -->
-            <a href="#" class="feed-card coming-soon" th:classappend="${cardClass}" data-rank="1">
-                <div class="feed-top-row">
-                    <div class="feed-badges">
-                        <span class="feed-category-badge">자유</span>
-                    </div>
-                </div>
-                <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요</h4>
-
-                <div class="feed-footer">
-                    <div class="feed-actions">
-                        <span class="action-pill"><i class="icon">👀</i> 156</span>
-                        <span class="action-pill"><i class="icon">❤️</i> 42</span>
-                        <span class="action-pill"><i class="icon">💬</i> 8</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Top 3 Item 2 -->
-            <a href="#" class="feed-card coming-soon" th:classappend="${cardClass}" data-rank="2">
-                <div class="feed-top-row">
-                    <div class="feed-badges">
-                        <span class="feed-category-badge">기도</span>
-                    </div>
-                </div>
-                <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-
-                <div class="feed-footer">
-                    <div class="feed-actions">
-                        <span class="action-pill"><i class="icon">👀</i> 98</span>
-                        <span class="action-pill"><i class="icon">🙏</i> 24</span>
-                        <span class="action-pill"><i class="icon">💬</i> 5</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Top 3 Item 3 -->
-            <a href="#" class="feed-card coming-soon" th:classappend="${cardClass}" data-rank="3">
-                <div class="feed-top-row">
-                    <div class="feed-badges">
-                        <span class="feed-category-badge">Q&A</span>
-                    </div>
-                </div>
-                <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-
-                <div class="feed-footer">
-                    <div class="feed-actions">
-                        <span class="action-pill"><i class="icon">👀</i> 85</span>
-                        <span class="action-pill"><i class="icon">❤️</i> 15</span>
-                        <span class="action-pill"><i class="icon">💬</i> 3</span>
-                    </div>
-                </div>
-            </a>
+        <div class="top3-list" th:attr="data-card-class=${cardClass}">
+            <div class="top3-empty">인기글이 아직 없습니다.</div>
         </div>
     </div>
 

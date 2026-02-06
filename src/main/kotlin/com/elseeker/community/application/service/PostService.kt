@@ -37,7 +37,8 @@ class PostService(
         sort: String,
         pageable: Pageable,
     ): PostSliceResponse {
-        val slice = postRepository.findSlice(pageable) { PostKotlinJDSL.of(type, sort) }
+        val normalizedPageable = PageRequest.of(pageable.pageNumber, pageable.pageSize)
+        val slice = postRepository.findSlice(normalizedPageable) { PostKotlinJDSL.of(type, sort) }
         return PostSliceResponse(
             content = slice.filterNotNull().map(Post::toSummaryResponse),
             hasNext = slice.hasNext(),
@@ -52,7 +53,8 @@ class PostService(
         status: PostStatus?,
         pageable: Pageable,
     ): PostPageResponse {
-        val page = postRepository.findPage(pageable) { PostKotlinJDSL.of(type, status) }
+        val normalizedPageable = PageRequest.of(pageable.pageNumber, pageable.pageSize)
+        val page = postRepository.findPage(normalizedPageable) { PostKotlinJDSL.of(type, status) }
         return PostPageResponse(
             content = page.filterNotNull().map(Post::toSummaryResponse),
             totalElements = page.totalElements,

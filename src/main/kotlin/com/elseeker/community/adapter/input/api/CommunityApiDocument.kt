@@ -27,7 +27,7 @@ interface CommunityApiDocument {
     )
     fun getClientPosts(
         @Parameter(description = "게시글 유형 필터") type: PostType?,
-        @Parameter(description = "정렬 기준 (latest / popular)") sort: String,
+        @Parameter(description = "정렬 기준 (latest / popular)") order: String,
         pageable: Pageable,
     ): ResponseEntity<PostSliceResponse>
 

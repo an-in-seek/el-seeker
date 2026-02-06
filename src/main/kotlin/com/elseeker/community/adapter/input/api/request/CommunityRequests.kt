@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size
 @Schema(description = "게시글 작성 요청")
 data class CreatePostRequest(
     @field:NotNull(message = "게시글 유형은 필수입니다")
-    @field:Schema(description = "게시글 유형", example = "FREE")
+    @field:Schema(description = "게시글 유형 (NOTICE / FREE / QUESTION / PRAY)", example = "FREE")
     val type: PostType,
 
     @field:NotNull(message = "언어 코드는 필수입니다")
