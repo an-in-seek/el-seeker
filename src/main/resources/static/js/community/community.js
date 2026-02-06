@@ -6,6 +6,7 @@ const API = {
 };
 
 const PAGE_SIZE = 20;
+const SCROLL_ROOT_MARGIN = "200px";
 
 const CATEGORY_CONFIG = {
     all: { sort: "latest" },
@@ -27,7 +28,11 @@ const DEFAULT_EMPTY_MESSAGE = "아직 등록된 글이 없습니다<br>첫 번�
 const App = {
     state: {
         activeCategory: "all",
+        page: 0,
+        hasNext: true,
+        isLoading: false,
         abortController: null,
+        observer: null,
     },
 
     init() {
@@ -36,6 +41,7 @@ const App = {
         App.initCategoryTabs();
         App.initTop3MoreLink();
         App.initScrollTop();
+        App.initInfiniteScroll();
         App.loadTopPosts();
 
         const initialCategory = App.getInitialCategory();
@@ -115,6 +121,8 @@ const App = {
         App.updateTabState(category);
         App.toggleTop3(category === "all");
 
+        App.resetPagination();
+
         const config = CATEGORY_CONFIG[category];
         if (config?.unsupported) {
             App.clearFeed();
@@ -122,7 +130,17 @@ const App = {
             return;
         }
 
-        App.loadPosts(category);
+        App.loadPosts(category, { append: false });
+    },
+
+    resetPagination() {
+        if (App.state.abortController) {
+            App.state.abortController.abort();
+        }
+        App.state.page = 0;
+        App.state.hasNext = true;
+        App.state.isLoading = false;
+        App.setLoaderVisible(false);
     },
 
     updateTabState(category) {
@@ -142,23 +160,26 @@ const App = {
         if (mobileTop3) mobileTop3.hidden = !show;
     },
 
-    async loadPosts(category) {
+    async loadPosts(category, { append }) {
         const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG.all;
-
-        if (App.state.abortController) {
-            App.state.abortController.abort();
-        }
+        if (App.state.isLoading) return;
+        if (append && !App.state.hasNext) return;
 
         const params = new URLSearchParams();
-        params.set("page", "0");
+        const page = append ? App.state.page : 0;
+        params.set("page", String(page));
         params.set("size", String(PAGE_SIZE));
         params.set("order", config.sort || "latest");
         if (config.type) {
             params.set("type", config.type);
         }
 
-        App.setEmptyState(true, "게시글을 불러오는 중입니다...");
-        App.clearFeed();
+        if (!append) {
+            App.setEmptyState(true, "게시글을 불러오는 중입니다...");
+            App.clearFeed();
+        }
+        App.setLoaderVisible(true);
+        App.state.isLoading = true;
 
         const controller = new AbortController();
         App.state.abortController = controller;
@@ -173,22 +194,36 @@ const App = {
             }
 
             const payload = await response.json();
-            App.renderPosts(payload?.content || []);
+            App.state.hasNext = Boolean(payload?.hasNext);
+            if (App.state.hasNext) {
+                App.state.page = page + 1;
+            }
+            App.renderPosts(payload?.content || [], { append });
         } catch (error) {
             if (error.name === "AbortError") return;
-            App.clearFeed();
-            App.setEmptyState(true, "게시글을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+            if (!append) {
+                App.clearFeed();
+                App.setEmptyState(true, "게시글을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+            }
+            App.state.hasNext = false;
+        } finally {
+            App.state.isLoading = false;
+            App.setLoaderVisible(false);
         }
     },
 
-    renderPosts(posts) {
-        const { feedList, emptyState } = App.getFeedElements();
+    renderPosts(posts, { append }) {
+        const { feedList, emptyState, loader } = App.getFeedElements();
         if (!feedList || !emptyState) return;
 
-        App.clearFeed();
+        if (!append) {
+            App.clearFeed();
+        }
 
         if (!posts || posts.length === 0) {
-            App.setEmptyState(true, DEFAULT_EMPTY_MESSAGE);
+            if (!append) {
+                App.setEmptyState(true, DEFAULT_EMPTY_MESSAGE);
+            }
             return;
         }
 
@@ -197,7 +232,8 @@ const App = {
             fragment.appendChild(App.createPostCard(post));
         });
 
-        feedList.insertBefore(fragment, emptyState);
+        const anchor = loader || emptyState;
+        feedList.insertBefore(fragment, anchor);
         App.setEmptyState(false);
     },
 
@@ -333,6 +369,12 @@ const App = {
         emptyState.style.display = visible ? "block" : "none";
     },
 
+    setLoaderVisible(visible) {
+        const { loader } = App.getFeedElements();
+        if (!loader) return;
+        loader.hidden = !visible;
+    },
+
     clearFeed() {
         const { feedList, emptyState } = App.getFeedElements();
         if (!feedList || !emptyState) return;
@@ -345,7 +387,36 @@ const App = {
         const feedList = document.querySelector(".feed-list");
         const emptyState = feedList?.querySelector(".feed-empty") || null;
         const emptyText = emptyState?.querySelector(".empty-text") || null;
-        return { feedList, emptyState, emptyText };
+        const loader = feedList?.querySelector("#feedLoader") || null;
+        const sentinel = feedList?.querySelector("#feedSentinel") || null;
+        return { feedList, emptyState, emptyText, loader, sentinel };
+    },
+
+    initInfiniteScroll() {
+        const { sentinel } = App.getFeedElements();
+        if (!sentinel || App.state.observer) return;
+
+        App.state.observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        App.loadNextPage();
+                    }
+                });
+            },
+            {
+                root: null,
+                rootMargin: SCROLL_ROOT_MARGIN,
+                threshold: 0,
+            }
+        );
+
+        App.state.observer.observe(sentinel);
+    },
+
+    loadNextPage() {
+        if (App.state.isLoading || !App.state.hasNext) return;
+        App.loadPosts(App.state.activeCategory, { append: true });
     },
 
     async loadTopPosts() {

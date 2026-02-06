@@ -400,6 +400,17 @@ body {
     opacity: 0.5;
 }
 
+.feed-loader {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--comm-text-sub);
+    padding: 1.5rem 0 0.5rem;
+}
+
+.feed-sentinel {
+    height: 1px;
+}
+
 
 /* =====================
    Animations & Coming Soon
