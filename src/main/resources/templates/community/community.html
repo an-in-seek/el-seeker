@@ -40,78 +40,12 @@
                     <div class="mobile-widgets-area">
                         <!-- Mobile Pinned Notice -->
                         <div class="mobile-widget mobile-notice">
-                            <div class="sidebar-widget notice-widget">
-                                <div class="widget-header">
-                                    <span class="widget-title">📢 공지사항</span>
-                                </div>
-                                <a href="#" class="pinned-notice-item coming-soon">
-                                    <span class="pinned-title">커뮤니티 이용 가이드 안내</span>
-                                    <span class="pinned-date">02.01</span>
-                                </a>
-                            </div>
+                            <div th:replace="~{fragments/community-widgets :: notice}"></div>
                         </div>
 
                         <!-- Mobile Top 3 (Toggles based on tab) -->
                         <div class="mobile-widget mobile-top3" id="mobileTop3">
-                            <div class="sidebar-widget top3-widget">
-                                <div class="widget-header">
-                                    <span class="widget-title">🔥 주간 인기글</span>
-                                </div>
-                                <!-- Reusing Feed Card Structure for Top 3 -->
-                                <div class="top3-list">
-                                    <!-- Top 3 Item 1 -->
-                                    <a href="#" class="feed-card top3-card-mobile coming-soon" data-rank="1">
-                                        <div class="feed-top-row">
-                                            <div class="feed-badges">
-                                                <span class="feed-category-badge">자유</span>
-                                            </div>
-                                        </div>
-                                        <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요</h4>
-
-                                        <div class="feed-footer">
-                                            <div class="feed-actions">
-                                                <span class="action-pill"><i class="icon">👀</i> 156</span>
-                                                <span class="action-pill"><i class="icon">❤️</i> 42</span>
-                                                <span class="action-pill"><i class="icon">💬</i> 8</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- Top 3 Item 2 -->
-                                    <a href="#" class="feed-card top3-card-mobile coming-soon" data-rank="2">
-                                        <div class="feed-top-row">
-                                            <div class="feed-badges">
-                                                <span class="feed-category-badge">기도</span>
-                                            </div>
-                                        </div>
-                                        <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-
-                                        <div class="feed-footer">
-                                            <div class="feed-actions">
-                                                <span class="action-pill"><i class="icon">👀</i> 98</span>
-                                                <span class="action-pill"><i class="icon">🙏</i> 24</span>
-                                                <span class="action-pill"><i class="icon">💬</i> 5</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <!-- Top 3 Item 3 -->
-                                    <a href="#" class="feed-card top3-card-mobile coming-soon" data-rank="3">
-                                        <div class="feed-top-row">
-                                            <div class="feed-badges">
-                                                <span class="feed-category-badge">Q&A</span>
-                                            </div>
-                                        </div>
-                                        <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-
-                                        <div class="feed-footer">
-                                            <div class="feed-actions">
-                                                <span class="action-pill"><i class="icon">👀</i> 85</span>
-                                                <span class="action-pill"><i class="icon">❤️</i> 15</span>
-                                                <span class="action-pill"><i class="icon">💬</i> 3</span>
-                                            </div>
-                                        </div>
-                                    </a> </a>
-                                </div>
-                            </div>
+                            <div th:replace="~{fragments/community-widgets :: top3('top3-card-mobile')}"></div>
                         </div>
                     </div>
 
@@ -216,75 +150,11 @@
                 </div>
 
                 <!-- Pinned Notice -->
-                <div class="sidebar-widget notice-widget">
-                    <div class="widget-header">
-                        <span class="widget-title">📢 공지사항</span>
-                    </div>
-                    <a href="#" class="pinned-notice-item coming-soon">
-                        <span class="pinned-title">커뮤니티 이용 가이드 안내</span>
-                        <span class="pinned-date">2026.02.01</span>
-                    </a>
-                </div>
+                <div th:replace="~{fragments/community-widgets :: notice}"></div>
 
                 <!-- TOP3 Popular -->
-                <div class="sidebar-widget top3-widget" id="feedTop3">
-                    <div class="widget-header">
-                        <span class="widget-title">🔥 주간 인기글</span>
-                        <a href="#" class="widget-more" data-category="인기">더보기</a>
-                    </div>
-                    <div class="top3-list">
-                        <!-- Top 3 Item 1 -->
-                        <a href="#" class="feed-card top3-card-desktop coming-soon" data-rank="1">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">자유</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">오늘 묵상한 찬양 가사가 너무 좋아서 공유해요</h4>
-
-                            <div class="feed-footer">
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 156</span>
-                                    <span class="action-pill"><i class="icon">❤️</i> 42</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 8</span>
-                                </div>
-                            </div>
-                        </a>
-                        <!-- Top 3 Item 2 -->
-                        <a href="#" class="feed-card top3-card-desktop coming-soon" data-rank="2">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">기도</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">이번 주 청년부 수련회를 위해 기도해주세요</h4>
-
-                            <div class="feed-footer">
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 98</span>
-                                    <span class="action-pill"><i class="icon">🙏</i> 24</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 5</span>
-                                </div>
-                            </div>
-                        </a>
-                        <!-- Top 3 Item 3 -->
-                        <a href="#" class="feed-card top3-card-desktop coming-soon" data-rank="3">
-                            <div class="feed-top-row">
-                                <div class="feed-badges">
-                                    <span class="feed-category-badge">Q&A</span>
-                                </div>
-                            </div>
-                            <h4 class="feed-title">로마서 8장 28절 해석 질문입니다</h4>
-
-                            <div class="feed-footer">
-                                <div class="feed-actions">
-                                    <span class="action-pill"><i class="icon">👀</i> 85</span>
-                                    <span class="action-pill"><i class="icon">❤️</i> 15</span>
-                                    <span class="action-pill"><i class="icon">💬</i> 3</span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                <div id="feedTop3">
+                    <div th:replace="~{fragments/community-widgets :: top3('top3-card-desktop')}"></div>
                 </div>
             </aside>
         </div>
