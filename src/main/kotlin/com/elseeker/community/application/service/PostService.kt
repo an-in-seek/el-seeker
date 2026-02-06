@@ -4,10 +4,15 @@ import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.community.adapter.input.api.request.CreatePostRequest
 import com.elseeker.community.adapter.input.api.request.UpdatePostRequest
-import com.elseeker.community.adapter.input.api.response.*
+import com.elseeker.community.adapter.input.api.response.PostDetailResponse
+import com.elseeker.community.adapter.input.api.response.PostPageResponse
+import com.elseeker.community.adapter.input.api.response.PostSliceResponse
+import com.elseeker.community.adapter.input.api.response.PostSummaryResponse
+import com.elseeker.community.adapter.output.jpa.PostKotlinJDSL
 import com.elseeker.community.adapter.output.jpa.PostRepository
+import com.elseeker.community.application.mapper.toDetailResponse
+import com.elseeker.community.application.mapper.toSummaryResponse
 import com.elseeker.community.domain.model.Post
-import com.elseeker.community.domain.vo.PostStatistics
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.PostType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
@@ -33,24 +38,10 @@ class PostService(
         pageable: Pageable,
     ): PostSliceResponse {
         val slice = postRepository.findSlice(pageable) {
-            select(
-                entity(Post::class)
-            ).from(
-                entity(Post::class),
-                fetchJoin(Post::author),
-            ).whereAnd(
-                path(Post::status).eq(PostStatus.PUBLISHED),
-                type?.let { path(Post::type).eq(it) },
-            ).orderBy(
-                when (sort) {
-                    "popular" -> path(Post::statistics).path(PostStatistics::score).desc()
-                    else -> path(Post::createdAt).desc()
-                }
-            )
+            PostKotlinJDSL.of(type, sort)
         }
-
         return PostSliceResponse(
-            content = slice.content.map { it.toSummaryResponse() },
+            content = slice.filterNotNull().map(Post::toSummaryResponse),
             hasNext = slice.hasNext(),
             size = slice.size,
             number = slice.number,
@@ -64,21 +55,10 @@ class PostService(
         pageable: Pageable,
     ): PostPageResponse {
         val page = postRepository.findPage(pageable) {
-            select(
-                entity(Post::class)
-            ).from(
-                entity(Post::class),
-                fetchJoin(Post::author),
-            ).whereAnd(
-                type?.let { path(Post::type).eq(it) },
-                status?.let { path(Post::status).eq(it) },
-            ).orderBy(
-                path(Post::createdAt).desc()
-            )
+            PostKotlinJDSL.of(type, status)
         }
-
         return PostPageResponse(
-            content = page.content.map { it.toSummaryResponse() },
+            content = page.filterNotNull().map(Post::toSummaryResponse),
             totalElements = page.totalElements,
             totalPages = page.totalPages,
             size = page.size,
@@ -90,22 +70,17 @@ class PostService(
     fun getPostDetail(postId: Long): PostDetailResponse {
         postRepository.incrementViewCount(postId)
         postRepository.updateScore(postId)
-
         val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
             ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-
         if (post.status == PostStatus.HIDDEN) {
             throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         }
-
         return post.toDetailResponse()
     }
 
     @Transactional(readOnly = true)
     fun getAdminPostDetail(postId: Long): PostDetailResponse {
-        val post = postRepository.findByIdWithAuthor(postId)
-            ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
         return post.toDetailResponse()
     }
 
@@ -113,7 +88,6 @@ class PostService(
     fun createPost(memberUid: UUID, request: CreatePostRequest): PostDetailResponse {
         val member = memberRepository.findByUid(memberUid)
             ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-
         val post = Post.create(
             author = member,
             postType = request.type,
@@ -125,7 +99,6 @@ class PostService(
             isHtml = request.isHtml,
             isWrittenByAdmin = member.memberRole == MemberRole.ADMIN,
         )
-
         val saved = postRepository.save(post)
         return saved.toDetailResponse()
     }
@@ -150,14 +123,11 @@ class PostService(
     fun deletePost(postId: Long, memberUid: UUID) {
         val post = postRepository.findByIdWithAuthor(postId)
             ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-
         val member = memberRepository.findByUid(memberUid)
             ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-
         if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) {
             throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         }
-
         post.delete()
     }
 
@@ -165,69 +135,19 @@ class PostService(
     fun hidePost(postId: Long, memberUid: UUID) {
         val post = postRepository.findByIdWithAuthor(postId)
             ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-
         val member = memberRepository.findByUid(memberUid)
             ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-
         if (member.memberRole != MemberRole.ADMIN) {
             throwError(ErrorType.ADMIN_ACCESS_DENIED)
         }
-
         post.hide()
     }
 
     @Transactional(readOnly = true)
     fun getTopPosts(): List<PostSummaryResponse> {
         val sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS)
-
-        val slice = postRepository.findSlice(PageRequest.of(0, 3)) {
-            select(
-                entity(Post::class)
-            ).from(
-                entity(Post::class),
-                fetchJoin(Post::author),
-            ).whereAnd(
-                path(Post::status).eq(PostStatus.PUBLISHED),
-                path(Post::createdAt).greaterThanOrEqualTo(sevenDaysAgo),
-            ).orderBy(
-                path(Post::statistics).path(PostStatistics::score).desc()
-            )
-        }
-
-        return slice.content.map { it.toSummaryResponse() }
+        return postRepository.findSlice(PageRequest.of(0, 3)) {
+            PostKotlinJDSL.from(sevenDaysAgo)
+        }.filterNotNull().map(Post::toSummaryResponse)
     }
-
-    private fun Post.toSummaryResponse() = PostSummaryResponse(
-        id = requireNotNull(this.id),
-        type = this.type,
-        title = this.title,
-        authorNickname = this.author.nickname,
-        status = this.status,
-        viewCount = this.statistics.viewCount,
-        reactionCount = this.statistics.reactionCount,
-        commentCount = this.statistics.commentCount,
-        isPopular = this.isPopular,
-        createdAt = this.createdAt,
-    )
-
-    private fun Post.toDetailResponse() = PostDetailResponse(
-        id = requireNotNull(this.id),
-        type = this.type,
-        language = this.language,
-        country = this.country,
-        title = this.title,
-        content = this.content,
-        authorNickname = this.author.nickname,
-        authorProfileImageUrl = this.author.profileImageUrl,
-        status = this.status,
-        viewCount = this.statistics.viewCount,
-        reactionCount = this.statistics.reactionCount,
-        commentCount = this.statistics.commentCount,
-        score = this.statistics.score,
-        isPopular = this.isPopular,
-        useReply = this.useReply,
-        isHtml = this.isHtml,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt,
-    )
 }
