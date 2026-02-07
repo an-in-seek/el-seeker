@@ -16,14 +16,10 @@ import com.elseeker.community.application.mapper.toDetailResponse
 import com.elseeker.community.application.mapper.toSummaryResponse
 import com.elseeker.community.domain.model.CommunityReport
 import com.elseeker.community.domain.model.Post
-import com.elseeker.community.domain.vo.PostStatus
-import com.elseeker.community.domain.vo.PostType
-import com.elseeker.community.domain.vo.ReactionType
-import com.elseeker.community.domain.vo.ReportReason
-import com.elseeker.community.domain.vo.TargetType
+import com.elseeker.community.domain.policy.PostReportPolicy
+import com.elseeker.community.domain.vo.*
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.vo.MemberRole
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -83,8 +79,8 @@ class PostService(
     fun getPostDetail(postId: Long, memberUid: UUID? = null): PostDetailResponse {
         postRepository.incrementViewCount(postId)
         postRepository.updateScore(postId)
-        val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
-        if (post.status == PostStatus.HIDDEN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
+        val post = postRepository.findByIdAndStatusNotForUpdate(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND)
+        post.ensureReadableForClient()
         val isLiked = memberUid?.let { uid ->
             val memberId = memberRepository.findIdByUid(uid) ?: return@let false
             communityReactionRepository.existsByTargetTypeAndTargetIdAndMemberIdAndReactionType(
@@ -99,7 +95,7 @@ class PostService(
 
     @Transactional(readOnly = true)
     fun getAdminPostDetail(postId: Long): PostDetailResponse {
-        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND)
         return post.toDetailResponse()
     }
 
@@ -123,50 +119,31 @@ class PostService(
 
     @Transactional
     fun updatePost(postId: Long, memberUid: UUID, request: UpdatePostRequest): PostDetailResponse {
-        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND)
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        post.update(title = request.title, content = request.content)
+        post.updateBy(actor = member, title = request.title, content = request.content)
         return post.toDetailResponse(memberUid)
     }
 
     @Transactional
     fun deletePost(postId: Long, memberUid: UUID) {
-        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND)
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        post.delete()
+        post.deleteBy(actor = member)
     }
 
     @Transactional
     fun hidePost(postId: Long, memberUid: UUID) {
-        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND)
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
-        post.hide()
+        post.hideByAdmin(actor = member)
     }
 
     @Transactional
     fun updatePostStatus(postId: Long, memberUid: UUID, status: PostStatus) {
-        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND)
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
-        if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
-
-        if (post.status == status) return
-
-        when (status) {
-            PostStatus.PUBLISHED -> {
-                if (post.status != PostStatus.PUBLISHED) {
-                    post.publish()
-                }
-            }
-            PostStatus.HIDDEN -> {
-                if (post.status == PostStatus.PUBLISHED) {
-                    post.hide()
-                }
-            }
-            PostStatus.DELETED -> post.delete()
-        }
+        post.changeStatusByAdmin(actor = member, targetStatus = status)
     }
 
     @Transactional(readOnly = true)
@@ -179,37 +156,19 @@ class PostService(
 
     @Transactional
     fun reportPost(postId: Long, memberUid: UUID, reason: ReportReason) {
-        val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val post = postRepository.findByIdAndStatusNotForUpdate(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND)
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         val memberId = requireNotNull(member.id)
-
-        if (communityReportRepository.existsByTargetTypeAndTargetIdAndReporterId(
-                TargetType.POST,
-                postId,
-                memberId,
-            )
-        ) {
+        if (communityReportRepository.existsByTargetTypeAndTargetIdAndReporterId(TargetType.POST, postId, memberId)) {
             throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
         }
-
         val report = CommunityReport.create(
             targetType = TargetType.POST,
             targetId = postId,
             reporterId = memberId,
             reason = reason,
         )
-        try {
-            communityReportRepository.save(report)
-        } catch (ex: DataIntegrityViolationException) {
-            throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
-        }
-
-        postRepository.incrementReportCount(postId)
-        postRepository.hideIfReported(
-            postId = postId,
-            threshold = 3,
-            publishedStatus = PostStatus.PUBLISHED,
-            hiddenStatus = PostStatus.HIDDEN,
-        )
+        communityReportRepository.save(report)
+        post.registerReport(PostReportPolicy)
     }
 }

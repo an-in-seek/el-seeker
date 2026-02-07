@@ -1,8 +1,12 @@
 package com.elseeker.community.domain.model
 
 import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
+import com.elseeker.community.domain.policy.CommentReportPolicy
 import com.elseeker.community.domain.vo.CommentStatus
 import com.elseeker.member.domain.model.Member
+import com.elseeker.member.domain.vo.MemberRole
 import jakarta.persistence.*
 import java.time.Instant
 
@@ -67,11 +71,67 @@ class Comment(
         this.content = content
     }
 
+    fun updateBy(actor: Member, content: String) {
+        ensureEditableBy(actor)
+        update(content)
+    }
+
+    fun deleteBy(actor: Member) {
+        ensureEditableBy(actor)
+        if (status == CommentStatus.DELETED) {
+            throwError(ErrorType.COMMENT_NOT_FOUND, "commentId=$id")
+        }
+        delete()
+    }
+
+    fun restoreByAdmin(actor: Member) {
+        ensureAdmin(actor)
+        if (status == CommentStatus.PUBLISHED) return
+        this.status = CommentStatus.PUBLISHED
+    }
+
+    fun hideByAdmin(actor: Member) {
+        ensureAdmin(actor)
+        if (status != CommentStatus.PUBLISHED) return
+        hide()
+    }
+
+    fun changeStatusByAdmin(actor: Member, targetStatus: CommentStatus) {
+        ensureAdmin(actor)
+        if (status == targetStatus) return
+        when (targetStatus) {
+            CommentStatus.PUBLISHED -> restoreByAdmin(actor)
+            CommentStatus.HIDDEN -> hideByAdmin(actor)
+            CommentStatus.DELETED -> delete()
+        }
+    }
+
+    fun registerReport(policy: CommentReportPolicy = CommentReportPolicy): Boolean {
+        reportCount += 1
+        if (policy.shouldHide(status, reportCount)) {
+            hide()
+            return true
+        }
+        return false
+    }
+
     fun delete() {
         this.status = CommentStatus.DELETED
     }
 
     fun hide() {
         this.status = CommentStatus.HIDDEN
+    }
+
+    fun ensureEditableBy(actor: Member) {
+        if (author.id != actor.id && actor.memberRole != MemberRole.ADMIN) {
+            throwError(ErrorType.COMMENT_ACCESS_DENIED, "commentId=$id")
+        }
+    }
+
+    private fun ensureAdmin(actor: Member) {
+        if (actor.memberRole != MemberRole.ADMIN) {
+            throwError(ErrorType.ADMIN_ACCESS_DENIED)
+        }
     }
 }

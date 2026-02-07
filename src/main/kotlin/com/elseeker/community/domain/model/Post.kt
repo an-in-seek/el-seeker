@@ -1,10 +1,14 @@
 package com.elseeker.community.domain.model
 
 import com.elseeker.common.domain.BaseTimeEntity
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
+import com.elseeker.community.domain.policy.PostReportPolicy
 import com.elseeker.community.domain.vo.PostStatistics
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.PostType
 import com.elseeker.member.domain.model.Member
+import com.elseeker.member.domain.vo.MemberRole
 import com.neovisionaries.i18n.CountryCode
 import com.neovisionaries.i18n.LanguageCode
 import jakarta.persistence.*
@@ -97,6 +101,23 @@ class Post(
         this.content = content
     }
 
+    fun updateBy(actor: Member, title: String, content: String) {
+        ensureEditableBy(actor)
+        update(title, content)
+    }
+
+    fun registerReport(policy: PostReportPolicy = PostReportPolicy) {
+        statistics.reportCount += 1
+        if (policy.shouldHide(status, statistics.reportCount)) {
+            hide()
+        }
+    }
+
+    fun deleteBy(actor: Member) {
+        ensureEditableBy(actor)
+        delete()
+    }
+
     fun hide() {
         this.status = PostStatus.HIDDEN
     }
@@ -107,5 +128,43 @@ class Post(
 
     fun delete() {
         this.status = PostStatus.DELETED
+    }
+
+    fun hideByAdmin(actor: Member) {
+        ensureAdmin(actor)
+        hide()
+    }
+
+    fun changeStatusByAdmin(actor: Member, targetStatus: PostStatus) {
+        ensureAdmin(actor)
+        if (status == targetStatus) return
+
+        when (targetStatus) {
+            PostStatus.PUBLISHED -> publish()
+            PostStatus.HIDDEN -> {
+                if (status == PostStatus.PUBLISHED) {
+                    hide()
+                }
+            }
+            PostStatus.DELETED -> delete()
+        }
+    }
+
+    fun ensureReadableForClient() {
+        if (status == PostStatus.HIDDEN) {
+            throwError(ErrorType.POST_ACCESS_DENIED, "postId=${id}")
+        }
+    }
+
+    private fun ensureEditableBy(actor: Member) {
+        if (author.id != actor.id && actor.memberRole != MemberRole.ADMIN) {
+            throwError(ErrorType.POST_ACCESS_DENIED, "postId=${id}")
+        }
+    }
+
+    private fun ensureAdmin(actor: Member) {
+        if (actor.memberRole != MemberRole.ADMIN) {
+            throwError(ErrorType.ADMIN_ACCESS_DENIED)
+        }
     }
 }

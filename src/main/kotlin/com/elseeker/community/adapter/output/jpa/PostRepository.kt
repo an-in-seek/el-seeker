@@ -3,7 +3,9 @@ package com.elseeker.community.adapter.output.jpa
 import com.elseeker.community.domain.model.Post
 import com.elseeker.community.domain.vo.PostStatus
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -18,6 +20,18 @@ interface PostRepository : JpaRepository<Post, Long>, KotlinJdslJpqlExecutor {
         """
     )
     fun findByIdAndStatusNot(
+        @Param("id") id: Long,
+        @Param("excludedStatus") excludedStatus: PostStatus,
+    ): Post?
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query(
+        """
+        SELECT p FROM Post p
+        WHERE p.id = :id AND p.status <> :excludedStatus
+        """
+    )
+    fun findByIdAndStatusNotForUpdate(
         @Param("id") id: Long,
         @Param("excludedStatus") excludedStatus: PostStatus,
     ): Post?
