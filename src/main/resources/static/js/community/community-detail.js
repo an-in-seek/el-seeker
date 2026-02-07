@@ -35,6 +35,8 @@ const App = {
         commentInputAuthChecked: false,
         likeActive: false,
         likeLoading: false,
+        reportedPost: false,
+        reportedComments: new Set(),
         auth: {
             checked: false,
             allowed: false,
@@ -380,13 +382,20 @@ const App = {
         if (!reportBtn) return;
 
         reportBtn.addEventListener("click", async () => {
+            if (App.state.reportedPost) {
+                return;
+            }
             const allowed = await App.ensureAuth();
             if (!allowed) return;
 
             const reason = await App.openReportModal();
             if (!reason) return;
 
-            App.reportPost(reason);
+            const result = await App.reportPost(reason);
+            if (result === "reported" || result === "exists") {
+                App.state.reportedPost = true;
+                App.setReportButtonState(reportBtn, true);
+            }
         });
     },
 
@@ -450,16 +459,24 @@ const App = {
 
             if (response.status === 401) {
                 App.redirectToLogin();
-                return;
+                return "unauthorized";
             }
 
-            if (!response.ok) {
-                throw new Error(`게시글 신고 실패 (${response.status})`);
+            if (response.ok) {
+                alert("신고가 접수되었습니다.");
+                return "reported";
             }
 
-            alert("신고가 접수되었습니다.");
+            if (response.status === 400) {
+                const errorMessage = await App.readErrorMessage(response);
+                alert(errorMessage);
+                return "exists";
+            }
+
+            throw new Error(`게시글 신고 실패 (${response.status})`);
         } catch (error) {
             alert("게시글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            return "error";
         }
     },
 
@@ -676,6 +693,9 @@ const App = {
     async reportComment(item) {
         const commentId = item.dataset.commentId;
         if (!commentId) return;
+        if (App.state.reportedComments.has(commentId)) {
+            return;
+        }
 
         const allowed = await App.ensureAuth();
         if (!allowed) return;
@@ -702,18 +722,42 @@ const App = {
                 return;
             }
 
-            if (!response.ok) {
-                throw new Error(`댓글 신고 실패 (${response.status})`);
+            if (response.ok) {
+                alert("신고가 접수되었습니다.");
+                App.state.reportedComments.add(commentId);
+                App.setCommentReportButtonState(item, true);
+                return;
             }
-            alert("신고가 접수되었습니다.");
-            const element = document.getElementById(id);
-            if (!element) return;
-            const current = App.parseNumber(element.textContent);
-            const next = Math.max(current + delta, 0);
-            element.textContent = formatNumberWithComma(next);
+
+            if (response.status === 400) {
+                const errorMessage = await App.readErrorMessage(response);
+                alert(errorMessage);
+                App.state.reportedComments.add(commentId);
+                App.setCommentReportButtonState(item, true);
+                return;
+            }
+
+            throw new Error(`댓글 신고 실패 (${response.status})`);
         } catch (error) {
             console.warn(error.message);
         }
+    },
+
+    setReportButtonState(button, reported) {
+        if (!button) return;
+        button.disabled = reported;
+        button.setAttribute("aria-disabled", reported ? "true" : "false");
+        const label = button.querySelector(".btn-action-label");
+        if (label) {
+            label.textContent = reported ? "신고됨" : "신고하기";
+        }
+    },
+
+    setCommentReportButtonState(item, reported) {
+        const reportBtn = item.querySelector("button[data-action='report']");
+        if (!reportBtn) return;
+        reportBtn.disabled = reported;
+        reportBtn.textContent = reported ? "신고됨" : "신고";
     },
 
     openReportModal() {

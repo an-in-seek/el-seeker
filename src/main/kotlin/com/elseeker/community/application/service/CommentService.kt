@@ -128,7 +128,7 @@ class CommentService(
         val memberId = requireNotNull(member.id)
 
         if (commentReportRepository.existsByCommentIdAndReporterId(commentId, memberId)) {
-            throwError(ErrorType.REPORT_ALREADY_EXISTS, "commentId=$commentId")
+            throwError(ErrorType.REPORT_COMMENT_ALREADY_EXISTS)
         }
 
         val report = CommentReport.create(
@@ -139,7 +139,7 @@ class CommentService(
         try {
             commentReportRepository.save(report)
         } catch (ex: DataIntegrityViolationException) {
-            throwError(ErrorType.REPORT_ALREADY_EXISTS, "commentId=$commentId")
+            throwError(ErrorType.REPORT_COMMENT_ALREADY_EXISTS)
         }
 
         commentRepository.incrementReportCount(commentId)

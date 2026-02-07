@@ -149,7 +149,7 @@ class PostService(
         val memberId = requireNotNull(member.id)
 
         if (postReportRepository.existsByPostIdAndReporterId(postId, memberId)) {
-            throwError(ErrorType.REPORT_ALREADY_EXISTS, "postId=$postId")
+            throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
         }
 
         val report = PostReport.create(
@@ -160,7 +160,7 @@ class PostService(
         try {
             postReportRepository.save(report)
         } catch (ex: DataIntegrityViolationException) {
-            throwError(ErrorType.REPORT_ALREADY_EXISTS, "postId=$postId")
+            throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
         }
 
         postRepository.incrementReportCount(postId)

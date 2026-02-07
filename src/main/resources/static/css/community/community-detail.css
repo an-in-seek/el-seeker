@@ -227,6 +227,11 @@
     opacity: 1;
 }
 
+.btn-action[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .btn-share:hover {
     border-color: var(--comm-primary);
     color: var(--comm-primary);
@@ -557,6 +562,11 @@
 
 .comment-action:hover {
     color: var(--comm-text-main);
+}
+
+.comment-action[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .comment-author {
