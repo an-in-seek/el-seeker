@@ -5,9 +5,8 @@
         siteUrl='https://elseeker.com',
         siteName='ElSeeker',
         siteLogo='https://elseeker.com/images/elseeker_og.png',
-        requestUrl=${#httpServletRequest != null ? #httpServletRequest.requestURL : null},
-        requestQuery=${#httpServletRequest != null ? #httpServletRequest.queryString : null},
-        resolvedCanonical=${!#strings.isEmpty(canonicalUrl) ? canonicalUrl : (requestUrl != null ? requestUrl + (requestQuery != null ? '?' + requestQuery : '') : siteUrl)},
+        requestUri=${#httpServletRequest != null ? #httpServletRequest.requestURI : null},
+        resolvedCanonical=${!#strings.isEmpty(canonicalUrl) ? canonicalUrl : (requestUri != null ? siteUrl + requestUri : siteUrl)},
         resolvedTitle=${#strings.isEmpty(title) ? siteName : title},
         resolvedDescription=${#strings.isEmpty(pageDescription) ? '성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.' : pageDescription},
         resolvedOgType=${#strings.isEmpty(ogType) ? 'website' : ogType},
@@ -24,7 +23,7 @@
     <meta name="description" th:content="${resolvedDescription}"
           content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.">
     <meta name="author" content="InSeek">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" th:if="${!#strings.isEmpty(robotsContent)}" th:content="${robotsContent}">
     <link rel="canonical" th:href="${resolvedCanonical}" href="https://elseeker.com/">
 
     <!-- Open Graph -->
@@ -81,7 +80,7 @@
     <script type="application/ld+json" th:inline="javascript">
         {
           "@context": "https://schema.org",
-          "@type": /*[[${resolvedSchemaType}]]*/,
+          "@type": [[${resolvedSchemaType}]],
           "@id": /*[[${resolvedPageId}]]*/,
           "url": /*[[${resolvedCanonical}]]*/,
           "name": /*[[${resolvedTitle}]]*/,
