@@ -101,8 +101,10 @@
     outline: none;
 }
 
-.quiz-option:hover {
-    border-color: #9eb5de;
+@media (hover: hover) and (pointer: fine) {
+    .quiz-option:hover {
+        border-color: #9eb5de;
+    }
 }
 
 .quiz-option.is-selected {

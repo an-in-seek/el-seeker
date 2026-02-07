@@ -139,9 +139,11 @@
     min-height: 100px;
 }
 
-.ox-quiz-option:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+@media (hover: hover) and (pointer: fine) {
+    .ox-quiz-option:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
 }
 
 .ox-quiz-option:focus {
@@ -170,9 +172,11 @@
     color: #16a34a;
 }
 
-.ox-quiz-option-o:hover:not(:disabled) {
-    border-color: #86efac;
-    background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+@media (hover: hover) and (pointer: fine) {
+    .ox-quiz-option-o:hover:not(:disabled) {
+        border-color: #86efac;
+        background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+    }
 }
 
 .ox-quiz-option-x {
@@ -184,9 +188,11 @@
     color: #dc2626;
 }
 
-.ox-quiz-option-x:hover:not(:disabled) {
-    border-color: #fca5a5;
-    background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+@media (hover: hover) and (pointer: fine) {
+    .ox-quiz-option-x:hover:not(:disabled) {
+        border-color: #fca5a5;
+        background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+    }
 }
 
 .ox-quiz-option.is-selected {
@@ -210,9 +216,11 @@
     opacity: 0.7;
 }
 
-.ox-quiz-option:disabled:hover {
-    transform: none;
-    box-shadow: none;
+@media (hover: hover) and (pointer: fine) {
+    .ox-quiz-option:disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
 }
 
 /* Feedback */

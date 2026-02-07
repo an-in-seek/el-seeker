@@ -54,9 +54,11 @@
     margin-bottom: 0;
 }
 
-.card-clickable:hover .game-card-icon {
-    transform: scale(1.1) rotate(5deg);
-    background: rgba(31, 42, 68, 0.1);
+@media (hover: hover) and (pointer: fine) {
+    .card-clickable:hover .game-card-icon {
+        transform: scale(1.1) rotate(5deg);
+        background: rgba(31, 42, 68, 0.1);
+    }
 }
 
 .game-card-meta {
@@ -84,10 +86,12 @@
     height: 100%;
 }
 
-.card-clickable:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    border-color: #cbd5e1;
+@media (hover: hover) and (pointer: fine) {
+    .card-clickable:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+    }
 }
 
 .card-clickable:focus-visible {

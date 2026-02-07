@@ -30,10 +30,12 @@
     text-align: center;
 }
 
-.ox-stage-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
+@media (hover: hover) and (pointer: fine) {
+    .ox-stage-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
+    }
 }
 
 .ox-stage-card:focus {
