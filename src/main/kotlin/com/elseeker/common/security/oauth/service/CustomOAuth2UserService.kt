@@ -1,6 +1,7 @@
 package com.elseeker.common.security.oauth.service
 
 import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.ServiceError
 import com.elseeker.common.domain.throwError
 import com.elseeker.common.security.jwt.JwtProvider
 import com.elseeker.common.security.oauth.factory.OAuth2UserInfoFactory
@@ -15,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
+import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
@@ -33,6 +36,18 @@ class CustomOAuth2UserService(
 
     @Transactional
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
+        try {
+            return doLoadUser(userRequest)
+        } catch (e: ServiceError) {
+            throw OAuth2AuthenticationException(
+                OAuth2Error(e.errorType.name, e.message, null),
+                e.message,
+                e
+            )
+        }
+    }
+
+    private fun doLoadUser(userRequest: OAuth2UserRequest): OAuth2User {
         val oAuth2User = super.loadUser(userRequest)
 
         // 1. Factory를 통해 Provider별 파싱된 정보 획득
