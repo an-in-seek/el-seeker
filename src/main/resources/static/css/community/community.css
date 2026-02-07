@@ -474,16 +474,20 @@ body {
     display: none;
     flex-direction: column;
     gap: 0;
-    margin-bottom: 1.5rem;
     padding: 0 0 1.5rem 0;
     border-bottom: 1px solid var(--comm-border);
 }
 
+.mobile-widgets-area + .feed-list {
+    margin-top: 1.5rem;
+}
+
 .mobile-notice {
-    padding-bottom: 1.5rem;
+    padding-bottom: 0;
 }
 
 .mobile-top3 {
+    margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--comm-border);
 }
