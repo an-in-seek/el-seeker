@@ -187,6 +187,7 @@
     .top-nav-account-item:hover {
         background-color: transparent;
         color: inherit;
+        box-shadow: none;
     }
 }
 
