@@ -408,9 +408,9 @@
         /* Change from absolute positioning relative to self to create bridge */
         position: absolute;
         top: 50%;
-        right: -2.5rem;
+        right: -2rem;
         /* Matches horizontal gap approximately */
-        width: 3rem;
+        width: 2rem;
         /* Bridge the gap */
         height: 3px;
         /* Horizontal line */
@@ -430,8 +430,8 @@
         display: block;
         position: absolute;
         top: 50%;
-        left: -2.5rem;
-        width: 3rem;
+        left: -2rem;
+        width: 2rem;
         height: 3px;
         background: repeating-linear-gradient(to right,
                 var(--flow-color),
@@ -448,10 +448,10 @@
         content: '';
         display: block;
         position: absolute;
-        bottom: -3.5rem;
+        bottom: -3rem;
         left: 50%;
         width: 3px;
-        height: 4rem;
+        height: 3rem;
         background: repeating-linear-gradient(to bottom,
                 var(--flow-color),
                 var(--flow-color) 8px,
