@@ -147,7 +147,6 @@ const ApiService = {
 const DomHelper = {
     getElements: () => {
         const stageList = document.getElementById("stageList");
-        const quizMapNote = document.getElementById("quizMapNote");
         const quizMapTotal = document.getElementById("quizMapTotal");
         const quizMapProgress = document.getElementById("quizMapProgress");
         const quizMapProgressBar = document.getElementById("quizMapProgressBar");
@@ -156,10 +155,9 @@ const DomHelper = {
         const quizMapLoading = document.getElementById("quizMapLoading");
         const quizMapError = document.getElementById("quizMapError");
         const quizMapContent = document.getElementById("quizMapContent");
-        return (stageList && quizMapNote)
+        return stageList
             ? {
                 stageList,
-                quizMapNote,
                 quizMapTotal,
                 quizMapProgress,
                 quizMapProgressBar,
@@ -321,10 +319,6 @@ const DomHelper = {
         }
     },
 
-    showIntro: (elements) => {
-        elements.quizMapNote.textContent = "스테이지를 선택하면 복습 또는 진행을 시작할 수 있습니다.";
-    },
-
     updateSummary: (elements, context, totalStages) => {
         const completed = Math.max(0, Math.min(context.lastCompletedStage, totalStages));
         const progressPercent = totalStages > 0 ? Math.round((completed / totalStages) * 100) : 0;
@@ -398,7 +392,6 @@ const App = {
             stages: response.stages
         };
 
-        DomHelper.showIntro(elements);
         DomHelper.bindEvents(elements);
         DomHelper.render(elements, response.stages);
 
