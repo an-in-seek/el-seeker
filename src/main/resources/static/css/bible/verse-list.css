@@ -42,23 +42,19 @@
     padding: 2px 4px;
 }
 
+/* CSS-only Memo Icon */
 .verse-has-memo {
     position: relative;
 }
 
-/* CSS-only Memo Icon */
-.verse-has-memo {
-    padding-left: 20px;
-    /* Add space for the icon */
-}
-
 /* Emoji Memo Icon */
-.verse-has-memo::before {
+.verse-has-memo::after {
     content: '📝';
-    position: absolute;
-    left: -5px;
-    /* Adjust for emoji width */
-    top: 0.3rem;
+    display: inline-block;
+    margin-left: 0.35rem;
+    vertical-align: baseline;
+    position: relative;
+    top: -0.08em;
     font-size: 0.9rem;
     line-height: 1;
     filter: grayscale(1);
@@ -68,17 +64,12 @@
 }
 
 /* Active/Hover State */
-.verse-has-memo::before,
-.verse-has-memo:hover::before {
+.verse-has-memo::after,
+.verse-has-memo:hover::after {
     filter: grayscale(0);
     /* Full color */
     opacity: 1;
     transform: scale(1.1);
-}
-
-/* Remove old emoji style if present */
-.verse-has-memo::after {
-    display: none;
 }
 
 .highlighted-verse {
