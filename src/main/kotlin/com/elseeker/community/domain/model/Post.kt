@@ -113,6 +113,16 @@ class Post(
         }
     }
 
+    fun addReaction() {
+        statistics.incrementReaction()
+        statistics.recalculateScore()
+    }
+
+    fun removeReaction() {
+        statistics.decrementReaction()
+        statistics.recalculateScore()
+    }
+
     fun deleteBy(actor: Member) {
         ensureEditableBy(actor)
         delete()

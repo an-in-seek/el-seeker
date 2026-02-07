@@ -50,14 +50,6 @@ interface PostRepository : JpaRepository<Post, Long>, KotlinJdslJpqlExecutor {
     fun incrementViewCount(@Param("postId") postId: Long): Int
 
     @Modifying
-    @Query("UPDATE Post p SET p.statistics.reactionCount = p.statistics.reactionCount + 1 WHERE p.id = :postId")
-    fun incrementReactionCount(@Param("postId") postId: Long): Int
-
-    @Modifying
-    @Query("UPDATE Post p SET p.statistics.reactionCount = p.statistics.reactionCount - 1 WHERE p.id = :postId AND p.statistics.reactionCount > 0")
-    fun decrementReactionCount(@Param("postId") postId: Long): Int
-
-    @Modifying
     @Query("UPDATE Post p SET p.statistics.commentCount = p.statistics.commentCount + 1 WHERE p.id = :postId")
     fun incrementCommentCount(@Param("postId") postId: Long): Int
 

@@ -29,4 +29,18 @@ data class PostStatistics(
             score = 0
         )
     }
+
+    fun incrementReaction() {
+        reactionCount += 1
+    }
+
+    fun decrementReaction() {
+        if (reactionCount > 0) {
+            reactionCount -= 1
+        }
+    }
+
+    fun recalculateScore() {
+        score = viewCount + (reactionCount * 5) + (commentCount * 3)
+    }
 }
