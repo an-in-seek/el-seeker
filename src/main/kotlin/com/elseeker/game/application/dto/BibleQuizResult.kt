@@ -44,6 +44,7 @@ data class QuizStageCompleteSnapshot(
 
 data class QuizStageSummarySnapshot(
     val stageNumber: Int,
+    val title: String?,
     val questionCount: Int,
     val status: String,
     val isCompleted: Boolean,

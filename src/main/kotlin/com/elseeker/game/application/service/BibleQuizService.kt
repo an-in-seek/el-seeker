@@ -100,6 +100,7 @@ class BibleQuizService(
             val hasInProgress = stageProgress?.currentQuestionIndex != null
             QuizStageSummarySnapshot(
                 stageNumber = stageNumber,
+                title = summary.title,
                 questionCount = summary.questionCount.toInt(),
                 status = status,
                 isCompleted = isCompleted,

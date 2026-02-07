@@ -15,6 +15,8 @@ data class QuizStageMapResponse(
 data class QuizStageSummaryResponse(
     @field:Schema(description = "스테이지 번호", example = "1")
     val stageNumber: Int,
+    @field:Schema(description = "스테이지 제목", example = "창세기 1장")
+    val title: String?,
     @field:Schema(description = "문제 수", example = "10")
     val questionCount: Int,
     @field:Schema(description = "상태", example = "completed")

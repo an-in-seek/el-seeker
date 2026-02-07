@@ -232,6 +232,12 @@ const DomHelper = {
         number.className = "stage-number";
         number.textContent = `${stageNumber} 스테이지`;
 
+        const title = document.createElement("div");
+        title.className = "stage-title";
+        const titleText = summary.title && summary.title.trim() ? summary.title.trim() : "제목 없음";
+        title.textContent = titleText;
+        title.title = titleText;
+
         const badge = document.createElement("span");
         badge.className = statusBadgeClass;
         if (props.statusIcon) {
@@ -254,6 +260,7 @@ const DomHelper = {
         meta.appendChild(metaText);
 
         button.appendChild(header);
+        button.appendChild(title);
         button.appendChild(meta);
 
         return button;

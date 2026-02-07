@@ -59,6 +59,7 @@ fun QuizStageSummaryMapResult.toResponse(): QuizStageMapResponse {
 private fun QuizStageSummarySnapshot.toResponse(): QuizStageSummaryResponse {
     return QuizStageSummaryResponse(
         stageNumber = stageNumber,
+        title = title,
         questionCount = questionCount,
         status = status,
         isCompleted = isCompleted,

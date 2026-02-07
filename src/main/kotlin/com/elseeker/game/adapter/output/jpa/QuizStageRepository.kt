@@ -41,10 +41,10 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 
     @Query(
         """
-            SELECT stage.stageNumber AS stageNumber, COUNT(question) AS questionCount
+            SELECT stage.stageNumber AS stageNumber, stage.title AS title, COUNT(question) AS questionCount
             FROM QuizStage stage
             LEFT JOIN stage._questions question
-            GROUP BY stage.id, stage.stageNumber
+            GROUP BY stage.id, stage.stageNumber, stage.title
             ORDER BY stage.stageNumber
         """
     )
@@ -68,6 +68,7 @@ interface QuizStageRepository : JpaRepository<QuizStage, Long> {
 
 interface QuizStageSummaryProjection {
     val stageNumber: Int
+    val title: String?
     val questionCount: Long
 }
 
