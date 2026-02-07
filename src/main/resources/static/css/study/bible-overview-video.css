@@ -35,11 +35,13 @@
     color: inherit;
 }
 
-.bible-overview-video-card:hover:not(.is-disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
-    color: inherit;
+@media (hover: hover) and (pointer: fine) {
+    .bible-overview-video-card:hover:not(.is-disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
+        color: inherit;
+    }
 }
 
 .bible-overview-video-card.is-disabled {
@@ -87,8 +89,10 @@
     pointer-events: none;
 }
 
-.bible-overview-video-card:hover:not(.is-disabled) .bible-overview-video-play {
-    background: rgba(220, 38, 38, 0.85);
+@media (hover: hover) and (pointer: fine) {
+    .bible-overview-video-card:hover:not(.is-disabled) .bible-overview-video-play {
+        background: rgba(220, 38, 38, 0.85);
+    }
 }
 
 .bible-overview-video-book-name {

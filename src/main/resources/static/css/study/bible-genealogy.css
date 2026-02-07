@@ -23,9 +23,11 @@
     transition: all 0.15s ease;
 }
 
-.genealogy-tab:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+@media (hover: hover) and (pointer: fine) {
+    .genealogy-tab:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
 }
 
 .genealogy-tab.is-active {
@@ -84,8 +86,10 @@
     transition: box-shadow 0.15s ease;
 }
 
-.genealogy-node:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+@media (hover: hover) and (pointer: fine) {
+    .genealogy-node:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
 }
 
 .genealogy-node-content {
@@ -160,9 +164,11 @@
     transition: all 0.15s ease;
 }
 
-.genealogy-toggle:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+@media (hover: hover) and (pointer: fine) {
+    .genealogy-toggle:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
 }
 
 .genealogy-toggle-icon {
