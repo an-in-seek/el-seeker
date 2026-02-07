@@ -78,16 +78,24 @@ const App = {
 
     handleWriteClick() {
         checkAuthStatus({
-            onAuthenticated: () => {
+            onAuthenticated: (data) => {
+                const nickname = (data?.nickname || "").trim();
+                if (!nickname) {
+                    alert("닉네임을 먼저 입력해 주세요.");
+                    const returnUrl = "/web/community/write";
+                    const params = new URLSearchParams({focus: "nickname", returnUrl});
+                    window.location.href = `/web/member/mypage?${params.toString()}`;
+                    return;
+                }
                 window.location.href = "/web/community/write";
             },
             onUnauthenticated: () => {
                 alert("글 작성은 로그인 후 이용 가능합니다.");
-                window.location.href = buildLoginRedirectUrl("/web/community");
+                window.location.href = buildLoginRedirectUrl("/web/community/write");
             },
             onError: () => {
                 alert("글 작성은 로그인 후 이용 가능합니다.");
-                window.location.href = buildLoginRedirectUrl("/web/community");
+                window.location.href = buildLoginRedirectUrl("/web/community/write");
             },
         });
     },

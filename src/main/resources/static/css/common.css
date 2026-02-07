@@ -206,6 +206,16 @@
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.app-toast.is-error {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.app-toast.is-info {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
 .app-toast.show {
     opacity: 1;
     transform: translateY(0) scale(1);

@@ -1,4 +1,4 @@
-import {buildLoginRedirectUrl, checkAuthStatus, showAuthError} from "/js/auth/auth-check.js";
+import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 
 const roleLabels = {
@@ -32,12 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const roleBadge = document.getElementById("mypageRole");
     const providerBadge = document.getElementById("mypageProvider");
     const avatar = document.getElementById("mypageAvatar");
-    const errorMessage = document.getElementById("mypageErrorMessage");
     const successMessage = document.getElementById("mypageSuccessMessage");
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
     const saveButton = document.getElementById("mypageSaveButton");
     const saveToast = document.getElementById("mypageToast");
+    const saveToastIcon = document.getElementById("mypageToastIcon");
     const saveToastBody = document.getElementById("mypageToastMessage");
     const saveToastClose = document.getElementById("mypageToastClose");
     const oauthActionButtons = document.querySelectorAll(".mypage-oauth-action");
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
             OAUTH_LINK_REQUIRED: "연동 전용 요청입니다. 마이페이지의 연동하기 버튼으로 다시 시도해 주세요.",
             UNKNOWN: "소셜 계정 연동에 실패했습니다. 다시 시도해 주세요.",
         };
-        showAuthError(errorMessage, messages[errorCode] || messages.UNKNOWN);
+        showSaveToast(messages[errorCode] || messages.UNKNOWN, "error");
         params.delete("oauthError");
         const newQuery = params.toString();
         const newUrl = `${window.location.pathname}${newQuery ? `?${newQuery}` : ""}${window.location.hash}`;
@@ -93,10 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (successMessage) {
             successMessage.classList.add("d-none");
             successMessage.textContent = "";
-        }
-        if (errorMessage) {
-            errorMessage.classList.add("d-none");
-            errorMessage.textContent = "";
         }
         if (saveToast) {
             saveToast.classList.remove("show");
@@ -120,10 +116,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const showSaveToast = (message) => {
+    const setToastVariant = (variant) => {
+        if (!saveToast || !saveToastIcon) {
+            return;
+        }
+        saveToast.classList.remove("is-error", "is-info", "is-success");
+        saveToastIcon.classList.remove("success", "error", "info");
+        switch (variant) {
+            case "error":
+                saveToast.classList.add("is-error");
+                saveToastIcon.classList.add("error");
+                break;
+            case "info":
+                saveToast.classList.add("is-info");
+                saveToastIcon.classList.add("info");
+                break;
+            default:
+                saveToast.classList.add("is-success");
+                saveToastIcon.classList.add("success");
+                break;
+        }
+    };
+
+    const showSaveToast = (message, variant = "success") => {
         if (!saveToast) {
             return;
         }
+        setToastVariant(variant);
         if (saveToastBody) {
             saveToastBody.textContent = message;
         }
@@ -294,13 +313,13 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         resetMessages();
         if (!memberUid) {
-            showAuthError(errorMessage, "회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
+            showSaveToast("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error");
             return;
         }
         const provider = target.dataset.provider;
         const providerUserId = target.dataset.providerUserId;
         if (!provider || !providerUserId) {
-            showAuthError(errorMessage, "연동 정보를 확인할 수 없습니다.");
+            showSaveToast("연동 정보를 확인할 수 없습니다.", "error");
             return;
         }
         const providerLabel = providerLabels[provider] || provider;
@@ -329,7 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             if (!response.ok) {
-                showAuthError(errorMessage, "연동 해제에 실패했습니다. 다시 시도해 주세요.");
+                showSaveToast("연동 해제에 실패했습니다. 다시 시도해 주세요.", "error");
                 return;
             }
             if (successMessage) {
@@ -338,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             loadOAuthAccounts();
         } catch (error) {
-            showAuthError(errorMessage, "연동 해제 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            showSaveToast("연동 해제 중 오류가 발생했습니다. 다시 시도해 주세요.", "error");
         } finally {
             button.classList.remove("disabled");
             button.removeAttribute("aria-disabled");
@@ -361,17 +380,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             if (response.status === 403) {
-                showAuthError(errorMessage, "연동 계정 정보를 불러올 수 없습니다.");
+                showSaveToast("연동 계정 정보를 불러올 수 없습니다.", "error");
                 return;
             }
             if (!response.ok) {
-                showAuthError(errorMessage, "연동 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요.");
+                showSaveToast("연동 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요.", "error");
                 return;
             }
             const data = await response.json().catch(() => []);
             renderOAuthAccounts(Array.isArray(data) ? data : []);
         } catch (error) {
-            showAuthError(errorMessage, "연동 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요.");
+            showSaveToast("연동 계정 정보를 불러오지 못했습니다. 다시 시도해 주세요.", "error");
         }
     };
 
@@ -407,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus({
         onAuthenticated: (data) => {
             if (!data) {
-                showAuthError(errorMessage, "회원 정보를 불러오지 못했습니다. 다시 시도해 주세요.");
+                showSaveToast("회원 정보를 불러오지 못했습니다. 다시 시도해 주세요.", "error");
                 return;
             }
 
@@ -442,7 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadOAuthAccounts();
         },
         onUnauthenticated: redirectToLogin,
-        onError: () => showAuthError(errorMessage, "인증 정보를 확인할 수 없습니다. 다시 로그인해 주세요."),
+        onError: () => showSaveToast("인증 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error"),
     });
 
     showOAuthErrorFromUrl();
@@ -453,14 +472,14 @@ document.addEventListener("DOMContentLoaded", () => {
             resetMessages();
 
             if (!memberUid) {
-                showAuthError(errorMessage, "회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
+                showSaveToast("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error");
                 return;
             }
 
             const nicknameValue = nicknameInput ? nicknameInput.value.trim() : "";
 
             if (!nicknameValue) {
-                showAuthError(errorMessage, "닉네임을 입력해 주세요.");
+                showSaveToast("닉네임을 입력해 주세요.", "error");
                 return;
             }
 
@@ -485,13 +504,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (response.status === 403) {
-                    showAuthError(errorMessage, "회원 정보에 접근할 수 없습니다.");
+                    showSaveToast("회원 정보에 접근할 수 없습니다.", "error");
                     return;
                 }
 
                 if (!response.ok) {
                     const error = await response.json().catch(() => null);
-                    showAuthError(errorMessage, error?.message || "회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+                    showSaveToast(error?.message || "회원 정보 수정에 실패했습니다. 다시 시도해 주세요.", "error");
                     return;
                 }
 
@@ -517,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 300);
                 }
             } catch (error) {
-                showAuthError(errorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+                showSaveToast("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
             } finally {
                 setFormEnabled(true);
             }
