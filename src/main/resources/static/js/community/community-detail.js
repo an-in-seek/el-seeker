@@ -22,6 +22,7 @@ const UI_CLASSES = {
 const App = {
     state: {
         postId: null,
+        postAuthorNickname: null,
         commentPage: 0,
         commentHasNext: true,
         commentLoading: false,
@@ -46,6 +47,7 @@ const App = {
         App.bindCommentForm();
         App.bindCommentActions();
         App.bindReportPost();
+        App.bindPostOwnerActions();
         App.loadPost();
         App.loadComments();
         App.bindCommentMore();
@@ -103,6 +105,7 @@ const App = {
         App.state.auth.user = user;
         App.state.auth.checking = false;
         App.refreshCommentActions();
+        App.refreshPostOwnerActions();
     },
 
     async ensureAuth() {
@@ -138,9 +141,11 @@ const App = {
     },
 
     renderPost(post) {
+        App.state.postAuthorNickname = post.authorNickname || null;
         App.setText("postTitle", post.title || "");
         App.setText("postAuthor", post.authorNickname || "익명");
         App.setText("postTime", App.formatRelativeTime(post.createdAt));
+        App.refreshPostOwnerActions();
         App.setText("postViewCount", formatNumberWithComma(post.viewCount || 0));
         App.setText("postReactionCount", formatNumberWithComma(post.reactionCount || 0));
         App.setText("postCommentCount", formatNumberWithComma(post.commentCount || 0));
@@ -334,6 +339,73 @@ const App = {
                 button.hidden = !canManage;
             });
         });
+    },
+
+    canManagePost() {
+        const user = App.state.auth.user;
+        if (!user) return false;
+        if (user.role === "ADMIN") return true;
+        const authorNickname = (App.state.postAuthorNickname || "").trim();
+        return authorNickname && authorNickname === user.nickname;
+    },
+
+    refreshPostOwnerActions() {
+        const container = document.getElementById("postOwnerActions");
+        if (!container) return;
+        container.hidden = !App.canManagePost();
+    },
+
+    bindPostOwnerActions() {
+        const editBtn = document.getElementById("btnEditPost");
+        const deleteBtn = document.getElementById("btnDeletePost");
+
+        if (editBtn) {
+            editBtn.addEventListener("click", () => {
+                App.handleEditPost();
+            });
+        }
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", () => {
+                App.handleDeletePost();
+            });
+        }
+    },
+
+    handleEditPost() {
+        window.location.href = `/web/community/write?postId=${App.state.postId}`;
+    },
+
+    async handleDeletePost() {
+        if (!window.confirm("게시글을 삭제하시겠습니까?")) return;
+
+        const allowed = await App.ensureAuth();
+        if (!allowed) return;
+
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.POST_DETAIL}/${App.state.postId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`게시글 삭제 실패 (${response.status})`);
+            }
+
+            window.location.href = "/web/community";
+        } catch (error) {
+            alert("게시글 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
     },
 
     bindCommentActions() {
