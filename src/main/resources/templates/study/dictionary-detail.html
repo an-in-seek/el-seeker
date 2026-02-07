@@ -34,7 +34,7 @@
                             <span class="section-icon">🔗</span> 관련 성경 구절
                         </h2>
                         <div class="related-verses-box">
-                            <div class="related-verses-content" style="white-space: pre-line"
+                            <div class="related-verses-content"
                                  th:classappend="${dictionary.relatedVerses.isBlank()} ? 'empty-text' : ''"
                                  th:text="${dictionary.relatedVerses.isBlank()} ? '등록된 관련 구절이 없습니다.' : ${dictionary.relatedVerses}">
                                 관련 성경 구절

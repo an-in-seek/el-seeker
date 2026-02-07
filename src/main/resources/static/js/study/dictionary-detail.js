@@ -7,7 +7,8 @@ const DomHelper = {
         const get = id => document.getElementById(id);
         return {
             backButton: get("topNavBackButton"),
-            pageTitleLabel: get("pageTitleLabel")
+            pageTitleLabel: get("pageTitleLabel"),
+            relatedVerses: document.querySelector(".related-verses-content")
         };
     }
 };
@@ -17,6 +18,7 @@ const App = {
     init: () => {
         App.elements = DomHelper.getElements();
         App.initNav();
+        App.renderRelatedVersesTags();
     },
 
     initNav: () => {
@@ -32,6 +34,34 @@ const App = {
                 window.location.href = backLink;
             });
         }
+    },
+
+    renderRelatedVersesTags: () => {
+        const {relatedVerses} = App.elements;
+        if (!relatedVerses || relatedVerses.classList.contains("empty-text")) {
+            return;
+        }
+        const rawText = relatedVerses.textContent?.trim();
+        if (!rawText) {
+            return;
+        }
+        const parts = rawText
+            .split(/\s*,\s*|\n+/)
+            .map(part => part.trim())
+            .filter(Boolean);
+        if (parts.length === 0) {
+            return;
+        }
+        const container = document.createElement("div");
+        container.className = "related-verses-tags";
+        parts.forEach(part => {
+            const tag = document.createElement("span");
+            tag.className = "related-verse-tag";
+            tag.textContent = part;
+            tag.title = part;
+            container.appendChild(tag);
+        });
+        relatedVerses.replaceChildren(container);
     }
 };
 

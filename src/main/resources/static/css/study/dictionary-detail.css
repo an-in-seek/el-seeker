@@ -128,7 +128,7 @@ body {
     line-height: 1.8;
     color: #4a5568;
     white-space: pre-line;
-    text-align: justify;
+    text-align: left;
     word-break: keep-all;
 }
 
@@ -156,6 +156,26 @@ body {
     color: #2d3748;
     position: relative;
     z-index: 1;
+}
+
+.related-verses-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.related-verse-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #4a5568;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-family: "Manrope", sans-serif;
 }
 
 /* Decorative Quote Icon */
