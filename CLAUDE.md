@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Gradle 8.12.1, Java 21 toolchain, Kotlin 1.9.25, Spring Boot 3.5.9
 - No linter or formatter configured
+- **프론트엔드 전용 변경(HTML, CSS, JS, Thymeleaf 템플릿)만 수행한 경우 `./gradlew build` 또는 `./gradlew test`를 실행하지 않는다.** Kotlin/Java 코드 변경이 포함된 경우에만 빌드/테스트를 실행한다.
 
 ## Architecture
 

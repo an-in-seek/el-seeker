@@ -25,6 +25,7 @@
 - `./gradlew test`: run unit tests with JUnit 5.
 - `./gradlew bootJar`: build the runnable Spring Boot artifact.
 - Gradle toolchain targets Java 21; Kotlin 1.9.x + Spring Boot 3.5.x.
+- **프론트엔드 전용 변경(HTML, CSS, JS, Thymeleaf 템플릿)만 수행한 경우 `./gradlew build` 또는 `./gradlew test`를 실행하지 않는다.** Kotlin/Java 코드 변경이 포함된 경우에만 빌드/테스트를 실행한다.
 
 ## Coding Style & Naming Conventions
 - Kotlin + Spring Boot 3; keep idiomatic Kotlin (data classes, null-safety) and Spring annotations.
