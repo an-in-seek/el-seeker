@@ -122,8 +122,10 @@ body {
     color: var(--write-text-sub);
 }
 
-.btn-cancel:hover {
-    background: #e2e8f0;
+@media (hover: hover) and (pointer: fine) {
+    .btn-cancel:hover {
+        background: #e2e8f0;
+    }
 }
 
 .btn-submit {
@@ -132,9 +134,11 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.btn-submit:hover {
-    background: #0f172a;
-    transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+    .btn-submit:hover {
+        background: #0f172a;
+        transform: translateY(-1px);
+    }
 }
 
 .btn-submit:disabled {

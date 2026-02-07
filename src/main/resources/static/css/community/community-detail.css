@@ -137,17 +137,19 @@
     font-weight: 500;
 }
 
-.post-owner-action:hover {
-    color: var(--comm-primary);
-    border-color: var(--comm-primary);
-    background: #eef2ff;
-    transform: translateY(-1px);
-}
+@media (hover: hover) and (pointer: fine) {
+    .post-owner-action:hover {
+        color: var(--comm-primary);
+        border-color: var(--comm-primary);
+        background: #eef2ff;
+        transform: translateY(-1px);
+    }
 
-.post-owner-action-delete:hover {
-    color: #ef4444;
-    border-color: #ef4444;
-    background: #fef2f2;
+    .post-owner-action-delete:hover {
+        color: #ef4444;
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
 }
 
 .detail-author-name {
@@ -208,11 +210,18 @@
     color: var(--comm-text-main);
 }
 
-.btn-like:hover,
 .btn-like.active {
     border-color: #ef4444;
     color: #ef4444;
     background: #fef2f2;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .btn-like:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: #fef2f2;
+    }
 }
 
 .btn-like.active .icon {
@@ -232,16 +241,18 @@
     cursor: not-allowed;
 }
 
-.btn-share:hover {
-    border-color: var(--comm-primary);
-    color: var(--comm-primary);
-    background: #eef2ff;
-}
+@media (hover: hover) and (pointer: fine) {
+    .btn-share:hover {
+        border-color: var(--comm-primary);
+        color: var(--comm-primary);
+        background: #eef2ff;
+    }
 
-.btn-report:hover {
-    border-color: #f97316;
-    color: #f97316;
-    background: #fff7ed;
+    .btn-report:hover {
+        border-color: #f97316;
+        color: #f97316;
+        background: #fff7ed;
+    }
 }
 
 /* Comments Section */
@@ -342,11 +353,13 @@
     user-select: none;
 }
 
-.report-option:hover {
-    background-color: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+@media (hover: hover) and (pointer: fine) {
+    .report-option:hover {
+        background-color: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 }
 
 /* Checked State Styling */
@@ -415,7 +428,7 @@
     box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
     .report-actions .btn-cancel:hover {
         transform: translateY(-1px);
         border-color: #cbd5e1;
@@ -492,8 +505,10 @@
     transition: background 0.2s;
 }
 
-.btn-submit-comment:hover {
-    background: black;
+@media (hover: hover) and (pointer: fine) {
+    .btn-submit-comment:hover {
+        background: black;
+    }
 }
 
 .comment-list {
@@ -560,8 +575,10 @@
     cursor: pointer;
 }
 
-.comment-action:hover {
-    color: var(--comm-text-main);
+@media (hover: hover) and (pointer: fine) {
+    .comment-action:hover {
+        color: var(--comm-text-main);
+    }
 }
 
 .comment-action[disabled] {

@@ -45,6 +45,7 @@ Modules: `bible`, `study`, `game`, `member`, `auth`, `common`
 - Thymeleaf templates in `src/main/resources/templates/` using fragments (`fragments/head.html`, `fragments/header.html`)
 - JavaScript: ES6 modules (`type="module"`), no bundler. Shared utils in `/js/storage-util.js` and `/js/common-util.js`
 - CSS: Bootstrap 5.3 via WebJars + feature-specific CSS files. BEM-like naming per feature (e.g., `genealogy-node`, `bible-overview-video-card`)
+- Hover styles: desktop-only via `@media (hover: hover) and (pointer: fine)`. Avoid hover-based UX for touch/mobile.
 - Client-only pages (no server API): `bible-overview-video`, `bible-genealogy` — data is static JS arrays
 
 ## Auth & Security

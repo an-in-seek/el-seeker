@@ -32,6 +32,7 @@
 - SQL seed files follow `bible_krv_XX_<book>.sql` in `src/main/resources/data/krv`.
 - No formatter or linter is configured; avoid reformatting unrelated files.
 - Frontend JS: prefer ES module scripts (`type="module"`); avoid IIFEs and `'use strict'` in module files. Use explicit `import`/`export` instead of globals.
+- Hover styles: apply only on desktop (mouse) using `@media (hover: hover) and (pointer: fine)`. Do not design hover-based UX for touch/mobile.
 - Swagger/OpenAPI annotations should live in `*ApiDocument` interfaces (controllers implement them).
 - Web UI back navigation should use the shared top nav back button (`#topNavBackButton`) instead of page-level back links. Use `data-back-link` on `<body>` when a custom target is needed.
 

@@ -98,10 +98,12 @@ body {
     /* Overlap with container border */
 }
 
-.community-tab:hover {
-    background: transparent;
-    color: var(--comm-text-main);
-    border-bottom-color: #cbd5e1;
+@media (hover: hover) and (pointer: fine) {
+    .community-tab:hover {
+        background: transparent;
+        color: var(--comm-text-main);
+        border-bottom-color: #cbd5e1;
+    }
 }
 
 .community-tab.active {
@@ -145,9 +147,11 @@ body {
     }
 }
 
-.feed-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--comm-shadow-hover);
+@media (hover: hover) and (pointer: fine) {
+    .feed-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--comm-shadow-hover);
+    }
 }
 
 .feed-top-row {
@@ -281,9 +285,11 @@ body {
     opacity: 1;
 }
 
-.feed-card:hover .icon {
-    filter: grayscale(0);
-    opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+    .feed-card:hover .icon {
+        filter: grayscale(0);
+        opacity: 1;
+    }
 }
 
 
@@ -317,8 +323,10 @@ body {
     text-decoration: none;
 }
 
-.widget-more:hover {
-    color: var(--comm-primary);
+@media (hover: hover) and (pointer: fine) {
+    .widget-more:hover {
+        color: var(--comm-primary);
+    }
 }
 
 /* Write Widget */
@@ -346,10 +354,12 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.btn-write-full:hover {
-    transform: translateY(-2px);
-    background: #0f172a;
-    box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+@media (hover: hover) and (pointer: fine) {
+    .btn-write-full:hover {
+        transform: translateY(-2px);
+        background: #0f172a;
+        box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+    }
 }
 
 .write-help {
@@ -385,8 +395,10 @@ body {
     transition: background 0.2s;
 }
 
-.pinned-notice-item:hover {
-    background: #fef3c7;
+@media (hover: hover) and (pointer: fine) {
+    .pinned-notice-item:hover {
+        background: #fef3c7;
+    }
 }
 
 .pinned-title {
@@ -632,9 +644,11 @@ body {
     transform: translateY(0);
 }
 
-.scroll-to-top-btn:hover {
-    opacity: 1;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+@media (hover: hover) and (pointer: fine) {
+    .scroll-to-top-btn:hover {
+        opacity: 1;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+    }
 }
 
 @media (max-width: 992px) {
