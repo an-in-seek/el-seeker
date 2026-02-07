@@ -223,8 +223,8 @@ const App = {
                 throw new Error(error?.message || `게시글 ${action}에 실패했습니다.`);
             }
 
-            const post = await response.json();
-            window.location.href = `/web/community/${post.id}`;
+            await response.json().catch(() => null);
+            window.location.href = "/web/community";
         } catch (error) {
             alert(error.message || "요청에 실패했습니다. 잠시 후 다시 시도해주세요.");
         } finally {

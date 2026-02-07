@@ -151,16 +151,31 @@ body {
 @media (max-width: 576px) {
     .write-form {
         padding: 1.25rem;
+        padding-bottom: calc(1.25rem + 5rem);
         border-radius: var(--write-radius-md);
     }
 
     .form-actions {
-        flex-direction: column-reverse;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+        margin: 0;
+        padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+        background: #ffffff;
+        border-top: 1px solid var(--write-border);
+        box-shadow: 0 -8px 16px rgba(15, 23, 42, 0.08);
+        flex-direction: row;
     }
 
     .btn-cancel,
     .btn-submit {
-        width: 100%;
+        flex: 1;
         text-align: center;
+    }
+
+    .btn-submit {
+        flex: 2;
     }
 }
