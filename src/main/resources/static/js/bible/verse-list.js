@@ -474,6 +474,9 @@ async function handleVerseClick(event) {
         return;
     }
     const verseNum = verseEl.getAttribute("data-verse");
+    if (verseEl.classList.contains("verse-has-memo")) {
+        showMemo(verseNum);
+    }
     toggleVerseSelection(verseNum);
 }
 
