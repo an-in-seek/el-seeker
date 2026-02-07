@@ -44,19 +44,41 @@
 
 .verse-has-memo {
     position: relative;
-    background-color: #f3f9ff;
-    border-left: 4px solid #0d6efd;
-    padding-left: 2.0rem;
-    /* 아이콘 공간 확보 */
 }
 
+/* CSS-only Memo Icon */
+.verse-has-memo {
+    padding-left: 20px;
+    /* Add space for the icon */
+}
+
+/* Emoji Memo Icon */
 .verse-has-memo::before {
-    content: "💬";
+    content: '📝';
     position: absolute;
-    left: 0.5rem;
-    top: 0.2rem;
-    font-size: 1rem;
-    opacity: 0.7;
+    left: -5px;
+    /* Adjust for emoji width */
+    top: 0.3rem;
+    font-size: 0.9rem;
+    line-height: 1;
+    filter: grayscale(1);
+    /* Muted by default */
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+/* Active/Hover State */
+.verse-has-memo::before,
+.verse-has-memo:hover::before {
+    filter: grayscale(0);
+    /* Full color */
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Remove old emoji style if present */
+.verse-has-memo::after {
+    display: none;
 }
 
 .highlighted-verse {
@@ -178,17 +200,17 @@
 }
 
 /* 아이템 간 간격 (Gap 대신 사용) */
-.verse-fab-item + .verse-fab-item {
+.verse-fab-item+.verse-fab-item {
     margin-top: 0.75rem;
 }
 
-.verse-fab-item + .verse-fab-submenu {
+.verse-fab-item+.verse-fab-submenu {
     /* 서브메뉴가 열릴 때만 간격 적용을 위해 트랜지션 처리 */
     margin-top: 0;
     transition: margin-top 0.2s ease-in;
 }
 
-.verse-fab.is-open .verse-fab-item + .verse-fab-submenu.is-open {
+.verse-fab.is-open .verse-fab-item+.verse-fab-submenu.is-open {
     margin-top: 0.5rem;
     /* 기존 gap보다 약간 좁게 조정 or 0.75rem */
     transition: margin-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -276,10 +298,10 @@
 
     /* 닫힐 때: 빠르고 부드럽게 */
     transition: opacity 0.2s ease-in,
-    transform 0.2s ease-in,
-    max-height 0.2s ease-in,
-    padding-top 0.2s ease-in,
-    visibility 0.2s ease-in;
+        transform 0.2s ease-in,
+        max-height 0.2s ease-in,
+        padding-top 0.2s ease-in,
+        visibility 0.2s ease-in;
 }
 
 .verse-fab-submenu.is-open {
@@ -293,10 +315,10 @@
 
     /* 열릴 때: 바운스 효과 */
     transition: opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    padding-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    visibility 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        padding-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        visibility 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .verse-fab-color {
