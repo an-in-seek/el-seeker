@@ -33,6 +33,8 @@ const App = {
         commentHasNext: true,
         commentLoading: false,
         commentInputAuthChecked: false,
+        likeActive: false,
+        likeLoading: false,
         auth: {
             checked: false,
             allowed: false,
@@ -46,6 +48,7 @@ const App = {
         App.initNav();
         App.initScrollTop();
         App.initWidgetLinks();
+        App.bindLikeButton();
         App.loadTopPosts();
         App.loadNoticePosts();
 
@@ -163,6 +166,9 @@ const App = {
         App.setText("postCommentCount", formatNumberWithComma(post.commentCount || 0));
         App.setText("commentCountLabel", formatNumberWithComma(post.commentCount || 0));
         App.setText("likeCountLabel", formatNumberWithComma(post.reactionCount || 0));
+
+        const liked = Boolean(post.isLiked ?? post.hasReacted ?? post.isReacted ?? false);
+        App.setLikeState(liked);
 
         const typeLabel = TYPE_LABELS[post.type] || post.type || "기타";
         App.setText("postTypeBadge", typeLabel);
@@ -382,6 +388,49 @@ const App = {
 
             App.reportPost(reason);
         });
+    },
+
+    bindLikeButton() {
+        const button = document.getElementById("btnLike");
+        if (!button) return;
+
+        button.addEventListener("click", async () => {
+            if (App.state.likeLoading) return;
+            const allowed = await App.ensureAuth();
+            if (!allowed) return;
+
+            App.state.likeLoading = true;
+            button.disabled = true;
+
+            try {
+                if (App.state.likeActive) {
+                    const removed = await App.removeLike();
+                    if (removed) {
+                        App.setLikeState(false);
+                        App.updateReactionCountBy(-1);
+                    }
+                } else {
+                    const result = await App.addLike();
+                    if (result === "added") {
+                        App.setLikeState(true);
+                        App.updateReactionCountBy(1);
+                    } else if (result === "exists") {
+                        App.setLikeState(true);
+                    }
+                }
+            } finally {
+                App.state.likeLoading = false;
+                button.disabled = false;
+            }
+        });
+    },
+
+    setLikeState(active) {
+        App.state.likeActive = Boolean(active);
+        const button = document.getElementById("btnLike");
+        if (button) {
+            button.classList.toggle("active", App.state.likeActive);
+        }
     },
 
     async reportPost(reason) {
@@ -797,6 +846,83 @@ const App = {
         }
     },
 
+    async addLike() {
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.POST_DETAIL}/${App.state.postId}/reactions`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ type: "LIKE" }),
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return "unauthorized";
+            }
+
+            if (response.ok) {
+                return "added";
+            }
+
+            if (response.status === 400) {
+                const errorMessage = await App.readErrorMessage(response);
+                if (errorMessage && errorMessage.includes("이미 반응한")) {
+                    return "exists";
+                }
+            }
+        } catch (error) {
+            console.warn(error.message);
+        }
+        return "error";
+    },
+
+    async removeLike() {
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.POST_DETAIL}/${App.state.postId}/reactions/LIKE`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return false;
+            }
+
+            if (response.ok) {
+                return true;
+            }
+
+            if (response.status === 404) {
+                App.setLikeState(false);
+                return false;
+            }
+        } catch (error) {
+            console.warn(error.message);
+        }
+        return false;
+    },
+
+    async readErrorMessage(response) {
+        try {
+            const data = await response.json();
+            return data?.message || "";
+        } catch (error) {
+            return "";
+        }
+    },
+
     appendNewComment(comment) {
         const list = document.getElementById("commentList");
         if (!list) return;
@@ -825,6 +951,17 @@ const App = {
         if (element) {
             element.textContent = value;
         }
+    },
+
+    updateReactionCountBy(delta) {
+        const targets = ["postReactionCount", "likeCountLabel"];
+        targets.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) return;
+            const current = App.parseNumber(element.textContent);
+            const next = Math.max(current + delta, 0);
+            element.textContent = formatNumberWithComma(next);
+        });
     },
 
     async loadTopPosts() {

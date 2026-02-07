@@ -215,6 +215,18 @@
     background: #fef2f2;
 }
 
+.btn-like.active .icon {
+    color: #ef4444;
+    filter: none;
+    opacity: 1;
+}
+
+.btn-share .icon,
+.btn-report .icon {
+    filter: none;
+    opacity: 1;
+}
+
 .btn-share:hover {
     border-color: var(--comm-primary);
     color: var(--comm-primary);

@@ -70,6 +70,8 @@ data class PostDetailResponse(
     val isHtml: Boolean,
     @field:Schema(description = "요청자가 작성자인지 여부")
     val isAuthor: Boolean,
+    @field:Schema(description = "요청자 좋아요 여부")
+    val isLiked: Boolean,
     @field:Schema(description = "작성일시 (UTC)")
     val createdAt: Instant,
     @field:Schema(description = "수정일시 (UTC)")
