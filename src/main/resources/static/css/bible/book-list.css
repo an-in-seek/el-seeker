@@ -16,8 +16,10 @@
     font-size: 1rem;
 }
 
-.book-tile:hover {
-    background-color: #e2e6ea;
+@media (hover: hover) and (pointer: fine) {
+    .book-tile:hover {
+        background-color: #e2e6ea;
+    }
 }
 
 .book-sections {

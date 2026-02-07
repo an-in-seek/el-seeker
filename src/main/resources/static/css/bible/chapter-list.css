@@ -13,9 +13,11 @@
     text-decoration: none;
 }
 
-.book-description:hover {
-    background-color: #e2e6ea;
-    text-decoration: none;
+@media (hover: hover) and (pointer: fine) {
+    .book-description:hover {
+        background-color: #e2e6ea;
+        text-decoration: none;
+    }
 }
 
 .book-description-row {
@@ -52,6 +54,8 @@
     font-size: 1rem;
 }
 
-.chapter-tile:hover {
-    background-color: #e2e6ea;
+@media (hover: hover) and (pointer: fine) {
+    .chapter-tile:hover {
+        background-color: #e2e6ea;
+    }
 }

@@ -94,6 +94,19 @@
         border-color: #0d6efd !important;
         box-shadow: none !important;
     }
+
+    .btn-outline-secondary:hover,
+    .btn-outline-secondary:focus,
+    .btn-outline-secondary:active,
+    .btn-outline-secondary.show {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .list-group-item-action:hover,
+    .list-group-item-action:focus {
+        background-color: transparent !important;
+    }
 }
 
 .btn-outline-primary {

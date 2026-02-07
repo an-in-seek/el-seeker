@@ -137,10 +137,12 @@
     z-index: 2;
 }
 
-.verse-fab-toggle:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 6px 14px rgba(13, 110, 253, 0.3);
-    background: linear-gradient(135deg, #0b5ed7, #084298);
+@media (hover: hover) and (pointer: fine) {
+    .verse-fab-toggle:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 6px 14px rgba(13, 110, 253, 0.3);
+        background: linear-gradient(135deg, #0b5ed7, #084298);
+    }
 }
 
 .verse-fab-toggle:active {
@@ -238,11 +240,13 @@
     transition-delay: 0.2s;
 }
 
-.verse-fab-item:hover {
-    background: #f8f9fa;
-    color: #0d6efd;
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+@media (hover: hover) and (pointer: fine) {
+    .verse-fab-item:hover {
+        background: #f8f9fa;
+        color: #0d6efd;
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
 }
 
 .verse-fab-item-icon {
