@@ -308,13 +308,12 @@ const App = {
             badges.appendChild(popularBadge);
         }
 
-        topRow.appendChild(badges);
-        card.appendChild(topRow);
-
         const title = document.createElement("h4");
         title.className = "feed-title";
         title.textContent = post.title || "";
-        card.appendChild(title);
+        topRow.appendChild(badges);
+        topRow.appendChild(title);
+        card.appendChild(topRow);
 
         const previewText = post.preview || post.summary || "";
         if (previewText) {
@@ -609,13 +608,12 @@ const App = {
         categoryBadge.textContent = App.getTypeLabel(post.type);
         badges.appendChild(categoryBadge);
 
-        topRow.appendChild(badges);
-        card.appendChild(topRow);
-
         const title = document.createElement("h4");
         title.className = "feed-title";
         title.textContent = post.title || "";
-        card.appendChild(title);
+        topRow.appendChild(badges);
+        topRow.appendChild(title);
+        card.appendChild(topRow);
 
         const footer = document.createElement("div");
         footer.className = "feed-footer";
