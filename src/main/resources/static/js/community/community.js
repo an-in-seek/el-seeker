@@ -149,6 +149,11 @@ const App = {
     },
 
     getInitialCategory() {
+        const params = new URLSearchParams(window.location.search);
+        const paramCategory = params.get("category");
+        if (paramCategory && CATEGORY_CONFIG[paramCategory]) {
+            return paramCategory;
+        }
         const activeTab = document.querySelector(".community-tab.active");
         return activeTab?.dataset.category || "all";
     },

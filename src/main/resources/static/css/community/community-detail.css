@@ -150,9 +150,6 @@
     background: #fef2f2;
 }
 
-}
-}
-
 .detail-author-name {
     font-weight: 700;
     color: var(--comm-text-main);
@@ -174,7 +171,7 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.9rem;
-    color: var(--comm-text-sub);
+    color: var(--comm-text-main);
     font-weight: 500;
 }
 

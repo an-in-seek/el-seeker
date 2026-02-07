@@ -2,11 +2,18 @@ import { formatNumberWithComma, fetchWithAuthRetry } from "/js/common-util.js";
 import { buildLoginRedirectUrl, checkAuthStatus } from "/js/auth/auth-check.js";
 
 const API = {
+    POSTS: "/api/v1/community/posts",
     POST_DETAIL: "/api/v1/community/posts",
     COMMENTS: "/api/v1/community/posts",
+    TOP_POSTS: "/api/v1/community/posts/top",
 };
 
 const COMMENT_PAGE_SIZE = 20;
+const NOTICE_PAGE_SIZE = 1;
+const NOTICE_TYPE = "NOTICE";
+const NOTICE_CATEGORY = "공지";
+const POPULAR_CATEGORY = "인기";
+const COMMUNITY_LIST_URL = "/web/community";
 
 const TYPE_LABELS = {
     FREE: "자유",
@@ -34,15 +41,19 @@ const App = {
     },
 
     init() {
+        App.initAuth();
+        App.initNav();
+        App.initScrollTop();
+        App.initWidgetLinks();
+        App.loadTopPosts();
+        App.loadNoticePosts();
+
         App.state.postId = App.getPostId();
         if (!App.state.postId) {
             App.showContentError("유효하지 않은 게시글입니다.");
             return;
         }
 
-        App.initAuth();
-        App.initNav();
-        App.initScrollTop();
         App.bindCommentForm();
         App.bindCommentActions();
         App.bindReportPost();
@@ -188,6 +199,28 @@ const App = {
                 window.location.href = backLink;
             });
         }
+    },
+
+    initWidgetLinks() {
+        const noticeLinks = document.querySelectorAll(".notice-widget .notice-more");
+        noticeLinks.forEach(link => {
+            const href = App.buildCommunityListUrl(NOTICE_CATEGORY);
+            link.setAttribute("href", href);
+            link.addEventListener("click", event => {
+                event.preventDefault();
+                window.location.href = href;
+            });
+        });
+
+        const top3Links = document.querySelectorAll(".top3-widget .widget-more");
+        top3Links.forEach(link => {
+            const href = App.buildCommunityListUrl(POPULAR_CATEGORY);
+            link.setAttribute("href", href);
+            link.addEventListener("click", event => {
+                event.preventDefault();
+                window.location.href = href;
+            });
+        });
     },
 
     async loadComments() {
@@ -739,6 +772,203 @@ const App = {
         if (element) {
             element.textContent = value;
         }
+    },
+
+    async loadTopPosts() {
+        try {
+            const response = await fetch(API.TOP_POSTS, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`인기글 조회 실패 (${response.status})`);
+            }
+            const posts = await response.json();
+            App.renderTopPosts(posts || []);
+        } catch (error) {
+            // Fail silently; keep empty state text in the widget.
+        }
+    },
+
+    renderTopPosts(posts) {
+        const lists = document.querySelectorAll(".top3-list");
+        if (lists.length === 0) return;
+
+        const visiblePosts = (posts || []).filter(post => post?.type !== NOTICE_TYPE);
+
+        lists.forEach(list => {
+            const cardClass = list.dataset.cardClass || "";
+            list.innerHTML = "";
+
+            if (!visiblePosts || visiblePosts.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "top3-empty";
+                empty.textContent = "인기글이 아직 없습니다.";
+                list.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            visiblePosts.slice(0, 3).forEach((post, index) => {
+                fragment.appendChild(App.createTopPostCard(post, index + 1, cardClass));
+            });
+
+            list.appendChild(fragment);
+        });
+    },
+
+    createTopPostCard(post, rank, cardClass) {
+        const card = document.createElement("a");
+        card.className = ["feed-card", cardClass].filter(Boolean).join(" ");
+        card.dataset.rank = String(rank);
+        card.href = App.buildPostUrl(post.id);
+
+        const topRow = document.createElement("div");
+        topRow.className = "feed-top-row";
+
+        const badges = document.createElement("div");
+        badges.className = "feed-badges";
+
+        const categoryBadge = document.createElement("span");
+        categoryBadge.className = "feed-category-badge";
+        categoryBadge.textContent = App.getTypeLabel(post.type);
+        badges.appendChild(categoryBadge);
+
+        const title = document.createElement("h4");
+        title.className = "feed-title";
+        title.textContent = post.title || "";
+
+        topRow.appendChild(badges);
+        topRow.appendChild(title);
+        card.appendChild(topRow);
+
+        const footer = document.createElement("div");
+        footer.className = "feed-footer";
+
+        const actions = document.createElement("div");
+        actions.className = "feed-actions";
+        actions.appendChild(App.createActionPill("👀", post.viewCount));
+        actions.appendChild(App.createActionPill("❤️", post.reactionCount));
+        actions.appendChild(App.createActionPill("💬", post.commentCount));
+
+        footer.appendChild(actions);
+        card.appendChild(footer);
+
+        return card;
+    },
+
+    createActionPill(icon, value) {
+        const pill = document.createElement("span");
+        pill.className = "action-pill";
+
+        const iconSpan = document.createElement("i");
+        iconSpan.className = "icon";
+        iconSpan.textContent = icon;
+
+        const text = document.createTextNode(` ${formatNumberWithComma(value || 0)}`);
+
+        pill.appendChild(iconSpan);
+        pill.appendChild(text);
+        return pill;
+    },
+
+    getTypeLabel(type) {
+        return TYPE_LABELS[type] || type || "기타";
+    },
+
+    async loadNoticePosts() {
+        const lists = document.querySelectorAll(".notice-list");
+        if (lists.length === 0) return;
+
+        const params = new URLSearchParams();
+        params.set("page", "0");
+        params.set("size", String(NOTICE_PAGE_SIZE));
+        params.set("order", "latest");
+        params.set("type", NOTICE_TYPE);
+
+        try {
+            const response = await fetch(`${API.POSTS}?${params.toString()}`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`공지사항 조회 실패 (${response.status})`);
+            }
+            const payload = await response.json();
+            App.renderNoticePosts(payload?.content || []);
+        } catch (error) {
+            App.renderNoticePosts([]);
+        }
+    },
+
+    renderNoticePosts(posts) {
+        const lists = document.querySelectorAll(".notice-list");
+        if (lists.length === 0) return;
+
+        const visiblePosts = (posts || []).slice(0, 1);
+
+        lists.forEach(list => {
+            list.innerHTML = "";
+
+            if (!visiblePosts || visiblePosts.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "notice-empty";
+                empty.textContent = "공지사항이 없습니다.";
+                list.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            visiblePosts.forEach(post => {
+                fragment.appendChild(App.createNoticeItem(post));
+            });
+            list.appendChild(fragment);
+        });
+    },
+
+    createNoticeItem(post) {
+        const item = document.createElement("a");
+        item.className = "pinned-notice-item";
+        item.href = App.buildPostUrl(post.id);
+
+        const title = document.createElement("span");
+        title.className = "pinned-title";
+        title.textContent = post.title || "공지사항";
+
+        const date = document.createElement("span");
+        date.className = "pinned-date";
+        date.textContent = App.formatDate(post.createdAt);
+
+        item.appendChild(title);
+        item.appendChild(date);
+        return item;
+    },
+
+    formatDate(isoString) {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+        if (Number.isNaN(date.getTime())) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}.${month}.${day}`;
+    },
+
+    buildCommunityListUrl(category) {
+        const url = new URL(COMMUNITY_LIST_URL, window.location.origin);
+        if (category) {
+            url.searchParams.set("category", category);
+        }
+        return `${url.pathname}${url.search}`;
+    },
+
+    buildPostUrl(id) {
+        if (!id) return "#";
+        return `/web/community/${id}`;
     },
 
     formatRelativeTime(isoString) {

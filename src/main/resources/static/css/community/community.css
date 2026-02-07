@@ -252,7 +252,7 @@ body {
 }
 
 .feed-actions .action-pill {
-    color: var(--comm-primary);
+    color: var(--comm-text-main);
 }
 
 .action-pill {
