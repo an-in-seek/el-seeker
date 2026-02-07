@@ -959,6 +959,7 @@ const App = {
             const input = document.getElementById("commentInput");
             if (input) input.value = "";
         } catch (error) {
+            console.error(error)
             alert("댓글 작성에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
     },
@@ -1072,6 +1073,17 @@ const App = {
 
     updateReactionCountBy(delta) {
         const targets = ["postReactionCount", "likeCountLabel"];
+        targets.forEach(id => {
+            const element = document.getElementById(id);
+            if (!element) return;
+            const current = App.parseNumber(element.textContent);
+            const next = Math.max(current + delta, 0);
+            element.textContent = formatNumberWithComma(next);
+        });
+    },
+
+    updateCommentCountBy(delta) {
+        const targets = ["postCommentCount", "commentCountLabel"];
         targets.forEach(id => {
             const element = document.getElementById(id);
             if (!element) return;
