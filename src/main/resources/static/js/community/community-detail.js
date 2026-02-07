@@ -51,6 +51,7 @@ const App = {
         App.initScrollTop();
         App.initWidgetLinks();
         App.bindLikeButton();
+        App.bindShareButton();
         App.loadTopPosts();
         App.loadNoticePosts();
 
@@ -434,11 +435,63 @@ const App = {
         });
     },
 
+    bindShareButton() {
+        const button = document.getElementById("btnShare");
+        if (!button) return;
+
+        button.addEventListener("click", async () => {
+            const url = window.location.href;
+            const title = document.getElementById("postTitle")?.textContent?.trim() || "게시글 공유";
+            const text = `${title} - 커뮤니티`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title, text, url });
+                    return;
+                } catch (error) {
+                    // fallback to clipboard
+                }
+            }
+
+            const copied = await App.copyToClipboard(url);
+            alert(copied ? "링크가 복사되었습니다." : "링크 복사에 실패했습니다.");
+        });
+    },
+
     setLikeState(active) {
         App.state.likeActive = Boolean(active);
         const button = document.getElementById("btnLike");
         if (button) {
             button.classList.toggle("active", App.state.likeActive);
+        }
+    },
+
+    async copyToClipboard(text) {
+        if (!text) return false;
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+                return true;
+            }
+        } catch (error) {
+            // fallback below
+        }
+        return App.fallbackCopy(text);
+    },
+
+    fallbackCopy(text) {
+        try {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            return true;
+        } catch (error) {
+            return false;
         }
     },
 
