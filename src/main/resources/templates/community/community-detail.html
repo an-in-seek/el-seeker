@@ -24,6 +24,10 @@
                     <div class="detail-author">
                         <span id="postAuthor" class="detail-author-name">작성자</span>
                         <span id="postTime" class="detail-time">시간</span>
+                        <div id="postOwnerActions" class="post-owner-actions" hidden>
+                            <button id="btnEditPost" type="button" class="post-owner-action">수정</button>
+                            <button id="btnDeletePost" type="button" class="post-owner-action post-owner-action-delete">삭제</button>
+                        </div>
                     </div>
                     <div class="detail-actions">
                         <span class="detail-pill">👀 <span id="postViewCount">0</span></span>
@@ -37,13 +41,17 @@
                 <!-- Action Buttons (Like/Share) -->
                 <div class="post-footer-actions">
                     <button id="btnLike" class="btn-action btn-like">
-                        <span class="icon">❤️</span> 좋아요 <span id="likeCountLabel">0</span>
+                        <span class="icon">❤️</span>
+                        <span class="btn-action-label">좋아요</span>
+                        <span id="likeCountLabel">0</span>
                     </button>
                     <button id="btnShare" class="btn-action btn-share">
-                        <span class="icon">🔗</span> 공유하기
+                        <span class="icon">🔗</span>
+                        <span class="btn-action-label">공유하기</span>
                     </button>
                     <button id="btnReportPost" class="btn-action btn-report">
-                        <span class="icon">🚩</span> 신고하기
+                        <span class="icon">🚩</span>
+                        <span class="btn-action-label">신고하기</span>
                     </button>
                 </div>
             </article>
