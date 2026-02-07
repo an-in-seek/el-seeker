@@ -2,10 +2,55 @@
 
 const AUTH_ME_ENDPOINT = "/api/v1/auth/me";
 const AUTH_REFRESH_ENDPOINT = "/api/v1/auth/refresh";
+const OAUTH_LOGIN_FLAG_KEY = "oauthLoginInitiated";
+const OAUTH_BACK_URL_KEY = "oauthLoginBackUrl";
 
 const isOkStatus = (response) => response && response.status === 200;
 
 const isUnauthorized = (response) => response && response.status === 401;
+
+export const markOAuthLoginInitiated = (backUrl) => {
+    try {
+        sessionStorage.setItem(OAUTH_LOGIN_FLAG_KEY, "1");
+        if (backUrl) {
+            sessionStorage.setItem(OAUTH_BACK_URL_KEY, backUrl);
+        } else {
+            sessionStorage.removeItem(OAUTH_BACK_URL_KEY);
+        }
+    } catch (error) {
+        // Ignore storage errors (private mode, blocked storage).
+    }
+};
+
+const applyOAuthBackGuard = () => {
+    try {
+        if (sessionStorage.getItem(OAUTH_LOGIN_FLAG_KEY) !== "1") {
+            return;
+        }
+        sessionStorage.removeItem(OAUTH_LOGIN_FLAG_KEY);
+    } catch (error) {
+        return;
+    }
+
+    let backUrl = null;
+    try {
+        backUrl = sessionStorage.getItem(OAUTH_BACK_URL_KEY);
+        sessionStorage.removeItem(OAUTH_BACK_URL_KEY);
+    } catch (error) {
+        backUrl = null;
+    }
+
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (!backUrl || backUrl === currentUrl) {
+        backUrl = "/";
+    }
+
+    // Prevent back navigation from returning to the OAuth provider page.
+    history.pushState({oauthGuard: true}, document.title, window.location.href);
+    window.addEventListener("popstate", () => {
+        window.location.replace(backUrl);
+    });
+};
 
 export const refreshAccessToken = async () => {
     const response = await fetch(AUTH_REFRESH_ENDPOINT, {
@@ -55,6 +100,7 @@ export const checkAuthStatus = async ({
             if (typeof onAuthenticated === "function") {
                 onAuthenticated(data);
             }
+            applyOAuthBackGuard();
             return;
         }
 
@@ -73,6 +119,7 @@ export const checkAuthStatus = async ({
                     if (typeof onAuthenticated === "function") {
                         onAuthenticated(data);
                     }
+                    applyOAuthBackGuard();
                     return;
                 }
             }
