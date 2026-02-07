@@ -358,6 +358,9 @@ body.admin-sidebar-open {
     .admin-card-actions {
         justify-content: flex-end;
     }
+    .admin-card-value {
+        text-align: left;
+    }
     .admin-table-wrapper {
         display: none;
     }
