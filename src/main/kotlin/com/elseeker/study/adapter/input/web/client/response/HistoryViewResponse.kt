@@ -1,4 +1,4 @@
-package com.elseeker.study.adapter.input.web.response
+package com.elseeker.study.adapter.input.web.client.response
 
 data class EraSummary(
     val slug: String,

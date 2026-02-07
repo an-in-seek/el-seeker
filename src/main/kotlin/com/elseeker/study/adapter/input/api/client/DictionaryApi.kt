@@ -1,6 +1,6 @@
-package com.elseeker.study.adapter.input.api
+package com.elseeker.study.adapter.input.api.client
 
-import com.elseeker.study.adapter.input.api.response.DictionaryApiResponse
+import com.elseeker.study.adapter.input.api.client.response.DictionaryApiResponse
 import com.elseeker.study.application.service.DictionaryService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort

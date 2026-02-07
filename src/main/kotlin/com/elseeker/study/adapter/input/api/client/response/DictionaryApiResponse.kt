@@ -1,4 +1,4 @@
-package com.elseeker.study.adapter.input.api.response
+package com.elseeker.study.adapter.input.api.client.response
 
 import com.elseeker.study.domain.model.Dictionary
 

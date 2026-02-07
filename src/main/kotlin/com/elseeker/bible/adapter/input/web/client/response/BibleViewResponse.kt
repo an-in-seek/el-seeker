@@ -1,4 +1,4 @@
-package com.elseeker.bible.adapter.input.web.response
+package com.elseeker.bible.adapter.input.web.client.response
 
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.BibleTranslationType

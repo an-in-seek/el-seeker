@@ -1,4 +1,4 @@
-package com.elseeker.study.adapter.input.web
+package com.elseeker.study.adapter.input.web.client
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping

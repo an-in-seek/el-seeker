@@ -1,6 +1,6 @@
-package com.elseeker.bible.adapter.input.web
+package com.elseeker.bible.adapter.input.web.client
 
-import com.elseeker.bible.adapter.input.web.response.BibleViewResponse
+import com.elseeker.bible.adapter.input.web.client.response.BibleViewResponse
 import com.elseeker.bible.application.service.BibleService
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import org.springframework.stereotype.Controller

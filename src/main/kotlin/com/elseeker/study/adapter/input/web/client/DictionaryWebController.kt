@@ -1,6 +1,6 @@
-package com.elseeker.study.adapter.input.web
+package com.elseeker.study.adapter.input.web.client
 
-import com.elseeker.study.adapter.input.web.response.DictionaryViewResponse
+import com.elseeker.study.adapter.input.web.client.response.DictionaryViewResponse
 import com.elseeker.study.application.service.DictionaryService
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
