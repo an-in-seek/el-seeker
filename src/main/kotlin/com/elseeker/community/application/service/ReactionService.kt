@@ -2,11 +2,12 @@ package com.elseeker.community.application.service
 
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
-import com.elseeker.community.adapter.output.jpa.PostReactionRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository
-import com.elseeker.community.domain.model.PostReaction
+import com.elseeker.community.adapter.output.jpa.CommunityReactionRepository
+import com.elseeker.community.domain.model.CommunityReaction
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.ReactionType
+import com.elseeker.community.domain.vo.TargetType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,7 +15,7 @@ import java.util.*
 
 @Service
 class ReactionService(
-    private val postReactionRepository: PostReactionRepository,
+    private val communityReactionRepository: CommunityReactionRepository,
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
 ) {
@@ -29,16 +30,23 @@ class ReactionService(
 
         val memberId = requireNotNull(member.id)
 
-        if (postReactionRepository.existsByPostIdAndMemberIdAndType(postId, memberId, type)) {
+        if (communityReactionRepository.existsByTargetTypeAndTargetIdAndMemberIdAndReactionType(
+                TargetType.POST,
+                postId,
+                memberId,
+                type,
+            )
+        ) {
             throwError(ErrorType.REACTION_ALREADY_EXISTS, "postId=$postId", "type=$type")
         }
 
-        val reaction = PostReaction.create(
-            post = post,
-            member = member,
-            type = type,
+        val reaction = CommunityReaction.create(
+            targetType = TargetType.POST,
+            targetId = postId,
+            memberId = memberId,
+            reactionType = type,
         )
-        postReactionRepository.save(reaction)
+        communityReactionRepository.save(reaction)
 
         postRepository.incrementReactionCount(postId)
         postRepository.updateScore(postId)
@@ -51,10 +59,15 @@ class ReactionService(
 
         val memberId = requireNotNull(member.id)
 
-        val reaction = postReactionRepository.findByPostIdAndMemberIdAndType(postId, memberId, type)
+        val reaction = communityReactionRepository.findByTargetTypeAndTargetIdAndMemberIdAndReactionType(
+            TargetType.POST,
+            postId,
+            memberId,
+            type,
+        )
             ?: throwError(ErrorType.REACTION_NOT_FOUND, "postId=$postId", "type=$type")
 
-        postReactionRepository.delete(reaction)
+        communityReactionRepository.delete(reaction)
 
         postRepository.decrementReactionCount(postId)
         postRepository.updateScore(postId)

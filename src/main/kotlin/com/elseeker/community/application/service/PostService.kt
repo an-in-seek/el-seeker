@@ -8,18 +8,19 @@ import com.elseeker.community.adapter.input.api.client.response.PostDetailRespon
 import com.elseeker.community.adapter.input.api.client.response.PostPageResponse
 import com.elseeker.community.adapter.input.api.client.response.PostSliceResponse
 import com.elseeker.community.adapter.input.api.client.response.PostSummaryResponse
+import com.elseeker.community.adapter.output.jpa.CommunityReactionRepository
+import com.elseeker.community.adapter.output.jpa.CommunityReportRepository
 import com.elseeker.community.adapter.output.jpa.PostKotlinJDSL
-import com.elseeker.community.adapter.output.jpa.PostReactionRepository
-import com.elseeker.community.adapter.output.jpa.PostReportRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository
 import com.elseeker.community.application.mapper.toDetailResponse
 import com.elseeker.community.application.mapper.toSummaryResponse
+import com.elseeker.community.domain.model.CommunityReport
 import com.elseeker.community.domain.model.Post
-import com.elseeker.community.domain.model.PostReport
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.PostType
 import com.elseeker.community.domain.vo.ReactionType
 import com.elseeker.community.domain.vo.ReportReason
+import com.elseeker.community.domain.vo.TargetType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.vo.MemberRole
 import org.springframework.dao.DataIntegrityViolationException
@@ -34,8 +35,8 @@ import java.util.*
 @Service
 class PostService(
     private val postRepository: PostRepository,
-    private val postReportRepository: PostReportRepository,
-    private val postReactionRepository: PostReactionRepository,
+    private val communityReportRepository: CommunityReportRepository,
+    private val communityReactionRepository: CommunityReactionRepository,
     private val memberRepository: MemberRepository,
 ) {
 
@@ -80,7 +81,12 @@ class PostService(
         if (post.status == PostStatus.HIDDEN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         val isLiked = memberUid?.let { uid ->
             val memberId = memberRepository.findIdByUid(uid) ?: return@let false
-            postReactionRepository.existsByPostIdAndMemberIdAndType(postId, memberId, ReactionType.LIKE)
+            communityReactionRepository.existsByTargetTypeAndTargetIdAndMemberIdAndReactionType(
+                TargetType.POST,
+                postId,
+                memberId,
+                ReactionType.LIKE,
+            )
         } ?: false
         return post.toDetailResponse(memberUid, isLiked)
     }
@@ -148,17 +154,23 @@ class PostService(
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         val memberId = requireNotNull(member.id)
 
-        if (postReportRepository.existsByPostIdAndReporterId(postId, memberId)) {
+        if (communityReportRepository.existsByTargetTypeAndTargetIdAndReporterId(
+                TargetType.POST,
+                postId,
+                memberId,
+            )
+        ) {
             throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
         }
 
-        val report = PostReport.create(
-            post = post,
-            reporter = member,
+        val report = CommunityReport.create(
+            targetType = TargetType.POST,
+            targetId = postId,
+            reporterId = memberId,
             reason = reason,
         )
         try {
-            postReportRepository.save(report)
+            communityReportRepository.save(report)
         } catch (ex: DataIntegrityViolationException) {
             throwError(ErrorType.REPORT_POST_ALREADY_EXISTS)
         }

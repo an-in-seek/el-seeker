@@ -4,15 +4,16 @@ import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.community.adapter.input.api.client.response.CommentResponse
 import com.elseeker.community.adapter.input.api.client.response.CommentSliceResponse
-import com.elseeker.community.adapter.output.jpa.CommentReportRepository
+import com.elseeker.community.adapter.output.jpa.CommunityReportRepository
 import com.elseeker.community.adapter.output.jpa.CommentRepository
 import com.elseeker.community.adapter.output.jpa.PostRepository
 import com.elseeker.community.application.mapper.toResponse
 import com.elseeker.community.domain.model.Comment
-import com.elseeker.community.domain.model.CommentReport
+import com.elseeker.community.domain.model.CommunityReport
 import com.elseeker.community.domain.vo.CommentStatus
 import com.elseeker.community.domain.vo.PostStatus
 import com.elseeker.community.domain.vo.ReportReason
+import com.elseeker.community.domain.vo.TargetType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.vo.MemberRole
 import org.springframework.dao.DataIntegrityViolationException
@@ -24,7 +25,7 @@ import java.util.*
 @Service
 class CommentService(
     private val commentRepository: CommentRepository,
-    private val commentReportRepository: CommentReportRepository,
+    private val communityReportRepository: CommunityReportRepository,
     private val postRepository: PostRepository,
     private val memberRepository: MemberRepository,
 ) {
@@ -127,17 +128,23 @@ class CommentService(
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         val memberId = requireNotNull(member.id)
 
-        if (commentReportRepository.existsByCommentIdAndReporterId(commentId, memberId)) {
+        if (communityReportRepository.existsByTargetTypeAndTargetIdAndReporterId(
+                TargetType.COMMENT,
+                commentId,
+                memberId,
+            )
+        ) {
             throwError(ErrorType.REPORT_COMMENT_ALREADY_EXISTS)
         }
 
-        val report = CommentReport.create(
-            comment = comment,
-            reporter = member,
+        val report = CommunityReport.create(
+            targetType = TargetType.COMMENT,
+            targetId = commentId,
+            reporterId = memberId,
             reason = reason,
         )
         try {
-            commentReportRepository.save(report)
+            communityReportRepository.save(report)
         } catch (ex: DataIntegrityViolationException) {
             throwError(ErrorType.REPORT_COMMENT_ALREADY_EXISTS)
         }
