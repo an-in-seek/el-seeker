@@ -474,10 +474,14 @@ async function handleVerseClick(event) {
         return;
     }
     const verseNum = verseEl.getAttribute("data-verse");
+    const isSelected = toggleVerseSelection(verseNum);
     if (verseEl.classList.contains("verse-has-memo")) {
-        showMemo(verseNum);
+        if (isSelected) {
+            showMemo(verseNum);
+        } else {
+            hideMemo(verseNum);
+        }
     }
-    toggleVerseSelection(verseNum);
 }
 
 function handleMemoInputAttempt(event) {
@@ -744,16 +748,19 @@ function toggleVerseSelection(verseNum) {
     const number = String(verseNum);
     const verseEl = document.querySelector(`.verse-text[data-verse="${number}"]`);
     if (!verseEl) {
-        return;
+        return false;
     }
     if (selection.selected.has(number)) {
         selection.selected.delete(number);
         verseEl.classList.remove("active");
+        updateFabVisibility();
+        return false;
     } else {
         selection.selected.add(number);
         verseEl.classList.add("active");
+        updateFabVisibility();
+        return true;
     }
-    updateFabVisibility();
 }
 
 function resetSelectionState() {
