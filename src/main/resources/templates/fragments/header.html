@@ -89,7 +89,10 @@
 
         <div class="top-nav-title">
             <div class="top-nav-title-inner container">
-                <h1 id="pageTitleLabel" class="d-none page-title"></h1>
+                <h1 id="pageTitleLabel"
+                    class="page-title"
+                    th:text="${#strings.isEmpty(pageTitle) ? '' : pageTitle}"
+                    th:classappend="${pageTitleVisible == true ? '' : ' d-none'}"></h1>
             </div>
         </div>
     </nav>

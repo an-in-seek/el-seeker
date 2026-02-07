@@ -1,34 +1,104 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:fragment="head(title, useCommonCss, extraCss)">
+<head th:fragment="head(title, useCommonCss, extraCss)"
+      th:with="
+        siteUrl='https://elseeker.com',
+        siteName='ElSeeker',
+        siteLogo='https://elseeker.com/images/elseeker_og.png',
+        requestUrl=${#httpServletRequest != null ? #httpServletRequest.requestURL : null},
+        requestQuery=${#httpServletRequest != null ? #httpServletRequest.queryString : null},
+        resolvedCanonical=${!#strings.isEmpty(canonicalUrl) ? canonicalUrl : (requestUrl != null ? requestUrl + (requestQuery != null ? '?' + requestQuery : '') : siteUrl)},
+        resolvedTitle=${#strings.isEmpty(title) ? siteName : title},
+        resolvedDescription=${#strings.isEmpty(pageDescription) ? '성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.' : pageDescription},
+        resolvedOgType=${#strings.isEmpty(ogType) ? 'website' : ogType},
+        resolvedOgImage=${#strings.isEmpty(ogImage) ? siteLogo : ogImage},
+        resolvedTwitterCard=${#strings.isEmpty(twitterCard) ? 'summary_large_image' : twitterCard},
+        resolvedSchemaType=${#strings.isEmpty(schemaType) ? 'WebPage' : schemaType},
+        resolvedPageId=${resolvedCanonical + '#webpage'}
+      ">
     <meta charset="UTF-8">
-    <title th:text="${title}">ElSeeker</title>
+    <title th:text="${resolvedTitle}">ElSeeker</title>
 
     <!-- SEO -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-          content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 성경 구절 검색, 성경 퀴즈와 스터디 콘텐츠를 제공합니다.">
-    <meta name="keywords" content="ElSeeker, 성경, Bible, 온라인 성경, 성경 검색, 성경 읽기, 성경 말씀, 성경 구절, 성경 장, 성경 절, 성경 퀴즈, 성경 사전, 성경 역사, 성경 공부, 말씀 묵상, 개역한글, KRV, 킹제임스, KJV, 번역본, 성경 번역">
+    <meta name="description" th:content="${resolvedDescription}"
+          content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.">
     <meta name="author" content="InSeek">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://elseeker.com/">
+    <link rel="canonical" th:href="${resolvedCanonical}" href="https://elseeker.com/">
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="ElSeeker - 온라인 성경 플랫폼">
-    <meta property="og:description"
-          content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker. 다양한 성경 번역본, 빠른 성경 구절 검색, 성경 퀴즈와 스터디 콘텐츠를 제공합니다.">
-    <meta property="og:image" content="https://elseeker.com/images/elseeker.png">
-    <meta property="og:url" content="https://elseeker.com/">
+    <meta property="og:type" th:content="${resolvedOgType}" content="website">
+    <meta property="og:title" th:content="${resolvedTitle}" content="ElSeeker - 온라인 성경 플랫폼">
+    <meta property="og:description" th:content="${resolvedDescription}"
+          content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.">
+    <meta property="og:image" th:content="${resolvedOgImage}" content="https://elseeker.com/images/elseeker_og.png">
+    <meta property="og:image:alt" content="ElSeeker 성경 플랫폼 대표 이미지">
+    <meta property="og:url" th:content="${resolvedCanonical}" content="https://elseeker.com/">
+    <meta property="og:site_name" th:content="${siteName}" content="ElSeeker">
+    <meta property="og:locale" content="ko_KR">
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ElSeeker - 온라인 성경 플랫폼">
-    <meta name="twitter:description" content="성경을 통해 하나님을 알아가는 여정을 돕는 플랫폼. 다양한 번역본, 빠른 검색, 퀴즈와 스터디 콘텐츠 제공.">
-    <meta name="twitter:image" content="https://elseeker.com/images/elseeker.png">
+    <meta name="twitter:card" th:content="${resolvedTwitterCard}" content="summary_large_image">
+    <meta name="twitter:title" th:content="${resolvedTitle}" content="ElSeeker - 온라인 성경 플랫폼">
+    <meta name="twitter:description" th:content="${resolvedDescription}"
+          content="성경을 통해 하나님을 알아가는 여정을 돕는 플랫폼. 다양한 번역본, 빠른 검색, 퀴즈와 학습 콘텐츠 제공.">
+    <meta name="twitter:image" th:content="${resolvedOgImage}" content="https://elseeker.com/images/elseeker_og.png">
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/favicon.ico">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json" th:inline="javascript">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": "https://elseeker.com/#organization",
+          "name": /*[[${siteName}]]*/,
+          "url": /*[[${siteUrl}]]*/,
+          "logo": /*[[${siteLogo}]]*/
+        }
+    </script>
+    <script type="application/ld+json" th:inline="javascript">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": "https://elseeker.com/#website",
+          "name": /*[[${siteName}]]*/,
+          "url": /*[[${siteUrl}]]*/,
+          "inLanguage": "ko-KR",
+          "publisher": {
+            "@id": "https://elseeker.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://elseeker.com/web/bible/search?keyword={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+    </script>
+    <script type="application/ld+json" th:inline="javascript">
+        {
+          "@context": "https://schema.org",
+          "@type": /*[[${resolvedSchemaType}]]*/,
+          "@id": /*[[${resolvedPageId}]]*/,
+          "url": /*[[${resolvedCanonical}]]*/,
+          "name": /*[[${resolvedTitle}]]*/,
+          "description": /*[[${resolvedDescription}]]*/,
+          "inLanguage": "ko-KR",
+          "isPartOf": {
+            "@id": "https://elseeker.com/#website"
+          },
+          "publisher": {
+            "@id": "https://elseeker.com/#organization"
+          },
+          "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": /*[[${resolvedOgImage}]]*/
+          }
+        }
+    </script>
 
     <!-- Styles -->
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">

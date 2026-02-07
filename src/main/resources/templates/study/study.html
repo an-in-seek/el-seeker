@@ -2,12 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('학습 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/study/study.css?v=2.2')}">
+        th:replace="~{fragments/head :: head('학습 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/study/study.css?v=2.2')}"
+        th:with="pageDescription='성경 사전, 역사, 개요 영상, 족보 등 학습 콘텐츠를 모아둔 학습 허브입니다.'">
 </head>
 
 <body class="has-fixed-nav">
 
-<header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"
+        th:with="pageTitle='학습', pageTitleVisible=true"></header>
 
 <main class="container content-wrapper">
     <div class="row g-3">
@@ -59,7 +61,7 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <h3 class="h6 fw-semibold mb-1">
-                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Tribes Icon">
+                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Tribes Icon" loading="lazy" decoding="async">
                             이스라엘 12지파
                         </h3>
                         <p class="text-muted small mb-0">야곱의 열두 아들과 이스라엘 12지파를 살펴봅니다.</p>
@@ -73,7 +75,7 @@
                 <div class="card card-panel card-soft">
                     <div class="card-body">
                         <h3 class="h6 fw-semibold mb-1">
-                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Disciples Icon">
+                            <img src="/images/icon/12-people.svg" class="me-2" width="24" height="24" alt="12 Disciples Icon" loading="lazy" decoding="async">
                             예수님의 12제자
                         </h3>
                         <p class="text-muted small mb-0">예수님이 선택하신 열두 제자를 살펴봅니다.</p>

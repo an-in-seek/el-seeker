@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 번역본 | ElSeeker', true, '/css/bible/translation-list.css?v=2.2')}"></head>
+<head th:replace="~{fragments/head :: head('성경 번역본 | ElSeeker', true, '/css/bible/translation-list.css?v=2.2')}"
+      th:with="pageDescription='개역한글, KJV 등 다양한 성경 번역본을 선택해 읽을 수 있는 목록입니다.', schemaType='CollectionPage'"></head>
 <body class="has-fixed-nav">
 
-<header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"
+        th:with="pageTitle='성경 번역본', pageTitleVisible=true"></header>
 
 <main class="container content-wrapper">
     <div id="translationSections" class="translation-sections" aria-label="성경 번역본 목록"></div>
