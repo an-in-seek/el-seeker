@@ -11,6 +11,7 @@ import java.util.UUID
 interface MemberRepository : JpaRepository<Member, Long> {
     fun findByEmail(email: String): Member?
     fun findByUid(uid: UUID): Member?
+    fun existsByNicknameIgnoreCaseAndIdNot(nickname: String, id: Long): Boolean
 
     @Query(
         """

@@ -131,6 +131,27 @@ const App = {
         return true;
     },
 
+    redirectToNickname() {
+        alert("닉네임을 먼저 입력해 주세요.");
+        const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        const params = new URLSearchParams({focus: "nickname", returnUrl});
+        window.location.href = `/web/member/mypage?${params.toString()}`;
+    },
+
+    async ensureNickname() {
+        const allowed = await App.resolveAuth();
+        if (!allowed) {
+            App.redirectToLogin();
+            return false;
+        }
+        const nickname = (App.state.auth.user?.nickname || "").trim();
+        if (!nickname) {
+            App.redirectToNickname();
+            return false;
+        }
+        return true;
+    },
+
     redirectToLogin() {
         alert("로그인이 필요합니다.");
         window.location.href = buildLoginRedirectUrl();
@@ -889,7 +910,7 @@ const App = {
         if (!form || !input) return;
 
         input.addEventListener("beforeinput", async (event) => {
-            if (App.state.auth.allowed) {
+            if (App.state.auth.allowed && App.state.auth.user?.nickname) {
                 return;
             }
             if (App.state.commentInputAuthChecked) {
@@ -897,14 +918,14 @@ const App = {
             }
             App.state.commentInputAuthChecked = true;
             event.preventDefault();
-            await App.ensureAuth();
+            await App.ensureNickname();
         });
 
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
             const content = input.value.trim();
             if (!content) return;
-            const allowed = await App.ensureAuth();
+            const allowed = await App.ensureNickname();
             if (!allowed) return;
             App.submitComment(content);
         });

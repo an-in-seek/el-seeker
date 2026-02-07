@@ -1,5 +1,5 @@
 import { fetchWithAuthRetry } from "/js/common-util.js";
-import { buildLoginRedirectUrl } from "/js/auth/auth-check.js";
+import { buildLoginRedirectUrl, checkAuthStatus } from "/js/auth/auth-check.js";
 
 const API_POSTS = "/api/v1/community/posts";
 
@@ -171,6 +171,8 @@ const App = {
     async handleSubmit() {
         if (App.state.submitting) return;
         if (!App.validate()) return;
+        const allowedNickname = await App.ensureNickname();
+        if (!allowedNickname) return;
 
         const submitBtn = document.getElementById("btnSubmit");
         App.state.submitting = true;
@@ -232,6 +234,33 @@ const App = {
             submitBtn.disabled = false;
             submitBtn.textContent = App.isEditMode() ? "수정하기" : "등록하기";
         }
+    },
+
+    async ensureNickname() {
+        const authResult = await new Promise((resolve) => {
+            checkAuthStatus({
+                onAuthenticated: (data) => resolve({ allowed: true, data }),
+                onUnauthenticated: () => resolve({ allowed: false }),
+                onError: () => resolve({ allowed: false }),
+            });
+        });
+
+        if (!authResult.allowed) {
+            alert("로그인이 필요합니다.");
+            window.location.href = buildLoginRedirectUrl("/web/community/write");
+            return false;
+        }
+
+        const nickname = (authResult.data?.nickname || "").trim();
+        if (!nickname) {
+            alert("닉네임을 먼저 입력해 주세요.");
+            const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            const params = new URLSearchParams({focus: "nickname", returnUrl});
+            window.location.href = `/web/member/mypage?${params.toString()}`;
+            return false;
+        }
+
+        return true;
     },
 };
 

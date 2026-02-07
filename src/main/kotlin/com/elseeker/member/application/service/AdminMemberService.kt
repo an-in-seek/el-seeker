@@ -49,6 +49,9 @@ class AdminMemberService(
     @Transactional
     fun update(id: Long, nickname: String, profileImageUrl: String?, memberRole: MemberRole): Member {
         val member = findById(id)
+        if (memberRepository.existsByNicknameIgnoreCaseAndIdNot(nickname.trim(), id)) {
+            throwError(ErrorType.NICKNAME_ALREADY_EXISTS)
+        }
         member.update(nickname, profileImageUrl)
         member.memberRole = memberRole
         return memberRepository.save(member)

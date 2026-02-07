@@ -45,6 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmCancel = document.getElementById("mypageOAuthConfirmCancel");
     const confirmSubmit = document.getElementById("mypageOAuthConfirmSubmit");
     const confirmMessage = document.getElementById("mypageOAuthConfirmMessage");
+    const urlParams = new URLSearchParams(window.location.search);
+    const focusNickname = urlParams.get("focus") === "nickname";
+    const returnUrl = urlParams.get("returnUrl");
+    const safeReturnUrl =
+        returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : null;
 
     let memberUid = null;
     let memberEmail = "";
@@ -428,6 +433,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 nicknameInput.value = initialNickname;
             }
             setFormEnabled(true);
+            if (focusNickname && nicknameInput) {
+                nicknameInput.focus();
+                nicknameInput.select();
+                nicknameInput.scrollIntoView({behavior: "smooth", block: "center"});
+            }
             updateOAuthCards(new Map());
             loadOAuthAccounts();
         },
@@ -480,7 +490,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 if (!response.ok) {
-                    showAuthError(errorMessage, "회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+                    const error = await response.json().catch(() => null);
+                    showAuthError(errorMessage, error?.message || "회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
                     return;
                 }
 
@@ -500,6 +511,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 initialNickname = updatedNickname;
 
                 showSaveToast("회원 정보가 저장되었습니다.");
+                if (focusNickname && safeReturnUrl) {
+                    setTimeout(() => {
+                        window.location.href = safeReturnUrl;
+                    }, 300);
+                }
             } catch (error) {
                 showAuthError(errorMessage, "네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
             } finally {

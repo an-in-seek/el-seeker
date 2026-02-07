@@ -80,6 +80,11 @@ class MemberService(
             throwError(ErrorType.MEMBER_ACCESS_DENIED, memberUid)
         }
         val member = getMember(memberUid)
+        val normalizedNickname = nickname.trim()
+        val memberId = member.id ?: throwError(ErrorType.MEMBER_ID_MISSING, memberUid)
+        if (memberRepository.existsByNicknameIgnoreCaseAndIdNot(normalizedNickname, memberId)) {
+            throwError(ErrorType.NICKNAME_ALREADY_EXISTS)
+        }
         member.update(nickname, profileImageUrl)
         memberRepository.save(member)
         return memberRepository.findWithOAuthAccountsByUid(memberUid)
