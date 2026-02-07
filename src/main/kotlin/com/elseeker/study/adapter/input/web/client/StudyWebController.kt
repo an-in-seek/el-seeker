@@ -32,4 +32,9 @@ class StudyWebController {
     fun showTwelveDisciples(): String {
         return "study/twelve-disciples"
     }
+
+    @GetMapping("/lords-prayer")
+    fun showLordsPrayer(): String {
+        return "study/lords-prayer"
+    }
 }

@@ -1,0 +1,181 @@
+.lords-prayer-loading {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+/* Full Prayer Text */
+.lords-prayer-full-text {
+    max-width: 720px;
+    margin: 0 auto 2rem;
+}
+
+.lords-prayer-full-text-inner {
+    background: linear-gradient(145deg, #ede9fe 0%, #e0e7ff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 0.75rem;
+    padding: 1.75rem 2rem;
+    text-align: center;
+}
+
+.lords-prayer-full-text-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #312e81;
+    margin: 0 0 0.25rem;
+}
+
+.lords-prayer-full-text-ref {
+    font-size: 0.8rem;
+    color: #6366f1;
+    margin: 0 0 1.25rem;
+}
+
+.lords-prayer-full-text-body {
+    font-size: 0.95rem;
+    color: #1e1b4b;
+    line-height: 2;
+}
+
+/* Grid */
+.lords-prayer-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* Card */
+.lords-prayer-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .lords-prayer-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+}
+
+/* Card Header */
+.lords-prayer-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(145deg, #ede9fe 0%, #ddd6fe 100%);
+    border-bottom: 1px solid #c4b5fd;
+}
+
+.lords-prayer-card-order {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4c1d95;
+    background: #ffffff;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.lords-prayer-card-theme {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4c1d95;
+}
+
+/* Card Body */
+.lords-prayer-card-body {
+    padding: 1rem;
+}
+
+.lords-prayer-card-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.6;
+    margin: 0 0 0.85rem;
+    padding-left: 0.85rem;
+    border-left: 3px solid #8b5cf6;
+}
+
+.lords-prayer-card-meaning {
+    font-size: 0.85rem;
+    color: #334155;
+    line-height: 1.7;
+    margin: 0 0 0.75rem;
+}
+
+/* Verse Reference */
+.lords-prayer-card-ref {
+    padding: 0.5rem 0.85rem;
+    background: #f5f3ff;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.lords-prayer-card-ref-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6d28d9;
+}
+
+/* Related Verse */
+.lords-prayer-card-related {
+    padding: 0.65rem 0.85rem;
+    background: #faf5ff;
+    border-radius: 0.5rem;
+    border-left: 3px solid #a78bfa;
+}
+
+.lords-prayer-card-related-ref {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #7c3aed;
+    margin-bottom: 0.25rem;
+}
+
+.lords-prayer-card-related-text {
+    font-size: 0.8rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 576px) {
+    .lords-prayer-full-text-inner {
+        padding: 1.25rem 1rem;
+    }
+
+    .lords-prayer-full-text-title {
+        font-size: 1.1rem;
+    }
+
+    .lords-prayer-full-text-body {
+        font-size: 0.9rem;
+    }
+
+    .lords-prayer-grid {
+        gap: 1rem;
+    }
+
+    .lords-prayer-card-header {
+        padding: 0.75rem 0.85rem;
+    }
+
+    .lords-prayer-card-body {
+        padding: 0.85rem;
+    }
+
+    .lords-prayer-card-text {
+        font-size: 0.95rem;
+    }
+}
