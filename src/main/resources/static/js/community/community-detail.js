@@ -441,11 +441,11 @@ const App = {
         button.addEventListener("click", async () => {
             const url = window.location.href;
             const title = document.getElementById("postTitle")?.textContent?.trim() || "게시글 공유";
-            const text = `${title} - 커뮤니티`;
+            const text = `| 커뮤니티 | ElSeeker`;
 
             if (navigator.share) {
                 try {
-                    await navigator.share({ title, text, url });
+                    await navigator.share({title, text, url});
                     return;
                 } catch (error) {
                     // fallback to clipboard
@@ -505,7 +505,7 @@ const App = {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify({ reason }),
+                    body: JSON.stringify({reason}),
                 }
             );
 
@@ -953,7 +953,7 @@ const App = {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify({ type: "LIKE" }),
+                    body: JSON.stringify({type: "LIKE"}),
                 }
             );
 
