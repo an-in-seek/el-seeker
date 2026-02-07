@@ -22,7 +22,6 @@ const UI_CLASSES = {
 const App = {
     state: {
         postId: null,
-        postAuthorNickname: null,
         commentPage: 0,
         commentHasNext: true,
         commentLoading: false,
@@ -104,8 +103,6 @@ const App = {
         App.state.auth.allowed = allowed;
         App.state.auth.user = user;
         App.state.auth.checking = false;
-        App.refreshCommentActions();
-        App.refreshPostOwnerActions();
     },
 
     async ensureAuth() {
@@ -141,11 +138,14 @@ const App = {
     },
 
     renderPost(post) {
-        App.state.postAuthorNickname = post.authorNickname || null;
         App.setText("postTitle", post.title || "");
         App.setText("postAuthor", post.authorNickname || "익명");
         App.setText("postTime", App.formatRelativeTime(post.createdAt));
-        App.refreshPostOwnerActions();
+
+        const ownerActions = document.getElementById("postOwnerActions");
+        if (ownerActions) {
+            ownerActions.hidden = !post.isAuthor;
+        }
         App.setText("postViewCount", formatNumberWithComma(post.viewCount || 0));
         App.setText("postReactionCount", formatNumberWithComma(post.reactionCount || 0));
         App.setText("postCommentCount", formatNumberWithComma(post.commentCount || 0));
@@ -241,14 +241,13 @@ const App = {
 
         list.appendChild(fragment);
         App.toggleCommentEmpty(false);
-        App.refreshCommentActions();
     },
 
     createCommentItem(comment) {
         const item = document.createElement("div");
         item.className = "comment-item";
         item.dataset.commentId = String(comment.id || "");
-        item.dataset.authorNickname = comment.authorNickname || "";
+        item.dataset.isAuthor = String(!!comment.isAuthor);
 
         // Avatar
         const avatar = document.createElement("div");
@@ -315,44 +314,9 @@ const App = {
     },
 
     applyOwnerActionVisibility(container, comment) {
-        const canManage = App.canManageComment(comment);
         container.querySelectorAll(".comment-action-owner").forEach(button => {
-            button.hidden = !canManage;
+            button.hidden = !comment.isAuthor;
         });
-    },
-
-    canManageComment(comment) {
-        const user = App.state.auth.user;
-        if (!user) return false;
-        if (user.role === "ADMIN") return true;
-        const nickname = (comment.authorNickname || "").trim();
-        return nickname && nickname === user.nickname;
-    },
-
-    refreshCommentActions() {
-        const list = document.getElementById("commentList");
-        if (!list) return;
-        list.querySelectorAll(".comment-item").forEach(item => {
-            const nickname = item.dataset.authorNickname || "";
-            const canManage = App.canManageComment({ authorNickname: nickname });
-            item.querySelectorAll(".comment-action-owner").forEach(button => {
-                button.hidden = !canManage;
-            });
-        });
-    },
-
-    canManagePost() {
-        const user = App.state.auth.user;
-        if (!user) return false;
-        if (user.role === "ADMIN") return true;
-        const authorNickname = (App.state.postAuthorNickname || "").trim();
-        return authorNickname && authorNickname === user.nickname;
-    },
-
-    refreshPostOwnerActions() {
-        const container = document.getElementById("postOwnerActions");
-        if (!container) return;
-        container.hidden = !App.canManagePost();
     },
 
     bindPostOwnerActions() {

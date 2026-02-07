@@ -3,6 +3,7 @@ package com.elseeker.community.application.mapper
 import com.elseeker.community.adapter.input.api.client.response.PostDetailResponse
 import com.elseeker.community.adapter.input.api.client.response.PostSummaryResponse
 import com.elseeker.community.domain.model.Post
+import java.util.*
 
 fun Post.toSummaryResponse() = PostSummaryResponse(
     id = requireNotNull(this.id),
@@ -18,7 +19,7 @@ fun Post.toSummaryResponse() = PostSummaryResponse(
     createdAt = this.createdAt,
 )
 
-fun Post.toDetailResponse() = PostDetailResponse(
+fun Post.toDetailResponse(memberUid: UUID? = null) = PostDetailResponse(
     id = requireNotNull(this.id),
     type = this.type,
     language = this.language,
@@ -35,6 +36,7 @@ fun Post.toDetailResponse() = PostDetailResponse(
     isPopular = this.isPopular,
     useReply = this.useReply,
     isHtml = this.isHtml,
+    isAuthor = memberUid != null && this.author.uid == memberUid,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
 )

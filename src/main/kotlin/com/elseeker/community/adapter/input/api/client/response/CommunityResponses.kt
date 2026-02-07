@@ -68,6 +68,8 @@ data class PostDetailResponse(
     val useReply: Boolean,
     @field:Schema(description = "HTML 본문 여부")
     val isHtml: Boolean,
+    @field:Schema(description = "요청자가 작성자인지 여부")
+    val isAuthor: Boolean,
     @field:Schema(description = "작성일시 (UTC)")
     val createdAt: Instant,
     @field:Schema(description = "수정일시 (UTC)")
@@ -112,6 +114,8 @@ data class CommentResponse(
     val authorProfileImageUrl: String?,
     @field:Schema(description = "댓글 상태")
     val status: CommentStatus,
+    @field:Schema(description = "요청자가 작성자인지 여부")
+    val isAuthor: Boolean,
     @field:Schema(description = "작성일시 (UTC)")
     val createdAt: Instant,
 )
