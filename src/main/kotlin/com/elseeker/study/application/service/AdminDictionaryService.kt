@@ -16,8 +16,11 @@ class AdminDictionaryService(
     private val dictionaryRepository: DictionaryRepository,
 ) {
     fun findAll(keyword: String?, pageable: Pageable): Page<Dictionary> =
-        if (keyword.isNullOrBlank()) dictionaryRepository.findAll(pageable)
-        else dictionaryRepository.findByTermContainingIgnoreCase(keyword.trim(), pageable)
+        if (keyword.isNullOrBlank()) {
+            dictionaryRepository.findAllOrderByKo(pageable)
+        } else {
+            dictionaryRepository.findByTermContainingKo(keyword.trim(), pageable)
+        }
 
     fun findById(id: Long): Dictionary =
         dictionaryRepository.findByIdOrNull(id) ?: throwError(ErrorType.DICTIONARY_NOT_FOUND, "id=$id")

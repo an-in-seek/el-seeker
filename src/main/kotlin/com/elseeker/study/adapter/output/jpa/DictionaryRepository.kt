@@ -11,8 +11,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface DictionaryRepository : JpaRepository<Dictionary, Long> {
 
-    fun findByTermContainingIgnoreCase(term: String, pageable: Pageable): Page<Dictionary>
-
     @Query(
         value = """
         SELECT * 
