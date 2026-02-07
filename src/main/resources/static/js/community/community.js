@@ -7,11 +7,15 @@ const API = {
 };
 
 const PAGE_SIZE = 20;
+const NOTICE_PAGE_SIZE = 1;
 const SCROLL_ROOT_MARGIN = "200px";
+const NOTICE_TYPE = "NOTICE";
+const NOTICE_CATEGORY = "공지";
 
 const CATEGORY_CONFIG = {
     all: { sort: "latest" },
     "인기": { sort: "popular" },
+    "공지": { sort: "latest", type: NOTICE_TYPE },
     "자유": { sort: "latest", type: "FREE" },
     "Q&A": { sort: "latest", type: "QUESTION" },
     "기도나눔": { sort: "latest", type: "PRAY" },
@@ -41,9 +45,11 @@ const App = {
         App.initWriteButtons();
         App.initCategoryTabs();
         App.initTop3MoreLink();
+        App.initNoticeMoreLink();
         App.initScrollTop();
         App.initInfiniteScroll();
         App.loadTopPosts();
+        App.loadNoticePosts();
 
         const initialCategory = App.getInitialCategory();
         App.selectCategory(initialCategory);
@@ -106,6 +112,18 @@ const App = {
             link.addEventListener("click", event => {
                 event.preventDefault();
                 App.selectCategory("인기");
+            });
+        });
+    },
+
+    initNoticeMoreLink() {
+        const moreLinks = document.querySelectorAll(".notice-widget .notice-more");
+        if (moreLinks.length === 0) return;
+
+        moreLinks.forEach(link => {
+            link.addEventListener("click", event => {
+                event.preventDefault();
+                App.selectCategory(NOTICE_CATEGORY);
             });
         });
     },
@@ -241,11 +259,15 @@ const App = {
         const { feedList, emptyState, loader } = App.getFeedElements();
         if (!feedList || !emptyState) return;
 
+        const visiblePosts = App.state.activeCategory === NOTICE_CATEGORY
+            ? (posts || [])
+            : (posts || []).filter(post => post?.type !== NOTICE_TYPE);
+
         if (!append) {
             App.clearFeed();
         }
 
-        if (!posts || posts.length === 0) {
+        if (!visiblePosts || visiblePosts.length === 0) {
             if (!append) {
                 App.setEmptyState(true, DEFAULT_EMPTY_MESSAGE);
             }
@@ -253,7 +275,7 @@ const App = {
         }
 
         const fragment = document.createDocumentFragment();
-        posts.forEach(post => {
+        visiblePosts.forEach(post => {
             fragment.appendChild(App.createPostCard(post));
         });
 
@@ -467,11 +489,13 @@ const App = {
         const lists = document.querySelectorAll(".top3-list");
         if (lists.length === 0) return;
 
+        const visiblePosts = (posts || []).filter(post => post?.type !== NOTICE_TYPE);
+
         lists.forEach(list => {
             const cardClass = list.dataset.cardClass || "";
             list.innerHTML = "";
 
-            if (!posts || posts.length === 0) {
+            if (!visiblePosts || visiblePosts.length === 0) {
                 const empty = document.createElement("div");
                 empty.className = "top3-empty";
                 empty.textContent = "인기글이 아직 없습니다.";
@@ -480,12 +504,92 @@ const App = {
             }
 
             const fragment = document.createDocumentFragment();
-            posts.slice(0, 3).forEach((post, index) => {
+            visiblePosts.slice(0, 3).forEach((post, index) => {
                 fragment.appendChild(App.createTopPostCard(post, index + 1, cardClass));
             });
 
             list.appendChild(fragment);
         });
+    },
+
+    async loadNoticePosts() {
+        const lists = document.querySelectorAll(".notice-list");
+        if (lists.length === 0) return;
+
+        const params = new URLSearchParams();
+        params.set("page", "0");
+        params.set("size", String(NOTICE_PAGE_SIZE));
+        params.set("order", "latest");
+        params.set("type", NOTICE_TYPE);
+
+        try {
+            const response = await fetch(`${API.POSTS}?${params.toString()}`, {
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`공지사항 조회 실패 (${response.status})`);
+            }
+            const payload = await response.json();
+            App.renderNoticePosts(payload?.content || []);
+        } catch (error) {
+            App.renderNoticePosts([]);
+        }
+    },
+
+    renderNoticePosts(posts) {
+        const lists = document.querySelectorAll(".notice-list");
+        if (lists.length === 0) return;
+
+        const visiblePosts = (posts || []).slice(0, 1);
+
+        lists.forEach(list => {
+            list.innerHTML = "";
+
+            if (!visiblePosts || visiblePosts.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "notice-empty";
+                empty.textContent = "공지사항이 없습니다.";
+                list.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            visiblePosts.forEach(post => {
+                fragment.appendChild(App.createNoticeItem(post));
+            });
+            list.appendChild(fragment);
+        });
+    },
+
+    createNoticeItem(post) {
+        const item = document.createElement("a");
+        item.className = "pinned-notice-item";
+        item.href = App.buildPostUrl(post.id);
+
+        const title = document.createElement("span");
+        title.className = "pinned-title";
+        title.textContent = post.title || "공지사항";
+
+        const date = document.createElement("span");
+        date.className = "pinned-date";
+        date.textContent = App.formatDate(post.createdAt);
+
+        item.appendChild(title);
+        item.appendChild(date);
+        return item;
+    },
+
+    formatDate(isoString) {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+        if (Number.isNaN(date.getTime())) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}.${month}.${day}`;
     },
 
     createTopPostCard(post, rank, cardClass) {

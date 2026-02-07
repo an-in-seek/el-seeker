@@ -349,6 +349,19 @@ body {
 }
 
 /* Notice Widget */
+.notice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.notice-empty {
+    font-size: 0.85rem;
+    color: var(--comm-text-sub);
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
 .pinned-notice-item {
     display: flex;
     justify-content: space-between;

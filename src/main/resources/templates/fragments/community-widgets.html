@@ -7,11 +7,11 @@
     <div th:fragment="notice" class="sidebar-widget notice-widget">
         <div class="widget-header">
             <span class="widget-title">📢 공지사항</span>
+            <a href="#" class="widget-more notice-more">더보기</a>
         </div>
-        <a href="#" class="pinned-notice-item coming-soon">
-            <span class="pinned-title">커뮤니티 이용 가이드 안내</span>
-            <span class="pinned-date">2026.02.01</span>
-        </a>
+        <div class="notice-list">
+            <div class="notice-empty">공지사항이 없습니다.</div>
+        </div>
     </div>
 
     <!-- Top 3 Widget Fragment -->
