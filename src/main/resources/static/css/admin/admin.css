@@ -157,7 +157,7 @@ body.admin-sidebar-open {
 
 .admin-card-value {
     flex: 1;
-    text-align: right;
+    text-align: left;
     word-break: break-word;
 }
 
@@ -261,7 +261,7 @@ body.admin-sidebar-open {
 }
 
 .admin-form {
-    max-width: 600px;
+    max-width: 100%;
     background: #fff;
     padding: 1.5rem;
     border-radius: 6px;
@@ -270,6 +270,28 @@ body.admin-sidebar-open {
 
 .admin-form .form-group {
     margin-bottom: 1rem;
+}
+
+.admin-form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: center;
+}
+
+.admin-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #212529;
+}
+
+.admin-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
 }
 
 .admin-form label {
@@ -304,6 +326,7 @@ body.admin-sidebar-open {
     .admin-layout {
         position: relative;
     }
+
     .admin-sidebar {
         position: fixed;
         top: 0;
@@ -313,21 +336,27 @@ body.admin-sidebar-open {
         transition: left 0.2s ease;
         z-index: 10;
     }
+
     .admin-content {
         padding: 1rem;
     }
+
     .admin-topbar {
         display: flex;
     }
+
     .admin-table-wrapper {
         border-radius: 4px;
     }
+
     .admin-table {
         min-width: 640px;
     }
+
     body.admin-sidebar-open .admin-sidebar {
         left: 0;
     }
+
     body.admin-sidebar-open .admin-sidebar-overlay {
         display: block;
     }
@@ -337,33 +366,42 @@ body.admin-sidebar-open {
     .admin-content h2 {
         font-size: 1.15rem;
     }
+
     .admin-search-input {
         width: 100%;
     }
+
     .admin-toolbar {
         flex-direction: column;
         align-items: stretch;
     }
+
     .admin-toolbar form {
         width: 100%;
         flex-wrap: nowrap;
     }
+
     .admin-form {
         max-width: 100%;
         padding: 1rem;
     }
+
     .admin-form-actions {
         flex-direction: column;
     }
+
     .admin-card-actions {
         justify-content: flex-end;
     }
+
     .admin-card-value {
         text-align: left;
     }
+
     .admin-table-wrapper {
         display: none;
     }
+
     .admin-card-list {
         display: flex;
     }

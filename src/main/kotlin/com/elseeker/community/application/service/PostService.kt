@@ -60,10 +60,16 @@ class PostService(
     fun getAdminPosts(
         type: PostType?,
         status: PostStatus?,
+        keyword: String?,
+        author: String?,
         pageable: Pageable,
     ): PostPageResponse {
         val normalizedPageable = PageRequest.of(pageable.pageNumber, pageable.pageSize)
-        val page = postRepository.findPage(normalizedPageable) { PostKotlinJDSL.of(type, status) }
+        val keywordLike = keyword?.trim()?.takeIf { it.isNotBlank() }?.let { "%$it%" }
+        val authorLike = author?.trim()?.takeIf { it.isNotBlank() }?.let { "%$it%" }
+        val page = postRepository.findPage(normalizedPageable) {
+            PostKotlinJDSL.of(type, status, keywordLike, authorLike)
+        }
         return PostPageResponse(
             content = page.filterNotNull().map(Post::toSummaryResponse),
             totalElements = page.totalElements,
@@ -138,6 +144,29 @@ class PostService(
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
         post.hide()
+    }
+
+    @Transactional
+    fun updatePostStatus(postId: Long, memberUid: UUID, status: PostStatus) {
+        val post = postRepository.findByIdWithAuthor(postId) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
+
+        if (post.status == status) return
+
+        when (status) {
+            PostStatus.PUBLISHED -> {
+                if (post.status != PostStatus.PUBLISHED) {
+                    post.publish()
+                }
+            }
+            PostStatus.HIDDEN -> {
+                if (post.status == PostStatus.PUBLISHED) {
+                    post.hide()
+                }
+            }
+            PostStatus.DELETED -> post.delete()
+        }
     }
 
     @Transactional(readOnly = true)

@@ -101,6 +101,10 @@ class Post(
         this.status = PostStatus.HIDDEN
     }
 
+    fun publish() {
+        this.status = PostStatus.PUBLISHED
+    }
+
     fun delete() {
         this.status = PostStatus.DELETED
     }

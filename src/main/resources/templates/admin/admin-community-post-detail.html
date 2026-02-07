@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>커뮤니티 게시글 상세 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/community/posts">게시글 목록</a> &gt; <span>상세</span>
+        </div>
+        <h2>커뮤니티 게시글 상세</h2>
+        <div class="admin-card">
+            <div class="admin-card-title" th:text="${post.title}">제목</div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">ID</span>
+                <span class="admin-card-value" th:text="${post.id}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">유형</span>
+                <span class="admin-card-value" th:text="${post.type}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">작성자</span>
+                <span class="admin-card-value" th:text="${post.authorNickname}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">상태</span>
+                <span class="admin-card-value" th:text="${post.status}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">조회수</span>
+                <span class="admin-card-value" th:text="${post.viewCount}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">반응</span>
+                <span class="admin-card-value" th:text="${post.reactionCount}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">댓글</span>
+                <span class="admin-card-value" th:text="${post.commentCount}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">작성일</span>
+                <span class="admin-card-value" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">수정일</span>
+                <span class="admin-card-value" th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span>
+            </div>
+            <div class="admin-card-row">
+                <span class="admin-card-label">본문</span>
+                <span class="admin-card-value" th:text="${post.content}"></span>
+            </div>
+            <div class="admin-card-actions">
+                <a th:if="${post.status.name() != 'DELETED'}"
+                   th:href="@{/web/admin/community/posts/{id}/edit(id=${post.id})}"
+                   class="btn btn-outline-primary btn-sm">수정</a>
+                <span th:if="${post.status.name() == 'DELETED'}" class="text-muted small">삭제됨</span>
+            </div>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+
+</script>
+</body>
+</html>

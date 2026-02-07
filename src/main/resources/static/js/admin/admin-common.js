@@ -11,7 +11,13 @@ export const fetchAdmin = async (url, options = {}) => {
         throw new Error(body.message || `요청 실패 (${response.status})`);
     }
     if (response.status === 204) return null;
-    return response.json();
+    const text = await response.text();
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return null;
+    }
 };
 
 export const confirmDelete = (name) => confirm(`"${name}" 항목을 삭제하시겠습니까?`);

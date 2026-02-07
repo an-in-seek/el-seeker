@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>커뮤니티 댓글 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <h2>커뮤니티 댓글 관리</h2>
+        <div class="admin-toolbar">
+            <form method="get" action="/web/admin/community/comments" class="d-flex gap-2 flex-wrap">
+                <select name="status" class="form-select form-select-sm admin-search-input" style="max-width: 180px;">
+                    <option value="">전체 상태</option>
+                    <option th:each="s : ${T(com.elseeker.community.domain.vo.CommentStatus).values()}"
+                            th:value="${s}" th:text="${s}" th:selected="${status == s}"></option>
+                </select>
+                <input type="number" name="postId" min="1" class="form-control form-control-sm admin-search-input"
+                       placeholder="게시글 ID" th:value="${postId}" style="max-width: 160px;">
+                <input type="number" name="commentId" min="1" class="form-control form-control-sm admin-search-input"
+                       placeholder="댓글 ID" th:value="${commentId}" style="max-width: 160px;">
+                <input type="text" name="keyword" class="form-control form-control-sm admin-search-input"
+                       placeholder="내용 검색" th:value="${keyword}" style="max-width: 200px;">
+                <input type="text" name="author" class="form-control form-control-sm admin-search-input"
+                       placeholder="작성자" th:value="${author}" style="max-width: 160px;">
+                <button type="submit" class="btn btn-outline-secondary btn-sm admin-search-button">필터</button>
+            </form>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>게시글</th>
+                    <th>내용</th>
+                    <th>작성자</th>
+                    <th>상태</th>
+                    <th>신고</th>
+                    <th>작성일</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${page.content}">
+                    <td th:text="${c.id}"></td>
+                    <td>
+                        <div class="text-muted small" th:text="'#' + ${c.postId}"></div>
+                        <div th:text="${c.postTitle}"></div>
+                    </td>
+                    <td th:text="${#strings.abbreviate(c.content ?: '', 80)}"></td>
+                    <td th:text="${c.authorNickname}"></td>
+                    <td th:text="${c.status}"></td>
+                    <td th:text="${c.reportCount}"></td>
+                    <td th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td class="admin-actions">
+                        <button class="btn btn-outline-warning btn-sm"
+                                th:if="${c.status.name() == 'PUBLISHED'}"
+                                th:data-id="${c.id}" data-status="HIDDEN"
+                                onclick="updateCommentStatus(this)">숨김</button>
+                        <button class="btn btn-outline-success btn-sm"
+                                th:if="${c.status.name() != 'PUBLISHED'}"
+                                th:data-id="${c.id}" data-status="PUBLISHED"
+                                onclick="updateCommentStatus(this)">복구</button>
+                        <button class="btn btn-outline-danger btn-sm"
+                                th:if="${c.status.name() != 'DELETED'}"
+                                th:data-id="${c.id}" th:data-name="${c.content}"
+                                onclick="deleteComment(this)">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="8" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="c : ${page.content}">
+                <div class="admin-card-title" th:text="${#strings.abbreviate(c.content ?: '', 80)}">댓글</div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">ID</span>
+                    <span class="admin-card-value" th:text="${c.id}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">게시글</span>
+                    <span class="admin-card-value" th:text="'#' + ${c.postId} + ' ' + ${c.postTitle}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">작성자</span>
+                    <span class="admin-card-value" th:text="${c.authorNickname}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">상태</span>
+                    <span class="admin-card-value" th:text="${c.status}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">신고</span>
+                    <span class="admin-card-value" th:text="${c.reportCount}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">작성일</span>
+                    <span class="admin-card-value" th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <div class="admin-card-actions">
+                    <button class="btn btn-outline-warning btn-sm"
+                            th:if="${c.status.name() == 'PUBLISHED'}"
+                            th:data-id="${c.id}" data-status="HIDDEN"
+                            onclick="updateCommentStatus(this)">숨김</button>
+                    <button class="btn btn-outline-success btn-sm"
+                            th:if="${c.status.name() != 'PUBLISHED'}"
+                            th:data-id="${c.id}" data-status="PUBLISHED"
+                            onclick="updateCommentStatus(this)">복구</button>
+                    <button class="btn btn-outline-danger btn-sm"
+                            th:if="${c.status.name() != 'DELETED'}"
+                            th:data-id="${c.id}" th:data-name="${c.content}"
+                            onclick="deleteComment(this)">삭제</button>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}"
+                   th:href="@{/web/admin/community/comments(page=${i},size=${page.size},status=${status},postId=${postId},commentId=${commentId},keyword=${keyword},author=${author})}"
+                   th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {fetchAdmin, handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+
+    initAdminSidebarToggle();
+
+    window.updateCommentStatus = async (btn) => {
+        const id = btn.dataset.id;
+        const status = btn.dataset.status;
+        try {
+            await fetchAdmin(`/api/v1/admin/community/comments/${id}/status`, {
+                method: "PATCH",
+                body: JSON.stringify({status}),
+            });
+            location.reload();
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
+    window.deleteComment = (btn) => {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name || "댓글";
+        handleDelete(`/api/v1/admin/community/comments/${id}`, name);
+    };
+</script>
+</body>
+</html>

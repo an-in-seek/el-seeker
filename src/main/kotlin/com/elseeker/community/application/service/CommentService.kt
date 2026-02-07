@@ -17,6 +17,8 @@ import com.elseeker.community.domain.vo.TargetType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.vo.MemberRole
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -38,6 +40,28 @@ class CommentService(
         return CommentSliceResponse(
             content = slice.toList().map { it.toResponse(memberUid) },
             hasNext = slice.hasNext(),
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getAdminComments(
+        status: CommentStatus?,
+        postId: Long?,
+        commentId: Long?,
+        keyword: String?,
+        author: String?,
+        pageable: Pageable,
+    ): Page<Comment> {
+        val normalizedPageable = PageRequest.of(pageable.pageNumber, pageable.pageSize)
+        val keywordLike = keyword?.trim()?.takeIf { it.isNotBlank() }?.let { "%$it%" }
+        val authorLike = author?.trim()?.takeIf { it.isNotBlank() }?.let { "%$it%" }
+        return commentRepository.findAdminPage(
+            status = status,
+            postId = postId,
+            commentId = commentId,
+            keyword = keywordLike,
+            author = authorLike,
+            pageable = normalizedPageable,
         )
     }
 
@@ -119,6 +143,47 @@ class CommentService(
 
         postRepository.incrementCommentCount(postId)
         postRepository.updateScore(postId)
+    }
+
+    @Transactional
+    fun updateCommentStatus(commentId: Long, memberUid: UUID, status: CommentStatus) {
+        val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
+        if (member.memberRole != MemberRole.ADMIN) throwError(ErrorType.ADMIN_ACCESS_DENIED)
+
+        val comment = commentRepository.findById(commentId).orElse(null) ?: throwError(ErrorType.COMMENT_NOT_FOUND, "commentId=$commentId")
+        val postId = comment.post.id ?: throwError(ErrorType.POST_NOT_FOUND, "commentId=$commentId")
+
+        if (comment.status == status) return
+
+        when (status) {
+            CommentStatus.PUBLISHED -> {
+                val restored = commentRepository.restoreIfIn(
+                    commentId = commentId,
+                    fromStatuses = listOf(CommentStatus.HIDDEN, CommentStatus.DELETED),
+                    publishedStatus = CommentStatus.PUBLISHED,
+                )
+                if (restored > 0) {
+                    postRepository.incrementCommentCount(postId)
+                    postRepository.updateScore(postId)
+                }
+            }
+            CommentStatus.HIDDEN -> {
+                if (comment.status != CommentStatus.PUBLISHED) return
+                val hidden = commentRepository.updateStatusIfMatch(
+                    commentId = commentId,
+                    expectedStatus = CommentStatus.PUBLISHED,
+                    newStatus = CommentStatus.HIDDEN,
+                )
+                if (hidden > 0) {
+                    postRepository.decrementCommentCount(postId)
+                    postRepository.updateScore(postId)
+                }
+            }
+            CommentStatus.DELETED -> {
+                if (comment.status == CommentStatus.DELETED) return
+                deleteComment(commentId, memberUid)
+            }
+        }
     }
 
     @Transactional

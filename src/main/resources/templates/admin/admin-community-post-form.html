@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>커뮤니티 게시글 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/community/posts">게시글 목록</a> &gt; <span th:text="${post != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${post != null} ? '게시글 수정' : '게시글 등록'">게시글 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="postType">유형</label>
+                <select id="postType" class="form-select">
+                    <option value="">선택</option>
+                    <option th:each="t : ${T(com.elseeker.community.domain.vo.PostType).values()}"
+                            th:value="${t}" th:text="${t}" th:selected="${post?.type == t}"></option>
+                </select>
+                <small class="text-muted" th:if="${post != null}">수정 시 유형 변경은 지원하지 않습니다.</small>
+            </div>
+            <div class="form-group">
+                <label for="postTitle">제목</label>
+                <input type="text" id="postTitle" th:value="${post?.title}" required>
+            </div>
+            <div class="form-group">
+                <label for="postContent">내용</label>
+                <textarea id="postContent" rows="10" th:text="${post?.content}"></textarea>
+            </div>
+            <div class="form-group admin-form-inline">
+                <label class="admin-check">
+                    <input type="checkbox" id="useReply" th:checked="${post == null || post.useReply}">
+                    <span>댓글 사용</span>
+                </label>
+                <label class="admin-check">
+                    <input type="checkbox" id="isHtml" th:checked="${post != null && post.isHtml}">
+                    <span>HTML 본문</span>
+                </label>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn"
+                        th:disabled="${post != null && post.status.name() == 'DELETED'}"
+                        th:text="${post != null && post.status.name() == 'DELETED'} ? '복구 후 저장' : '저장'">저장</button>
+                <a href="/web/admin/community/posts" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+            <small class="text-muted" th:if="${post != null && post.status.name() == 'DELETED'}">
+                삭제된 게시글은 복구 후 수정할 수 있습니다.
+            </small>
+            <div class="d-flex align-items-center justify-content-between mt-4" th:if="${post != null}">
+                <div>
+                    <div class="fw-semibold">상태 관리</div>
+                    <div class="text-muted small">숨김/삭제/복구 작업을 수행합니다.</div>
+                </div>
+                <span class="badge"
+                      th:text="${post.status}"
+                      th:classappend="${post.status.name() == 'PUBLISHED'} ? ' bg-success' : (${post.status.name() == 'HIDDEN'} ? ' bg-warning text-dark' : ' bg-secondary')">
+                </span>
+            </div>
+            <div class="admin-form-actions" th:if="${post != null}">
+                <button class="btn btn-outline-warning btn-sm"
+                        th:if="${post.status.name() == 'PUBLISHED'}"
+                        th:data-id="${post.id}" data-status="HIDDEN"
+                        onclick="updatePostStatus(this)">숨김</button>
+                <button class="btn btn-outline-success btn-sm"
+                        th:if="${post.status.name() == 'HIDDEN' || post.status.name() == 'DELETED'}"
+                        th:data-id="${post.id}" data-status="PUBLISHED"
+                        onclick="updatePostStatus(this)">복구</button>
+                <button class="btn btn-outline-danger btn-sm"
+                        th:if="${post.status.name() != 'DELETED'}"
+                        th:data-id="${post.id}" th:data-name="${post.title}"
+                        onclick="deletePost(this)">삭제</button>
+                <span th:if="${post.status.name() == 'DELETED'}" class="text-muted small">삭제됨</span>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${post?.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+
+    initAdminSidebarToggle();
+
+    const typeSelect = document.getElementById("postType");
+    const useReplyCheckbox = document.getElementById("useReply");
+    const isHtmlCheckbox = document.getElementById("isHtml");
+    if (editId) {
+        if (typeSelect) typeSelect.disabled = true;
+        if (useReplyCheckbox) useReplyCheckbox.disabled = true;
+        if (isHtmlCheckbox) isHtmlCheckbox.disabled = true;
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const title = document.getElementById("postTitle").value.trim();
+        const content = document.getElementById("postContent").value.trim();
+        if (!title || !content) {
+            alert("제목과 내용을 입력하세요.");
+            return;
+        }
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/community/posts/${editId}`, {
+                    method: "PUT",
+                    body: JSON.stringify({title, content}),
+                });
+            } else {
+                const type = typeSelect.value;
+                if (!type) {
+                    alert("게시글 유형을 선택하세요.");
+                    return;
+                }
+                await fetchAdmin("/api/v1/admin/community/posts", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        type,
+                        language: "ko",
+                        country: "KR",
+                        title,
+                        content,
+                        useReply: document.getElementById("useReply").checked,
+                        isHtml: document.getElementById("isHtml").checked,
+                    }),
+                });
+            }
+            location.href = "/web/admin/community/posts";
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+
+    window.updatePostStatus = async (btn) => {
+        const id = btn.dataset.id;
+        const status = btn.dataset.status;
+        try {
+            await fetchAdmin(`/api/v1/admin/community/posts/${id}/status`, {
+                method: "PATCH",
+                body: JSON.stringify({status}),
+            });
+            location.reload();
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
+    window.deletePost = (btn) => {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        handleDelete(`/api/v1/admin/community/posts/${id}`, name, () => {
+            location.href = "/web/admin/community/posts";
+        });
+    };
+</script>
+</body>
+</html>

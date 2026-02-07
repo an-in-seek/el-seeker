@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>커뮤니티 게시글 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <h2>커뮤니티 게시글 관리</h2>
+        <div class="admin-toolbar">
+            <form method="get" action="/web/admin/community/posts" class="d-flex gap-2 flex-wrap">
+                <select name="type" class="form-select form-select-sm admin-search-input" style="max-width: 180px;">
+                    <option value="">전체 유형</option>
+                    <option th:each="t : ${T(com.elseeker.community.domain.vo.PostType).values()}"
+                            th:value="${t}" th:text="${t}" th:selected="${type == t}"></option>
+                </select>
+                <select name="status" class="form-select form-select-sm admin-search-input" style="max-width: 180px;">
+                    <option value="">전체 상태</option>
+                    <option th:each="s : ${T(com.elseeker.community.domain.vo.PostStatus).values()}"
+                            th:value="${s}" th:text="${s}" th:selected="${status == s}"></option>
+                </select>
+                <input type="text" name="keyword" class="form-control form-control-sm admin-search-input"
+                       placeholder="제목/본문" th:value="${keyword}" style="max-width: 200px;">
+                <input type="text" name="author" class="form-control form-control-sm admin-search-input"
+                       placeholder="작성자" th:value="${author}" style="max-width: 160px;">
+                <button type="submit" class="btn btn-outline-secondary btn-sm admin-search-button">필터</button>
+            </form>
+            <a href="/web/admin/community/posts/new" class="btn btn-primary btn-sm">등록</a>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>유형</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>상태</th>
+                    <th>작성일</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${page.content}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.type}"></td>
+                    <td>
+                        <a th:href="@{/web/admin/community/posts/{id}(id=${p.id})}" th:text="${p.title}"></a>
+                    </td>
+                    <td th:text="${p.authorNickname}"></td>
+                    <td th:text="${p.status}"></td>
+                    <td th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/web/admin/community/posts/{id}/edit(id=${p.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                        <button class="btn btn-outline-warning btn-sm"
+                                th:if="${p.status.name() == 'PUBLISHED'}"
+                                th:data-id="${p.id}" data-status="HIDDEN"
+                                onclick="updatePostStatus(this)">숨김</button>
+                        <button class="btn btn-outline-success btn-sm"
+                                th:if="${p.status.name() == 'HIDDEN' || p.status.name() == 'DELETED'}"
+                                th:data-id="${p.id}" data-status="PUBLISHED"
+                                onclick="updatePostStatus(this)">복구</button>
+                        <button class="btn btn-outline-danger btn-sm"
+                                th:if="${p.status.name() != 'DELETED'}"
+                                th:data-id="${p.id}" th:data-name="${p.title}"
+                                onclick="deletePost(this)">삭제</button>
+                        <span th:if="${p.status.name() == 'DELETED'}" class="text-muted small">삭제됨</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="7" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="p : ${page.content}">
+                <div class="admin-card-title">
+                    <a th:href="@{/web/admin/community/posts/{id}(id=${p.id})}" th:text="${p.title}"></a>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">ID</span>
+                    <span class="admin-card-value" th:text="${p.id}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">유형</span>
+                    <span class="admin-card-value" th:text="${p.type}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">작성자</span>
+                    <span class="admin-card-value" th:text="${p.authorNickname}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">상태</span>
+                    <span class="admin-card-value" th:text="${p.status}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">작성일</span>
+                    <span class="admin-card-value" th:text="${#temporals.format(p.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <div class="admin-card-actions">
+                    <a th:href="@{/web/admin/community/posts/{id}/edit(id=${p.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                    <button class="btn btn-outline-warning btn-sm"
+                            th:if="${p.status.name() == 'PUBLISHED'}"
+                            th:data-id="${p.id}" data-status="HIDDEN"
+                            onclick="updatePostStatus(this)">숨김</button>
+                    <button class="btn btn-outline-success btn-sm"
+                            th:if="${p.status.name() == 'HIDDEN' || p.status.name() == 'DELETED'}"
+                            th:data-id="${p.id}" data-status="PUBLISHED"
+                            onclick="updatePostStatus(this)">복구</button>
+                    <button class="btn btn-outline-danger btn-sm"
+                            th:if="${p.status.name() != 'DELETED'}"
+                            th:data-id="${p.id}" th:data-name="${p.title}"
+                            onclick="deletePost(this)">삭제</button>
+                    <span th:if="${p.status.name() == 'DELETED'}" class="text-muted small">삭제됨</span>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}"
+                   th:href="@{/web/admin/community/posts(page=${i},size=${page.size},type=${type},status=${status},keyword=${keyword},author=${author})}"
+                   th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {fetchAdmin, handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+
+    initAdminSidebarToggle();
+
+    window.updatePostStatus = async (btn) => {
+        const id = btn.dataset.id;
+        const status = btn.dataset.status;
+        try {
+            await fetchAdmin(`/api/v1/admin/community/posts/${id}/status`, {
+                method: "PATCH",
+                body: JSON.stringify({status}),
+            });
+            location.reload();
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+
+    window.deletePost = (btn) => {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        handleDelete(`/api/v1/admin/community/posts/${id}`, name);
+    };
+</script>
+</body>
+</html>
