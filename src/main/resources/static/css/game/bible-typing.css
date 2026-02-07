@@ -81,6 +81,46 @@
     min-width: 110px;
 }
 
+/* Sticky HUD Stack */
+.typing-sticky-stack {
+    position: sticky;
+    top: 76px;
+    /* Below fixed header */
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    /* Reset padding for internal layout */
+    overflow: hidden;
+    /* For border-radius */
+    transition: all 0.3s ease;
+}
+
+/* Unified Status Bar inside Stack */
+.typing-sticky-stack .typing-status-bar {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 1rem 1.5rem;
+    /* Removed border-bottom as it is now the last element */
+}
+
+/* Inner Header inside Stack */
+.typing-sticky-stack .typing-card-head {
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border-bottom: 1px solid #f1f5f9 !important;
+    /* Added separator */
+    margin-bottom: 0 !important;
+}
+
 .status-item {
     display: flex;
     flex-direction: column;
@@ -102,6 +142,8 @@
     font-weight: 700;
     color: #0f172a;
     line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    /* Monospaced numbers */
 }
 
 .bg-teal {
@@ -123,7 +165,8 @@
     max-height: 600px;
     overflow-y: auto;
     padding-right: 0.5rem;
-    padding-left: 0.5rem; /* Added padding-left to prevent clipping */
+    padding-left: 0.5rem;
+    /* Added padding-left to prevent clipping */
 }
 
 /* Scrollbar Styling */
@@ -156,7 +199,8 @@
     display: grid;
     gap: 0.75rem;
     transition: all 0.2s ease;
-    position: relative; /* Ensure z-index works if needed */
+    position: relative;
+    /* Ensure z-index works if needed */
 }
 
 .typing-verse-row.is-active {
@@ -244,6 +288,8 @@
     .typing-status-bar {
         padding: 1rem;
     }
+
+
 
     .status-item {
         min-width: auto;
