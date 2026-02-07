@@ -30,12 +30,12 @@ class CommentService(
 ) {
 
     @Transactional(readOnly = true)
-    fun getComments(postId: Long, pageable: Pageable): CommentSliceResponse {
+    fun getComments(postId: Long, pageable: Pageable, memberUid: UUID? = null): CommentSliceResponse {
         val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
         if (post.status == PostStatus.HIDDEN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         val slice = commentRepository.findByPostIdWithAuthor(postId, CommentStatus.PUBLISHED, pageable)
         return CommentSliceResponse(
-            content = slice.toList().map(Comment::toResponse),
+            content = slice.toList().map { it.toResponse(memberUid) },
             hasNext = slice.hasNext(),
         )
     }
@@ -54,7 +54,7 @@ class CommentService(
         val saved = commentRepository.save(comment)
         postRepository.incrementCommentCount(postId)
         postRepository.updateScore(postId)
-        return saved.toResponse()
+        return saved.toResponse(memberUid)
     }
 
     @Transactional
@@ -66,7 +66,7 @@ class CommentService(
             throwError(ErrorType.COMMENT_ACCESS_DENIED, "commentId=$commentId")
         }
         comment.update(content = content)
-        return comment.toResponse()
+        return comment.toResponse(memberUid)
     }
 
     @Transactional

@@ -70,12 +70,12 @@ class PostService(
     }
 
     @Transactional
-    fun getPostDetail(postId: Long): PostDetailResponse {
+    fun getPostDetail(postId: Long, memberUid: UUID? = null): PostDetailResponse {
         postRepository.incrementViewCount(postId)
         postRepository.updateScore(postId)
         val post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED) ?: throwError(ErrorType.POST_NOT_FOUND, "postId=$postId")
         if (post.status == PostStatus.HIDDEN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
-        return post.toDetailResponse()
+        return post.toDetailResponse(memberUid)
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +99,7 @@ class PostService(
             isWrittenByAdmin = member.memberRole == MemberRole.ADMIN,
         )
         val saved = postRepository.save(post)
-        return saved.toDetailResponse()
+        return saved.toDetailResponse(memberUid)
     }
 
     @Transactional
@@ -108,7 +108,7 @@ class PostService(
         val member = memberRepository.findByUid(memberUid) ?: throwError(ErrorType.MEMBER_NOT_FOUND)
         if (post.author.id != member.id && member.memberRole != MemberRole.ADMIN) throwError(ErrorType.POST_ACCESS_DENIED, "postId=$postId")
         post.update(title = request.title, content = request.content)
-        return post.toDetailResponse()
+        return post.toDetailResponse(memberUid)
     }
 
     @Transactional

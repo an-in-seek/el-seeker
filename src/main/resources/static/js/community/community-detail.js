@@ -46,6 +46,7 @@ const App = {
         App.bindCommentForm();
         App.bindCommentActions();
         App.bindReportPost();
+        App.bindPostOwnerActions();
         App.loadPost();
         App.loadComments();
         App.bindCommentMore();
@@ -102,7 +103,6 @@ const App = {
         App.state.auth.allowed = allowed;
         App.state.auth.user = user;
         App.state.auth.checking = false;
-        App.refreshCommentActions();
     },
 
     async ensureAuth() {
@@ -141,6 +141,11 @@ const App = {
         App.setText("postTitle", post.title || "");
         App.setText("postAuthor", post.authorNickname || "익명");
         App.setText("postTime", App.formatRelativeTime(post.createdAt));
+
+        const ownerActions = document.getElementById("postOwnerActions");
+        if (ownerActions) {
+            ownerActions.hidden = !post.isAuthor;
+        }
         App.setText("postViewCount", formatNumberWithComma(post.viewCount || 0));
         App.setText("postReactionCount", formatNumberWithComma(post.reactionCount || 0));
         App.setText("postCommentCount", formatNumberWithComma(post.commentCount || 0));
@@ -236,14 +241,13 @@ const App = {
 
         list.appendChild(fragment);
         App.toggleCommentEmpty(false);
-        App.refreshCommentActions();
     },
 
     createCommentItem(comment) {
         const item = document.createElement("div");
         item.className = "comment-item";
         item.dataset.commentId = String(comment.id || "");
-        item.dataset.authorNickname = comment.authorNickname || "";
+        item.dataset.isAuthor = String(!!comment.isAuthor);
 
         // Avatar
         const avatar = document.createElement("div");
@@ -310,30 +314,62 @@ const App = {
     },
 
     applyOwnerActionVisibility(container, comment) {
-        const canManage = App.canManageComment(comment);
         container.querySelectorAll(".comment-action-owner").forEach(button => {
-            button.hidden = !canManage;
+            button.hidden = !comment.isAuthor;
         });
     },
 
-    canManageComment(comment) {
-        const user = App.state.auth.user;
-        if (!user) return false;
-        if (user.role === "ADMIN") return true;
-        const nickname = (comment.authorNickname || "").trim();
-        return nickname && nickname === user.nickname;
-    },
+    bindPostOwnerActions() {
+        const editBtn = document.getElementById("btnEditPost");
+        const deleteBtn = document.getElementById("btnDeletePost");
 
-    refreshCommentActions() {
-        const list = document.getElementById("commentList");
-        if (!list) return;
-        list.querySelectorAll(".comment-item").forEach(item => {
-            const nickname = item.dataset.authorNickname || "";
-            const canManage = App.canManageComment({ authorNickname: nickname });
-            item.querySelectorAll(".comment-action-owner").forEach(button => {
-                button.hidden = !canManage;
+        if (editBtn) {
+            editBtn.addEventListener("click", () => {
+                App.handleEditPost();
             });
-        });
+        }
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", () => {
+                App.handleDeletePost();
+            });
+        }
+    },
+
+    handleEditPost() {
+        window.location.href = `/web/community/write?postId=${App.state.postId}`;
+    },
+
+    async handleDeletePost() {
+        if (!window.confirm("게시글을 삭제하시겠습니까?")) return;
+
+        const allowed = await App.ensureAuth();
+        if (!allowed) return;
+
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.POST_DETAIL}/${App.state.postId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`게시글 삭제 실패 (${response.status})`);
+            }
+
+            window.location.href = "/web/community";
+        } catch (error) {
+            alert("게시글 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
     },
 
     bindCommentActions() {

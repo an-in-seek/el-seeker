@@ -39,8 +39,9 @@ class CommunityApi(
     @GetMapping("/posts/{postId}")
     override fun getPostDetail(
         @PathVariable postId: Long,
+        @AuthenticationPrincipal principal: JwtPrincipal?,
     ): ResponseEntity<PostDetailResponse> {
-        val response = postService.getPostDetail(postId)
+        val response = postService.getPostDetail(postId, principal?.memberUid)
         return ResponseEntity.ok(response)
     }
 
@@ -96,8 +97,9 @@ class CommunityApi(
     override fun getComments(
         @PathVariable postId: Long,
         @PageableDefault(size = 20) pageable: Pageable,
+        @AuthenticationPrincipal principal: JwtPrincipal?,
     ): ResponseEntity<CommentSliceResponse> {
-        val response = commentService.getComments(postId, pageable)
+        val response = commentService.getComments(postId, pageable, principal?.memberUid)
         return ResponseEntity.ok(response)
     }
 

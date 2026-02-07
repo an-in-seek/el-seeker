@@ -34,6 +34,7 @@ interface CommunityApiDocument {
     )
     fun getPostDetail(
         @Parameter(description = "게시글 ID") postId: Long,
+        @Parameter(hidden = true) principal: JwtPrincipal?,
     ): ResponseEntity<PostDetailResponse>
 
     @Operation(summary = "게시글 작성", description = "새 게시글을 작성합니다.")
@@ -99,6 +100,7 @@ interface CommunityApiDocument {
     fun getComments(
         @Parameter(description = "게시글 ID") postId: Long,
         pageable: Pageable,
+        @Parameter(hidden = true) principal: JwtPrincipal?,
     ): ResponseEntity<CommentSliceResponse>
 
     @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다.")
