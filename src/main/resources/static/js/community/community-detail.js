@@ -48,7 +48,6 @@ const App = {
     init() {
         App.initAuth();
         App.initNav();
-        App.initScrollTop();
         App.initWidgetLinks();
         App.bindLikeButton();
         App.bindShareButton();
@@ -1286,25 +1285,6 @@ const App = {
         return `${diffYears}년 전`;
     },
 
-    initScrollTop() {
-        const scrollTopBtn = document.getElementById("scrollToTopBtn");
-        if (!scrollTopBtn) return;
-
-        window.addEventListener("scroll", () => {
-            if (window.scrollY > 300) {
-                scrollTopBtn.classList.add("is-visible");
-            } else {
-                scrollTopBtn.classList.remove("is-visible");
-            }
-        });
-
-        scrollTopBtn.addEventListener("click", () => {
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-            });
-        });
-    },
 };
 
 document.addEventListener("DOMContentLoaded", App.init);
