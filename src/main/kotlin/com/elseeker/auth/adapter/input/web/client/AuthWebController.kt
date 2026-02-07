@@ -1,4 +1,4 @@
-package com.elseeker.auth.adapter.input.web
+package com.elseeker.auth.adapter.input.web.client
 
 import com.elseeker.common.security.jwt.JwtProvider
 import com.elseeker.common.security.oauth.util.CookieUtils
@@ -31,8 +31,8 @@ class AuthWebController {
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): String {
-        CookieUtils.deleteCookie(response, JwtProvider.ACCESS_TOKEN_COOKIE_NAME, request.isSecure)
-        CookieUtils.deleteCookie(response, JwtProvider.REFRESH_TOKEN_COOKIE_NAME, request.isSecure)
+        CookieUtils.deleteCookie(response, JwtProvider.Companion.ACCESS_TOKEN_COOKIE_NAME, request.isSecure)
+        CookieUtils.deleteCookie(response, JwtProvider.Companion.REFRESH_TOKEN_COOKIE_NAME, request.isSecure)
         val safeReturnUrl = returnUrl?.takeIf { it.startsWith("/") && !it.startsWith("//") }
         return "redirect:${safeReturnUrl ?: "/"}"
     }
