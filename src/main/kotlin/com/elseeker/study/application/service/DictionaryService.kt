@@ -11,11 +11,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * 패키지 구조 안내:
- * - domain/bible/model: 엔티티
- * - infrastructure/persistence/jpa: Repository
- * - application/bible/service: 읽기 전용 비즈니스 서비스
- * - presentation/api, presentation/web: API/웹 컨트롤러와 응답 모델
+ * 성경 사전 서비스
  */
 @Service
 @Transactional(readOnly = true)
@@ -25,9 +21,9 @@ class DictionaryService(
 
     fun getDictionaries(keyword: String?, pageable: Pageable): Page<Dictionary> =
         if (keyword.isNullOrBlank()) {
-            dictionaryRepository.findAll(pageable)
+            dictionaryRepository.findAllOrderByKo(pageable)
         } else {
-            dictionaryRepository.findByTermContainingIgnoreCase(keyword.trim(), pageable)
+            dictionaryRepository.findByTermContainingKo(keyword.trim(), pageable)
         }
 
     fun getDictionary(id: Long): Dictionary =
