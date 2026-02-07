@@ -1,5 +1,5 @@
-import { formatNumberWithComma, fetchWithAuthRetry } from "/js/common-util.js";
-import { buildLoginRedirectUrl, checkAuthStatus } from "/js/auth/auth-check.js";
+import {fetchWithAuthRetry, formatNumberWithComma} from "/js/common-util.js";
+import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
 
 const API = {
     POSTS: "/api/v1/community/posts",
@@ -32,6 +32,7 @@ const App = {
         commentPage: 0,
         commentHasNext: true,
         commentLoading: false,
+        commentInputAuthChecked: false,
         auth: {
             checked: false,
             allowed: false,
@@ -368,6 +369,51 @@ const App = {
         }
     },
 
+    bindReportPost() {
+        const reportBtn = document.getElementById("btnReportPost");
+        if (!reportBtn) return;
+
+        reportBtn.addEventListener("click", async () => {
+            const allowed = await App.ensureAuth();
+            if (!allowed) return;
+
+            const reason = await App.openReportModal();
+            if (!reason) return;
+
+            App.reportPost(reason);
+        });
+    },
+
+    async reportPost(reason) {
+        try {
+            const response = await fetchWithAuthRetry(
+                `${API.POST_DETAIL}/${App.state.postId}/reports`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ reason }),
+                }
+            );
+
+            if (response.status === 401) {
+                App.redirectToLogin();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`게시글 신고 실패 (${response.status})`);
+            }
+
+            alert("신고가 접수되었습니다.");
+        } catch (error) {
+            alert("게시글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    },
+
     handleEditPost() {
         window.location.href = `/web/community/write?postId=${App.state.postId}`;
     },
@@ -509,7 +555,7 @@ const App = {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify({ content: trimmed }),
+                    body: JSON.stringify({content: trimmed}),
                 }
             );
 
@@ -585,7 +631,7 @@ const App = {
         const allowed = await App.ensureAuth();
         if (!allowed) return;
 
-        const reason = App.promptReportReason();
+        const reason = await App.openReportModal();
         if (!reason) return;
 
         try {
@@ -598,7 +644,7 @@ const App = {
                         "Content-Type": "application/json",
                         Accept: "application/json",
                     },
-                    body: JSON.stringify({ reason }),
+                    body: JSON.stringify({reason}),
                 }
             );
 
@@ -611,74 +657,69 @@ const App = {
                 throw new Error(`댓글 신고 실패 (${response.status})`);
             }
             alert("신고가 접수되었습니다.");
-        } catch (error) {
-            alert("댓글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
-        }
-    },
-
-    bindReportPost() {
-        const button = document.getElementById("btnReportPost");
-        if (!button) return;
-
-        button.addEventListener("click", async () => {
-            const allowed = await App.ensureAuth();
-            if (!allowed) return;
-
-            const reason = App.promptReportReason();
-            if (!reason) return;
-
-            try {
-                const response = await fetchWithAuthRetry(
-                    `${API.POST_DETAIL}/${App.state.postId}/reports`,
-                    {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Accept: "application/json",
-                        },
-                        body: JSON.stringify({ reason }),
-                    }
-                );
-
-                if (response.status === 401) {
-                    App.redirectToLogin();
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(`게시글 신고 실패 (${response.status})`);
-                }
-                alert("신고가 접수되었습니다.");
-            } catch (error) {
-                alert("게시글 신고에 실패했습니다. 잠시 후 다시 시도해주세요.");
-            }
-        });
-    },
-
-    promptReportReason() {
-        const reasons = ["SPAM", "ABUSE", "HATE", "ADULT", "ETC"];
-        const value = window.prompt(
-            "신고 사유를 입력해주세요. (SPAM, ABUSE, HATE, ADULT, ETC)",
-            "SPAM"
-        );
-        if (!value) return null;
-        const normalized = value.trim().toUpperCase();
-        if (!reasons.includes(normalized)) {
-            alert("유효하지 않은 신고 사유입니다.");
-            return null;
-        }
-        return normalized;
-    },
-
-    updateCommentCountBy(delta) {
-        const targets = ["postCommentCount", "commentCountLabel"];
-        targets.forEach(id => {
             const element = document.getElementById(id);
             if (!element) return;
             const current = App.parseNumber(element.textContent);
             const next = Math.max(current + delta, 0);
             element.textContent = formatNumberWithComma(next);
+        } catch (error) {
+            console.warn(error.message);
+        }
+    },
+
+    openReportModal() {
+        const modal = document.getElementById("reportModal");
+        if (!modal || typeof modal.showModal !== "function") {
+            return Promise.resolve(null);
+        }
+
+        const form = modal.querySelector("form");
+        const cancelBtn = document.getElementById("btnCancelReport");
+
+        return new Promise(resolve => {
+            let resolved = false;
+
+            const finish = (value) => {
+                if (resolved) return;
+                resolved = true;
+                cleanup();
+                resolve(value);
+            };
+
+            const onSubmit = (event) => {
+                event.preventDefault();
+                const selected = modal.querySelector("input[name='reason']:checked");
+                const reason = selected ? selected.value : null;
+                modal.close();
+                finish(reason);
+            };
+
+            const onCancel = (event) => {
+                if (event) event.preventDefault();
+                modal.close();
+                finish(null);
+            };
+
+            const onBackdropClick = (event) => {
+                if (event.target === modal) {
+                    modal.close();
+                    finish(null);
+                }
+            };
+
+            const cleanup = () => {
+                if (form) form.removeEventListener("submit", onSubmit);
+                if (cancelBtn) cancelBtn.removeEventListener("click", onCancel);
+                modal.removeEventListener("cancel", onCancel);
+                modal.removeEventListener("click", onBackdropClick);
+            };
+
+            if (form) form.addEventListener("submit", onSubmit);
+            if (cancelBtn) cancelBtn.addEventListener("click", onCancel);
+            modal.addEventListener("cancel", onCancel);
+            modal.addEventListener("click", onBackdropClick);
+
+            modal.showModal();
         });
     },
 
@@ -702,6 +743,18 @@ const App = {
         const input = document.getElementById("commentInput");
         if (!form || !input) return;
 
+        input.addEventListener("beforeinput", async (event) => {
+            if (App.state.auth.allowed) {
+                return;
+            }
+            if (App.state.commentInputAuthChecked) {
+                return;
+            }
+            App.state.commentInputAuthChecked = true;
+            event.preventDefault();
+            await App.ensureAuth();
+        });
+
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
             const content = input.value.trim();
@@ -722,7 +775,7 @@ const App = {
                     "Content-Type": "application/json",
                     Accept: "application/json",
                 },
-                body: JSON.stringify({ content }),
+                body: JSON.stringify({content}),
             });
 
             if (response.status === 401) {

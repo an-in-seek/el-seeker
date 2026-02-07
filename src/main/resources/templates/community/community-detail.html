@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('커뮤니티 상세 | ElSeeker', true, '/css/card.css?v=2.3,/css/community/community-detail.css?v=1.0')}">
+        th:replace="~{fragments/head :: head('커뮤니티 상세 | ElSeeker', true, '/css/card.css?v=2.4,/css/community/community-detail.css?v=2.4')}">
 </head>
 
 <body class="has-fixed-nav" th:attr="data-post-id=${postId}, data-back-link='/web/community'">
@@ -100,13 +100,49 @@
         </aside>
     </div>
 
+    <!-- Report Modal -->
+    <dialog id="reportModal" class="report-modal">
+        <form method="dialog" class="report-form">
+            <h3 class="report-title">신고 사유 선택</h3>
+            <p class="report-desc">신고 사유를 선택해주세요. 허위 신고 시 제재를 받을 수 있습니다.</p>
+
+            <div class="report-reasons">
+                <label class="report-option">
+                    <input type="radio" name="reason" value="SPAM" required checked>
+                    <span class="report-label-text">스팸 / 홍보 도배</span>
+                </label>
+                <label class="report-option">
+                    <input type="radio" name="reason" value="ABUSE">
+                    <span class="report-label-text">욕설 / 비하 발언</span>
+                </label>
+                <label class="report-option">
+                    <input type="radio" name="reason" value="HATE">
+                    <span class="report-label-text">혐오 조장 및 차별</span>
+                </label>
+                <label class="report-option">
+                    <input type="radio" name="reason" value="ADULT">
+                    <span class="report-label-text">음란물 / 유해한 콘텐츠</span>
+                </label>
+                <label class="report-option">
+                    <input type="radio" name="reason" value="ETC">
+                    <span class="report-label-text">기타 부적절한 내용</span>
+                </label>
+            </div>
+
+            <div class="report-actions">
+                <button type="button" class="btn-cancel" id="btnCancelReport">취소</button>
+                <button type="submit" class="btn-submit-report" value="confirm">신고하기</button>
+            </div>
+        </form>
+    </dialog>
+
     <!-- Scroll to Top Button -->
     <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">
         ↑
     </button>
 </main>
 
-    <script type="module" src="/js/community/community-detail.js?v=1.2"></script>
+<script type="module" src="/js/community/community-detail.js?v=1.3"></script>
 </body>
 
 </html>
