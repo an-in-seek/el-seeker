@@ -354,14 +354,14 @@
 .stage-card:not(:last-child)::after {
     content: '';
     position: absolute;
-    bottom: -3.5rem;
-    /* Extend into gap (gap is 3rem + padding) */
+    bottom: -3rem;
+    /* Start right at the card edge to avoid overlap */
     left: 50%;
     transform: translateX(-50%);
     width: 3px;
     /* Line thickness */
-    height: 4rem;
-    /* Should bridge the gap */
+    height: 3rem;
+    /* Match the grid gap so it doesn't enter the next card */
     background: repeating-linear-gradient(to bottom,
             var(--flow-color),
             var(--flow-color) 8px,
@@ -408,7 +408,7 @@
         /* Change from absolute positioning relative to self to create bridge */
         position: absolute;
         top: 50%;
-        right: -2rem;
+        right: calc(-2rem - 2px);
         /* Matches horizontal gap approximately */
         width: 2rem;
         /* Bridge the gap */
@@ -430,7 +430,7 @@
         display: block;
         position: absolute;
         top: 50%;
-        left: -2rem;
+        left: calc(-2rem - 2px);
         width: 2rem;
         height: 3px;
         background: repeating-linear-gradient(to right,
