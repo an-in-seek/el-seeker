@@ -227,8 +227,8 @@ const App = {
         }
 
         if (!append) {
-            App.setEmptyState(true, "게시글을 불러오는 중입니다...");
             App.clearFeed();
+            App.setEmptyState(false);
         }
         App.setLoaderVisible(true);
         App.state.isLoading = true;
