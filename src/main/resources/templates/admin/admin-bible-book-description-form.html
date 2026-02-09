@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>성경책 설명 등록/수정 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <a href="/web/admin/bible/book-descriptions">성경책 설명 목록</a> &gt;
+            <span th:text="${description != null} ? '수정' : '등록'">등록</span>
+        </div>
+        <h2 th:text="${description != null} ? '성경책 설명 수정' : '성경책 설명 등록'">성경책 설명 등록</h2>
+        <div class="admin-form">
+            <div class="form-group">
+                <label for="bookKey">책 키</label>
+                <select id="bookKey">
+                    <option th:each="key : ${bookKeys}" th:value="${key}" th:text="${key}"
+                            th:selected="${description?.bookKey?.name() == key.name()}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="languageCode">언어 코드</label>
+                <input type="text" id="languageCode" th:value="${description?.languageCode}" placeholder="예: ko" list="languageCodes" required>
+                <datalist id="languageCodes">
+                    <option value="ko"></option>
+                    <option value="en"></option>
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="summary">요약</label>
+                <textarea id="summary" rows="4" required th:text="${description?.summary}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="author">저자</label>
+                <input type="text" id="author" th:value="${description?.author}" required>
+            </div>
+            <div class="form-group">
+                <label for="writtenYear">기록 연도</label>
+                <input type="text" id="writtenYear" th:value="${description?.writtenYear}" required>
+            </div>
+            <div class="form-group">
+                <label for="historicalPeriod">역사적 시대</label>
+                <input type="text" id="historicalPeriod" th:value="${description?.historicalPeriod}" required>
+            </div>
+            <div class="form-group">
+                <label for="background">배경</label>
+                <textarea id="background" rows="4" required th:text="${description?.background}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea id="content" rows="6" required th:text="${description?.content}"></textarea>
+            </div>
+            <div class="admin-form-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
+                <a href="/web/admin/bible/book-descriptions" class="btn btn-outline-secondary btn-sm">취소</a>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:inline="javascript">
+    const editId = /*[[${description?.id}]]*/ null;
+</script>
+<script type="module">
+    import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const body = {
+            bookKey: document.getElementById("bookKey").value,
+            languageCode: document.getElementById("languageCode").value,
+            summary: document.getElementById("summary").value,
+            author: document.getElementById("author").value,
+            writtenYear: document.getElementById("writtenYear").value,
+            historicalPeriod: document.getElementById("historicalPeriod").value,
+            background: document.getElementById("background").value,
+            content: document.getElementById("content").value,
+        };
+        try {
+            if (editId) {
+                await fetchAdmin(`/api/v1/admin/bible/book-descriptions/${editId}`, {method: "PUT", body: JSON.stringify(body)});
+            } else {
+                await fetchAdmin("/api/v1/admin/bible/book-descriptions", {method: "POST", body: JSON.stringify(body)});
+            }
+            location.href = "/web/admin/bible/book-descriptions";
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+</body>
+</html>

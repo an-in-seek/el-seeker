@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>성경책 설명 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <div class="admin-breadcrumb">
+            <span>성경책 설명</span>
+        </div>
+        <h2>성경책 설명 관리</h2>
+        <div class="admin-toolbar">
+            <form method="get" action="/web/admin/bible/book-descriptions" class="d-flex gap-2 flex-wrap">
+                <select name="bookKey" class="form-select form-select-sm admin-search-input" style="max-width: 180px;">
+                    <option value="">책 키 전체</option>
+                    <option th:each="key : ${bookKeys}" th:value="${key}" th:text="${key}"
+                            th:selected="${bookKey != null} ? ${key.name() == bookKey.name()} : false"></option>
+                </select>
+                <input type="text" name="languageCode" class="form-control form-control-sm admin-search-input" style="max-width: 140px;"
+                       placeholder="언어 코드 (예: ko)" th:value="${languageCode}" list="languageCodes">
+                <datalist id="languageCodes">
+                    <option value="ko"></option>
+                    <option value="en"></option>
+                </datalist>
+                <button type="submit" class="btn btn-outline-secondary btn-sm admin-search-button">필터</button>
+            </form>
+            <a href="/web/admin/bible/book-descriptions/new" class="btn btn-primary btn-sm">등록</a>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>책 키</th>
+                    <th>언어</th>
+                    <th>요약</th>
+                    <th>저자</th>
+                    <th>기록 연도</th>
+                    <th>시대</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${page.content}">
+                    <td th:text="${d.id}"></td>
+                    <td th:text="${d.bookKey}"></td>
+                    <td th:text="${d.languageCode}"></td>
+                    <td th:text="${#strings.abbreviate(d.summary, 50)}"></td>
+                    <td th:text="${d.author}"></td>
+                    <td th:text="${d.writtenYear}"></td>
+                    <td th:text="${#strings.abbreviate(d.historicalPeriod, 30)}"></td>
+                    <td class="admin-actions">
+                        <a th:href="@{/web/admin/bible/book-descriptions/{id}/edit(id=${d.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                        <button class="btn btn-outline-danger btn-sm" th:data-id="${d.id}" th:data-name="${d.bookKey + ' / ' + d.languageCode}" onclick="deleteDescription(this)">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="8" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="d : ${page.content}">
+                <div class="admin-card-title" th:text="${d.bookKey + ' (' + d.languageCode + ')'}">성경책 설명</div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">ID</span>
+                    <span class="admin-card-value" th:text="${d.id}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">요약</span>
+                    <span class="admin-card-value" th:text="${#strings.abbreviate(d.summary, 80)}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">저자</span>
+                    <span class="admin-card-value" th:text="${d.author}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">기록 연도</span>
+                    <span class="admin-card-value" th:text="${d.writtenYear}"></span>
+                </div>
+                <div class="admin-card-actions">
+                    <a th:href="@{/web/admin/bible/book-descriptions/{id}/edit(id=${d.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                    <button class="btn btn-outline-danger btn-sm" th:data-id="${d.id}" th:data-name="${d.bookKey + ' / ' + d.languageCode}" onclick="deleteDescription(this)">삭제</button>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}"
+                   th:href="@{/web/admin/bible/book-descriptions(page=${i},size=${page.size},bookKey=${bookKey},languageCode=${languageCode})}"
+                   th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+    window.deleteDescription = (btn) => {
+        handleDelete(`/api/v1/admin/bible/book-descriptions/${btn.dataset.id}`, btn.dataset.name);
+    };
+</script>
+</body>
+</html>
