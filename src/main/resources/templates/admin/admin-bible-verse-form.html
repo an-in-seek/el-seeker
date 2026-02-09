@@ -24,7 +24,7 @@
             <span th:text="${verse != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${verse != null} ? '절 수정' : '절 등록'">절 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="verseNumber">절 번호</label>
                 <input type="number" id="verseNumber" th:value="${verse?.verseNumber}" required>
@@ -33,7 +33,7 @@
                 <label for="text">본문</label>
                 <textarea id="text" th:text="${verse?.text}" required></textarea>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a th:href="@{/web/admin/bible/chapters/{cid}/verses(cid=${chapterId})}" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

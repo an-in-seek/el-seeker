@@ -29,13 +29,15 @@
                     <option th:each="key : ${bookKeys}" th:value="${key}" th:text="${key}"
                             th:selected="${bookKey != null} ? ${key.name() == bookKey.name()} : false"></option>
                 </select>
-                <input type="text" name="languageCode" class="form-control form-control-sm admin-search-input" style="max-width: 140px;"
-                       placeholder="언어 코드 (예: ko)" th:value="${languageCode}" list="languageCodes">
-                <datalist id="languageCodes">
-                    <option value="ko"></option>
-                    <option value="en"></option>
-                </datalist>
-                <button type="submit" class="btn btn-outline-secondary btn-sm admin-search-button">필터</button>
+                <select name="languageCode" class="form-select form-select-sm admin-search-input" style="max-width: 140px;">
+                    <option value="" th:selected="${#strings.isEmpty(languageCode)}">언어 전체</option>
+                    <option value="ko" th:selected="${languageCode == 'ko'}">ko</option>
+                    <option value="en" th:selected="${languageCode == 'en'}">en</option>
+                    <option value="ja" th:selected="${languageCode == 'ja'}">ja</option>
+                    <option value="zh" th:selected="${languageCode == 'zh'}">zh</option>
+                    <option value="es" th:selected="${languageCode == 'es'}">es</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm admin-search-button">검색</button>
             </form>
             <a href="/web/admin/bible/book-descriptions/new" class="btn btn-primary btn-sm">등록</a>
         </div>
@@ -111,7 +113,17 @@
 </div>
 <script type="module">
     import {handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+
     initAdminSidebarToggle();
+    const filterForm = document.querySelector(".admin-toolbar form");
+    if (filterForm) {
+        const selects = filterForm.querySelectorAll("select");
+        selects.forEach((select) => {
+            select.addEventListener("change", () => {
+                filterForm.submit();
+            });
+        });
+    }
     window.deleteDescription = (btn) => {
         handleDelete(`/api/v1/admin/bible/book-descriptions/${btn.dataset.id}`, btn.dataset.name);
     };

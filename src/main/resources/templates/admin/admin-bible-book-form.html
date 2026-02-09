@@ -24,7 +24,7 @@
             <span th:text="${book != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${book != null} ? '책 수정' : '책 등록'">책 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="bookKey">책 키</label>
                 <input type="text" id="bookKey" th:value="${book?.bookKey}" placeholder="예: GEN" required>
@@ -48,7 +48,7 @@
                     <option value="NEW" th:selected="${book?.testamentType?.name() == 'NEW'}">신약</option>
                 </select>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a th:href="@{/web/admin/bible/translations/{tid}/books(tid=${translationId})}" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

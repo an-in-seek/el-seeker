@@ -22,7 +22,7 @@
             <a href="/web/admin/members">회원 목록</a> &gt; <span>수정</span>
         </div>
         <h2>회원 정보 수정</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label>회원 ID</label>
                 <input type="text" th:value="${member.id}" readonly>
@@ -84,7 +84,7 @@
                     </table>
                 </div>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/members" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

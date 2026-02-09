@@ -22,7 +22,7 @@
             <a href="/web/admin/quiz/stages">스테이지 목록</a> &gt; <span th:text="${stage != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${stage != null} ? '퀴즈 스테이지 수정' : '퀴즈 스테이지 등록'">퀴즈 스테이지 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="stageNumber">스테이지 번호</label>
                 <input type="number" id="stageNumber" min="1" th:value="${stage?.stageNumber}" required>
@@ -31,7 +31,7 @@
                 <label for="title">제목</label>
                 <input type="text" id="title" th:value="${stage?.title}">
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/quiz/stages" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

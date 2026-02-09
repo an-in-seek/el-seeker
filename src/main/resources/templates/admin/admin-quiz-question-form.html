@@ -23,7 +23,7 @@
             <span th:text="${question != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${question != null} ? '객관식 문제 수정' : '객관식 문제 등록'">객관식 문제 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label>스테이지</label>
                 <input type="text" th:value="${'스테이지 ' + stage.stageNumber + (stage.title != null ? ' - ' + stage.title : '')}" readonly>
@@ -58,7 +58,7 @@
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addOptionBtn">보기 추가</button>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a th:href="@{/web/admin/quiz/stages/{id}/questions(id=${stage.id})}" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

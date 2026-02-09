@@ -23,7 +23,7 @@
             <span th:text="${description != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${description != null} ? '성경책 설명 수정' : '성경책 설명 등록'">성경책 설명 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="bookKey">책 키</label>
                 <select id="bookKey">
@@ -33,11 +33,13 @@
             </div>
             <div class="form-group">
                 <label for="languageCode">언어 코드</label>
-                <input type="text" id="languageCode" th:value="${description?.languageCode}" placeholder="예: ko" list="languageCodes" required>
-                <datalist id="languageCodes">
-                    <option value="ko"></option>
-                    <option value="en"></option>
-                </datalist>
+                <select id="languageCode" required>
+                    <option value="ko" th:selected="${description?.languageCode == 'ko'}">ko</option>
+                    <option value="en" th:selected="${description?.languageCode == 'en'}">en</option>
+                    <option value="ja" th:selected="${description?.languageCode == 'ja'}">ja</option>
+                    <option value="zh" th:selected="${description?.languageCode == 'zh'}">zh</option>
+                    <option value="es" th:selected="${description?.languageCode == 'es'}">es</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="summary">요약</label>
@@ -57,13 +59,13 @@
             </div>
             <div class="form-group">
                 <label for="background">배경</label>
-                <textarea id="background" rows="4" required th:text="${description?.background}"></textarea>
+                <textarea id="background" rows="10" required th:text="${description?.background}"></textarea>
             </div>
             <div class="form-group">
                 <label for="content">내용</label>
-                <textarea id="content" rows="6" required th:text="${description?.content}"></textarea>
+                <textarea id="content" rows="12" required th:text="${description?.content}"></textarea>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/bible/book-descriptions" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>
@@ -75,6 +77,7 @@
 </script>
 <script type="module">
     import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+
     initAdminSidebarToggle();
     document.getElementById("saveBtn").addEventListener("click", async () => {
         const body = {

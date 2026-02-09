@@ -22,7 +22,7 @@
             <a href="/web/admin/dictionaries">사전 목록</a> &gt; <span th:text="${dictionary != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${dictionary != null} ? '사전 수정' : '사전 등록'">사전 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="term">용어</label>
                 <input type="text" id="term" th:value="${dictionary?.term}" required>
@@ -35,7 +35,7 @@
                 <label for="relatedVerses">관련 구절</label>
                 <textarea id="relatedVerses" th:text="${dictionary?.relatedVerses}"></textarea>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/dictionaries" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

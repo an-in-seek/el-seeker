@@ -22,7 +22,7 @@
             <a href="/web/admin/bible/translations">번역본 목록</a> &gt; <span th:text="${translation != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${translation != null} ? '번역본 수정' : '번역본 등록'">번역본 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="translationType">번역 타입</label>
                 <input type="text" id="translationType" th:value="${translation?.translationType}" placeholder="예: KRV" required>
@@ -39,7 +39,7 @@
                 <label for="languageCode">언어 코드</label>
                 <input type="text" id="languageCode" th:value="${translation?.languageCode}" placeholder="예: ko" required>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/bible/translations" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

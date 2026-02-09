@@ -24,12 +24,12 @@
             <span th:text="${chapter != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${chapter != null} ? '장 수정' : '장 등록'">장 등록</h2>
-        <div class="admin-form">
+        <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label for="chapterNumber">장 번호</label>
                 <input type="number" id="chapterNumber" th:value="${chapter?.chapterNumber}" required>
             </div>
-            <div class="admin-form-actions">
+            <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a th:href="@{/web/admin/bible/books/{bid}/chapters(bid=${bookId})}" class="btn btn-outline-secondary btn-sm">취소</a>
             </div>

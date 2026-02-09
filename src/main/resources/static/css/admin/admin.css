@@ -322,6 +322,22 @@ body.admin-sidebar-open {
     margin-top: 1rem;
 }
 
+.admin-form.mobile-actions {
+    padding-bottom: 1.5rem;
+}
+
+.admin-form-actions.mobile-actions {
+    justify-content: flex-end;
+}
+
+.admin-form-actions.mobile-actions .btn.btn-primary {
+    order: 2;
+}
+
+.admin-form-actions.mobile-actions .btn.btn-outline-secondary {
+    order: 1;
+}
+
 @media (max-width: 992px) {
     .admin-layout {
         position: relative;
@@ -388,6 +404,34 @@ body.admin-sidebar-open {
 
     .admin-form-actions {
         flex-direction: column;
+    }
+
+    .admin-form.mobile-actions {
+        padding-bottom: calc(1rem + 5rem);
+    }
+
+    .admin-form-actions.mobile-actions {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 8;
+        margin: 0;
+        padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+        background: #fff;
+        border-top: 1px solid #dee2e6;
+        box-shadow: 0 -8px 16px rgba(15, 23, 42, 0.08);
+        flex-direction: row;
+    }
+
+    .admin-form-actions.mobile-actions .btn {
+        flex: 1;
+        font-size: 0.95rem;
+        padding: 0.65rem 1rem;
+    }
+
+    .admin-form-actions.mobile-actions .btn.btn-primary {
+        flex: 2;
     }
 
     .admin-card-actions {
