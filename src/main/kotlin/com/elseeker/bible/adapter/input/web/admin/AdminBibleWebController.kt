@@ -1,9 +1,12 @@
 package com.elseeker.bible.adapter.input.web.admin
 
+import com.elseeker.bible.application.service.AdminBibleBookDescriptionService
 import com.elseeker.bible.application.service.AdminBibleBookService
 import com.elseeker.bible.application.service.AdminBibleChapterService
 import com.elseeker.bible.application.service.AdminBibleTranslationService
 import com.elseeker.bible.application.service.AdminBibleVerseService
+import com.elseeker.bible.domain.vo.BibleBookKey
+import com.neovisionaries.i18n.LanguageCode
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam
 class AdminBibleWebController(
     private val adminBibleTranslationService: AdminBibleTranslationService,
     private val adminBibleBookService: AdminBibleBookService,
+    private val adminBibleBookDescriptionService: AdminBibleBookDescriptionService,
     private val adminBibleChapterService: AdminBibleChapterService,
     private val adminBibleVerseService: AdminBibleVerseService,
 ) {
@@ -76,6 +80,37 @@ class AdminBibleWebController(
         model.addAttribute("translationId", translationId)
         model.addAttribute("book", adminBibleBookService.findById(id))
         return "admin/admin-bible-book-form"
+    }
+
+    // ── BibleBookDescription ──
+
+    @GetMapping("/bible/book-descriptions")
+    fun bookDescriptionList(
+        @RequestParam(required = false) bookKey: BibleBookKey?,
+        @RequestParam(required = false) languageCode: LanguageCode?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int,
+        model: Model,
+    ): String {
+        val pageable = PageRequest.of(page, size, Sort.by("bookKey", "languageCode"))
+        model.addAttribute("page", adminBibleBookDescriptionService.findAll(bookKey, languageCode, pageable))
+        model.addAttribute("bookKey", bookKey)
+        model.addAttribute("languageCode", languageCode)
+        model.addAttribute("bookKeys", BibleBookKey.entries)
+        return "admin/admin-bible-book-description-list"
+    }
+
+    @GetMapping("/bible/book-descriptions/new")
+    fun bookDescriptionNewForm(model: Model): String {
+        model.addAttribute("bookKeys", BibleBookKey.entries)
+        return "admin/admin-bible-book-description-form"
+    }
+
+    @GetMapping("/bible/book-descriptions/{id}/edit")
+    fun bookDescriptionEditForm(@PathVariable id: Long, model: Model): String {
+        model.addAttribute("description", adminBibleBookDescriptionService.findById(id))
+        model.addAttribute("bookKeys", BibleBookKey.entries)
+        return "admin/admin-bible-book-description-form"
     }
 
     // ── BibleChapter ──
