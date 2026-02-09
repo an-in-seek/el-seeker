@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('성경 제비뽑기 | ElSeeker', true, '/css/hero.css?v=2.3,/css/card.css?v=2.3,/css/game/bible-casting-lots.css?v=1.0')}"></head>
+<body class="has-fixed-nav" data-back-link="/web/game">
+<header th:replace="~{fragments/header :: header}"
+        th:with="pageTitle='성경 제비뽑기', pageTitleVisible=true"></header>
+
+<main class="container content-wrapper casting-lots-page" data-stage="SETUP">
+    <section class="casting-lots-hero">
+        <p class="casting-lots-eyebrow">묵상 · 나눔</p>
+        <h1 class="casting-lots-title">제비뽑기 (Casting Lots)</h1>
+        <p class="casting-lots-lead">
+            말씀을 나누기 위한 역할, 오늘의 주제, 감사 제목을 제비로 나누어 보세요.
+        </p>
+    </section>
+
+    <section class="casting-lots-progress" aria-label="진행 단계">
+        <ol class="casting-lots-steps">
+            <li class="casting-lots-step" data-stage="SETUP">
+                <span class="step-label">1. 제비 설정</span>
+                <span class="step-desc">내용을 작성하고 접습니다.</span>
+            </li>
+            <li class="casting-lots-step" data-stage="SHUFFLED">
+                <span class="step-label">2. 섞기</span>
+                <span class="step-desc">제비를 무작위로 섞습니다.</span>
+            </li>
+            <li class="casting-lots-step" data-stage="DRAWING">
+                <span class="step-label">3. 뽑기</span>
+                <span class="step-desc">하나씩 펼쳐 봅니다.</span>
+            </li>
+            <li class="casting-lots-step" data-stage="RESULT">
+                <span class="step-label">4. 결과</span>
+                <span class="step-desc">모든 제비를 확인합니다.</span>
+            </li>
+        </ol>
+    </section>
+
+    <section class="casting-lots-section casting-lots-setup" id="castingSetupSection">
+        <div class="section-header">
+            <h2 class="section-title">제비 설정</h2>
+            <p class="section-description">최소 2개의 제비를 작성해 주세요.</p>
+        </div>
+
+        <div class="alert alert-danger d-none" id="castingLotsError" role="alert"></div>
+
+        <div class="setup-grid">
+            <label class="setup-field" for="castingLotsCount">
+                <span class="field-label">제비 개수</span>
+                <input type="number" id="castingLotsCount" class="form-control" min="2" max="12" value="2"
+                       inputmode="numeric" />
+            </label>
+            <p class="setup-help">최대 12개까지 입력할 수 있어요.</p>
+        </div>
+
+        <div class="lot-input-list" id="lotInputList" aria-live="polite"></div>
+
+        <button type="button" class="btn btn-dark w-100 casting-primary-button" id="foldLotsButton">
+            제비 접기
+        </button>
+    </section>
+
+    <section class="casting-lots-section casting-lots-deck d-none" id="castingDeckSection">
+        <div class="section-header">
+            <h2 class="section-title">제비 뽑기</h2>
+            <p class="section-description" id="castingDeckMessage">제비를 섞고 있어요...</p>
+        </div>
+        <div class="deck-status">
+            <span class="deck-status-label">남은 제비</span>
+            <strong class="deck-status-value" id="remainingLots">0</strong>
+        </div>
+        <div class="lot-card-grid" id="lotCardGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="casting-lots-section casting-lots-result d-none" id="castingResultSection">
+        <div class="section-header">
+            <h2 class="section-title">결과 요약</h2>
+            <p class="section-description" id="castingResultMessage">
+                펼쳐진 제비가 아래에 순서대로 기록됩니다.
+            </p>
+        </div>
+        <ol class="result-list" id="resultList"></ol>
+        <div class="result-complete d-none" id="resultComplete">
+            <strong>제비뽑기 완료</strong>
+            <p class="mb-0">모든 제비를 확인했습니다.</p>
+        </div>
+        <button type="button" class="btn btn-outline-secondary w-100 casting-secondary-button" id="resetLotsButton">
+            다시 하기
+        </button>
+    </section>
+</main>
+
+<script type="module" src="/js/game/bible-casting-lots.js?v=1.0"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+.casting-lots-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.casting-lots-hero {
+    text-align: left;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, #f9fbff 0%, #fff6ed 100%);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.casting-lots-eyebrow {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.casting-lots-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.casting-lots-lead {
+    margin-bottom: 0;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.casting-lots-progress {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+}
+
+.casting-lots-steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+}
+
+.casting-lots-step {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.casting-lots-step .step-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1f2937;
+}
+
+.casting-lots-step .step-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.casting-lots-step.is-active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.casting-lots-step.is-complete {
+    background: #ecfdf3;
+    border-color: #86efac;
+}
+
+.casting-lots-section {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+}
+
+.section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.section-description {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.setup-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.setup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-label {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.setup-help {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.lot-input-list {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.lot-input-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.lot-input-item input {
+    min-height: 48px;
+}
+
+.casting-primary-button,
+.casting-secondary-button {
+    min-height: 48px;
+    font-weight: 600;
+}
+
+.deck-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+}
+
+.lot-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.lot-card {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 100%;
+    min-height: 140px;
+    perspective: 1000px;
+}
+
+.lot-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 140px;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+}
+
+.lot-card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 700;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.lot-card-front {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    color: #1f2937;
+}
+
+.lot-card-front::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(226, 232, 240, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
+    opacity: 0.65;
+}
+
+.lot-card-front span {
+    position: relative;
+    z-index: 1;
+    font-size: 0.9rem;
+}
+
+.lot-card-back {
+    background: #1f2937;
+    color: #ffffff;
+    transform: rotateY(180deg);
+    border: 1px solid #0f172a;
+}
+
+.lot-card.is-revealed .lot-card-inner {
+    transform: rotateY(180deg);
+}
+
+.lot-card:disabled {
+    cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .lot-card:not(:disabled):hover .lot-card-inner {
+        transform: rotateY(-8deg);
+    }
+
+    .lot-card.is-revealed:hover .lot-card-inner {
+        transform: rotateY(180deg);
+    }
+}
+
+.result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.result-item {
+    padding: 0.85rem 1rem;
+    border-radius: 0.85rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.result-item span {
+    display: block;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.result-complete {
+    background: #ecfdf3;
+    border: 1px solid #86efac;
+    border-radius: 0.85rem;
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #166534;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lot-card-inner {
+        transition: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .casting-lots-hero {
+        padding: 2rem;
+    }
+
+    .casting-lots-title {
+        font-size: 2rem;
+    }
+
+    .lot-card {
+        min-height: 170px;
+    }
+
+    .lot-card-inner {
+        min-height: 170px;
+    }
+}
