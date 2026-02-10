@@ -1,7 +1,12 @@
 import {BookStore, TranslationStore} from "/js/storage-util.js?v=2.2";
 
 const UI_CLASSES = {
-    HIDDEN: "d-none"
+    HIDDEN: "d-none",
+    COLLAPSED: "collapsed"
+};
+
+const STORAGE_KEYS = {
+    SECTION_STATE: "bookList_sectionState"
 };
 
 const API_CONFIG = {
@@ -24,9 +29,57 @@ const DomHelper = {
             pageTitleLabel: get("pageTitleLabel"),
             oldTestamentList: get("oldTestamentList"),
             oldTestamentCount: get("oldTestamentCount"),
+            oldTestamentToggle: get("oldTestamentToggle"),
             newTestamentList: get("newTestamentList"),
-            newTestamentCount: get("newTestamentCount")
+            newTestamentCount: get("newTestamentCount"),
+            newTestamentToggle: get("newTestamentToggle")
         };
+    }
+};
+
+const SectionToggle = {
+    loadState: () => {
+        try {
+            const raw = sessionStorage.getItem(STORAGE_KEYS.SECTION_STATE);
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    },
+
+    saveState: state => {
+        sessionStorage.setItem(STORAGE_KEYS.SECTION_STATE, JSON.stringify(state));
+    },
+
+    isExpanded: sectionKey => {
+        const state = SectionToggle.loadState();
+        return state[sectionKey] !== false;
+    },
+
+    toggle: sectionKey => {
+        const state = SectionToggle.loadState();
+        const currentlyExpanded = state[sectionKey] !== false;
+        state[sectionKey] = !currentlyExpanded;
+        SectionToggle.saveState(state);
+        return !currentlyExpanded;
+    },
+
+    apply: (toggleButton, bodyElement, expanded) => {
+        if (!toggleButton || !bodyElement) return;
+        toggleButton.setAttribute("aria-expanded", String(expanded));
+        bodyElement.classList.toggle(UI_CLASSES.COLLAPSED, !expanded);
+    },
+
+    init: (toggleButton, bodyElement, sectionKey) => {
+        if (!toggleButton || !bodyElement) return;
+
+        const expanded = SectionToggle.isExpanded(sectionKey);
+        SectionToggle.apply(toggleButton, bodyElement, expanded);
+
+        toggleButton.addEventListener("click", () => {
+            const newExpanded = SectionToggle.toggle(sectionKey);
+            SectionToggle.apply(toggleButton, bodyElement, newExpanded);
+        });
     }
 };
 
@@ -39,6 +92,7 @@ const App = {
     init: async () => {
         App.elements = DomHelper.getElements();
         App.initNav();
+        App.initSectionToggles();
 
         App.state.translationId = App.getTranslationId();
         if (!App.state.translationId) {
@@ -68,6 +122,11 @@ const App = {
         if (pageTitleLabel) {
             pageTitleLabel.classList.remove(UI_CLASSES.HIDDEN);
         }
+    },
+
+    initSectionToggles: () => {
+        SectionToggle.init(App.elements.oldTestamentToggle, App.elements.oldTestamentList, "old");
+        SectionToggle.init(App.elements.newTestamentToggle, App.elements.newTestamentList, "new");
     },
 
     getTranslationId: () => {
