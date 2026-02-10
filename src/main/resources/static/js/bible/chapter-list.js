@@ -1,11 +1,13 @@
 import {BookStore, ChapterStore, TranslationStore} from "/js/storage-util.js?v=2.2";
+import {checkAuthStatus} from "/js/auth/auth-check.js";
 
 const UI_CLASSES = {
     HIDDEN: "d-none"
 };
 
 const API_CONFIG = {
-    TRANSLATIONS: "/api/v1/bibles/translations"
+    TRANSLATIONS: "/api/v1/bibles/translations",
+    READING_BASE: "/api/v1/bible/reading"
 };
 
 const ROUTES = {
@@ -38,6 +40,7 @@ const DomHelper = {
 
 const App = {
     elements: null,
+    isAuthenticated: false,
     state: {
         translationId: null,
         bookOrder: null
@@ -71,9 +74,72 @@ const App = {
         App.updateHeader(translationInfo.type, bookName);
         App.setupPrevNext(books);
 
+        await App.initAuthStatus();
+
         if (!App.renderFromSessionStorage()) {
             await App.fetchChaptersFromAPI();
+        } else {
+            await App.applyReadBadges();
         }
+    },
+
+    initAuthStatus: () => {
+        return new Promise(resolve => {
+            checkAuthStatus({
+                onAuthenticated: () => {
+                    App.isAuthenticated = true;
+                    resolve();
+                },
+                onUnauthenticated: () => {
+                    App.isAuthenticated = false;
+                    resolve();
+                },
+                onError: () => {
+                    App.isAuthenticated = false;
+                    resolve();
+                }
+            });
+        });
+    },
+
+    fetchReadChapters: async () => {
+        if (!App.isAuthenticated) {
+            return new Set();
+        }
+        try {
+            const url = `${API_CONFIG.READING_BASE}/chapters/read?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {Accept: "application/json"}
+            });
+            if (response.status === 401) {
+                App.isAuthenticated = false;
+                return new Set();
+            }
+            if (!response.ok) {
+                throw new Error("읽음 상태 조회 실패");
+            }
+            const data = await response.json();
+            return new Set(data.chapterNumbers);
+        } catch (error) {
+            console.warn(error.message);
+            return new Set();
+        }
+    },
+
+    applyReadBadges: async () => {
+        const readChapters = await App.fetchReadChapters();
+        if (readChapters.size === 0) {
+            return;
+        }
+        const tiles = document.querySelectorAll(".chapter-tile");
+        tiles.forEach(tile => {
+            const chapterNumber = parseInt(tile.textContent, 10);
+            if (readChapters.has(chapterNumber)) {
+                tile.classList.add("chapter-read");
+            }
+        });
     },
 
     initStateFromUrl: () => {
@@ -309,6 +375,7 @@ const App = {
         }
         BookStore.saveDetail(App.state.translationId, App.state.bookOrder, data);
         window.scrollTo({top: 0, behavior: "smooth"});
+        App.applyReadBadges();
     },
 
     fetchChaptersFromAPI: async () => {

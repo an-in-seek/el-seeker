@@ -8,7 +8,8 @@ const UI_CLASSES = {
 const API_CONFIG = {
     TRANSLATIONS: "/api/v1/bibles/translations",
     MEMOS_BASE: "/api/v1/bibles/translations",
-    HIGHLIGHTS_BASE: "/api/v1/bibles/translations"
+    HIGHLIGHTS_BASE: "/api/v1/bibles/translations",
+    READING_BASE: "/api/v1/bible/reading"
 };
 
 const ROUTES = {
@@ -51,6 +52,12 @@ const highlightState = {
     auth: createAuthState("형광펜 기능은 로그인 후 사용할 수 있습니다.")
 };
 
+const readState = {
+    auth: createAuthState("읽음 표시는 로그인 후 사용할 수 있습니다."),
+    isRead: false,
+    loading: false
+};
+
 let elements = null;
 let isAuthenticated = false;
 
@@ -74,6 +81,7 @@ function getElements() {
         pageTitleLabel: get("pageTitleLabel"),
         verseTable: get("verseTableBody"),
         prevBtn: get("prevChapterBtn"),
+        markReadBtn: get("markReadBtn"),
         chapterSelectLink: get("chapterSelectLink"),
         chapterSelectLinkLabel: get("chapterSelectLinkLabel"),
         nextBtn: get("nextChapterBtn"),
@@ -167,18 +175,21 @@ async function initAuthStatus() {
                 isAuthenticated = true;
                 setAuthState(memoState.auth, true);
                 setAuthState(highlightState.auth, true);
+                setAuthState(readState.auth, true);
                 resolve();
             },
             onUnauthenticated: () => {
                 isAuthenticated = false;
                 setAuthState(memoState.auth, false);
                 setAuthState(highlightState.auth, false);
+                setAuthState(readState.auth, false);
                 resolve();
             },
             onError: () => {
                 isAuthenticated = false;
                 setAuthState(memoState.auth, false);
                 setAuthState(highlightState.auth, false);
+                setAuthState(readState.auth, false);
                 resolve();
             }
         });
@@ -223,12 +234,15 @@ function setupBackButton(button) {
 }
 
 function bindEvents() {
-    const {prevBtn, nextBtn, verseTable} = elements;
+    const {prevBtn, nextBtn, verseTable, markReadBtn} = elements;
     if (prevBtn) {
         prevBtn.addEventListener("click", () => loadChapter("PREV"));
     }
     if (nextBtn) {
         nextBtn.addEventListener("click", () => loadChapter("NEXT"));
+    }
+    if (markReadBtn) {
+        markReadBtn.addEventListener("click", handleMarkRead);
     }
     if (verseTable) {
         verseTable.addEventListener("click", handleVerseClick);
@@ -364,6 +378,7 @@ async function loadChapter(direction) {
         updateStateFromChapter(data);
         memoState.cache = await fetchMemosForChapter();
         const highlights = await fetchHighlightsForChapter();
+        await fetchReadStatus();
         updateVerseUrl();
         renderChapter(data, highlights);
     } catch (error) {
@@ -1031,6 +1046,104 @@ async function deleteHighlight(verseNum) {
         }
     }
     selection.highlightMap.delete(String(verseNum));
+}
+
+async function fetchReadStatus() {
+    if (!isAuthenticated) {
+        readState.isRead = false;
+        updateReadButton();
+        return;
+    }
+    try {
+        const url = `${API_CONFIG.READING_BASE}/chapters/read?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
+        const response = await fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers: {Accept: "application/json"}
+        });
+        if (response.status === 401) {
+            isAuthenticated = false;
+            setAuthState(readState.auth, false);
+            readState.isRead = false;
+            updateReadButton();
+            return;
+        }
+        if (!response.ok) {
+            throw new Error("읽음 상태 조회 실패");
+        }
+        const data = await response.json();
+        readState.isRead = data.chapterNumbers.includes(state.chapterNumber);
+    } catch (error) {
+        console.warn(error.message);
+        readState.isRead = false;
+    }
+    updateReadButton();
+}
+
+function updateReadButton() {
+    const btn = elements?.markReadBtn;
+    if (!btn) {
+        return;
+    }
+    if (readState.isRead) {
+        btn.classList.remove("btn-outline-success");
+        btn.classList.add("btn-success", "read-done");
+        btn.disabled = true;
+    } else {
+        btn.classList.remove("btn-success", "read-done");
+        btn.classList.add("btn-outline-success");
+        btn.disabled = false;
+    }
+}
+
+async function handleMarkRead() {
+    if (!readState.auth.allowed) {
+        requestAuth(readState.auth);
+        return;
+    }
+    if (readState.isRead || readState.loading) {
+        return;
+    }
+    readState.loading = true;
+    const btn = elements?.markReadBtn;
+    if (btn) {
+        btn.disabled = true;
+    }
+    try {
+        const response = await fetch(`${API_CONFIG.READING_BASE}/chapters/read`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({
+                translationId: state.translationId,
+                bookOrder: state.bookOrder,
+                chapterNumber: state.chapterNumber
+            })
+        });
+        if (response.status === 401) {
+            requestAuth(readState.auth);
+            if (btn) {
+                btn.disabled = false;
+            }
+            return;
+        }
+        if (!response.ok) {
+            throw new Error("읽음 표시 실패");
+        }
+        readState.isRead = true;
+        updateReadButton();
+    } catch (error) {
+        showAlert("읽음 표시 중 오류가 발생했습니다.", "danger");
+        console.error(error);
+        if (btn) {
+            btn.disabled = false;
+        }
+    } finally {
+        readState.loading = false;
+    }
 }
 
 function getSelectedVerseNumbers() {

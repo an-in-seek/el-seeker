@@ -1,3 +1,13 @@
+/* 읽음 완료 버튼 */
+.mark-read-btn {
+    min-width: 100%;
+}
+
+.mark-read-btn.read-done {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
 /* 메모 박스 */
 .memo-container {
     background-color: #fff;
@@ -191,17 +201,17 @@
 }
 
 /* 아이템 간 간격 (Gap 대신 사용) */
-.verse-fab-item+.verse-fab-item {
+.verse-fab-item + .verse-fab-item {
     margin-top: 0.75rem;
 }
 
-.verse-fab-item+.verse-fab-submenu {
+.verse-fab-item + .verse-fab-submenu {
     /* 서브메뉴가 열릴 때만 간격 적용을 위해 트랜지션 처리 */
     margin-top: 0;
     transition: margin-top 0.2s ease-in;
 }
 
-.verse-fab.is-open .verse-fab-item+.verse-fab-submenu.is-open {
+.verse-fab.is-open .verse-fab-item + .verse-fab-submenu.is-open {
     margin-top: 0.5rem;
     /* 기존 gap보다 약간 좁게 조정 or 0.75rem */
     transition: margin-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -289,10 +299,10 @@
 
     /* 닫힐 때: 빠르고 부드럽게 */
     transition: opacity 0.2s ease-in,
-        transform 0.2s ease-in,
-        max-height 0.2s ease-in,
-        padding-top 0.2s ease-in,
-        visibility 0.2s ease-in;
+    transform 0.2s ease-in,
+    max-height 0.2s ease-in,
+    padding-top 0.2s ease-in,
+    visibility 0.2s ease-in;
 }
 
 .verse-fab-submenu.is-open {
@@ -306,10 +316,10 @@
 
     /* 열릴 때: 바운스 효과 */
     transition: opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        padding-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        visibility 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    padding-top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    visibility 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .verse-fab-color {
