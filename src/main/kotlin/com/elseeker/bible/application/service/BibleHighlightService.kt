@@ -8,6 +8,7 @@ import com.elseeker.common.domain.throwError
 import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 @Transactional
@@ -17,13 +18,13 @@ class BibleHighlightService(
 
     @Transactional(readOnly = true)
     fun getChapterHighlights(
-        member: Member,
+        memberUid: UUID,
         translationId: Long,
         bookOrder: Int,
         chapterNumber: Int
     ): List<BibleVerseHighlight> =
-        bibleHighlightRepository.findAllByMemberAndTranslationIdAndBookOrderAndChapterNumber(
-            member,
+        bibleHighlightRepository.findAllByMemberUidAndTranslationIdAndBookOrderAndChapterNumber(
+            memberUid,
             translationId,
             bookOrder,
             chapterNumber

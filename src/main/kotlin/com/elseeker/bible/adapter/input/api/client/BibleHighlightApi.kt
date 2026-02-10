@@ -24,9 +24,8 @@ class BibleHighlightApi(
         @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<List<BibleHighlightApiResponse.HighlightItem>> {
-        val member = getMember(principal)
         val response = bibleHighlightService.getChapterHighlights(
-            member,
+            principal.memberUid,
             translationId,
             bookOrder,
             chapterNumber

@@ -52,6 +52,10 @@ const applyOAuthBackGuard = () => {
     });
 };
 
+export const applyOAuthBackGuardIfNeeded = () => {
+    applyOAuthBackGuard();
+};
+
 export const refreshAccessToken = async () => {
     const response = await fetch(AUTH_REFRESH_ENDPOINT, {
         method: "POST",

@@ -38,9 +38,8 @@ class BibleReadingProgressApi(
         @RequestParam translationId: Long,
         @RequestParam bookOrder: Int
     ): ResponseEntity<BibleReadingProgressResponse> {
-        val member = getMember(principal)
         val chapterNumbers = bibleReadingProgressService.getReadChapters(
-            member = member,
+            memberUid = principal.memberUid,
             translationId = translationId,
             bookOrder = bookOrder
         )

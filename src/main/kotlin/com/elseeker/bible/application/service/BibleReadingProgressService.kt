@@ -6,6 +6,7 @@ import com.elseeker.member.domain.model.Member
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.util.UUID
 
 @Service
 @Transactional
@@ -14,15 +15,15 @@ class BibleReadingProgressService(
 ) {
 
     @Transactional(readOnly = true)
-    fun getReadChapters(member: Member, translationId: Long, bookOrder: Int): List<Int> =
-        bibleReadingProgressRepository.findAllByMemberAndTranslationIdAndBookOrder(
-            member, translationId, bookOrder
+    fun getReadChapters(memberUid: UUID, translationId: Long, bookOrder: Int): List<Int> =
+        bibleReadingProgressRepository.findAllByMemberUidAndTranslationIdAndBookOrder(
+            memberUid, translationId, bookOrder
         ).map { it.chapterNumber }
 
     @Transactional(readOnly = true)
-    fun isChapterRead(member: Member, translationId: Long, bookOrder: Int, chapterNumber: Int): Boolean =
-        bibleReadingProgressRepository.existsByMemberAndTranslationIdAndBookOrderAndChapterNumber(
-            member, translationId, bookOrder, chapterNumber
+    fun isChapterRead(memberUid: UUID, translationId: Long, bookOrder: Int, chapterNumber: Int): Boolean =
+        bibleReadingProgressRepository.existsByMemberUidAndTranslationIdAndBookOrderAndChapterNumber(
+            memberUid, translationId, bookOrder, chapterNumber
         )
 
     fun markChapterAsRead(member: Member, translationId: Long, bookOrder: Int, chapterNumber: Int) {

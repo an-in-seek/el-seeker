@@ -24,9 +24,8 @@ class BibleMemoApi(
         @PathVariable bookOrder: Int,
         @PathVariable chapterNumber: Int
     ): ResponseEntity<List<BibleMemoApiResponse.MemoItem>> {
-        val member = getMember(principal)
         val response = bibleMemoService.getChapterMemos(
-            member,
+            principal.memberUid,
             translationId,
             bookOrder,
             chapterNumber

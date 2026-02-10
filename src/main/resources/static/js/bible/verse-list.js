@@ -1,5 +1,5 @@
 import {BookStore, ChapterStore, LastReadStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.2";
-import {buildLoginRedirectUrl, checkAuthStatus} from "/js/auth/auth-check.js";
+import {applyOAuthBackGuardIfNeeded, buildLoginRedirectUrl, checkAuthStatus, refreshAccessToken} from "/js/auth/auth-check.js";
 
 const UI_CLASSES = {
     HIDDEN: "d-none"
@@ -55,11 +55,20 @@ const highlightState = {
 const readState = {
     auth: createAuthState("읽음 표시는 로그인 후 사용할 수 있습니다."),
     isRead: false,
-    loading: false
+    loading: false,
+    loadingChapterKey: null
+};
+
+const chapterState = {
+    loadToken: 0,
+    dirtyMemos: new Set(),
+    dirtyHighlights: new Set(),
+    readDirty: false,
+    status: "idle",
+    stateLoadPromise: null
 };
 
 let elements = null;
-let isAuthenticated = false;
 
 function createAuthState(message) {
     return {
@@ -164,36 +173,7 @@ async function init() {
     bindEvents();
     initFabMenu();
 
-    await initAuthStatus();
     await loadChapter("CURRENT");
-}
-
-async function initAuthStatus() {
-    return new Promise(resolve => {
-        checkAuthStatus({
-            onAuthenticated: () => {
-                isAuthenticated = true;
-                setAuthState(memoState.auth, true);
-                setAuthState(highlightState.auth, true);
-                setAuthState(readState.auth, true);
-                resolve();
-            },
-            onUnauthenticated: () => {
-                isAuthenticated = false;
-                setAuthState(memoState.auth, false);
-                setAuthState(highlightState.auth, false);
-                setAuthState(readState.auth, false);
-                resolve();
-            },
-            onError: () => {
-                isAuthenticated = false;
-                setAuthState(memoState.auth, false);
-                setAuthState(highlightState.auth, false);
-                setAuthState(readState.auth, false);
-                resolve();
-            }
-        });
-    });
 }
 
 function initNav() {
@@ -356,6 +336,14 @@ function updateVerseUrl() {
     history.replaceState(null, "", buildVerseUrl());
 }
 
+function getCurrentChapterKey() {
+    return `${state.translationId}:${state.bookOrder}:${state.chapterNumber}`;
+}
+
+function isCurrentChapter(chapterKey) {
+    return chapterKey === getCurrentChapterKey();
+}
+
 function saveLastRead() {
     LastReadStore.save({
         translationId: state.translationId,
@@ -366,21 +354,32 @@ function saveLastRead() {
 
 async function loadChapter(direction) {
     try {
+        const loadToken = ++chapterState.loadToken;
+        chapterState.dirtyMemos.clear();
+        chapterState.dirtyHighlights.clear();
+        chapterState.readDirty = false;
+        chapterState.status = "loading";
+        chapterState.stateLoadPromise = null;
+        readState.loading = false;
+        readState.loadingChapterKey = null;
         if (direction !== "CURRENT") {
             state.verseNumber = null;
         }
         const url = buildChapterUrl(direction);
-        const response = await fetch(url);
+        const response = await fetch(url, {credentials: "omit"});
         if (!response.ok) {
             throw new Error("데이터 로딩 실패");
         }
         const data = await response.json();
         updateStateFromChapter(data);
-        memoState.cache = await fetchMemosForChapter();
-        const highlights = await fetchHighlightsForChapter();
-        await fetchReadStatus();
         updateVerseUrl();
-        renderChapter(data, highlights);
+        memoState.cache = new Map();
+        renderChapter(data, []);
+        readState.isRead = false;
+        updateReadButton();
+
+        chapterState.stateLoadPromise = applyChapterState(loadToken);
+        await chapterState.stateLoadPromise;
     } catch (error) {
         showAlert("장 정보를 불러오지 못했습니다.", "danger");
         console.error(error);
@@ -393,6 +392,10 @@ function buildChapterUrl(direction) {
         return `${base}/verses`;
     }
     return `${base}/navigate?direction=${direction}`;
+}
+
+function buildChapterStateUrl() {
+    return `${API_CONFIG.TRANSLATIONS}/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}/state`;
 }
 
 function updateStateFromChapter(data) {
@@ -549,6 +552,144 @@ function setAuthState(authState, allowed) {
     authState.checking = false;
 }
 
+function applyAuthSnapshot(authenticated) {
+    const allowed = Boolean(authenticated);
+    setAuthState(memoState.auth, allowed);
+    setAuthState(highlightState.auth, allowed);
+    setAuthState(readState.auth, allowed);
+}
+
+function mergeMemoState(memos) {
+    const merged = new Map();
+    chapterState.dirtyMemos.forEach(verseNum => {
+        const localMemo = memoState.cache.get(String(verseNum));
+        if (localMemo && localMemo.content) {
+            merged.set(String(verseNum), localMemo);
+        }
+    });
+    if (Array.isArray(memos)) {
+        memos.forEach(memo => {
+            const key = String(memo.verseNumber);
+            if (!chapterState.dirtyMemos.has(key)) {
+                merged.set(key, memo);
+            }
+        });
+    }
+    memoState.cache = merged;
+}
+
+function applyMemoIndicators() {
+    document.querySelectorAll(".verse-text.verse-has-memo").forEach(el => {
+        el.classList.remove("verse-has-memo");
+    });
+    memoState.cache.forEach((memo, verseNum) => {
+        if (!memo || !memo.content) {
+            return;
+        }
+        const verseEl = document.querySelector(`.verse-text[data-verse="${verseNum}"]`);
+        if (verseEl) {
+            verseEl.classList.add("verse-has-memo");
+        }
+    });
+}
+
+async function fetchChapterState() {
+    const url = buildChapterStateUrl();
+    try {
+        let response = await fetch(url, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                Accept: "application/json"
+            }
+        });
+        if (response.status === 401) {
+            const refreshed = await refreshAccessToken();
+            if (!refreshed) {
+                return {status: "unauthorized"};
+            }
+            response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json"
+                }
+            });
+            if (response.status === 401) {
+                return {status: "unauthorized"};
+            }
+        }
+        if (!response.ok) {
+            throw new Error("사용자 상태 조회 실패");
+        }
+        return {status: "ok", data: await response.json()};
+    } catch (error) {
+        console.warn(error.message);
+        return {status: "error"};
+    }
+}
+
+async function applyChapterState(loadToken) {
+    const stateResult = await fetchChapterState();
+    if (loadToken !== chapterState.loadToken) {
+        return;
+    }
+    if (stateResult?.status === "ok") {
+        chapterState.status = "ready";
+        applyAuthSnapshot(true);
+        applyOAuthBackGuardIfNeeded();
+        mergeMemoState(stateResult.data.memos);
+        refreshOpenMemoInputs();
+        applyMemoIndicators();
+        if (!chapterState.readDirty) {
+            readState.isRead = Boolean(stateResult.data.isRead);
+        }
+        updateReadButton();
+        applyHighlightsMerged(stateResult.data.highlights || [], chapterState.dirtyHighlights);
+        return;
+    }
+    if (stateResult?.status === "unauthorized") {
+        chapterState.status = "unauthorized";
+        applyAuthSnapshot(false);
+        readState.isRead = false;
+        updateReadButton();
+        return;
+    }
+    chapterState.status = "error";
+}
+
+async function ensureChapterStateReady() {
+    if (chapterState.status === "ready" || chapterState.status === "unauthorized") {
+        return true;
+    }
+    if (chapterState.status === "loading" && chapterState.stateLoadPromise) {
+        await chapterState.stateLoadPromise;
+        if (chapterState.status === "ready" || chapterState.status === "unauthorized") {
+            return true;
+        }
+    }
+    const loadToken = chapterState.loadToken;
+    chapterState.status = "loading";
+    chapterState.stateLoadPromise = applyChapterState(loadToken);
+    await chapterState.stateLoadPromise;
+    return chapterState.status === "ready" || chapterState.status === "unauthorized";
+}
+
+function refreshOpenMemoInputs() {
+    document.querySelectorAll(".memo-container:not(.d-none)").forEach(container => {
+        const verseNum = container.id.replace("memo-", "");
+        const textarea = document.getElementById(`memo-input-${verseNum}`);
+        if (!textarea) {
+            return;
+        }
+        if (textarea.value.trim().length > 0) {
+            return;
+        }
+        const memo = memoState.cache.get(String(verseNum));
+        textarea.value = memo ? memo.content : "";
+    });
+}
+
 function showMemo(verseNum) {
     const memoContainer = document.getElementById(`memo-${verseNum}`);
     if (!memoContainer) {
@@ -570,10 +711,15 @@ function hideMemo(verseNum) {
 }
 
 async function saveMemo(verseNum) {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
     if (!memoState.auth.allowed) {
         requestAuth(memoState.auth);
         return;
     }
+    const requestChapterKey = getCurrentChapterKey();
     const textarea = document.getElementById(`memo-input-${verseNum}`);
     if (!textarea) {
         showAlert("메모 입력란을 찾을 수 없습니다", "danger");
@@ -595,6 +741,9 @@ async function saveMemo(verseNum) {
                 content: value
             })
         });
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
         if (response.status === 401) {
             requestAuth(memoState.auth);
             return;
@@ -608,6 +757,7 @@ async function saveMemo(verseNum) {
         if (verseTextEl) {
             verseTextEl.classList.add("verse-has-memo");
         }
+        chapterState.dirtyMemos.add(String(verseNum));
         hideMemo(verseNum);
     } catch (error) {
         showAlert("메모 저장 중 오류가 발생했습니다.", "danger");
@@ -616,15 +766,23 @@ async function saveMemo(verseNum) {
 }
 
 async function deleteMemo(verseNum) {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
     if (!memoState.auth.allowed) {
         requestAuth(memoState.auth);
         return;
     }
+    const requestChapterKey = getCurrentChapterKey();
     try {
         const response = await fetch(buildMemoUrl(verseNum), {
             method: "DELETE",
             credentials: "include"
         });
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
         if (response.status === 401) {
             requestAuth(memoState.auth);
             return;
@@ -637,6 +795,7 @@ async function deleteMemo(verseNum) {
         if (verseTextEl) {
             verseTextEl.classList.remove("verse-has-memo");
         }
+        chapterState.dirtyMemos.add(String(verseNum));
         hideMemo(verseNum);
     } catch (error) {
         showAlert("메모 삭제 중 오류가 발생했습니다.", "danger");
@@ -644,45 +803,8 @@ async function deleteMemo(verseNum) {
     }
 }
 
-async function fetchMemosForChapter() {
-    if (!isAuthenticated) {
-        return new Map();
-    }
-    const url = new URL(buildChapterMemoUrl(), window.location.origin);
-    try {
-        const response = await fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                Accept: "application/json"
-            }
-        });
-        if (response.status === 401) {
-            isAuthenticated = false;
-            setAuthState(memoState.auth, false);
-            setAuthState(highlightState.auth, false);
-            return new Map();
-        }
-        if (!response.ok) {
-            throw new Error("메모 조회 실패");
-        }
-        return new Map((await response.json()).map(item => [String(item.verseNumber), item]));
-    } catch (error) {
-        console.warn(error.message);
-        return new Map();
-    }
-}
-
-function buildChapterMemoUrl() {
-    return `${API_CONFIG.MEMOS_BASE}/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}/memos`;
-}
-
 function buildMemoUrl(verseNum) {
     return `${API_CONFIG.MEMOS_BASE}/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}/verses/${parseInt(verseNum, 10)}/memo`;
-}
-
-function buildChapterHighlightUrl() {
-    return `${API_CONFIG.HIGHLIGHTS_BASE}/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}/highlights`;
 }
 
 function buildHighlightUrl(verseNum) {
@@ -848,7 +970,7 @@ function closeFabMenu() {
     closeHighlightMenu();
 }
 
-function handleFabMenuClick(event) {
+async function handleFabMenuClick(event) {
     const actionButton = event.target.closest("[data-action]");
     if (!actionButton) {
         return;
@@ -860,7 +982,7 @@ function handleFabMenuClick(event) {
             closeFabMenu();
             break;
         case "memo":
-            openMemoForSelected();
+            await openMemoForSelected();
             closeFabMenu();
             break;
         case "share":
@@ -905,6 +1027,10 @@ async function handleHighlightPick(event) {
 }
 
 async function applyHighlightToSelection(colorId) {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
     if (!highlightState.auth.allowed) {
         requestAuth(highlightState.auth);
         return;
@@ -928,7 +1054,11 @@ async function applyHighlightToSelection(colorId) {
     resetSelectionState();
 }
 
-function openMemoForSelected() {
+async function openMemoForSelected() {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
     if (!memoState.auth.allowed) {
         requestAuth(memoState.auth);
         return;
@@ -940,35 +1070,6 @@ function openMemoForSelected() {
         if (firstTextarea) {
             firstTextarea.focus();
         }
-    }
-}
-
-async function fetchHighlightsForChapter() {
-    if (!isAuthenticated) {
-        return [];
-    }
-    const url = new URL(buildChapterHighlightUrl(), window.location.origin);
-    try {
-        const response = await fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                Accept: "application/json"
-            }
-        });
-        if (response.status === 401) {
-            isAuthenticated = false;
-            setAuthState(memoState.auth, false);
-            setAuthState(highlightState.auth, false);
-            return [];
-        }
-        if (!response.ok) {
-            throw new Error("형광펜 조회 실패");
-        }
-        return await response.json();
-    } catch (error) {
-        console.warn(error.message);
-        return [];
     }
 }
 
@@ -999,7 +1100,48 @@ function setHighlightFromServer(verseNum, colorConfig) {
     selection.highlightMap.set(String(verseNum), colorConfig);
 }
 
+function applyHighlightsMerged(highlights, dirtySet) {
+    const preserve = dirtySet instanceof Set ? dirtySet : new Set();
+    const colorClasses = HIGHLIGHT_COLORS.map(color => color.className);
+    document.querySelectorAll(".verse-text").forEach(el => {
+        const verseNum = String(el.getAttribute("data-verse"));
+        if (preserve.has(verseNum)) {
+            return;
+        }
+        colorClasses.forEach(className => el.classList.remove(className));
+    });
+    const preservedHighlights = new Map();
+    preserve.forEach(verseNum => {
+        const existing = selection.highlightMap.get(String(verseNum));
+        if (existing) {
+            preservedHighlights.set(String(verseNum), existing);
+        }
+    });
+    selection.highlightMap.clear();
+    if (!highlights || highlights.length === 0) {
+        preservedHighlights.forEach((config, verseNum) => {
+            selection.highlightMap.set(String(verseNum), config);
+        });
+        return;
+    }
+    highlights.forEach(item => {
+        const verseKey = String(item.verseNumber);
+        if (preserve.has(verseKey)) {
+            return;
+        }
+        const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === item.color);
+        if (!colorConfig) {
+            return;
+        }
+        setHighlightFromServer(item.verseNumber, colorConfig);
+    });
+    preservedHighlights.forEach((config, verseNum) => {
+        selection.highlightMap.set(String(verseNum), config);
+    });
+}
+
 async function upsertHighlight(verseNum, colorId) {
+    const requestChapterKey = getCurrentChapterKey();
     const response = await fetch(buildHighlightUrl(verseNum), {
         method: "PUT",
         credentials: "include",
@@ -1009,6 +1151,9 @@ async function upsertHighlight(verseNum, colorId) {
         },
         body: JSON.stringify({color: colorId})
     });
+    if (!isCurrentChapter(requestChapterKey)) {
+        return;
+    }
     if (response.status === 401) {
         requestAuth(highlightState.auth);
         return;
@@ -1023,13 +1168,18 @@ async function upsertHighlight(verseNum, colorId) {
         return;
     }
     setHighlightFromServer(highlight.verseNumber, colorConfig);
+    chapterState.dirtyHighlights.add(String(verseNum));
 }
 
 async function deleteHighlight(verseNum) {
+    const requestChapterKey = getCurrentChapterKey();
     const response = await fetch(buildHighlightUrl(verseNum), {
         method: "DELETE",
         credentials: "include"
     });
+    if (!isCurrentChapter(requestChapterKey)) {
+        return;
+    }
     if (response.status === 401) {
         requestAuth(highlightState.auth);
         return;
@@ -1046,38 +1196,7 @@ async function deleteHighlight(verseNum) {
         }
     }
     selection.highlightMap.delete(String(verseNum));
-}
-
-async function fetchReadStatus() {
-    if (!isAuthenticated) {
-        readState.isRead = false;
-        updateReadButton();
-        return;
-    }
-    try {
-        const url = `${API_CONFIG.READING_BASE}/chapters/read?translationId=${state.translationId}&bookOrder=${state.bookOrder}`;
-        const response = await fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: {Accept: "application/json"}
-        });
-        if (response.status === 401) {
-            isAuthenticated = false;
-            setAuthState(readState.auth, false);
-            readState.isRead = false;
-            updateReadButton();
-            return;
-        }
-        if (!response.ok) {
-            throw new Error("읽음 상태 조회 실패");
-        }
-        const data = await response.json();
-        readState.isRead = data.chapterNumbers.includes(state.chapterNumber);
-    } catch (error) {
-        console.warn(error.message);
-        readState.isRead = false;
-    }
-    updateReadButton();
+    chapterState.dirtyHighlights.add(String(verseNum));
 }
 
 function updateReadButton() {
@@ -1097,14 +1216,20 @@ function updateReadButton() {
 }
 
 async function handleMarkRead() {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
     if (!readState.auth.allowed) {
         requestAuth(readState.auth);
         return;
     }
+    const requestChapterKey = getCurrentChapterKey();
     if (readState.isRead || readState.loading) {
         return;
     }
     readState.loading = true;
+    readState.loadingChapterKey = requestChapterKey;
     const btn = elements?.markReadBtn;
     if (btn) {
         btn.disabled = true;
@@ -1123,6 +1248,9 @@ async function handleMarkRead() {
                 chapterNumber: state.chapterNumber
             })
         });
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
         if (response.status === 401) {
             requestAuth(readState.auth);
             if (btn) {
@@ -1134,15 +1262,22 @@ async function handleMarkRead() {
             throw new Error("읽음 표시 실패");
         }
         readState.isRead = true;
+        chapterState.readDirty = true;
         updateReadButton();
     } catch (error) {
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
         showAlert("읽음 표시 중 오류가 발생했습니다.", "danger");
         console.error(error);
         if (btn) {
             btn.disabled = false;
         }
     } finally {
-        readState.loading = false;
+        if (readState.loadingChapterKey === requestChapterKey) {
+            readState.loading = false;
+            readState.loadingChapterKey = null;
+        }
     }
 }
 
