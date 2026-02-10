@@ -92,7 +92,7 @@
                 <h1 id="pageTitleLabel"
                     class="page-title"
                     th:text="${#strings.isEmpty(pageTitle) ? '' : pageTitle}"
-                    th:classappend="${pageTitleVisible == true ? '' : ' d-none'}"></h1>
+                    th:classappend="${(pageTitleVisible != null ? pageTitleVisible : !#strings.isEmpty(pageTitle)) ? '' : ' d-none'}"></h1>
             </div>
         </div>
     </nav>

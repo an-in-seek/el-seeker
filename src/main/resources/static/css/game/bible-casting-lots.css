@@ -1,311 +1,388 @@
-.casting-lots-page {
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(226, 232, 240, 0.9);
+    --glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-gradient: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --text-light: #1f2937;
+    --accent-color: #764ba2;
+    --error-color: #ef4444;
+}
+
+body {
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Ambient Background */
+.visual-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0;
+    display: none;
+    animation: orbFloat 20s infinite alternate ease-in-out;
+}
+
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    background: #c7d2fe;
+    top: -50px;
+    left: -50px;
+}
+
+.orb-2 {
+    width: 400px;
+    height: 400px;
+    background: #fcd34d;
+    bottom: -100px;
+    right: -100px;
+    animation-delay: -5s;
+}
+
+@keyframes orbFloat {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 50px); }
+}
+
+/* Layout */
+.game-container {
+    max-width: 600px;
+    margin: 48px auto 32px;
+    padding: 16px 20px 24px;
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    justify-content: flex-start;
 }
 
-.casting-lots-hero {
-    text-align: left;
-    padding: 1.5rem;
-    border-radius: 1.25rem;
-    background: linear-gradient(135deg, #f9fbff 0%, #fff6ed 100%);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--glass-shadow);
+    color: var(--text-light);
 }
 
-.casting-lots-eyebrow {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #64748b;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
+/* Phases */
+.game-phase {
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.casting-lots-title {
-    font-size: 1.6rem;
+.game-phase-hidden {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Setup Phase */
+.intro-panel {
+    text-align: center;
+}
+
+.game-title {
+    font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
-    color: #1f2937;
+    background: linear-gradient(to right, #1f2937, #4b5563);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.casting-lots-lead {
-    margin-bottom: 0;
-    color: #4b5563;
-    line-height: 1.6;
-}
-
-.casting-lots-progress {
-    background: #ffffff;
-    border-radius: 1rem;
-    padding: 1rem;
-    border: 1px solid #e2e8f0;
-}
-
-.casting-lots-steps {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.75rem;
-    padding: 0;
-    margin: 0;
-}
-
-.casting-lots-step {
-    padding: 0.75rem;
-    border-radius: 0.75rem;
-    background: #f8fafc;
-    border: 1px solid transparent;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.casting-lots-step .step-label {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: #1f2937;
-}
-
-.casting-lots-step .step-desc {
-    font-size: 0.8rem;
+.game-subtitle {
     color: #64748b;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
 }
 
-.casting-lots-step.is-active {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+.input-configuration {
+    margin-bottom: 2rem;
 }
 
-.casting-lots-step.is-complete {
-    background: #ecfdf3;
-    border-color: #86efac;
-}
-
-.casting-lots-section {
-    background: #ffffff;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
-}
-
-.section-header {
+.input-group-header {
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1.2rem;
-}
-
-.section-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0;
-}
-
-.section-description {
-    margin: 0;
-    color: #64748b;
-    font-size: 0.95rem;
-}
-
-.setup-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.setup-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.field-label {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.setup-help {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    margin: 0;
-}
-
-.lot-input-list {
-    display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.lot-input-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-
-.lot-input-item input {
-    min-height: 48px;
-}
-
-.casting-primary-button,
-.casting-secondary-button {
-    min-height: 48px;
-    font-weight: 600;
-}
-
-.deck-status {
-    display: inline-flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+.stepper-control {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: 12px;
+    padding: 4px;
+}
+
+.stepper-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(15, 23, 42, 0.08);
+    color: var(--text-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.stepper-btn:hover {
+    background: rgba(15, 23, 42, 0.14);
+}
+
+.stepper-control input {
+    width: 40px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    -moz-appearance: textfield;
+}
+
+.stepper-control input::-webkit-outer-spin-button,
+.stepper-control input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.lot-inputs-scroll-area {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+/* Custom Scrollbar */
+.lot-inputs-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+.lot-inputs-scroll-area::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.04);
+}
+.lot-inputs-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.2);
+    border-radius: 3px;
+}
+
+.lot-input-wrapper {
+    position: relative;
+}
+
+.lot-input-wrapper input {
+    width: 100%;
     background: #f8fafc;
-    border-radius: 999px;
-    padding: 0.35rem 0.9rem;
+    border: 1px solid #e2e8f0;
+    padding: 1rem 1.2rem;
+    border-radius: 16px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.lot-input-wrapper input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #a5b4fc;
+    box-shadow: 0 0 0 4px rgba(165, 180, 252, 0.1);
+}
+
+.lot-input-wrapper input::placeholder {
+    color: #94a3b8;
+}
+
+/* Buttons */
+.btn-primary-glass {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 16px;
+    background: var(--primary-gradient);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary-glass:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(118, 75, 162, 0.4);
+}
+
+.btn-primary-glass:active {
+    transform: translateY(0);
+}
+
+.btn-secondary-glass {
+    width: 100%;
+    padding: 0.8rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary-glass:hover {
+    background: #e2e8f0;
+}
+
+/* Game Phase */
+.game-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 1.5rem;
 }
 
-.lot-card-grid {
+.status-message {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.card-arena {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-}
-
-.lot-card {
-    position: relative;
-    border: none;
-    background: transparent;
-    padding: 0;
-    width: 100%;
-    min-height: 140px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1.5rem;
     perspective: 1000px;
+    min-height: 300px;
 }
 
-.lot-card-inner {
+/* Card Styles */
+.game-card {
+    position: relative;
+    width: 100%; /* controlled by grid */
+    aspect-ratio: 2/3;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.card-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 140px;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-style: preserve-3d;
-    transition: transform 0.6s ease;
 }
 
-.lot-card-face {
+.game-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-face {
     position: absolute;
-    inset: 0;
-    border-radius: 1rem;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-front {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: rotateY(0deg);
+}
+
+.card-pattern {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transform: rotate(45deg);
+}
+
+.card-back {
+    background: linear-gradient(135deg, #fff 0%, #f1f5f9 100%);
+    color: var(--text-primary);
+    transform: rotateY(180deg);
     font-weight: 700;
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    font-size: 1rem;
+    word-break: keep-all;
+    line-height: 1.4;
+    border: 2px solid #fff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
-.lot-card-front {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
-    color: #1f2937;
+/* Result Section */
+.result-phase-hidden {
+    display: none;
 }
 
-.lot-card-front::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(226, 232, 240, 0.6) 0%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0.65;
+.result-panel {
+    text-align: center;
+    margin-top: 2rem;
+    animation: slideUp 0.5s forwards;
 }
 
-.lot-card-front span {
-    position: relative;
-    z-index: 1;
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.error-toast {
+    margin-top: 1rem;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 0.8rem;
+    border-radius: 12px;
     font-size: 0.9rem;
 }
 
-.lot-card-back {
-    background: #1f2937;
-    color: #ffffff;
-    transform: rotateY(180deg);
-    border: 1px solid #0f172a;
-}
-
-.lot-card.is-revealed .lot-card-inner {
-    transform: rotateY(180deg);
-}
-
-.lot-card:disabled {
-    cursor: default;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .lot-card:not(:disabled):hover .lot-card-inner {
-        transform: rotateY(-8deg);
-    }
-
-    .lot-card.is-revealed:hover .lot-card-inner {
-        transform: rotateY(180deg);
-    }
-}
-
-.result-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem 0;
-    display: grid;
-    gap: 0.75rem;
-}
-
-.result-item {
-    padding: 0.85rem 1rem;
-    border-radius: 0.85rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    font-weight: 600;
-    color: #1f2937;
-}
-
-.result-item span {
-    display: block;
-    font-size: 0.85rem;
-    color: #64748b;
-    margin-bottom: 0.25rem;
-}
-
-.result-complete {
-    background: #ecfdf3;
-    border: 1px solid #86efac;
-    border-radius: 0.85rem;
-    padding: 1rem;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #166534;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .lot-card-inner {
-        transition: none;
-    }
-}
-
-@media (min-width: 768px) {
-    .casting-lots-hero {
-        padding: 2rem;
-    }
-
-    .casting-lots-title {
-        font-size: 2rem;
-    }
-
-    .lot-card {
-        min-height: 170px;
-    }
-
-    .lot-card-inner {
-        min-height: 170px;
-    }
+/* Mobile Tweaks */
+@media (max-width: 480px) {
+    .game-title { font-size: 2rem; }
+    .card-arena { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .glass-panel { padding: 1.5rem; }
 }

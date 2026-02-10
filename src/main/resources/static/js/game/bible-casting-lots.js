@@ -1,224 +1,216 @@
 const STAGES = Object.freeze({
     SETUP: "SETUP",
-    SHUFFLED: "SHUFFLED",
-    DRAWING: "DRAWING",
-    RESULT: "RESULT",
+    GAME: "GAME",
+    RESULT: "RESULT"
 });
 
-// 상태 흐름: SETUP(입력) → SHUFFLED(섞기) → DRAWING(뽑기) → RESULT(결과)
-const state = {
-    stage: STAGES.SETUP,
-    lots: [],
-};
-
-const DEFAULT_RESULT_MESSAGE = "제비 결과는 카드가 뒤집히면서 바로 확인됩니다.";
-
 const elements = {
-    page: document.querySelector(".casting-lots-page"),
-    steps: document.querySelectorAll(".casting-lots-step"),
-    error: document.getElementById("castingLotsError"),
+    setupSection: document.getElementById("setupSection"),
+    gameSection: document.getElementById("gameSection"),
+    resultSection: document.getElementById("resultSection"),
+    
+    // Setup Phase
     countInput: document.getElementById("castingLotsCount"),
+    btnIncrease: document.getElementById("btnIncrease"),
+    btnDecrease: document.getElementById("btnDecrease"),
     inputList: document.getElementById("lotInputList"),
     foldButton: document.getElementById("foldLotsButton"),
-    deckSection: document.getElementById("castingDeckSection"),
-    deckMessage: document.getElementById("castingDeckMessage"),
+    errorToast: document.getElementById("castingLotsError"),
+
+    // Game Phase
     remaining: document.getElementById("remainingLots"),
-    cardGrid: document.getElementById("lotCardGrid"),
-    resultSection: document.getElementById("castingResultSection"),
-    resultMessage: document.getElementById("castingResultMessage"),
-    resultComplete: document.getElementById("resultComplete"),
-    resetButton: document.getElementById("resetLotsButton"),
-    setupSection: document.getElementById("castingSetupSection"),
+    cardArena: document.getElementById("cardArena"),
+    gameInstruction: document.getElementById("gameInstruction"),
+
+    // Result Phase
+    resetButton: document.getElementById("resetLotsButton")
 };
 
-const buildInputRows = (count) => {
-    const safeCount = Math.max(2, Math.min(12, Number(count) || 2));
-    const previousValues = Array.from(elements.inputList.querySelectorAll("input")).map((input) => input.value);
-
-    elements.inputList.innerHTML = "";
-    for (let i = 0; i < safeCount; i += 1) {
-        const wrapper = document.createElement("label");
-        wrapper.className = "lot-input-item";
-        wrapper.innerHTML = `
-            <span class="field-label">제비 ${i + 1}</span>
-            <input type="text" class="form-control" maxlength="30" placeholder="예: 사도행전 맛디아"
-                   aria-label="제비 ${i + 1} 내용" />
-        `;
-        const input = wrapper.querySelector("input");
-        if (previousValues[i]) {
-            input.value = previousValues[i];
-        }
-        elements.inputList.appendChild(wrapper);
-    }
-
-    elements.countInput.value = String(safeCount);
+let gameState = {
+    stage: STAGES.SETUP,
+    lots: [],
+    count: 2
 };
 
-const setStage = (nextStage) => {
-    state.stage = nextStage;
-    if (elements.page) {
-        elements.page.dataset.stage = nextStage;
-    }
+// --- Utils ---
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    elements.setupSection.classList.toggle("d-none", nextStage !== STAGES.SETUP);
-    elements.deckSection.classList.toggle("d-none", nextStage === STAGES.SETUP);
-    elements.resultSection.classList.toggle("d-none", nextStage === STAGES.SETUP);
-
-    elements.steps.forEach((step) => {
-        const stepStage = step.dataset.stage;
-        step.classList.toggle("is-active", stepStage === nextStage);
-        step.classList.toggle("is-complete", stepStage !== nextStage && isStageComplete(stepStage));
-    });
-};
-
-const isStageComplete = (stage) => {
-    const order = [STAGES.SETUP, STAGES.SHUFFLED, STAGES.DRAWING, STAGES.RESULT];
-    return order.indexOf(stage) < order.indexOf(state.stage);
-};
-
-const showError = (message) => {
-    elements.error.textContent = message;
-    elements.error.classList.remove("d-none");
+const showError = (msg) => {
+    elements.errorToast.textContent = msg;
+    elements.errorToast.classList.remove("d-none");
+    // Auto hide after 3s
+    setTimeout(() => {
+        elements.errorToast.classList.add("d-none");
+    }, 3000);
 };
 
 const clearError = () => {
-    elements.error.textContent = "";
-    elements.error.classList.add("d-none");
+    elements.errorToast.classList.add("d-none");
 };
 
-const shuffleLots = (lots) => {
-    const copy = [...lots];
-    for (let i = copy.length - 1; i > 0; i -= 1) {
+// --- Setup Phase Functionality ---
+const createInputRow = (index, value = "") => {
+    const div = document.createElement("div");
+    div.className = "lot-input-wrapper";
+    div.innerHTML = `
+        <input type="text" placeholder="제비 ${index} 내용 입력..." value="${value}" maxlength="20">
+    `;
+    return div;
+};
+
+const renderInputs = () => {
+    const currentValues = Array.from(elements.inputList.querySelectorAll("input"))
+        .map(input => input.value);
+    
+    elements.inputList.innerHTML = "";
+    
+    for (let i = 0; i < gameState.count; i++) {
+        const value = currentValues[i] || "";
+        const row = createInputRow(i + 1, value);
+        elements.inputList.appendChild(row);
+    }
+    
+    elements.countInput.value = gameState.count;
+};
+
+const updateCount = (delta) => {
+    const newCount = gameState.count + delta;
+    if (newCount >= 2 && newCount <= 12) {
+        gameState.count = newCount;
+        renderInputs();
+    }
+};
+
+// --- Game Phase Functionality ---
+const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+        [array[i], array[j]] = [array[j], array[i]];
     }
-    return copy;
+    return array;
 };
 
-const renderCards = () => {
-    elements.cardGrid.innerHTML = "";
-    state.lots.forEach((lot) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "lot-card";
-        button.dataset.lotId = lot.id;
-        button.disabled = lot.revealed;
-        button.setAttribute("aria-label", "접힌 제비");
-        const backText = lot.revealed ? lot.text : "클릭해서 확인";
-        button.innerHTML = `
-            <span class="lot-card-inner">
-                <span class="lot-card-face lot-card-front"><span>제비</span></span>
-                <span class="lot-card-face lot-card-back">${backText}</span>
-            </span>
+const renderCards = (lots) => {
+    elements.cardArena.innerHTML = "";
+    lots.forEach((lot, index) => {
+        const btn = document.createElement("button");
+        btn.className = "game-card";
+        btn.dataset.id = lot.id;
+        btn.dataset.index = index;
+        btn.innerHTML = `
+            <div class="card-inner">
+                <div class="card-face card-front">
+                    <div class="card-pattern"></div>
+                </div>
+                <div class="card-face card-back">${lot.text}</div>
+            </div>
         `;
-        if (lot.revealed) {
-            button.classList.add("is-revealed");
-            button.setAttribute("aria-label", `펼쳐진 제비: ${lot.text}`);
-        }
-        elements.cardGrid.appendChild(button);
+        // Stagger animation
+        btn.style.opacity = "0";
+        btn.style.animation = `slideUp 0.4s ease forwards ${index * 0.1}s`;
+        
+        btn.addEventListener("click", () => handleCardClick(btn, lot));
+        elements.cardArena.appendChild(btn);
     });
-
-    elements.remaining.textContent = String(state.lots.filter((lot) => !lot.revealed).length);
 };
 
-const startShuffle = () => {
-    elements.deckMessage.textContent = "제비를 섞고 있어요...";
-    setStage(STAGES.SHUFFLED);
-    renderCards();
+const handleCardClick = (cardBtn, lot) => {
+    if (lot.revealed) return;
 
-    window.setTimeout(() => {
-        elements.deckMessage.textContent = "카드를 눌러 제비를 펼쳐 보세요.";
-        setStage(STAGES.DRAWING);
-    }, 700);
-};
-
-const handleFoldLots = () => {
-    clearError();
-    const count = Number(elements.countInput.value) || 0;
-    const inputs = Array.from(elements.inputList.querySelectorAll("input"));
-    if (count < 2) {
-        showError("제비는 최소 2개가 필요합니다.");
-        return;
-    }
-
-    const values = inputs.map((input) => input.value.trim());
-    if (values.some((value) => value.length === 0)) {
-        showError("모든 제비 내용을 입력해 주세요.");
-        return;
-    }
-
-    state.lots = shuffleLots(
-        values.map((text, index) => ({
-            id: `lot-${index + 1}`,
-            text,
-            revealed: false,
-        }))
-    );
-    elements.resultMessage.textContent = DEFAULT_RESULT_MESSAGE;
-    elements.resultComplete.classList.add("d-none");
-    startShuffle();
-};
-
-const handleCardClick = (event) => {
-    const card = event.target.closest(".lot-card");
-    if (!card || state.stage !== STAGES.DRAWING) return;
-
-    const lotId = card.dataset.lotId;
-    const lot = state.lots.find((item) => item.id === lotId);
-    if (!lot || lot.revealed) return;
-
+    // Reveal logic
     lot.revealed = true;
+    cardBtn.classList.add("flipped");
+    
+    // Update stats
+    updateRemainingCount();
 
-    const backFace = card.querySelector(".lot-card-back");
-    if (backFace) {
-        backFace.textContent = lot.text;
-    }
-
-    card.classList.add("is-revealed");
-    card.disabled = true;
-    card.setAttribute("aria-label", `펼쳐진 제비: ${lot.text}`);
-
-    elements.remaining.textContent = String(state.lots.filter((item) => !item.revealed).length);
-    elements.resultComplete.classList.toggle("d-none", state.lots.some((item) => !item.revealed));
-
-    if (state.lots.every((item) => item.revealed)) {
-        elements.deckMessage.textContent = "모든 제비를 펼쳤습니다.";
-        elements.resultMessage.textContent = "제비뽑기가 완료되었습니다. 결과를 확인해 주세요.";
-        setStage(STAGES.RESULT);
+    // Check if game over
+    if (gameState.lots.every(l => l.revealed)) {
+        setTimeout(endGame, 800);
     }
 };
 
-const resetGame = () => {
-    state.stage = STAGES.SETUP;
-    state.lots = [];
-    elements.cardGrid.innerHTML = "";
-    elements.resultComplete.classList.add("d-none");
-    elements.resultMessage.textContent = DEFAULT_RESULT_MESSAGE;
-    buildInputRows(elements.countInput.value);
-    setStage(STAGES.SETUP);
+const updateRemainingCount = () => {
+    const remaining = gameState.lots.filter(l => !l.revealed).length;
+    elements.remaining.textContent = remaining;
+    
+    if (remaining === 0) {
+        elements.gameInstruction.textContent = "확인 완료!";
+    } else {
+        elements.gameInstruction.textContent = "카드를 선택하여 확인하세요";
+    }
 };
 
-const handleCountChange = (event) => {
+const startGame = async () => {
     clearError();
-    const value = Number(event.target.value) || 2;
-    buildInputRows(value);
+    const inputs = Array.from(elements.inputList.querySelectorAll("input"));
+    const values = inputs.map(input => input.value.trim());
+
+    if (values.some(v => !v)) {
+        showError("모든 제비의 내용을 입력해주세요.");
+        return;
+    }
+
+    // Prepare Data
+    gameState.lots = values.map((text, i) => ({
+        id: `lot-${Date.now()}-${i}`,
+        text,
+        revealed: false
+    }));
+
+    // Transition UI
+    elements.setupSection.classList.add("game-phase-hidden"); // fade out setup
+    await wait(500); 
+    elements.setupSection.style.display = "none";
+    
+    elements.gameSection.style.display = "block";
+    // Force reflow
+    void elements.gameSection.offsetWidth;
+    elements.gameSection.classList.remove("game-phase-hidden");
+
+    // Shuffle Simulation
+    elements.gameInstruction.textContent = "제비를 섞는 중...";
+    gameState.lots = shuffleArray(gameState.lots);
+    
+    // Fake shuffle delay for tension
+    await wait(1000);
+    
+    renderCards(gameState.lots);
+    updateRemainingCount();
 };
 
-buildInputRows(elements.countInput.value);
-setStage(STAGES.SETUP);
+const endGame = () => {
+    elements.resultSection.style.display = "block";
+    void elements.resultSection.offsetWidth;
+    elements.resultSection.classList.remove("result-phase-hidden");
+    
+    // Scroll to result if needed, or just show it (it's in view usually)
+};
 
-if (elements.countInput) {
-    elements.countInput.addEventListener("change", handleCountChange);
-}
+const resetGame = async () => {
+    // Hide Result & Game
+    elements.resultSection.classList.add("result-phase-hidden");
+    elements.gameSection.classList.add("game-phase-hidden");
+    
+    await wait(500);
+    elements.resultSection.style.display = "none";
+    elements.gameSection.style.display = "none";
+    elements.cardArena.innerHTML = "";
 
-if (elements.foldButton) {
-    elements.foldButton.addEventListener("click", handleFoldLots);
-}
+    // Show Setup
+    elements.setupSection.style.display = "block";
+    void elements.setupSection.offsetWidth;
+    elements.setupSection.classList.remove("game-phase-hidden");
+    
+    gameState.lots = [];
+};
 
-if (elements.cardGrid) {
-    elements.cardGrid.addEventListener("click", handleCardClick);
-}
+// --- Event Listeners ---
+elements.btnIncrease.addEventListener("click", () => updateCount(1));
+elements.btnDecrease.addEventListener("click", () => updateCount(-1));
 
-if (elements.resetButton) {
-    elements.resetButton.addEventListener("click", resetGame);
-}
+// Initial Input Render
+renderInputs();
+
+elements.foldButton.addEventListener("click", startGame);
+elements.resetButton.addEventListener("click", resetGame);
