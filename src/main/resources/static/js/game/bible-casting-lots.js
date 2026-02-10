@@ -104,15 +104,16 @@ const renderCards = () => {
         button.dataset.lotId = lot.id;
         button.disabled = lot.revealed;
         button.setAttribute("aria-label", "접힌 제비");
+        const backText = lot.revealed ? lot.text : "클릭해서 확인";
         button.innerHTML = `
             <span class="lot-card-inner">
                 <span class="lot-card-face lot-card-front"><span>제비</span></span>
-                <span class="lot-card-face lot-card-back">${lot.text}</span>
+                <span class="lot-card-face lot-card-back">${backText}</span>
             </span>
         `;
         if (lot.revealed) {
             button.classList.add("is-revealed");
-            button.setAttribute("aria-label", "펼쳐진 제비");
+            button.setAttribute("aria-label", `펼쳐진 제비: ${lot.text}`);
         }
         elements.cardGrid.appendChild(button);
     });
@@ -168,9 +169,14 @@ const handleCardClick = (event) => {
 
     lot.revealed = true;
 
+    const backFace = card.querySelector(".lot-card-back");
+    if (backFace) {
+        backFace.textContent = lot.text;
+    }
+
     card.classList.add("is-revealed");
     card.disabled = true;
-    card.setAttribute("aria-label", "펼쳐진 제비");
+    card.setAttribute("aria-label", `펼쳐진 제비: ${lot.text}`);
 
     elements.remaining.textContent = String(state.lots.filter((item) => !item.revealed).length);
     elements.resultComplete.classList.toggle("d-none", state.lots.some((item) => !item.revealed));
