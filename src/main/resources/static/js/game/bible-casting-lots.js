@@ -9,8 +9,9 @@ const STAGES = Object.freeze({
 const state = {
     stage: STAGES.SETUP,
     lots: [],
-    results: [],
 };
+
+const DEFAULT_RESULT_MESSAGE = "제비 결과는 카드가 뒤집히면서 바로 확인됩니다.";
 
 const elements = {
     page: document.querySelector(".casting-lots-page"),
@@ -24,7 +25,6 @@ const elements = {
     remaining: document.getElementById("remainingLots"),
     cardGrid: document.getElementById("lotCardGrid"),
     resultSection: document.getElementById("castingResultSection"),
-    resultList: document.getElementById("resultList"),
     resultMessage: document.getElementById("castingResultMessage"),
     resultComplete: document.getElementById("resultComplete"),
     resetButton: document.getElementById("resetLotsButton"),
@@ -120,18 +120,6 @@ const renderCards = () => {
     elements.remaining.textContent = String(state.lots.filter((lot) => !lot.revealed).length);
 };
 
-const renderResults = () => {
-    elements.resultList.innerHTML = "";
-    state.results.forEach((result, index) => {
-        const item = document.createElement("li");
-        item.className = "result-item";
-        item.innerHTML = `<span>${index + 1}번째 제비</span>${result}`;
-        elements.resultList.appendChild(item);
-    });
-
-    elements.resultComplete.classList.toggle("d-none", state.lots.some((lot) => !lot.revealed));
-};
-
 const startShuffle = () => {
     elements.deckMessage.textContent = "제비를 섞고 있어요...";
     setStage(STAGES.SHUFFLED);
@@ -165,8 +153,8 @@ const handleFoldLots = () => {
             revealed: false,
         }))
     );
-    state.results = [];
-    renderResults();
+    elements.resultMessage.textContent = DEFAULT_RESULT_MESSAGE;
+    elements.resultComplete.classList.add("d-none");
     startShuffle();
 };
 
@@ -179,14 +167,13 @@ const handleCardClick = (event) => {
     if (!lot || lot.revealed) return;
 
     lot.revealed = true;
-    state.results.push(lot.text);
 
     card.classList.add("is-revealed");
     card.disabled = true;
     card.setAttribute("aria-label", "펼쳐진 제비");
 
     elements.remaining.textContent = String(state.lots.filter((item) => !item.revealed).length);
-    renderResults();
+    elements.resultComplete.classList.toggle("d-none", state.lots.some((item) => !item.revealed));
 
     if (state.lots.every((item) => item.revealed)) {
         elements.deckMessage.textContent = "모든 제비를 펼쳤습니다.";
@@ -198,10 +185,9 @@ const handleCardClick = (event) => {
 const resetGame = () => {
     state.stage = STAGES.SETUP;
     state.lots = [];
-    state.results = [];
-    elements.resultList.innerHTML = "";
     elements.cardGrid.innerHTML = "";
     elements.resultComplete.classList.add("d-none");
+    elements.resultMessage.textContent = DEFAULT_RESULT_MESSAGE;
     buildInputRows(elements.countInput.value);
     setStage(STAGES.SETUP);
 };
