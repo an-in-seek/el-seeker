@@ -1,495 +1,548 @@
-/* --- Bible Quiz Map: Ancient Path Theme (Rebalanced) --- */
+/* ================================================
+   Bible Quiz Map — Journey Path Redesign
+   ================================================
+   Design concept: "순례자의 여정" (Pilgrim's Journey)
+   - Vertical timeline with clear state differentiation
+   - Mobile-first, 2-col snake on desktop
+   - Game-like engagement with pulse & glow effects
+   ================================================ */
 
-/* 1. Global Container & Theme */
+/* --- 1. Container --- */
 .quiz-map-card {
-    margin: 0 auto 3rem auto;
     background: transparent;
-    /* Seamless blend */
     border: none;
     box-shadow: none;
-    max-width: 1000px;
-    /* Limit width for better readability */
 }
 
-/* 2. Map HUD (Summary) - Traveler's Log */
-.quiz-map-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.25rem 1.75rem;
-    border-radius: 12px;
-    background: #fffefb;
-    /* Parchment */
-    border: 1px solid #e6dec5;
-    box-shadow: 0 4px 10px rgba(162, 142, 100, 0.08),
-        inset 0 0 20px rgba(162, 142, 100, 0.05);
-    /* Aged vignette */
-    margin-bottom: 0.75rem;
-    /* Reduced margin, Note is below */
+/* --- 2. Hero Summary --- */
+.quiz-map-hero {
+    text-align: center;
+    margin-bottom: 1.75rem;
+    padding: 2rem 1.5rem 1.75rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 40%, #fef9ef 100%);
+    border: 1px solid #dde4f0;
+    box-shadow: 0 2px 12px rgba(37, 99, 235, 0.06);
     position: relative;
     overflow: hidden;
 }
 
-/* Decorative top border */
-.quiz-map-summary::before {
+.quiz-map-hero::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #d4a373 0%, #8d7b68 100%);
-    opacity: 0.6;
+    background: linear-gradient(90deg, #2563eb 0%, #60a5fa 50%, #f59e0b 100%);
 }
 
-.quiz-map-summary-main {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
-    width: 100%;
+.quiz-map-hero-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.01em;
 }
 
-.quiz-map-summary-meta {
+.quiz-map-hero-sub {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 1.25rem;
+}
+
+/* Progress Ring */
+.quiz-map-ring-wrap {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-family: "Manrope", sans-serif;
-    font-size: 0.9rem;
-    color: #8d7b68;
-    font-weight: 600;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-.quiz-map-total {
-    color: #5c5042;
-    font-weight: 700;
-}
-
-.quiz-map-progress {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #a98467;
-}
-
-.quiz-map-progress-bar {
-    height: 0.5rem;
-    background: rgba(169, 132, 103, 0.1);
-    border-radius: 99px;
-    overflow: hidden;
+.quiz-map-ring {
     position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
 }
 
-.quiz-map-progress-fill {
-    background: #a98467;
-    /* Bronze ink */
-    box-shadow: 0 0 8px rgba(169, 132, 103, 0.5);
-    border-radius: 99px;
-    display: block;
-    height: 100%;
+.quiz-map-ring svg {
+    width: 80px;
+    height: 80px;
+    transform: rotate(-90deg);
 }
 
-/* Reset Button - "Wax Seal" / Stamp Style */
-.quiz-map-reset {
-    font-family: "Manrope", sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #c53030;
-    /* Red ink */
-    background: #fff5f5;
-    border: 1px solid #feb2b2;
-    padding: 0.4rem 1rem;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(197, 48, 48, 0.05);
+.quiz-map-ring-bg {
+    fill: none;
+    stroke: #e2e8f0;
+    stroke-width: 6;
 }
 
-.quiz-map-reset:hover,
-.quiz-map-reset:focus {
-    background: #fed7d7;
-    border-color: #fc8181;
-    color: #9b2c2c;
-    box-shadow: 0 4px 8px rgba(197, 48, 48, 0.1);
+.quiz-map-ring-fill {
+    fill: none;
+    stroke: #2563eb;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.quiz-map-reset::before {
-    content: "↺";
-    /* Restart Icon */
-    display: inline-block;
-    margin-right: 0.3rem;
-    font-size: 1rem;
-    line-height: 1;
+.quiz-map-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
 }
 
-/* Note Section - Handwriting Style */
-.quiz-map-note {
-    text-align: center;
-    color: #968677;
-    /* Faded ink */
-    font-size: 0.85rem;
-    font-style: italic;
-    margin-bottom: 2.5rem;
-    /* Space before grid */
-    font-family: "Noto Serif KR", serif;
-    /* Handwriting feel */
-}
-
-/* 3. Stage Grid (The Journey Path) */
-.stage-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    /* Expanded vertical gap for connectors */
-    padding: 1rem 0.5rem;
-    position: relative;
-}
-
-/* 4. Stage Card (The Waypoints) - Compact Version */
-.stage-card {
-    position: relative;
-    background: #fff;
-    border: 2px solid #eaddcf;
-    border-radius: 12px;
-    /* Slightly tighter radius */
-    padding: 1rem 1.25rem;
-    /* Reduced padding */
-    min-height: 110px;
-    /* Use min-height to allow growth */
-    height: auto;
-    /* Allow flexible height */
+.quiz-map-stats {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 0.5rem;
-    /* Ensure gap is explicit */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 2px 4px rgba(141, 123, 104, 0.05),
-        0 1px 2px rgba(141, 123, 104, 0.1);
-
-    /* Flow defaults */
-    --flow-color: #d6cfc2;
-    --flow-style: dashed;
-    --flow-width: 2px;
-    /* Thinner lines for compact look */
-    cursor: default;
+    gap: 0.35rem;
+    text-align: left;
 }
 
-/* Hover Effect (Lift) */
-@media (hover: hover) {
-    .stage-card.is-clickable:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(141, 123, 104, 0.1),
-            0 2px 4px rgba(141, 123, 104, 0.05);
-        border-color: #d4a373;
-        z-index: 10;
+.quiz-map-stat-line {
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.quiz-map-stat-line strong {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Reset Button */
+.quiz-map-reset {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .quiz-map-reset:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #b91c1c;
     }
 }
 
+/* --- 3. Note --- */
+.quiz-map-note {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+/* --- 4. Stage Grid --- */
+.stage-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0 0.25rem;
+    position: relative;
+}
+
+/* --- 5. Stage Card --- */
+.stage-card {
+    position: relative;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-left: 4px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: default;
+    text-align: left;
+    width: 100%;
+    min-height: 0;
+    /* Animation setup */
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.stage-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Clickable cards */
 .stage-card.is-clickable {
     cursor: pointer;
 }
 
-/* 5. States */
+@media (hover: hover) and (pointer: fine) {
+    .stage-card.is-clickable:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
 
-/* COMPLETE: Golden/Bronze Seal */
+    .stage-card.is-clickable.is-visible:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* --- 6. State: COMPLETE --- */
 .stage-card.is-complete {
-    background: #fdfcf9;
-    border-color: #c8bca7;
-    opacity: 1;
-    /* Keep distinct but fully visible */
-    --flow-color: #a98467;
-    /* Completed path is solid bronze */
-    --flow-style: solid;
+    background: #fafff7;
+    border-color: #d1e7c4;
+    border-left-color: #16a34a;
 }
 
-/* Finished stages have a subtle "check" watermark or feel */
-.stage-card.is-complete .stage-number {
-    color: #8c6b4f;
-}
-
-/* CURRENT: The Hero's Location */
+/* --- 7. State: CURRENT --- */
 .stage-card.is-current {
-    background: #fff;
-    border-color: #4b7be5;
-    /* Blue for clarity/focus */
-    box-shadow: 0 0 0 3px rgba(75, 123, 229, 0.1),
-        0 8px 16px rgba(75, 123, 229, 0.12);
-    z-index: 5;
-    --flow-color: #4b7be5;
-    /* Removed scale transform to keep grid alignment perfect */
+    background: #f8faff;
+    border-color: #bfdbfe;
+    border-left-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08),
+    0 4px 16px rgba(37, 99, 235, 0.1);
+    z-index: 2;
 }
 
-.stage-card.is-current::before {
-    /* Current indicator dot/marker */
-    content: '';
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 32px;
-    height: 5px;
-    background: #4b7be5;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(75, 123, 229, 0.3);
+@keyframes currentPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0);
+    }
 }
 
-/* LOCKED: Uncharted Territory */
+/* --- 8. State: LOCKED --- */
 .stage-card.is-locked {
-    background: #f8fafc;
+    background: #fafbfc;
     border-color: #f1f5f9;
-    color: #a0aec0;
-    box-shadow: none;
-    --flow-color: #e2e8f0;
+    border-left-color: #cbd5e1;
+    opacity: 0.55;
+}
+
+.stage-card.is-locked .stage-title {
+    color: #94a3b8;
 }
 
 .stage-card.is-locked .stage-number {
     color: #cbd5e1;
 }
 
-.stage-card.is-locked .stage-title {
-    /* Assuming title class exist or will affect text */
-    color: #a0aec0;
-}
-
-/* 6. Card Inner Content (Rebalanced Hierarchy) */
+/* --- 9. Card Inner Content --- */
 .stage-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.25rem;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .stage-number {
-    font-family: "Manrope", sans-serif;
-    font-size: 0.75rem;
-    /* Reduced to eyebrow style */
+    font-size: 0.7rem;
     font-weight: 700;
-    color: #8d7b68;
-    /* Muted Earth */
+    color: #64748b;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.stage-card.is-complete .stage-number {
+    color: #16a34a;
+}
+
+.stage-card.is-current .stage-number {
+    color: #2563eb;
 }
 
 .stage-title {
-    margin-top: 0;
-    font-family: "Fraunces", "Noto Serif KR", serif;
-    /* Serif for Title */
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #3e2723;
-    /* Dark Ink */
-    line-height: 1.3;
+    color: #1e293b;
+    line-height: 1.35;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    /* Increase limit to 3 lines */
-    line-clamp: 3;
-    /* Standard property for compatibility */
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    flex-grow: 1;
-    /* Takes up central space */
-    display: flex;
-    align-items: center;
-    /* Vertically center if single line */
 }
 
+/* Status badge */
 .stage-status {
     font-size: 0.65rem;
-    font-weight: 800;
-    padding: 0.2rem 0.5rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
     border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    background: rgba(0, 0, 0, 0.05);
-    color: #718096;
     display: inline-flex;
     align-items: center;
     gap: 3px;
     line-height: 1;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .stage-status.is-complete {
-    background: #e6fffa;
-    color: #2c7a7b;
-    border: 1px solid #b2f5ea;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
 }
 
 .stage-status.is-current {
-    background: #ebf8ff;
-    color: #3182ce;
-    border: 1px solid #bee3f8;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
 }
 
 .stage-status.is-locked {
-    background: #f7fafc;
-    color: #cbd5e1;
-    border: 1px solid #edf2f7;
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
 }
 
+/* Meta row */
 .stage-meta-row {
-    font-size: 0.8rem;
-    color: #968677;
+    font-size: 0.78rem;
+    color: #64748b;
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-weight: 600;
-    margin-top: auto;
-    border-top: 1px solid rgba(141, 123, 104, 0.1);
-    padding-top: 0.6rem;
-    width: 100%;
+    font-weight: 500;
 }
 
-/* Adjust layout for flex column */
-.stage-card {
-    /* Ensure content distribution */
-    justify-content: flex-start;
-    gap: 0.5rem;
+.stage-meta-row .stage-score-stars {
+    color: #f59e0b;
+    letter-spacing: 1px;
 }
 
-/* 7. CONNECTORS (The Winding Path) */
-/* We use pseudo-elements on the grid items to draw lines between them */
-
-/* Vertical Line (Default for mobile) */
-.stage-card:not(:last-child)::after {
+/* --- 10. Vertical Path Connectors (Mobile) --- */
+.stage-grid::before {
     content: '';
     position: absolute;
-    bottom: -3rem;
-    /* Start right at the card edge to avoid overlap */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 3px;
-    /* Line thickness */
-    height: 3rem;
-    /* Match the grid gap so it doesn't enter the next card */
-    background: repeating-linear-gradient(to bottom,
-            var(--flow-color),
-            var(--flow-color) 8px,
-            transparent 8px,
-            transparent 14px);
-    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 21px;
+    width: 2px;
+    background: linear-gradient(
+            to bottom,
+            #16a34a 0%,
+            #2563eb var(--path-progress, 0%),
+            #e2e8f0 var(--path-progress, 0%),
+            #e2e8f0 100%
+    );
+    border-radius: 2px;
+    z-index: 0;
 }
 
-/* Solid line for completed/current components */
-.stage-card.is-complete:not(:last-child)::after {
-    background: var(--flow-color);
+/* Node dots on the path */
+.stage-card .stage-node {
+    position: absolute;
+    left: -35px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #cbd5e1;
+    z-index: 1;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-.stage-card.is-current:not(:last-child)::after {
-    /* The path *leaving* current is usually dashed/locked color,
-       unless we want to show 'projected' path. keep default dashed for now
-       or matching locked style */
-    background: repeating-linear-gradient(to bottom,
-            var(--flow-color),
-            var(--flow-color) 8px,
-            transparent 8px,
-            transparent 14px);
-    opacity: 0.5;
+.stage-card.is-complete .stage-node {
+    background: #16a34a;
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
+.stage-card.is-complete .stage-node::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 900;
+}
 
-/* 8. Desktop Landscape (Winding Path) */
+.stage-card.is-current .stage-node {
+    background: #2563eb;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    width: 22px;
+    height: 22px;
+    left: -37px;
+    animation: nodePulse 2s ease-in-out infinite;
+}
+
+@keyframes nodePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.05);
+    }
+}
+
+.stage-card.is-locked .stage-node {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+/* Adjust card padding for node space on mobile — use px to match timeline axis */
+@media (max-width: 767px) {
+    .stage-grid {
+        padding-left: 44px;
+    }
+}
+
+/* --- 11. Desktop Layout: 2-col grid (no timeline) --- */
 @media (min-width: 768px) {
     .stage-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 3rem 2rem;
-        /* Vertical gap 3rem, Horizontal 2rem */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        padding-left: 0;
     }
 
-    /* Reset vertical connectors */
-    .stage-card:not(:last-child)::after {
+    /* Hide timeline on desktop */
+    .stage-grid::before {
         display: none;
     }
 
-    /* RIGHT Connector (1->2, 2->3, 3->4) */
-    .stage-card.flow-right::after {
-        content: '';
-        display: block;
-        /* Change from absolute positioning relative to self to create bridge */
-        position: absolute;
-        top: 50%;
-        right: calc(-2rem - 2px);
-        /* Matches horizontal gap approximately */
-        width: 2rem;
-        /* Bridge the gap */
-        height: 3px;
-        /* Horizontal line */
-        background: repeating-linear-gradient(to right,
-                var(--flow-color),
-                var(--flow-color) 8px,
-                transparent 8px,
-                transparent 14px);
-        transform: translateY(-50%);
-        left: auto;
-        bottom: auto;
+    .stage-card .stage-node {
+        display: none;
     }
 
-    /* LEFT Connector (8->7, 7->6, 6->5) */
-    .stage-card.flow-left::after {
-        content: '';
-        display: block;
-        position: absolute;
-        top: 50%;
-        left: calc(-2rem - 2px);
-        width: 2rem;
-        height: 3px;
-        background: repeating-linear-gradient(to right,
-                var(--flow-color),
-                var(--flow-color) 8px,
-                transparent 8px,
-                transparent 14px);
-        transform: translateY(-50%);
-        right: auto;
-        bottom: auto;
+    .stage-card {
+        margin-bottom: 0;
+        padding: 1.1rem 1.35rem;
     }
 
-    /* DOWN Connector (4->5, 8->9) */
-    .stage-card.flow-down::after {
+    /* Hover lift for clickable */
+    .stage-card.is-clickable:hover {
+        border-color: #93c5fd;
+    }
+
+    .stage-card.is-clickable.is-complete:hover {
+        border-color: #86efac;
+    }
+
+    /* Flow connectors for snake layout */
+    .stage-card.flow-right::before,
+    .stage-card.flow-left::before,
+    .stage-card.flow-down::before {
         content: '';
-        display: block;
         position: absolute;
-        bottom: -3rem;
+        z-index: -1;
+    }
+
+    /* RIGHT arrow: connects to next card on the right */
+    .stage-card.flow-right::before {
+        top: 50%;
+        right: -2rem;
+        width: 2rem;
+        height: 2px;
+        background: var(--flow-color, #e2e8f0);
+        transform: translateY(-50%);
+    }
+
+    /* LEFT arrow: connects to next card on the left */
+    .stage-card.flow-left::before {
+        top: 50%;
+        left: -2rem;
+        width: 2rem;
+        height: 2px;
+        background: var(--flow-color, #e2e8f0);
+        transform: translateY(-50%);
+    }
+
+    /* DOWN arrow: connects to row below */
+    .stage-card.flow-down::before {
+        bottom: -2rem;
         left: 50%;
-        width: 3px;
-        height: 3rem;
-        background: repeating-linear-gradient(to bottom,
-                var(--flow-color),
-                var(--flow-color) 8px,
-                transparent 8px,
-                transparent 14px);
+        width: 2px;
+        height: 2rem;
+        background: var(--flow-color, #e2e8f0);
         transform: translateX(-50%);
-        top: auto;
-        right: auto;
     }
 
-    /* Solid lines for active flows */
-    .stage-card.is-complete.flow-right::after,
-    .stage-card.is-complete.flow-left::after,
-    .stage-card.is-complete.flow-down::after {
-        background: var(--flow-color);
+    /* Flow colors by state */
+    .stage-card.is-complete {
+        --flow-color: #86efac;
+    }
+
+    .stage-card.is-current {
+        --flow-color: #93c5fd;
+    }
+
+    .stage-card.is-locked {
+        --flow-color: #e2e8f0;
     }
 }
 
-/* 9. Mobile Adjustments */
-@media (max-width: 767px) {
+/* --- 12. Large Desktop: 4-col --- */
+@media (min-width: 1024px) {
     .stage-grid {
-        gap: 2.5rem;
-        /* Consistent vertical gap */
-        padding: 0 1rem;
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* --- 13. Small Mobile --- */
+@media (max-width: 374px) {
+    .quiz-map-hero {
+        padding: 1.5rem 1rem 1.25rem;
     }
 
-    .quiz-map-summary {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+    .quiz-map-hero-title {
+        font-size: 1.15rem;
     }
 
-    .quiz-map-actions {
-        width: 100%;
-        margin-top: 0.5rem;
+    .quiz-map-ring {
+        width: 64px;
+        height: 64px;
     }
 
-    .quiz-map-reset {
-        width: 100%;
+    .quiz-map-ring svg {
+        width: 64px;
+        height: 64px;
     }
+
+    .quiz-map-ring-text {
+        font-size: 0.95rem;
+    }
+
+    .stage-card {
+        padding: 0.85rem 1rem;
+    }
+}
+
+/* --- 14. Entrance Animation --- */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- 15. Scroll anchor offset for auto-scroll --- */
+.stage-card[data-current-anchor] {
+    scroll-margin-top: 100px;
 }

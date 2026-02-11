@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('성경 퀴즈 맵 | ElSeeker', true, '/css/hero.css?v=2.3,/css/card.css?v=2.3,/css/game/bible-quiz-map.css?v=2.3')}">
+        th:replace="~{fragments/head :: head('성경 퀴즈 맵 | ElSeeker', true, '/css/card.css?v=2.3,/css/game/bible-quiz-map.css?v=3.0')}">
 </head>
 
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
-<main class="container content-wrapper">
+<main class="container content-wrapper mb-5">
     <!-- 에러 메시지 영역 -->
     <div id="quizMapError" class="alert alert-danger d-none" role="alert"></div>
 
@@ -21,28 +21,48 @@
         </div>
     </div>
 
-    <section id="quizMapContent" class="quiz-map-card card card-panel card-soft d-none" aria-live="polite">
-        <div class="quiz-map-summary">
-            <div class="quiz-map-summary-main">
-                <div class="quiz-map-summary-meta">
-                    <span class="quiz-map-total" id="quizMapTotal">총 10 스테이지</span>
-                    <span class="quiz-map-progress" id="quizMapProgress">진행 0 / 10 (0%)</span>
+    <section id="quizMapContent" class="quiz-map-card d-none" aria-live="polite">
+        <!-- Hero: Progress Summary -->
+        <div class="quiz-map-hero">
+            <h2 class="quiz-map-hero-title">성경 퀴즈 여정</h2>
+            <p class="quiz-map-hero-sub" id="quizMapHeroSub">스테이지를 클리어하며 성경 지식을 넓혀보세요</p>
+
+            <div class="quiz-map-ring-wrap">
+                <div class="quiz-map-ring">
+                    <svg viewBox="0 0 80 80" aria-hidden="true">
+                        <circle class="quiz-map-ring-bg" cx="40" cy="40" r="34"></circle>
+                        <circle class="quiz-map-ring-fill" id="quizMapRingFill"
+                                cx="40" cy="40" r="34"
+                                stroke-dasharray="213.6"
+                                stroke-dashoffset="213.6"></circle>
+                    </svg>
+                    <span class="quiz-map-ring-text" id="quizMapRingText">0%</span>
                 </div>
-                <div class="quiz-map-progress-bar" id="quizMapProgressBar" role="progressbar" aria-label="진행률"
-                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                    <span class="quiz-map-progress-fill" id="quizMapProgressFill" style="width: 0%"></span>
+                <div class="quiz-map-stats">
+                    <span class="quiz-map-stat-line" id="quizMapStatCompleted">
+                        완료 <strong>0</strong> / <strong>0</strong> 스테이지
+                    </span>
+                    <span class="quiz-map-stat-line" id="quizMapStatCurrent">
+                        현재 <strong>1</strong> 스테이지 도전 가능
+                    </span>
                 </div>
             </div>
+
             <button class="btn btn-sm quiz-map-reset d-none" id="resetProgressButton" type="button"
                     aria-label="진행 상황 초기화">
                 초기화
             </button>
         </div>
+
+        <!-- Note -->
+        <p class="quiz-map-note">이전 스테이지를 클리어하면 다음 스테이지가 열립니다</p>
+
+        <!-- Stage Grid -->
         <div class="stage-grid" id="stageList" data-snake-columns="2"></div>
     </section>
 </main>
 
-<script type="module" src="/js/game/bible-quiz-map.js?v=2.3"></script>
+<script type="module" src="/js/game/bible-quiz-map.js?v=3.0"></script>
 </body>
 
 </html>

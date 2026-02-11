@@ -1,6 +1,5 @@
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 
-// Module-scope script
 // ==========================================
 // Constants & Configuration
 // ==========================================
@@ -16,7 +15,6 @@ const UI_CLASSES = {
     CARD: "stage-card",
     STATUS_BADGE: "stage-status",
     ICON: "stage-status-icon",
-    CURRENT_LABEL: "stage-current-label",
     FLOW: {
         RIGHT: "flow-right",
         LEFT: "flow-left",
@@ -27,66 +25,66 @@ const UI_CLASSES = {
         COMPLETED: "is-complete",
         CURRENT: "is-current",
         LOCKED: "is-locked",
-        CLICKABLE: "is-clickable"
+        CLICKABLE: "is-clickable",
+        VISIBLE: "is-visible"
     }
 };
+
+// SVG ring circumference (r=34 → 2πr ≈ 213.6)
+const RING_CIRCUMFERENCE = 213.6;
 
 // ==========================================
 // Pure Utilities & Logic
 // ==========================================
 
-/**
- * Generates the properties needed to render a stage card.
- */
 const getStageCardProps = ({stageNumber, questionCount, isCompleted, isCurrent, isLocked, lastScore}) => {
     let label = "잠김";
-    let meta = "진행 전";
+    let meta = "";
     let route = null;
+    let stars = "";
     const cssClasses = [UI_CLASSES.CARD];
 
     if (isCompleted) {
         cssClasses.push(UI_CLASSES.STATE.COMPLETED);
         label = "완료";
         if (lastScore !== null && questionCount > 0) {
-            const percent = questionCount > 0 ? Math.round((lastScore / questionCount) * 100) : 0;
-            meta = `점수 ${lastScore} / ${questionCount} (${percent}%)`;
+            const percent = Math.round((lastScore / questionCount) * 100);
+            meta = `${lastScore}/${questionCount}점 (${percent}%)`;
+            // Star rating based on score percentage
+            if (percent >= 90) stars = "★★★";
+            else if (percent >= 70) stars = "★★☆";
+            else stars = "★☆☆";
         } else {
-            meta = "완료";
+            meta = "클리어";
         }
         route = `/web/game/bible-quiz?stage=${stageNumber}`;
     } else if (isCurrent) {
         cssClasses.push(UI_CLASSES.STATE.CURRENT);
         label = "현재";
-        meta = "진행 가능";
+        meta = `${questionCount}문제`;
         route = `/web/game/bible-quiz?stage=${stageNumber}`;
     } else {
         cssClasses.push(UI_CLASSES.STATE.LOCKED);
+        label = "잠김";
+        meta = "";
     }
 
     const isClickable = !isLocked;
-    if (isClickable) {
-        cssClasses.push(UI_CLASSES.STATE.CLICKABLE);
-    }
+    if (isClickable) cssClasses.push(UI_CLASSES.STATE.CLICKABLE);
 
     return {
         label,
         meta,
+        stars,
         route,
         isClickable,
         cssClasses: cssClasses.join(" "),
-        statusIcon: isCompleted ? "✓" : (isCurrent ? "▶︎" : null)
+        statusIcon: isCompleted ? "✓" : (isCurrent ? "▶" : "🔒")
     };
 };
 
-/**
- * Determines the flow direction class for a card at a given index in the grid.
- * Used to draw the connecting lines (snake layout).
- */
 const calculateFlowDirection = (index, totalItems, columns) => {
-    // Last item always ends the flow
     if (index === totalItems - 1) return UI_CLASSES.FLOW.END;
-
-    // Single column layout always flows down
     if (columns === 1) return UI_CLASSES.FLOW.DOWN;
 
     const row = Math.floor(index / columns);
@@ -94,20 +92,18 @@ const calculateFlowDirection = (index, totalItems, columns) => {
     const isRowEven = row % 2 === 0;
     const maxRow = Math.floor((totalItems - 1) / columns);
 
-    // Even Rows (Left -> Right)
     if (isRowEven) {
-        const isLastInRow = col === columns - 1;
-        // If not last in row, go right.
-        // If last in row, go down (unless it's the very last row)
-        if (!isLastInRow) return UI_CLASSES.FLOW.RIGHT;
+        if (col < columns - 1) return UI_CLASSES.FLOW.RIGHT;
         return (row < maxRow) ? UI_CLASSES.FLOW.DOWN : UI_CLASSES.FLOW.END;
     }
 
-    // Odd Rows (Right -> Left)
-    const isFirstInRow = col === 0;
-    if (!isFirstInRow) return UI_CLASSES.FLOW.LEFT;
+    if (col > 0) return UI_CLASSES.FLOW.LEFT;
     return (row < maxRow) ? UI_CLASSES.FLOW.DOWN : UI_CLASSES.FLOW.END;
 };
+
+// ==========================================
+// API Service
+// ==========================================
 
 const ApiService = {
     fetchStages: async () => {
@@ -147,27 +143,19 @@ const ApiService = {
 const DomHelper = {
     getElements: () => {
         const stageList = document.getElementById("stageList");
-        const quizMapTotal = document.getElementById("quizMapTotal");
-        const quizMapProgress = document.getElementById("quizMapProgress");
-        const quizMapProgressBar = document.getElementById("quizMapProgressBar");
-        const quizMapProgressFill = document.getElementById("quizMapProgressFill");
-        const resetProgressButton = document.getElementById("resetProgressButton");
-        const quizMapLoading = document.getElementById("quizMapLoading");
-        const quizMapError = document.getElementById("quizMapError");
-        const quizMapContent = document.getElementById("quizMapContent");
-        return stageList
-            ? {
-                stageList,
-                quizMapTotal,
-                quizMapProgress,
-                quizMapProgressBar,
-                quizMapProgressFill,
-                resetProgressButton,
-                quizMapLoading,
-                quizMapError,
-                quizMapContent
-            }
-            : null;
+        if (!stageList) return null;
+        return {
+            stageList,
+            resetProgressButton: document.getElementById("resetProgressButton"),
+            quizMapLoading: document.getElementById("quizMapLoading"),
+            quizMapError: document.getElementById("quizMapError"),
+            quizMapContent: document.getElementById("quizMapContent"),
+            quizMapRingFill: document.getElementById("quizMapRingFill"),
+            quizMapRingText: document.getElementById("quizMapRingText"),
+            quizMapStatCompleted: document.getElementById("quizMapStatCompleted"),
+            quizMapStatCurrent: document.getElementById("quizMapStatCurrent"),
+            quizMapHeroSub: document.getElementById("quizMapHeroSub")
+        };
     },
 
     getGridColumns: (stageList) => {
@@ -178,9 +166,7 @@ const DomHelper = {
     },
 
     getOrderedStages: (stageSummaries, columns, minColumns) => {
-        const useSnakeLayout = columns >= minColumns;
-        if (!useSnakeLayout) return stageSummaries;
-
+        if (columns < minColumns) return stageSummaries;
         const ordered = [];
         for (let i = 0; i < stageSummaries.length; i += columns) {
             const row = stageSummaries.slice(i, i + columns);
@@ -191,29 +177,14 @@ const DomHelper = {
     },
 
     createCardElement: (summary) => {
-        const {
-            stageNumber,
-            questionCount,
-            status,
-            isCompleted,
-            isCurrent,
-            isLocked,
-            lastScore
-        } = summary;
-
-        const props = getStageCardProps({
-            stageNumber,
-            questionCount,
-            isCompleted,
-            isCurrent,
-            isLocked,
-            lastScore
-        });
+        const {stageNumber, questionCount, isCompleted, isCurrent, isLocked, lastScore} = summary;
+        const props = getStageCardProps({stageNumber, questionCount, isCompleted, isCurrent, isLocked, lastScore});
 
         const statusBadgeClass = [
             UI_CLASSES.STATUS_BADGE,
             isCompleted ? UI_CLASSES.STATE.COMPLETED : "",
-            isCurrent ? UI_CLASSES.STATE.CURRENT : ""
+            isCurrent ? UI_CLASSES.STATE.CURRENT : "",
+            isLocked ? UI_CLASSES.STATE.LOCKED : ""
         ].join(" ").trim();
 
         const button = document.createElement("button");
@@ -221,45 +192,65 @@ const DomHelper = {
         button.className = props.cssClasses;
         button.disabled = !props.isClickable;
         if (props.route) button.dataset.route = props.route;
-        if (isCurrent) button.setAttribute("aria-current", "step");
+        if (isCurrent) {
+            button.setAttribute("aria-current", "step");
+            button.dataset.currentAnchor = "true";
+        }
 
+        // Timeline node (visible on mobile via CSS)
+        const node = document.createElement("span");
+        node.className = "stage-node";
+        node.setAttribute("aria-hidden", "true");
+        button.appendChild(node);
+
+        // Header: number + badge
         const header = document.createElement("div");
         header.className = "stage-card-header";
 
         const number = document.createElement("span");
         number.className = "stage-number";
-        number.textContent = `${stageNumber} 스테이지`;
-
-        const title = document.createElement("div");
-        title.className = "stage-title";
-        const titleText = summary.title && summary.title.trim() ? summary.title.trim() : "제목 없음";
-        title.textContent = titleText;
-        title.title = titleText;
+        number.textContent = `STAGE ${stageNumber}`;
 
         const badge = document.createElement("span");
         badge.className = statusBadgeClass;
-        if (props.statusIcon) {
-            const icon = document.createElement("span");
-            icon.className = UI_CLASSES.ICON;
-            icon.setAttribute("aria-hidden", "true");
-            icon.textContent = props.statusIcon;
-            badge.appendChild(icon);
-        }
-        const labelText = document.createTextNode(props.label);
-        badge.appendChild(labelText);
+        const icon = document.createElement("span");
+        icon.className = UI_CLASSES.ICON;
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = props.statusIcon;
+        badge.appendChild(icon);
+        badge.appendChild(document.createTextNode(" " + props.label));
 
         header.appendChild(number);
         header.appendChild(badge);
 
+        // Title
+        const title = document.createElement("div");
+        title.className = "stage-title";
+        const titleText = summary.title?.trim() || "제목 없음";
+        title.textContent = titleText;
+        title.title = titleText;
+
+        // Meta row
         const meta = document.createElement("div");
         meta.className = "stage-meta-row";
-        const metaText = document.createElement("span");
-        metaText.textContent = props.meta;
-        meta.appendChild(metaText);
+
+        if (props.stars) {
+            const starsSpan = document.createElement("span");
+            starsSpan.className = "stage-score-stars";
+            starsSpan.setAttribute("aria-hidden", "true");
+            starsSpan.textContent = props.stars;
+            meta.appendChild(starsSpan);
+        }
+
+        if (props.meta) {
+            const metaText = document.createElement("span");
+            metaText.textContent = props.meta;
+            meta.appendChild(metaText);
+        }
 
         button.appendChild(header);
         button.appendChild(title);
-        button.appendChild(meta);
+        if (props.meta) button.appendChild(meta);
 
         return button;
     },
@@ -268,30 +259,42 @@ const DomHelper = {
         const cards = Array.from(stageList.querySelectorAll(`.${UI_CLASSES.CARD}`));
         if (!cards.length) return;
 
-        // Reset classes
         const flowClasses = Object.values(UI_CLASSES.FLOW);
         cards.forEach(card => card.classList.remove(...flowClasses));
 
-        // Calculate grid columns
         const resolvedColumns = Number.isInteger(columns) ? columns : DomHelper.getGridColumns(stageList);
-
-        // Apply new classes
         cards.forEach((card, index) => {
             const directionClass = calculateFlowDirection(index, cards.length, resolvedColumns);
             card.classList.add(directionClass);
         });
     },
 
+    animateCards: (stageList) => {
+        const cards = Array.from(stageList.querySelectorAll(`.${UI_CLASSES.CARD}`));
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add(UI_CLASSES.STATE.VISIBLE);
+            }, 40 + index * 30);
+        });
+    },
+
+    scrollToCurrentStage: (stageList) => {
+        const current = stageList.querySelector("[data-current-anchor]");
+        if (!current) return;
+        setTimeout(() => {
+            current.scrollIntoView({behavior: "smooth", block: "center"});
+        }, 400);
+    },
+
     render: (elements, stageSummaries) => {
         const columns = DomHelper.getGridColumns(elements.stageList);
-        const minColumns = parseInt(elements.stageList.dataset.snakeColumns, 10) || 4;
+        const minColumns = parseInt(elements.stageList.dataset.snakeColumns, 10) || 2;
         const orderedStages = DomHelper.getOrderedStages(stageSummaries, columns, minColumns);
         const fragment = document.createDocumentFragment();
         orderedStages.forEach(summary => {
             fragment.appendChild(DomHelper.createCardElement(summary));
         });
         elements.stageList.replaceChildren(fragment);
-
         DomHelper.updateFlowDirections(elements.stageList, columns);
     },
 
@@ -305,9 +308,7 @@ const DomHelper = {
             elements.resetProgressButton.addEventListener("click", async () => {
                 if (!confirm("모든 스테이지 정보가 초기화됩니다. 정말 진행하시겠습니까?")) return;
                 const ok = await ApiService.resetProgress();
-                if (ok) {
-                    window.location.href = "/web/game/bible-quiz?stage=1";
-                }
+                if (ok) window.location.href = "/web/game/bible-quiz?stage=1";
             });
         }
     },
@@ -323,20 +324,39 @@ const DomHelper = {
         const completed = Math.max(0, Math.min(context.lastCompletedStage, totalStages));
         const progressPercent = totalStages > 0 ? Math.round((completed / totalStages) * 100) : 0;
 
-        if (elements.quizMapTotal) {
-            elements.quizMapTotal.textContent = `총 ${totalStages} 스테이지`;
+        // Ring animation
+        if (elements.quizMapRingFill) {
+            const offset = RING_CIRCUMFERENCE - (RING_CIRCUMFERENCE * progressPercent / 100);
+            elements.quizMapRingFill.style.strokeDashoffset = String(offset);
         }
 
-        if (elements.quizMapProgress) {
-            elements.quizMapProgress.textContent = `진행 ${completed} / ${totalStages} (${progressPercent}%)`;
+        if (elements.quizMapRingText) {
+            elements.quizMapRingText.textContent = `${progressPercent}%`;
         }
 
-        if (elements.quizMapProgressBar) {
-            elements.quizMapProgressBar.setAttribute("aria-valuenow", String(progressPercent));
+        if (elements.quizMapStatCompleted) {
+            elements.quizMapStatCompleted.innerHTML =
+                `완료 <strong>${completed}</strong> / <strong>${totalStages}</strong> 스테이지`;
         }
 
-        if (elements.quizMapProgressFill) {
-            elements.quizMapProgressFill.style.width = `${progressPercent}%`;
+        if (elements.quizMapStatCurrent) {
+            if (completed >= totalStages) {
+                elements.quizMapStatCurrent.innerHTML = `<strong>모든 스테이지를 클리어했어요!</strong>`;
+            } else {
+                elements.quizMapStatCurrent.innerHTML =
+                    `현재 <strong>${context.currentStage}</strong> 스테이지 도전 가능`;
+            }
+        }
+
+        // Update hero subtitle for all-complete
+        if (elements.quizMapHeroSub && completed >= totalStages && totalStages > 0) {
+            elements.quizMapHeroSub.textContent = "축하합니다! 모든 여정을 마쳤어요";
+        }
+
+        // Update mobile path progress
+        if (totalStages > 0) {
+            const pathPercent = Math.round((completed / totalStages) * 100);
+            elements.stageList.style.setProperty("--path-progress", `${pathPercent}%`);
         }
     }
 };
@@ -367,7 +387,7 @@ const App = {
         if (!elements) return;
 
         const response = await ApiService.fetchStages();
-        if (!response || !response.stages || !response.stages.length) {
+        if (!response?.stages?.length) {
             if (elements.quizMapLoading) elements.quizMapLoading.classList.add("d-none");
             DomHelper.showError(elements);
             return;
@@ -395,7 +415,13 @@ const App = {
         DomHelper.bindEvents(elements);
         DomHelper.render(elements, response.stages);
 
-        // Handle Resize for Flow Lines
+        // Staggered entrance animation
+        requestAnimationFrame(() => DomHelper.animateCards(elements.stageList));
+
+        // Auto-scroll to current stage (mobile)
+        DomHelper.scrollToCurrentStage(elements.stageList);
+
+        // Handle resize for flow lines
         let resizeTimer;
         window.addEventListener("resize", () => {
             clearTimeout(resizeTimer);
@@ -404,6 +430,7 @@ const App = {
                 if (nextColumns !== state.columns) {
                     state.columns = nextColumns;
                     DomHelper.render(elements, state.stages);
+                    requestAnimationFrame(() => DomHelper.animateCards(elements.stageList));
                 } else {
                     DomHelper.updateFlowDirections(elements.stageList, nextColumns);
                 }
@@ -412,5 +439,4 @@ const App = {
     }
 };
 
-// Bootstrap
 document.addEventListener("DOMContentLoaded", App.init);
