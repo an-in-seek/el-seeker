@@ -123,6 +123,16 @@ const FULL_CREED_TEXT = `나는 전능하신 아버지 하나님,
 영생을 믿습니다.
 아멘.`;
 
+const CREED_HISTORY = {
+    title: "사도신경의 유래와 역사",
+    paragraphs: [
+        "사도신경(Symbolum Apostolorum)은 성경 정경이 아니라 초대교회의 신앙고백문이다. 그 기원은 2세기경 로마 교회의 세례 문답에서 사용된 '로마 신조'(Romanum)로 거슬러 올라간다.",
+        "이후 영지주의, 마르키온주의 등 이단에 대응하는 과정에서 삼위일체 구조의 고백 문구가 점차 구체화되었다.",
+        "현재 전해지는 형태(Textus Receptus)는 7~8세기 서방교회, 특히 갈리아 지역에서 확정된 것으로, 피르미니우스의 저술(약 750년)에 처음 완전한 본문이 등장한다.",
+        "'열두 사도가 각각 한 조항씩 작성했다'는 전승은 4~5세기 이후에 형성된 것으로, 현대 교회사 학계에서는 역사적 사실로 보지 않는다."
+    ]
+};
+
 class ApostlesCreed {
     constructor() {
         this.initElements();
@@ -133,6 +143,7 @@ class ApostlesCreed {
         this.loadingEl = document.getElementById("apostlesCreedLoading");
         this.contentEl = document.getElementById("apostlesCreedContent");
         this.fullTextEl = document.getElementById("apostlesCreedFullText");
+        this.historyEl = document.getElementById("apostlesCreedHistory");
         this.gridEl = document.getElementById("apostlesCreedGrid");
         this.backButton = document.getElementById("topNavBackButton");
         this.scrollToTopBtn = document.getElementById("scrollToTopBtn");
@@ -170,6 +181,7 @@ class ApostlesCreed {
 
     render() {
         this.renderFullText();
+        this.renderHistory();
         this.renderArticleCards();
         this.loadingEl.classList.add("d-none");
         this.contentEl.classList.remove("d-none");
@@ -181,6 +193,16 @@ class ApostlesCreed {
                 <h2 class="apostles-creed-full-text-title">사도신경</h2>
                 <p class="apostles-creed-full-text-ref">Apostles' Creed</p>
                 <div class="apostles-creed-full-text-body">${FULL_CREED_TEXT.replace(/\n/g, "<br>")}</div>
+            </div>
+        `;
+    }
+
+    renderHistory() {
+        const paragraphs = CREED_HISTORY.paragraphs.map(p => `<p>${p}</p>`).join("");
+        this.historyEl.innerHTML = `
+            <div class="apostles-creed-history-inner">
+                <h3 class="apostles-creed-history-title">${CREED_HISTORY.title}</h3>
+                <div class="apostles-creed-history-body">${paragraphs}</div>
             </div>
         `;
     }
