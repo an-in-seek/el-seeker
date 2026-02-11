@@ -84,6 +84,29 @@ const FULL_PRAYER_TEXT = `하늘에 계신 우리 아버지여
 아버지께 영원히 있사옵나이다
 아멘`;
 
+const LORDS_PRAYER_HISTORY = [
+    {
+        title: "1. 성경적 출처",
+        body: "주기도문은 마태복음 6:9-13과 누가복음 11:2-4에 기록되어 있다."
+    },
+    {
+        title: "2. 기도를 가르친 맥락",
+        body: "마태복음에서는 산상수훈 중 예수가 기도의 본을 자발적으로 제시하고, 누가복음에서는 제자의 요청에 응답하는 형태로 등장한다."
+    },
+    {
+        title: "3. 마태·누가 본문의 차이",
+        body: "마태 본문은 7개 간구의 긴 형태, 누가 본문은 5개 간구의 짧은 형태이다. '뜻이 하늘에서 이루어진 것 같이 땅에서도 이루어지이다'와 '악에서 구하시옵소서'는 마태에만 있다. 다수 학자들은 누가의 짧은 형태가 원형에 가깝고, 마태가 예배용으로 확장된 본문을 반영한다고 본다."
+    },
+    {
+        title: "4. 초기 교회에서의 사용",
+        body: "1세기 말~2세기 초 문헌인 디다케(Didache)는 하루 세 번 주기도문 암송을 권하고 있어, 초기 교회 예배의 핵심 기도문이었음을 보여준다."
+    },
+    {
+        title: "5. 송영의 후대 추가",
+        body: "'나라와 권세와 영광이 아버지께 영원히 있사옵나이다'는 가장 오래된 주요 사본(시내 사본, 바티칸 사본)에 없다. 역대상 29:11에서 유래한 이 송영은 2세기 이후 예배 관행에서 추가되었으며, 현대 비평 본문(NA28/UBS5)에서는 본문에서 제외된다."
+    }
+];
+
 class LordsPrayer {
     constructor() {
         this.initElements();
@@ -94,6 +117,7 @@ class LordsPrayer {
         this.loadingEl = document.getElementById("lordsPrayerLoading");
         this.contentEl = document.getElementById("lordsPrayerContent");
         this.fullTextEl = document.getElementById("lordsPrayerFullText");
+        this.historyEl = document.getElementById("lordsPrayerHistory");
         this.gridEl = document.getElementById("lordsPrayerGrid");
         this.backButton = document.getElementById("topNavBackButton");
         this.scrollToTopBtn = document.getElementById("scrollToTopBtn");
@@ -131,6 +155,7 @@ class LordsPrayer {
 
     render() {
         this.renderFullText();
+        this.renderHistory();
         this.renderVerseCards();
         this.loadingEl.classList.add("d-none");
         this.contentEl.classList.remove("d-none");
@@ -142,6 +167,22 @@ class LordsPrayer {
                 <h2 class="lords-prayer-full-text-title">주기도문</h2>
                 <p class="lords-prayer-full-text-ref">마태복음 6:9-13</p>
                 <div class="lords-prayer-full-text-body">${FULL_PRAYER_TEXT.replace(/\n/g, "<br>")}</div>
+            </div>
+        `;
+    }
+
+    renderHistory() {
+        const sections = LORDS_PRAYER_HISTORY.map(s => `
+            <div class="lords-prayer-history-section">
+                <p class="lords-prayer-history-section-title">${s.title}</p>
+                <p class="lords-prayer-history-section-body">${s.body}</p>
+            </div>
+        `).join("");
+
+        this.historyEl.innerHTML = `
+            <div class="lords-prayer-history-inner">
+                <h3 class="lords-prayer-history-title">주기도문의 유래와 역사</h3>
+                ${sections}
             </div>
         `;
     }
