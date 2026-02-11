@@ -36,6 +36,59 @@
     line-height: 2;
 }
 
+/* History */
+.lords-prayer-history {
+    max-width: 720px;
+    margin: 0 auto 2rem;
+}
+
+.lords-prayer-history-inner {
+    background: linear-gradient(145deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 0.75rem;
+    padding: 1.75rem 2rem;
+}
+
+.lords-prayer-history-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #78350f;
+    margin: 0 0 1.25rem;
+    text-align: center;
+}
+
+.lords-prayer-history-section {
+    margin-bottom: 0.85rem;
+}
+
+.lords-prayer-history-section:last-child {
+    margin-bottom: 0;
+}
+
+.lords-prayer-history-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #92400e;
+    margin: 0 0 0.25rem;
+}
+
+.lords-prayer-history-section-body {
+    font-size: 0.85rem;
+    color: #451a03;
+    line-height: 1.7;
+    margin: 0;
+}
+
+@media (max-width: 576px) {
+    .lords-prayer-history-inner {
+        padding: 1.25rem 1rem;
+    }
+
+    .lords-prayer-history-title {
+        font-size: 1.05rem;
+    }
+}
+
 /* Grid */
 .lords-prayer-grid {
     display: flex;
