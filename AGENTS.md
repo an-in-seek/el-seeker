@@ -34,6 +34,7 @@
 - No formatter or linter is configured; avoid reformatting unrelated files.
 - Frontend JS: prefer ES module scripts (`type="module"`); avoid IIFEs and `'use strict'` in module files. Use explicit `import`/`export` instead of globals.
 - Hover styles: apply only on desktop (mouse) using `@media (hover: hover) and (pointer: fine)`. Do not design hover-based UX for touch/mobile.
+- **CSS/JS 파일을 수정한 경우, 해당 파일을 참조하는 HTML 템플릿의 쿼리 파라미터 버전(`?v=`)을 반드시 올린다.** 예: `lords-prayer.css?v=1.0` → `lords-prayer.css?v=1.1`. 브라우저 캐시 무효화를 위해 필수.
 - Swagger/OpenAPI annotations should live in `*ApiDocument` interfaces (controllers implement them).
 - Web UI back navigation should use the shared top nav back button (`#topNavBackButton`) instead of page-level back links. Use `data-back-link` on `<body>` when a custom target is needed.
 
