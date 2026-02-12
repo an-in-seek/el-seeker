@@ -36,38 +36,46 @@
     line-height: 2;
 }
 
-/* History Section */
+/* History */
 .apostles-creed-history {
     max-width: 720px;
     margin: 0 auto 2rem;
 }
 
 .apostles-creed-history-inner {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(145deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
     border-radius: 0.75rem;
-    padding: 1.5rem 1.75rem;
+    padding: 1.75rem 2rem;
 }
 
 .apostles-creed-history-title {
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: #1e3a5f;
-    margin: 0 0 1rem;
-    padding-bottom: 0.65rem;
-    border-bottom: 1px solid #e2e8f0;
+    color: #78350f;
+    margin: 0 0 1.25rem;
+    text-align: center;
 }
 
-.apostles-creed-history-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.apostles-creed-history-section {
+    margin-bottom: 0.85rem;
 }
 
-.apostles-creed-history-body p {
+.apostles-creed-history-section:last-child {
+    margin-bottom: 0;
+}
+
+.apostles-creed-history-section-title {
     font-size: 0.85rem;
-    color: #475569;
-    line-height: 1.75;
+    font-weight: 700;
+    color: #92400e;
+    margin: 0 0 0.25rem;
+}
+
+.apostles-creed-history-section-body {
+    font-size: 0.85rem;
+    color: #451a03;
+    line-height: 1.7;
     margin: 0;
 }
 
@@ -77,11 +85,7 @@
     }
 
     .apostles-creed-history-title {
-        font-size: 0.95rem;
-    }
-
-    .apostles-creed-history-body p {
-        font-size: 0.8rem;
+        font-size: 1.05rem;
     }
 }
 
