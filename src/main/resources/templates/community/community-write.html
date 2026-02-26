@@ -6,7 +6,8 @@
 </head>
 
 <body class="has-fixed-nav" data-back-link="/web/community">
-<header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header}"
+        th:with="showNotificationButton=true"></header>
 
 <main class="container content-wrapper">
     <div class="write-layout">
