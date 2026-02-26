@@ -42,7 +42,8 @@
                             class="top-nav-notification-button top-nav-btn btn btn-outline-secondary d-none"
                             aria-label="알림"
                             title="알림"
-                            disabled>
+                            disabled
+                            th:data-show-notification="${showNotificationButton == true}">
                         🔔
                         <span id="topNavNotificationBadge" class="top-nav-notification-badge d-none"></span>
                     </button>
@@ -120,7 +121,7 @@
                     logoutLink.classList.remove("d-none");
                     myPageLink.classList.remove("d-none");
                     accountDivider.classList.remove("d-none");
-                    if (notificationButton) {
+                    if (notificationButton && notificationButton.dataset.showNotification === "true") {
                         notificationButton.classList.remove("d-none");
                     }
                 },
