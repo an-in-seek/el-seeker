@@ -1,21 +1,68 @@
+/* ── Hero Banner ── */
 .home-hero {
-    background: linear-gradient(135deg, #fff9ec 0%, #edf4ff 100%);
+    background: #f6f8fc;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    border-color: #e9edf4;
+    padding: 1.25rem 1.25rem 1.5rem;
+    border-radius: 16px;
 }
 
-.home-hero-eyebrow {
-    color: #3559a2;
+.home-hero-title {
+    margin-bottom: 0.35rem;
+    font-size: 1.55rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+    color: #1a2742;
 }
 
-.home-hero-lead {
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
+.home-hero-sub {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #5a6a85;
 }
 
-.home-hero-description {
-    margin-bottom: 0;
-    color: #6c757d;
+.home-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0 1.5rem;
+    border: none;
+    border-radius: 10px;
+    background: #3559a2;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
+.home-hero-cta:hover,
+.home-hero-cta:focus-visible {
+    background: #2a478a;
+    color: #fff;
+}
+
+.home-hero-cta:active {
+    transform: scale(0.97);
+}
+
+.home-hero-cta .cta-arrow {
+    font-size: 1.05rem;
+    transition: transform 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .home-hero-cta:hover .cta-arrow {
+        transform: translateX(2px);
+    }
+}
+
+/* ── Menu Grid ── */
 .home-menu-grid {
     --bs-gutter-y: 1rem;
 }
@@ -32,9 +79,25 @@
     line-height: 1.4;
 }
 
+/* ── Responsive ── */
 @media (max-width: 576px) {
-    .home-hero-lead {
-        font-size: 1rem;
+    .home-hero {
+        padding: 1rem 1rem 1.25rem;
+        border-radius: 14px;
+    }
+
+    .home-hero-title {
+        font-size: 1.35rem;
+    }
+
+    .home-hero-sub {
+        font-size: 0.88rem;
+    }
+
+    .home-hero-cta {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.93rem;
     }
 
     .home-menu-card .card-body {
@@ -52,5 +115,19 @@
 
     .home-menu-card .text-muted {
         font-size: 0.75rem;
+    }
+}
+
+@media (min-width: 577px) {
+    .home-hero {
+        padding: 1.5rem 1.5rem 1.75rem;
+    }
+
+    .home-hero-title {
+        font-size: 1.75rem;
+    }
+
+    .home-hero-sub {
+        font-size: 1rem;
     }
 }
