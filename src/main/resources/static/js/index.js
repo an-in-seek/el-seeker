@@ -1,6 +1,61 @@
 import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 import {LastReadStore, SessionStore, STORAGE_KEYS, TranslationStore} from "/js/storage-util.js?v=2.2";
 
+const HERO_INTERVAL_MS = 5000;
+const HERO_SWIPE_THRESHOLD = 50;
+
+const initHeroCarousel = () => {
+    const track = document.getElementById("heroTrack");
+    if (!track) {
+        return;
+    }
+    const slides = track.querySelectorAll(".home-hero-slide");
+    const dots = track.parentElement.querySelectorAll(".home-hero-dot");
+    if (slides.length < 2) {
+        return;
+    }
+
+    let current = 0;
+    let timer = null;
+    let touchStartX = 0;
+
+    const goTo = (index) => {
+        current = (index + slides.length) % slides.length;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        dots.forEach((dot, i) => {
+            const isActive = i === current;
+            dot.classList.toggle("active", isActive);
+            dot.setAttribute("aria-selected", String(isActive));
+        });
+    };
+
+    const resetTimer = () => {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), HERO_INTERVAL_MS);
+    };
+
+    dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+            goTo(Number(dot.dataset.slide));
+            resetTimer();
+        });
+    });
+
+    track.parentElement.addEventListener("touchstart", (e) => {
+        touchStartX = e.touches[0].clientX;
+    }, {passive: true});
+
+    track.parentElement.addEventListener("touchend", (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > HERO_SWIPE_THRESHOLD) {
+            goTo(diff > 0 ? current + 1 : current - 1);
+            resetTimer();
+        }
+    }, {passive: true});
+
+    resetTimer();
+};
+
 const updateText = (element, value) => {
     if (!element) {
         return;
@@ -114,6 +169,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     loadDailyVerse();
+    initHeroCarousel();
 
     if (dailyVerseLink) {
         dailyVerseLink.addEventListener("click", () => {
