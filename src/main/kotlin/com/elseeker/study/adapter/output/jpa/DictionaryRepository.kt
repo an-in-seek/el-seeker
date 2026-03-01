@@ -37,4 +37,14 @@ interface DictionaryRepository : JpaRepository<Dictionary, Long> {
         nativeQuery = true
     )
     fun findByTermContainingKo(@Param("term") term: String, pageable: Pageable): Page<Dictionary>
+
+    @Query(
+        """
+        SELECT d FROM Dictionary d
+        LEFT JOIN FETCH d.references
+        WHERE d.id IN :ids
+        ORDER BY d.term ASC
+        """
+    )
+    fun findAllByIdWithReferences(@Param("ids") ids: List<Long>): List<Dictionary>
 }

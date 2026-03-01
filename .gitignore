@@ -46,5 +46,10 @@ out/
 
 ### Docs ###
 /docs/auth/
-/.claude/settings.local.json
+
+### Claude ###
+/.claude/
+/.omc/
+
+### Etc ###
 /src/main/resources/data/community_sample.sql
