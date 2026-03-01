@@ -310,16 +310,144 @@
 }
 
 /* ── Responsive ── */
+
+/* Tablet (≤768px) */
+@media (max-width: 768px) {
+    .wp-board-wrapper {
+        text-align: center;
+    }
+    .wp-play-title {
+        font-size: 1rem;
+    }
+    .wp-result-stats {
+        gap: 1rem;
+    }
+    .wp-score-value {
+        font-size: 2rem;
+    }
+    .wp-word-header {
+        padding: 0.6rem 0.75rem;
+    }
+    .wp-word-body {
+        padding: 0 0.75rem 0.6rem;
+    }
+}
+
+/* Mobile (≤480px) */
 @media (max-width: 480px) {
+    .wp-board {
+        display: grid;
+        width: 100%;
+    }
     .wp-cell {
-        width: 30px;
-        height: 30px;
-        font-size: 0.85rem;
+        width: auto;
+        height: auto;
+        aspect-ratio: 1;
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
     }
     .wp-cell-number {
-        font-size: 0.45rem;
+        font-size: clamp(0.4rem, 1.5vw, 0.55rem);
+    }
+    .wp-cell-letter {
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+    }
+    .wp-cell-selected::after {
+        bottom: 3px;
+        height: 1.5px;
+    }
+    .wp-filter-bar {
+        flex-wrap: wrap;
     }
     .wp-filter-select {
-        max-width: 130px;
+        max-width: none;
+        flex: 1;
+        min-width: 0;
+    }
+    .wp-play-topbar {
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .wp-play-title {
+        font-size: 0.9rem;
+    }
+    .wp-play-timer {
+        font-size: 0.85rem;
+        min-width: 3.5rem;
+    }
+    .wp-clue-bar {
+        padding: 0.5rem 0.6rem;
+        gap: 0.4rem;
+    }
+    .wp-clue-number {
+        font-size: 0.8rem;
+    }
+    .wp-clue-text {
+        font-size: 0.8rem;
+    }
+    .wp-action-bar {
+        gap: 0.4rem;
+    }
+    .wp-hint-btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    .wp-hint-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    .wp-submit-btn {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+    }
+    .wp-result-icon {
+        font-size: 2.5rem;
+    }
+    .wp-score-value {
+        font-size: 1.8rem;
+    }
+    .wp-score-label {
+        font-size: 0.85rem;
+    }
+    .wp-result-stats {
+        gap: 0.75rem;
+    }
+    .wp-result-stat-label {
+        font-size: 0.7rem;
+    }
+    .wp-result-stat-value {
+        font-size: 0.95rem;
+    }
+    .wp-word-surface {
+        font-size: 0.85rem;
+    }
+    .wp-word-original {
+        font-size: 0.7rem;
+    }
+    .wp-word-body {
+        font-size: 0.8rem;
+    }
+    .wp-word-ref {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Small mobile (≤360px) */
+@media (max-width: 360px) {
+    .wp-cell-selected::after {
+        bottom: 2px;
+        width: 50%;
+        height: 1px;
+    }
+    .wp-play-title {
+        font-size: 0.85rem;
+    }
+    .wp-action-bar {
+        justify-content: center;
+    }
+    .wp-submit-btn {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 0.25rem;
     }
 }

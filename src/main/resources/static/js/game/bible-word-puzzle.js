@@ -52,6 +52,10 @@ const submitBtn = $('wpSubmitBtn');
 const saveBanner = $('wpSaveBanner');
 const errorEl = $('wpError');
 
+// Top nav
+const backButton = document.getElementById('topNavBackButton');
+const pageTitleLabel = document.getElementById('pageTitleLabel');
+
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
     loadPuzzleList();
@@ -179,13 +183,6 @@ async function onPuzzleCardClick(puzzle) {
 // ══════════════════════════════════════════
 
 function setupPlayListeners() {
-    $('wpBackBtn').addEventListener('click', () => {
-        stopTimer();
-        flushDirtyCells();
-        showSection('list');
-        loadPuzzleList();
-    });
-
     $('wpRevealBtn').addEventListener('click', onRevealLetter);
     $('wpCheckWordBtn').addEventListener('click', onCheckWord);
     submitBtn.addEventListener('click', onSubmit);
@@ -816,6 +813,32 @@ function showSection(name) {
     listSection.classList.toggle('d-none', name !== 'list');
     playSection.classList.toggle('d-none', name !== 'play');
     resultSection.classList.toggle('d-none', name !== 'result');
+
+    // Top nav back button
+    if (backButton) {
+        if (name === 'list') {
+            // 목록: 게임 메뉴로 돌아가기 (기본 data-back-link)
+            backButton.classList.remove('d-none');
+            backButton.onclick = () => { window.location.href = '/web/game'; };
+            if (pageTitleLabel) {
+                pageTitleLabel.textContent = '성경 단어 퍼즐';
+                pageTitleLabel.classList.remove('d-none');
+            }
+        } else if (name === 'play' || name === 'result') {
+            // 플레이/결과: 목록으로 돌아가기
+            backButton.classList.remove('d-none');
+            backButton.onclick = () => {
+                stopTimer();
+                flushDirtyCells();
+                showSection('list');
+                loadPuzzleList();
+            };
+            if (pageTitleLabel) {
+                pageTitleLabel.textContent = '성경 단어 퍼즐';
+                pageTitleLabel.classList.remove('d-none');
+            }
+        }
+    }
 }
 
 function showError(msg) {
