@@ -29,6 +29,8 @@ const state = {
 // IME composition tracking for Korean input
 let isComposing = false;
 let compositionJustEnded = false;
+let composingRow = null;
+let composingCol = null;
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -337,16 +339,20 @@ function renderBoard() {
 
         hiddenInput.addEventListener('compositionstart', () => {
             isComposing = true;
-            const el = getCellElement(state.selectedRow, state.selectedCol);
+            composingRow = state.selectedRow;
+            composingCol = state.selectedCol;
+            const el = getCellElement(composingRow, composingCol);
             if (el) el.classList.add('wp-cell-composing');
         });
 
         hiddenInput.addEventListener('compositionupdate', (e) => {
-            if (state.selectedRow == null) return;
-            const key = `${state.selectedRow},${state.selectedCol}`;
+            const row = composingRow ?? state.selectedRow;
+            const col = composingCol ?? state.selectedCol;
+            if (row == null) return;
+            const key = `${row},${col}`;
             const cellData = state.cellMap[key];
             if (!cellData || cellData.isRevealed) return;
-            const el = getCellElement(state.selectedRow, state.selectedCol);
+            const el = getCellElement(row, col);
             if (el) {
                 const letterEl = el.querySelector('.wp-cell-letter');
                 if (letterEl) letterEl.textContent = e.data ? e.data.charAt(e.data.length - 1) : '';
@@ -358,12 +364,33 @@ function renderBoard() {
             compositionJustEnded = true;
             setTimeout(() => { compositionJustEnded = false; }, 0);
 
-            const el = getCellElement(state.selectedRow, state.selectedCol);
+            const targetRow = composingRow;
+            const targetCol = composingCol;
+            composingRow = null;
+            composingCol = null;
+
+            const el = getCellElement(targetRow, targetCol);
             if (el) el.classList.remove('wp-cell-composing');
+
             const letter = e.data;
-            if (letter && state.selectedRow != null) {
-                setCurrentCellLetter(letter.charAt(letter.length - 1));
-                moveToNextCell();
+            if (letter && targetRow != null) {
+                const finalChar = letter.charAt(letter.length - 1);
+                const key = `${targetRow},${targetCol}`;
+                const cellData = state.cellMap[key];
+                if (cellData && !cellData.isRevealed) {
+                    cellData.inputLetter = finalChar;
+                    if (el) {
+                        const letterEl = el.querySelector('.wp-cell-letter');
+                        if (letterEl) letterEl.textContent = finalChar;
+                    }
+                    state.dirtyCells.push({ row: targetRow, col: targetCol, letter: finalChar });
+                    scheduleSave();
+                    updateSubmitButton();
+                }
+                // Only auto-advance if the user hasn't tapped a different cell
+                if (state.selectedRow === targetRow && state.selectedCol === targetCol) {
+                    moveToNextCell();
+                }
             }
             hiddenInput.value = '';
         });
