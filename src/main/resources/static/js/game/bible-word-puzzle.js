@@ -26,6 +26,10 @@ const state = {
     resultData: null
 };
 
+// IME composition tracking for Korean input
+let isComposing = false;
+let compositionJustEnded = false;
+
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
 
@@ -209,6 +213,27 @@ function setupPlayListeners() {
         clueNumber.textContent = '';
         clueText.textContent = '칸을 선택하세요';
     });
+
+    // Mobile keyboard: keep selected cell visible when virtual keyboard resizes viewport
+    if (window.visualViewport) {
+        let prevViewportHeight = window.visualViewport.height;
+        window.visualViewport.addEventListener('resize', () => {
+            if (playSection.classList.contains('d-none')) return;
+            if (state.selectedRow == null) return;
+            const currentHeight = window.visualViewport.height;
+            if (currentHeight < prevViewportHeight) {
+                requestAnimationFrame(() => {
+                    const selectedEl = getCellElement(state.selectedRow, state.selectedCol);
+                    if (!selectedEl) return;
+                    const rect = selectedEl.getBoundingClientRect();
+                    if (rect.bottom > currentHeight - 10 || rect.top < 0) {
+                        selectedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
+            prevViewportHeight = currentHeight;
+        });
+    }
 }
 
 function startPlay(data, title) {
@@ -311,6 +336,7 @@ function renderBoard() {
         document.body.appendChild(hiddenInput);
 
         hiddenInput.addEventListener('compositionstart', () => {
+            isComposing = true;
             const el = getCellElement(state.selectedRow, state.selectedCol);
             if (el) el.classList.add('wp-cell-composing');
         });
@@ -328,6 +354,10 @@ function renderBoard() {
         });
 
         hiddenInput.addEventListener('compositionend', (e) => {
+            isComposing = false;
+            compositionJustEnded = true;
+            setTimeout(() => { compositionJustEnded = false; }, 0);
+
             const el = getCellElement(state.selectedRow, state.selectedCol);
             if (el) el.classList.remove('wp-cell-composing');
             const letter = e.data;
@@ -339,7 +369,7 @@ function renderBoard() {
         });
 
         hiddenInput.addEventListener('input', (e) => {
-            if (e.isComposing) return;
+            if (e.isComposing || isComposing || compositionJustEnded) return;
             const val = hiddenInput.value;
             if (val) {
                 setCurrentCellLetter(val.charAt(val.length - 1));
@@ -547,7 +577,7 @@ function focusHiddenInput() {
     const input = document.querySelector('.wp-hidden-input');
     if (input) {
         input.value = '';
-        input.focus();
+        input.focus({ preventScroll: true });
     }
 }
 
