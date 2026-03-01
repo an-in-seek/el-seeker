@@ -164,11 +164,9 @@
     display: none;
 }
 
-/* Hidden input for keyboard capture */
+/* Hidden input for keyboard capture – positioned near active cell */
 .wp-hidden-input {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: absolute;
     opacity: 0;
     width: 1px;
     height: 1px;

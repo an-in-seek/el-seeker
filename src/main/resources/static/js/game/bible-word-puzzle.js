@@ -602,10 +602,19 @@ function moveToNextEntry(reverse) {
 
 function focusHiddenInput() {
     const input = document.querySelector('.wp-hidden-input');
-    if (input) {
-        input.value = '';
-        input.focus({ preventScroll: true });
+    if (!input) return;
+
+    // Position near active cell so the browser's native keyboard-appearance
+    // scroll targets the cell area instead of the viewport top-left.
+    const selectedEl = getCellElement(state.selectedRow, state.selectedCol);
+    if (selectedEl) {
+        const rect = selectedEl.getBoundingClientRect();
+        input.style.top = `${rect.top + window.scrollY}px`;
+        input.style.left = `${rect.left + window.scrollX}px`;
     }
+
+    input.value = '';
+    input.focus({ preventScroll: true });
 }
 
 // ── Timer ──
