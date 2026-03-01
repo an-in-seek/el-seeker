@@ -77,6 +77,7 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 
 ## 개발 가이드
 
+* Commit 메시지는 AngularJS 컨벤션 prefix를 따릅니다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
 * Swagger/OpenAPI 어노테이션은 `*ApiDocument` 인터페이스에 작성하고, 컨트롤러는 해당 인터페이스를 구현합니다.
 * 웹 UI의 뒤로가기 동작은 공통 네비게이션바의 백버튼(`topNavBackButton`)을 사용합니다. 커스텀 이동 경로가 필요하면 `<body>`에 `data-back-link`를 지정합니다.
 * Hover 스타일은 데스크톱(마우스) 환경에서만 적용합니다. 모든 hover CSS는 `@media (hover: hover) and (pointer: fine)` 내부에 작성하고, 모바일/터치 UI에서는 hover 기반 UX를 설계하지 않습니다.

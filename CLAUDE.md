@@ -72,6 +72,11 @@ Modules: `bible`, `study`, `game`, `member`, `auth`, `common`
 - `TestProfileResolver` forces `test` profile
 - Test config: `src/test/resources/application-test.yml` (no seed data, `ddl-auto: update`)
 
+## Git Commit Convention
+
+- Commit 메시지는 AngularJS 컨벤션 prefix를 따른다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
+- 예: `feat: 성경 단어 퍼즐 기능 구현`, `fix: 퍼즐 보드 셀 렌더링 오류 수정`
+
 ## Environment Variables (prod)
 
 `JWT_SECRET_BASE64`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `GOOGLE_CLIENT_ID/SECRET`, `NAVER_CLIENT_ID/SECRET`, `KAKAO_CLIENT_ID/SECRET`, `EL_SEEKER_API_BASE_URL`

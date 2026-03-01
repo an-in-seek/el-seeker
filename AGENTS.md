@@ -45,7 +45,7 @@
 - Name tests `*Test.kt` and focus on service, repository, and controller behavior.
 
 ## Commit & Pull Request Guidelines
-- Commit messages follow a prefix style like `feat:` or `doc:` (see `git log -5`).
+- Commit 메시지는 AngularJS 컨벤션 prefix를 따른다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
 - Keep commits scoped to one feature/fix; include a short, imperative summary.
 - PRs should describe the change, link related issues, and include screenshots for UI/template changes.
 
