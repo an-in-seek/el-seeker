@@ -45,7 +45,6 @@ const listLoading = $('wpListLoading');
 const listEmpty = $('wpListEmpty');
 const listCards = $('wpListCards');
 const pagination = $('wpPagination');
-const themeFilter = $('wpThemeFilter');
 const difficultyFilter = $('wpDifficultyFilter');
 
 // Play
@@ -74,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════
 
 function setupFilterListeners() {
-    themeFilter.addEventListener('change', () => { state.currentPage = 0; loadPuzzleList(); });
     difficultyFilter.addEventListener('change', () => { state.currentPage = 0; loadPuzzleList(); });
 }
 
@@ -88,9 +86,7 @@ async function loadPuzzleList() {
     const params = new URLSearchParams();
     params.set('page', state.currentPage);
     params.set('size', state.pageSize);
-    const theme = themeFilter.value;
     const difficulty = difficultyFilter.value;
-    if (theme) params.set('theme', theme);
     if (difficulty) params.set('difficulty', difficulty);
 
     try {
