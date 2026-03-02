@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('성경 단어 퍼즐 | ElSeeker', true, '/css/game/bible-word-puzzle.css?v=1.5')}">
+        th:replace="~{fragments/head :: head('성경 단어 퍼즐 | ElSeeker', true, '/css/game/bible-word-puzzle.css?v=1.6')}">
 </head>
 
 <body class="has-fixed-nav" data-back-link="/web/game">
@@ -63,15 +63,15 @@
             <span class="wp-play-timer" id="wpTimer">00:00</span>
         </div>
 
-        <!-- Puzzle Board -->
-        <div class="wp-board-wrapper">
-            <div class="wp-board" id="wpBoard" role="grid" aria-label="낱말 퍼즐 보드"></div>
-        </div>
-
         <!-- Clue Bar -->
         <div class="wp-clue-bar" id="wpClueBar">
             <span class="wp-clue-number" id="wpClueNumber"></span>
             <span class="wp-clue-text" id="wpClueText">칸을 선택하세요</span>
+        </div>
+
+        <!-- Puzzle Board -->
+        <div class="wp-board-wrapper">
+            <div class="wp-board" id="wpBoard" role="grid" aria-label="낱말 퍼즐 보드"></div>
         </div>
 
         <!-- Action Toolbar -->
