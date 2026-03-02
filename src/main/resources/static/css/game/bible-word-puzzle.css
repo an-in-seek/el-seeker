@@ -75,6 +75,7 @@
     overflow-x: auto;
     margin-bottom: 0.75rem;
     -webkit-overflow-scrolling: touch;
+    text-align: center;
 }
 .wp-board {
     display: inline-grid;
@@ -207,6 +208,7 @@
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
 }
 .wp-hint-btn {
@@ -216,7 +218,6 @@
     gap: 0.3rem;
 }
 .wp-submit-btn {
-    margin-left: auto;
     font-size: 0.85rem;
     font-weight: 600;
 }
@@ -320,9 +321,6 @@
 
 /* Tablet (≤768px) */
 @media (max-width: 768px) {
-    .wp-board-wrapper {
-        text-align: center;
-    }
     .wp-play-title {
         font-size: 1rem;
     }
