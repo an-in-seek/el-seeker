@@ -13,7 +13,8 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * 성경 번역본, 책, 장, 절 조회 REST API 제공
 * 특정 번역본 내 성경 구절 키워드 검색 기능 제공
 * 오늘의 말씀(일일 구절) 조회 REST API 제공
-* 성경 구절 메모 조회/등록/삭제 REST API 제공
+* 성경 구절 메모/하이라이트 조회·등록·삭제 REST API 제공
+* 성경 읽기 진행도(장 단위 읽기 기록) 조회·등록 REST API 제공
 * Thymeleaf 기반 성경 탐색 및 검색 웹 UI 제공
 * **커뮤니티(게시글/댓글/리액션/신고)** 기능 제공
 * **관리자 커뮤니티**: 공지/게시글/댓글/신고 관리 화면 제공
@@ -23,10 +24,16 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
     * 번역본/책/장 단위 타자 연습 세션 생성 및 진행
     * 연습 진행도 저장 및 조회
     * 타자 정확도 및 속도 측정
+* **성경 뽑기(Bible Casting Lots)** 랜덤 구절 추첨 기능 제공
+* **성경 단어 퍼즐(Bible Word Puzzle)** 낱말 퍼즐 기능 제공
+    * 퍼즐 목록 조회, 플레이, 자동 저장, 힌트, 채점
+    * 관리자 퍼즐/항목 관리 화면 제공
 * **성경 개요 영상(Bible Overview Video)** 66권 유튜브 영상 목록 웹 UI 제공
 * **성경 족보(Bible Genealogy)** 마태복음/누가복음 족보 비교 웹 UI 제공
 * 스터디(사전/역사) 조회 REST API 및 웹 UI 제공
+* **12사도, 12지파, 사도신경, 주기도문** 학습 페이지 제공
 * OAuth2 로그인/로그아웃 및 회원 정보 관리 API 제공
+* 이용약관 및 개인정보처리방침 페이지 제공
 * SpringDoc 기반 OpenAPI 및 Swagger UI 제공
 
 ## 기술 스택
@@ -44,36 +51,67 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 
 * `src/main/kotlin/com/elseeker`
 
-    * `common`: 공통 설정, 에러 모델, 공용 웹 구성
-    * `auth`: 인증/인가, OAuth2, JWT
+    * `common`: 공통 인프라
+        * `config`: 애플리케이션 설정 (Properties, JPA, Swagger)
+        * `security`: Spring Security, JWT 필터, OAuth2 (팩토리/핸들러/서비스/유틸)
+        * `domain`: 공통 엔티티(`BaseEntity`, `BaseTimeEntity`), `ServiceError`
+        * `adapter/input/web`: 에러 핸들러(`GlobalExceptionHandler`), 루트 컨트롤러
+        * `adapter/input/api`: 공통 API 응답 모델
+        * `adapter/output/jpa`: 공통 JPA 확장
+    * `auth`: 인증/인가 도메인
+        * `adapter/input/api`: 인증 REST API (클라이언트/관리자)
+        * `adapter/input/web`: 로그인/로그아웃 웹 컨트롤러
+        * `adapter/output`: 토큰/쿠키 저장소
+        * `application`: 인증 서비스
+        * `domain`: 인증 도메인 모델
     * `bible`: 성경 도메인
-        * `domain`: 도메인 모델/값 객체/결과 모델
-        * `application`: 유스케이스 및 서비스/컴포넌트
-        * `adapter/input`: REST API, Web Controller
-        * `adapter/output`: JPA 리포지토리
+        * `domain/model`: 엔티티 (`BibleTranslation`, `BibleChapter`, `BibleVerse` 등)
+        * `domain/vo`: 값 객체 (`BibleBookKey`, `BibleTestamentType`, `BibleTranslationType`, `DirectionType`)
+        * `domain/result`: 서비스 출력 DTO
+        * `application/service`: 관리자/클라이언트 서비스
+        * `application/component`: 도메인 로직 (`BibleReader`)
+        * `adapter/input/api`: REST API (관리자 CRUD, 클라이언트 조회/검색/메모/하이라이트/읽기진행도)
+        * `adapter/input/web`: 웹 컨트롤러 (관리자/클라이언트)
+        * `adapter/output/jpa`: JPA 리포지토리
     * `study`: 스터디(사전/역사) 도메인
-        * `domain`: 도메인 모델
-        * `application`: 애플리케이션 서비스
-        * `adapter/input`: REST API, Web Controller
-        * `adapter/output`: JPA 리포지토리
+        * `domain/model`: 엔티티, `domain/vo`: 값 객체
+        * `application/service`: 사전/역사 서비스
+        * `application/component`: 도메인 로직
+        * `adapter/input/api`: REST API (관리자/클라이언트)
+        * `adapter/input/web`: 웹 컨트롤러 (관리자/클라이언트)
+        * `adapter/output/jpa`: JPA 리포지토리
     * `community`: 커뮤니티 도메인
-        * `domain`: 도메인 모델/값 객체
-        * `application`: 서비스/정책/매퍼
-        * `adapter/input`: REST API, Web Controller
-        * `adapter/output`: JPA 리포지토리
-    * `game`: 성경 퀴즈 도메인
-        * `domain`: 도메인 모델
-        * `application`: 애플리케이션 서비스/매퍼
-        * `adapter/input`: REST API, Web Controller
-        * `adapter/output`: JPA 리포지토리
+        * `domain/model`: 엔티티 (`Post`, `Comment`), `domain/vo`: 값 객체, `domain/policy`: 도메인 정책
+        * `application/service`: 게시글/댓글/신고 서비스
+        * `application/component`: 도메인 로직, `application/mapper`: DTO 매퍼
+        * `adapter/input/api`: REST API (관리자/클라이언트)
+        * `adapter/input/web`: 웹 컨트롤러 (관리자/클라이언트)
+        * `adapter/output/jpa`: JPA 리포지토리 (Kotlin JDSL 포함)
+    * `game`: 게임 도메인 (퀴즈/OX퀴즈/타자연습/뽑기/단어퍼즐)
+        * `domain/model`: 엔티티 (`OxStage`, `OxQuestion`, `BibleTypingSession`, `BibleTypingVerse` 등)
+        * `domain/vo`: 값 객체 (`QuizDifficulty`)
+        * `application/service`: 게임별 서비스
+        * `application/component`: 도메인 로직, `application/dto`: 내부 DTO, `application/mapper`: DTO 매퍼
+        * `adapter/input/api`: REST API (관리자/클라이언트, 단어퍼즐 포함)
+        * `adapter/input/web`: 웹 컨트롤러 (관리자/클라이언트)
+        * `adapter/output/jpa`: JPA 리포지토리
     * `member`: 회원 도메인
+        * `domain/model`: 엔티티, `domain/vo`: 값 객체 (`MemberRole`)
+        * `application/service`: 회원 서비스
+        * `adapter/input/api`: REST API (관리자/클라이언트)
+        * `adapter/input/web`: 웹 컨트롤러 (관리자/클라이언트)
+        * `adapter/output/jpa`: JPA 리포지토리
 * `src/main/resources`
 
-    * `application.yml`: 애플리케이션 설정
-    * `data/`: SQL 시드 데이터
-    * `templates/`: Thymeleaf 템플릿
-    * `static/`: CSS, JavaScript, 이미지 리소스
-* `docs/`: 도메인별 문서
+    * `application.yml`, `application-local.yml`, `application-prod.yml`: 프로필별 설정
+    * `data/`: SQL 시드 데이터 (번역본, 성경 본문, 퀴즈, 사전, 단어 퍼즐)
+    * `templates/`: Thymeleaf 템플릿 (69개 파일)
+    * `static/`: CSS (38개), JavaScript (37개), 이미지/아이콘
+* `src/test/kotlin/com/elseeker`
+
+    * `common`: 테스트 인프라 (`IntegrationTest`, `DatabaseCleaner`, `TestContainers`, `TestProfileResolver`)
+    * `game`: 게임 서비스 테스트
+* `docs/`: 도메인별 문서 (ERD 등)
 
 ## 개발 가이드
 
@@ -257,12 +295,22 @@ DELETE /api/v1/game/bible-typing/sessions
 GET /api/v1/game/bible-typing/progress
 GET /api/v1/game/bible-typing/progress/latest
 POST /api/v1/game/bible-typing/progress/verses
+GET /api/v1/game/word-puzzles
+POST /api/v1/game/word-puzzles/{puzzleId}/attempts
+GET /api/v1/game/word-puzzles/{puzzleId}/attempts/{attemptId}
+PATCH /api/v1/game/word-puzzles/{puzzleId}/attempts/{attemptId}/cells
+POST /api/v1/game/word-puzzles/{puzzleId}/attempts/{attemptId}/hints/reveal-letter
+POST /api/v1/game/word-puzzles/{puzzleId}/attempts/{attemptId}/hints/check-word
+POST /api/v1/game/word-puzzles/{puzzleId}/attempts/{attemptId}/submit
+POST /api/v1/bible/reading/chapters/read
+GET /api/v1/bible/reading/chapters/read
+GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/state
 ```
 
 ### 관리자 API (요약)
 
 * 관리자 API는 `/api/v1/admin/**` 경로에 있으며 `ADMIN` 권한이 필요합니다.
-* 주요 영역: `admin/bible`, `admin/dictionaries`, `admin/members`, `admin/quiz`, `admin/ox`, `admin/community`
+* 주요 영역: `admin/bible`, `admin/dictionaries`, `admin/word-puzzles`, `admin/members`, `admin/quiz`, `admin/ox`, `admin/community`
 * 상세 엔드포인트는 Swagger UI를 참고하세요.
 
 ## 웹 UI 라우트
@@ -285,9 +333,27 @@ GET /web/game/bible-quiz/map
 GET /web/game/bible-typing
 GET /web/game/bible-ox-quiz
 GET /web/game/bible-ox-quiz/map
+GET /web/game/bible-casting-lots
+GET /web/game/bible-word-puzzle
+GET /web/game/bible-word-puzzle/play
 GET /web/community
 GET /web/community/write
 GET /web/community/{postId}
+GET /web/study
+GET /web/study/bible-overview-video
+GET /web/study/bible-genealogy
+GET /web/study/twelve-disciples
+GET /web/study/twelve-tribes
+GET /web/study/lords-prayer
+GET /web/study/apostles-creed
+GET /web/study/history
+GET /web/study/history/{era}
+GET /web/study/history/event/{id}
+GET /web/study/dictionary
+GET /web/study/dictionary/{id}
+GET /web/member/mypage
+GET /web/member/withdraw
+GET /web/member/withdraw/complete
 GET /web/admin
 GET /web/admin/community
 GET /web/admin/community/posts
@@ -302,6 +368,9 @@ GET /web/admin/bible/translations/{id}/edit
 GET /web/admin/bible/translations/{translationId}/books
 GET /web/admin/bible/translations/{translationId}/books/new
 GET /web/admin/bible/translations/{translationId}/books/{id}/edit
+GET /web/admin/bible/book-descriptions
+GET /web/admin/bible/book-descriptions/new
+GET /web/admin/bible/book-descriptions/{id}/edit
 GET /web/admin/bible/books/{bookId}/chapters
 GET /web/admin/bible/books/{bookId}/chapters/new
 GET /web/admin/bible/books/{bookId}/chapters/{id}/edit
@@ -311,6 +380,12 @@ GET /web/admin/bible/chapters/{chapterId}/verses/{id}/edit
 GET /web/admin/dictionaries
 GET /web/admin/dictionaries/new
 GET /web/admin/dictionaries/{id}/edit
+GET /web/admin/word-puzzles
+GET /web/admin/word-puzzles/new
+GET /web/admin/word-puzzles/{id}/edit
+GET /web/admin/word-puzzles/{puzzleId}/entries
+GET /web/admin/word-puzzles/{puzzleId}/entries/new
+GET /web/admin/word-puzzles/{puzzleId}/entries/{entryId}/edit
 GET /web/admin/members
 GET /web/admin/members/{id}/edit
 GET /web/admin/quiz/stages
@@ -325,95 +400,78 @@ GET /web/admin/ox-quiz/stages/{id}/edit
 GET /web/admin/ox-quiz/stages/{stageId}/questions
 GET /web/admin/ox-quiz/stages/{stageId}/questions/new
 GET /web/admin/ox-quiz/questions/{id}/edit
-GET /web/member/mypage
-GET /web/member/withdraw
-GET /web/member/withdraw/complete
-GET /web/study
-GET /web/study/bible-overview-video
-GET /web/study/bible-genealogy
-GET /web/study/history
-GET /web/study/history/{era}
-GET /web/study/history/event/{id}
-GET /web/study/dictionary
-GET /web/study/dictionary/{id}
 ```
 
 ### 템플릿 매핑
 
-`src/main/resources/templates`
+`src/main/resources/templates` (69개 파일)
 
 ```text
-index -> index.html
-bible/search -> bible/search.html
-bible/translation-list -> bible/translation-list.html
-bible/book-list -> bible/book-list.html
-bible/book-description -> bible/book-description.html
-bible/chapter-list -> bible/chapter-list.html
-bible/verse-list -> bible/verse-list.html
-community/community -> community/community.html
-community/community-write -> community/community-write.html
-community/community-detail -> community/community-detail.html
-admin/admin-dashboard -> admin/admin-dashboard.html
-admin/admin-bible-translation-list -> admin/admin-bible-translation-list.html
-admin/admin-bible-translation-form -> admin/admin-bible-translation-form.html
-admin/admin-bible-book-list -> admin/admin-bible-book-list.html
-admin/admin-bible-book-form -> admin/admin-bible-book-form.html
-admin/admin-bible-chapter-list -> admin/admin-bible-chapter-list.html
-admin/admin-bible-chapter-form -> admin/admin-bible-chapter-form.html
-admin/admin-bible-verse-list -> admin/admin-bible-verse-list.html
-admin/admin-bible-verse-form -> admin/admin-bible-verse-form.html
-admin/admin-dictionary-list -> admin/admin-dictionary-list.html
-admin/admin-dictionary-form -> admin/admin-dictionary-form.html
-admin/admin-member-list -> admin/admin-member-list.html
-admin/admin-member-form -> admin/admin-member-form.html
-admin/admin-community-post-list -> admin/admin-community-post-list.html
-admin/admin-community-post-form -> admin/admin-community-post-form.html
-admin/admin-community-post-detail -> admin/admin-community-post-detail.html
-admin/admin-community-comment-list -> admin/admin-community-comment-list.html
-admin/admin-community-report-list -> admin/admin-community-report-list.html
-admin/admin-quiz-stage-list -> admin/admin-quiz-stage-list.html
-admin/admin-quiz-stage-form -> admin/admin-quiz-stage-form.html
-admin/admin-quiz-question-list -> admin/admin-quiz-question-list.html
-admin/admin-quiz-question-form -> admin/admin-quiz-question-form.html
-admin/admin-ox-stage-list -> admin/admin-ox-stage-list.html
-admin/admin-ox-stage-form -> admin/admin-ox-stage-form.html
-admin/admin-ox-question-list -> admin/admin-ox-question-list.html
-admin/admin-ox-question-form -> admin/admin-ox-question-form.html
-game/game -> game/game.html
-game/bible-quiz -> game/bible-quiz.html
-game/bible-quiz-map -> game/bible-quiz-map.html
-game/bible-typing -> game/bible-typing.html
-game/bible-ox-quiz -> game/bible-ox-quiz.html
-game/bible-ox-quiz-map -> game/bible-ox-quiz-map.html
-login/login -> login/login.html
-member/mypage -> member/mypage.html
-member/withdraw -> member/withdraw.html
-member/withdraw-complete -> member/withdraw-complete.html
-legal/terms -> legal/terms.html
-legal/privacy -> legal/privacy.html
-study/study -> study/study.html
-study/bible-overview-video -> study/bible-overview-video.html
-study/bible-genealogy -> study/bible-genealogy.html
-study/history -> study/history.html
-study/history-era -> study/history-era.html
-study/history-event -> study/history-event.html
-study/dictionary-list -> study/dictionary-list.html
-study/dictionary-detail -> study/dictionary-detail.html
-error -> error.html
+index.html
+error.html
+
+bible/
+  translation-list, book-list, book-description, chapter-list, verse-list, search
+
+game/
+  game, bible-quiz, bible-quiz-map, bible-ox-quiz, bible-ox-quiz-map,
+  bible-typing, bible-casting-lots, bible-word-puzzle, bible-word-puzzle-play
+
+study/
+  study, bible-overview-video, bible-genealogy,
+  twelve-disciples, twelve-tribes, lords-prayer, apostles-creed,
+  history, history-era, history-event,
+  dictionary-list, dictionary-detail
+
+community/
+  community, community-write, community-detail
+
+member/
+  mypage, withdraw, withdraw-complete
+
+login/
+  login
+
+legal/
+  terms, privacy
+
+admin/
+  admin-dashboard,
+  admin-bible-translation-list, admin-bible-translation-form,
+  admin-bible-book-list, admin-bible-book-form,
+  admin-bible-book-description-list, admin-bible-book-description-form,
+  admin-bible-chapter-list, admin-bible-chapter-form,
+  admin-bible-verse-list, admin-bible-verse-form,
+  admin-dictionary-list, admin-dictionary-form,
+  admin-word-puzzle-list, admin-word-puzzle-form,
+  admin-word-puzzle-entry-list, admin-word-puzzle-entry-form,
+  admin-quiz-stage-list, admin-quiz-stage-form,
+  admin-quiz-question-list, admin-quiz-question-form,
+  admin-ox-stage-list, admin-ox-stage-form,
+  admin-ox-question-list, admin-ox-question-form,
+  admin-member-list, admin-member-form,
+  admin-community-post-list, admin-community-post-form, admin-community-post-detail,
+  admin-community-comment-list, admin-community-report-list
+
+fragments/
+  head, header, footer, community-widgets
+  admin/admin-sidebar
 ```
 
 ## 데이터 로딩 방식
 
 애플리케이션 시작 시 JPA가 테이블을 생성한 이후 `spring.sql.init` 설정을 통해 SQL 시드 데이터를 자동으로 로딩합니다. 시드 파일은 `src/main/resources/data` 경로에 위치하며 다음과 같은 파일로 구성되어 있습니다.
 
-* `bible_translation.sql`
-* `bible_book_description_ko.sql`
-* `bible_book_description_en.sql`
-* `bible_quiz.sql`
-* `krv/bible_krv_book.sql`
-* `nkrv/bible_nkrv_book.sql`
-* `kjv/bible_kjv_book.sql`
-* `bible_krv_XX_<book>.sql`
-* `dictionary.sql`
+* `bible_translation.sql` — 번역본 정의
+* `bible_book_description_ko.sql`, `bible_book_description_en.sql` — 책 소개 (한/영)
+* `krv/bible_krv_book.sql` — KRV 책 목록
+* `krv/bible_krv_01_genesis.sql` ~ `krv/bible_krv_66_revelation.sql` — KRV 66권 전체 본문
+* `nkrv/bible_nkrv_book.sql` — NKRV 책 목록
+* `nkrv/bible_nkrv_01_genesis.sql`, `nkrv/bible_nkrv_02_exodus.sql` — NKRV 창세기/출애굽기
+* `kjv/bible_kjv_book.sql` — KJV 책 목록 (본문 미포함)
+* `bible_quiz.sql` — 성경 퀴즈 데이터
+* `quiz_ox_quiz.sql` — OX 퀴즈 데이터
+* `word_puzzle_step1.sql`, `word_puzzle_step2.sql` — 단어 퍼즐 데이터
+* `dictionary.sql` — 성경 사전 데이터
 
-현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 번역본 목록에는 KRV/KJV가 포함되고 KJV는 책 목록만 제공됩니다.
+현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 새번역(NKRV)은 창세기/출애굽기만, KJV는 책 목록만 제공됩니다.
