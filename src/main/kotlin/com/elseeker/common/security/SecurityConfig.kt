@@ -120,6 +120,7 @@ class SecurityConfig(
                     .requestMatchers(
                         "/favicon.ico",
                         "/robots.txt",
+                        "/sitemap.xml",
                         "/css/**",
                         "/js/**",
                         "/images/**",
