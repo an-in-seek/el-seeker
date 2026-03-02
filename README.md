@@ -348,4 +348,4 @@ error -> error.html
 * `bible_krv_XX_<book>.sql`
 * `dictionary.sql`
 
-현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 개역개정(NKRV)은 창세기/출애굽기 본문만 포함되어 있으며, 번역본 목록에는 KRV/KJV/NKRV가 포함되고 KJV는 책 목록만 제공됩니다.
+현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 번역본 목록에는 KRV/KJV가 포함되고 KJV는 책 목록만 제공됩니다.
