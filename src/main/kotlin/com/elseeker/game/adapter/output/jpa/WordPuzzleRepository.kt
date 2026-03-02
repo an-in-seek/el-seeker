@@ -17,7 +17,7 @@ interface WordPuzzleRepository : JpaRepository<WordPuzzle, Long> {
         WHERE wp.puzzleStatusCode = :status
         AND (:themeCode IS NULL OR wp.themeCode = :themeCode)
         AND (:difficultyCode IS NULL OR wp.difficultyCode = :difficultyCode)
-        ORDER BY wp.publishedAt DESC
+        ORDER BY wp.id ASC
         """
     )
     fun findPublishedPuzzles(
