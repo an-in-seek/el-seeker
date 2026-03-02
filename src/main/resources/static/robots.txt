@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Disallow: /web/admin/
+Disallow: /web/member/
+Disallow: /web/auth/
+Disallow: /api/
+
+Sitemap: https://elseeker.com/sitemap.xml

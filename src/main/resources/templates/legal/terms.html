@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('이용약관 | ElSeeker', true, null)}"></head>
+<head th:replace="~{fragments/head :: head('이용약관 | ElSeeker', true, null)}"
+      th:with="pageDescription='ElSeeker 서비스 이용약관 전문입니다.'"></head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
 

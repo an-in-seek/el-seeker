@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('예수님의 12제자 | ElSeeker', true, '/css/search.css?v=2.2,/css/card.css?v=2.2,/css/study/twelve-disciples.css?v=1.0')}"></head>
+<head th:replace="~{fragments/head :: head('예수님의 12제자 | ElSeeker', true, '/css/search.css?v=2.2,/css/card.css?v=2.2,/css/study/twelve-disciples.css?v=1.0')}"
+      th:with="pageDescription='예수님이 부르신 12제자의 이름, 별명, 성경 구절과 주요 활동을 한눈에 정리한 학습 페이지입니다.'"></head>
 <body class="has-fixed-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
