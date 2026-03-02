@@ -56,6 +56,12 @@ class GameWebController {
         return "game/bible-word-puzzle"
     }
 
+    @GetMapping("/bible-word-puzzle/play")
+    fun showWordPuzzlePlay(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/game/bible-word-puzzle/play")?.let { return it }
+        return "game/bible-word-puzzle-play"
+    }
+
     private fun redirectIfUnauthenticated(authentication: Authentication?, returnUrl: String): String? {
         if (authentication == null || !authentication.isAuthenticated || authentication.principal == "anonymousUser") {
             return "redirect:/web/auth/login?returnUrl=$returnUrl"

@@ -39,6 +39,9 @@ data class PuzzleAttemptResponse(
     @field:Schema(description = "attempt ID", example = "42")
     val attemptId: Long,
 
+    @field:Schema(description = "퍼즐 제목", example = "창세기 인물 퍼즐")
+    val title: String,
+
     @field:Schema(description = "누적 경과 시간 (초)", example = "0")
     val elapsedSeconds: Int,
 

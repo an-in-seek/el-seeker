@@ -418,6 +418,7 @@ class WordPuzzleService(
     ): PuzzleAttemptResponse {
         return PuzzleAttemptResponse(
             attemptId = requireNotNull(attempt.id),
+            title = puzzle.title,
             elapsedSeconds = attempt.elapsedSeconds,
             board = BoardResponse(
                 width = puzzle.boardWidth,
