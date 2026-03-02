@@ -82,6 +82,74 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * 웹 UI의 뒤로가기 동작은 공통 네비게이션바의 백버튼(`topNavBackButton`)을 사용합니다. 커스텀 이동 경로가 필요하면 `<body>`에 `data-back-link`를 지정합니다.
 * Hover 스타일은 데스크톱(마우스) 환경에서만 적용합니다. 모든 hover CSS는 `@media (hover: hover) and (pointer: fine)` 내부에 작성하고, 모바일/터치 UI에서는 hover 기반 UX를 설계하지 않습니다.
 
+## SEO 가이드
+
+새 페이지를 추가하거나 기존 페이지를 수정할 때 아래 규칙을 따릅니다.
+
+### 공통 head fragment
+
+모든 페이지는 `fragments/head.html`의 공통 fragment를 사용합니다. fragment가 자동으로 처리하는 항목:
+
+* `<title>` — 첫 번째 파라미터로 전달
+* `<meta description>` — `pageDescription` 변수 (미설정 시 사이트 기본 설명 사용)
+* `<link rel="canonical">` — 현재 요청 URI 기반 자동 생성
+* Open Graph / Twitter Card 메타 태그 — title, description, image 자동 매핑
+* JSON-LD 구조화 데이터 — Organization, WebSite, WebPage 3중 구조
+
+### 새 페이지 추가 시 필수 작업
+
+1. **`pageDescription` 설정** — 페이지 고유의 설명을 50~160자(한글) 이내로 작성합니다.
+   ```html
+   <head th:replace="~{fragments/head :: head('페이지명 | ElSeeker', true, '/css/feature.css')}"
+         th:with="pageDescription='이 페이지의 고유한 설명을 작성합니다.'"></head>
+   ```
+
+2. **로그인 필수 페이지는 `noindex` 설정** — 크롤러가 접근할 수 없는 페이지는 반드시 noindex를 지정합니다.
+   ```html
+   <head th:replace="~{fragments/head :: head('제목 | ElSeeker', true, '/css/feature.css')}"
+         th:with="robotsContent='noindex'"></head>
+   ```
+
+3. **sitemap.xml 업데이트** — 공개 페이지를 추가한 경우 `src/main/resources/static/sitemap.xml`에 URL을 추가합니다.
+
+4. **SecurityConfig permitAll 확인** — 공개 페이지인 경우 `SecurityConfig.kt`의 `permitAll()` 규칙에 포함되는지 확인합니다.
+
+### th:with 변수 목록
+
+| 변수 | 용도 | 예시 |
+|------|------|------|
+| `pageDescription` | 페이지 meta description | `'성경 66권의 개요를 영상으로 학습합니다.'` |
+| `robotsContent` | robots 메타 태그 | `'noindex'` |
+| `schemaType` | JSON-LD @type (기본: `WebPage`) | `'CollectionPage'`, `'Article'` |
+| `ogType` | Open Graph type (기본: `website`) | `'article'` |
+| `ogImage` | Open Graph 이미지 URL | `'https://elseeker.com/images/custom.png'` |
+| `canonicalUrl` | canonical URL 직접 지정 | `'https://elseeker.com/web/bible/search'` |
+| `twitterCard` | Twitter Card type (기본: `summary_large_image`) | `'summary'` |
+
+복수 변수를 콤마로 조합할 수 있습니다:
+```html
+th:with="pageDescription='설명', schemaType='CollectionPage'"
+```
+
+### 페이지 분류별 SEO 정책
+
+| 분류 | pageDescription | noindex | sitemap 포함 |
+|------|:-:|:-:|:-:|
+| 공개 페이지 (성경, 학습, 커뮤니티 목록) | 필수 | X | O |
+| 로그인 필수 페이지 (게임, 마이페이지) | 선택 | O | X |
+| 관리자 페이지 | 불필요 | robots.txt로 차단 | X |
+| 에러 페이지 | 불필요 | O | X |
+
+### robots.txt 규칙
+
+`src/main/resources/static/robots.txt`에서 크롤러 접근을 관리합니다:
+
+* `/web/admin/` — 관리자 페이지 차단
+* `/web/member/` — 회원 전용 페이지 차단
+* `/web/auth/` — 인증 페이지 차단
+* `/api/` — API 엔드포인트 차단
+* `Sitemap` — sitemap.xml 위치 명시
+
 ## 로컬 실행 방법
 
 ```bash
