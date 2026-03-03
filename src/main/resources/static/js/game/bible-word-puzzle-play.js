@@ -279,6 +279,16 @@ function onCellClick(row, col) {
     if (state.selectedRow === row && state.selectedCol === col) {
         // Toggle direction at same cell
         state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
+    } else {
+        // Prefer the direction of the entry that starts at this cell
+        const acrossStart = state.entries.find(e => e.directionCode === 'ACROSS' && e.startRow === row && e.startCol === col);
+        const downStart = state.entries.find(e => e.directionCode === 'DOWN' && e.startRow === row && e.startCol === col);
+        if (acrossStart && !downStart) {
+            state.direction = 'ACROSS';
+        } else if (downStart && !acrossStart) {
+            state.direction = 'DOWN';
+        }
+        // Both or neither start here → keep current direction
     }
     selectCell(row, col);
     focusCellInput(row, col);
