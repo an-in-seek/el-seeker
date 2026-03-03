@@ -116,6 +116,7 @@
     height: 2px;
     background-color: #2563eb;
     animation: wp-cursor-blink 1s step-end infinite;
+    z-index: 2;
 }
 @keyframes wp-cursor-blink {
     0%, 100% { opacity: 1; }
@@ -153,31 +154,26 @@
     color: var(--bs-secondary);
     line-height: 1;
 }
-.wp-cell-letter {
-    font-size: 1.05rem;
-    line-height: 1;
-}
-.wp-cell-composing .wp-cell-letter {
-    color: #2563eb;
-    opacity: 0.8;
-}
-.wp-cell-composing::after {
-    display: none;
-}
-
-/* Hidden input for keyboard capture – positioned near active cell */
-.wp-hidden-input {
+.wp-cell-input {
     position: absolute;
-    opacity: 0;
-    width: 1px;
-    height: 1px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 500;
     padding: 0;
     margin: 0;
     outline: none;
-    font-size: 16px; /* Prevent iOS auto-zoom */
-    pointer-events: none;
-    z-index: -1;
+    color: inherit;
+    font-family: inherit;
+    caret-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    z-index: 1;
 }
 
 /* ── Clue Bar ── */
@@ -353,7 +349,7 @@
     .wp-cell-number {
         font-size: clamp(0.4rem, 1.5vw, 0.55rem);
     }
-    .wp-cell-letter {
+    .wp-cell-input {
         font-size: clamp(0.85rem, 3.5vw, 1.1rem);
     }
     .wp-cell-selected::after {

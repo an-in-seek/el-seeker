@@ -22,9 +22,6 @@ const state = {
 
 // IME composition tracking for Korean input
 let isComposing = false;
-let compositionJustEnded = false;
-let composingRow = null;
-let composingCol = null;
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -119,6 +116,7 @@ function setupPlayListeners() {
         highlightCells();
         clueNumber.textContent = '';
         clueText.textContent = '칸을 선택하세요';
+        if (document.activeElement) document.activeElement.blur();
     });
 
     // Flush dirty cells on page unload (browser back, tab close)
@@ -128,27 +126,6 @@ function setupPlayListeners() {
             e.preventDefault();
         }
     });
-
-    // Mobile keyboard: keep selected cell visible when virtual keyboard resizes viewport
-    if (window.visualViewport) {
-        let prevViewportHeight = window.visualViewport.height;
-        window.visualViewport.addEventListener('resize', () => {
-            if (playSection.classList.contains('d-none')) return;
-            if (state.selectedRow == null) return;
-            const currentHeight = window.visualViewport.height;
-            if (currentHeight < prevViewportHeight) {
-                requestAnimationFrame(() => {
-                    const selectedEl = getCellElement(state.selectedRow, state.selectedCol);
-                    if (!selectedEl) return;
-                    const rect = selectedEl.getBoundingClientRect();
-                    if (rect.bottom > currentHeight - 10 || rect.top < 0) {
-                        selectedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-            }
-            prevViewportHeight = currentHeight;
-        });
-    }
 }
 
 function startPlay(data, title) {
@@ -220,15 +197,23 @@ function renderBoard() {
                     cellEl.appendChild(numEl);
                 }
 
-                // Letter
-                const letterEl = document.createElement('span');
-                letterEl.className = 'wp-cell-letter';
-                letterEl.textContent = cellData.inputLetter || '';
-                cellEl.appendChild(letterEl);
+                // Per-cell input (replaces hidden input approach)
+                const inputEl = document.createElement('input');
+                inputEl.className = 'wp-cell-input';
+                inputEl.type = 'text';
+                inputEl.setAttribute('autocomplete', 'off');
+                inputEl.setAttribute('autocorrect', 'off');
+                inputEl.setAttribute('autocapitalize', 'off');
+                inputEl.setAttribute('spellcheck', 'false');
+                inputEl.value = cellData.inputLetter || '';
 
                 if (cellData.isRevealed) {
                     cellEl.classList.add('wp-cell-revealed');
+                    inputEl.readOnly = true;
                 }
+
+                setupCellInputHandlers(inputEl, r, c);
+                cellEl.appendChild(inputEl);
 
                 cellEl.addEventListener('click', () => onCellClick(r, c));
             } else {
@@ -238,100 +223,56 @@ function renderBoard() {
             boardEl.appendChild(cellEl);
         }
     }
+}
 
-    // Hidden input for IME
-    let hiddenInput = document.querySelector('.wp-hidden-input');
-    if (!hiddenInput) {
-        hiddenInput = document.createElement('input');
-        hiddenInput.className = 'wp-hidden-input';
-        hiddenInput.type = 'text';
-        hiddenInput.setAttribute('autocomplete', 'off');
-        hiddenInput.setAttribute('autocorrect', 'off');
-        hiddenInput.setAttribute('autocapitalize', 'off');
-        hiddenInput.setAttribute('spellcheck', 'false');
-        document.body.appendChild(hiddenInput);
+function setupCellInputHandlers(inputEl, row, col) {
+    inputEl.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
 
-        hiddenInput.addEventListener('compositionstart', () => {
-            isComposing = true;
-            composingRow = state.selectedRow;
-            composingCol = state.selectedCol;
-            const el = getCellElement(composingRow, composingCol);
-            if (el) el.classList.add('wp-cell-composing');
-        });
+    inputEl.addEventListener('compositionend', (e) => {
+        isComposing = false;
+        const key = `${row},${col}`;
+        const cellData = state.cellMap[key];
+        if (!cellData || cellData.isRevealed) {
+            inputEl.value = cellData?.inputLetter || '';
+            return;
+        }
 
-        hiddenInput.addEventListener('compositionupdate', (e) => {
-            const row = composingRow ?? state.selectedRow;
-            const col = composingCol ?? state.selectedCol;
-            if (row == null) return;
-            const key = `${row},${col}`;
-            const cellData = state.cellMap[key];
-            if (!cellData || cellData.isRevealed) return;
-            const el = getCellElement(row, col);
-            if (el) {
-                const letterEl = el.querySelector('.wp-cell-letter');
-                if (letterEl) letterEl.textContent = e.data ? e.data.charAt(e.data.length - 1) : '';
-            }
-        });
+        const letter = e.data;
+        if (letter) {
+            const finalChar = letter.charAt(letter.length - 1);
+            cellData.inputLetter = finalChar;
+            inputEl.value = finalChar;
+            state.dirtyCells.push({ row, col, letter: finalChar });
+            scheduleSave();
+            updateSubmitButton();
+            moveToNextCell();
+        }
+    });
 
-        hiddenInput.addEventListener('compositionend', (e) => {
-            isComposing = false;
-            compositionJustEnded = true;
-            // iOS Safari may dispatch the input event asynchronously after compositionend;
-            // use 50ms (instead of 0) so the input handler still sees compositionJustEnded=true.
-            setTimeout(() => { compositionJustEnded = false; }, 50);
+    inputEl.addEventListener('input', (e) => {
+        if (e.isComposing || isComposing) return;
+        if (e.inputType === 'insertCompositionText') return;
 
-            const targetRow = composingRow;
-            const targetCol = composingCol;
-            composingRow = null;
-            composingCol = null;
+        const key = `${row},${col}`;
+        const cellData = state.cellMap[key];
+        if (!cellData || cellData.isRevealed) {
+            inputEl.value = cellData?.inputLetter || '';
+            return;
+        }
 
-            const el = getCellElement(targetRow, targetCol);
-            if (el) el.classList.remove('wp-cell-composing');
-
-            const letter = e.data;
-            if (letter && targetRow != null) {
-                const finalChar = letter.charAt(letter.length - 1);
-                const key = `${targetRow},${targetCol}`;
-                const cellData = state.cellMap[key];
-                if (cellData && !cellData.isRevealed) {
-                    cellData.inputLetter = finalChar;
-                    if (el) {
-                        const letterEl = el.querySelector('.wp-cell-letter');
-                        if (letterEl) letterEl.textContent = finalChar;
-                    }
-                    state.dirtyCells.push({ row: targetRow, col: targetCol, letter: finalChar });
-                    scheduleSave();
-                    updateSubmitButton();
-                }
-                // Delay auto-advance for iOS Korean IME compatibility.
-                // iOS Safari may fire compositionend prematurely for each jamo (e.g. "ㄱ")
-                // before the full syllable ("가") is composed. Waiting allows a follow-up
-                // compositionstart to arrive before we move to the next cell.
-                setTimeout(() => {
-                    if (isComposing) return;
-                    if (state.selectedRow === targetRow && state.selectedCol === targetCol) {
-                        moveToNextCell();
-                    }
-                    hiddenInput.value = '';
-                }, 30);
-            } else {
-                hiddenInput.value = '';
-            }
-        });
-
-        hiddenInput.addEventListener('input', (e) => {
-            if (e.isComposing || isComposing || compositionJustEnded) return;
-            // iOS Safari: e.isComposing can be false during Korean composition;
-            // inputType is a more reliable indicator on iOS.
-            if (e.inputType === 'insertCompositionText') return;
-            const val = hiddenInput.value;
-            if (val) {
-                setCurrentCellLetter(val.charAt(val.length - 1));
-                moveToNextCell();
-                hiddenInput.value = '';
-            }
-        });
-    }
+        const val = inputEl.value;
+        if (val) {
+            const finalChar = val.charAt(val.length - 1);
+            cellData.inputLetter = finalChar;
+            inputEl.value = finalChar;
+            state.dirtyCells.push({ row, col, letter: finalChar });
+            scheduleSave();
+            updateSubmitButton();
+            moveToNextCell();
+        }
+    });
 }
 
 function onCellClick(row, col) {
@@ -340,7 +281,7 @@ function onCellClick(row, col) {
         state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
     }
     selectCell(row, col);
-    focusHiddenInput();
+    focusCellInput(row, col);
 }
 
 function selectCell(row, col) {
@@ -358,7 +299,7 @@ function selectCell(row, col) {
     }
 
     highlightCells();
-    focusHiddenInput();
+    focusCellInput(row, col);
 }
 
 function findEntryForCell(row, col, direction) {
@@ -419,8 +360,8 @@ function setCurrentCellLetter(letter) {
     // Update DOM
     const el = getCellElement(r, c);
     if (el) {
-        const letterEl = el.querySelector('.wp-cell-letter');
-        if (letterEl) letterEl.textContent = letter || '';
+        const inputEl = el.querySelector('.wp-cell-input');
+        if (inputEl) inputEl.value = letter || '';
     }
 
     // Mark dirty
@@ -467,6 +408,7 @@ function moveToPrevCell() {
 function onKeyDown(e) {
     if (playSection.classList.contains('d-none')) return;
     if (state.selectedRow == null) return;
+    if (isComposing) return;
 
     switch (e.key) {
         case 'ArrowLeft':
@@ -526,24 +468,14 @@ function moveToNextEntry(reverse) {
     }
 }
 
-function focusHiddenInput() {
-    const input = document.querySelector('.wp-hidden-input');
-    if (!input) return;
-
-    // Don't disrupt ongoing IME composition (iOS Korean IME fix).
-    // Clearing the value or re-focusing during composition can cause
-    // premature compositionend on iOS Safari.
+function focusCellInput(row, col) {
     if (isComposing) return;
-
-    const selectedEl = getCellElement(state.selectedRow, state.selectedCol);
-    if (selectedEl) {
-        const rect = selectedEl.getBoundingClientRect();
-        input.style.top = `${rect.top + window.scrollY}px`;
-        input.style.left = `${rect.left + window.scrollX}px`;
-    }
-
-    input.value = '';
-    input.focus({ preventScroll: true });
+    const el = getCellElement(row, col);
+    if (!el) return;
+    const inputEl = el.querySelector('.wp-cell-input');
+    if (!inputEl || inputEl.readOnly) return;
+    inputEl.value = state.cellMap[`${row},${col}`]?.inputLetter || '';
+    inputEl.focus({ preventScroll: true });
 }
 
 // ── Timer ──
@@ -647,7 +579,11 @@ async function onRevealLetter() {
 
         const el = getCellElement(data.row, data.col);
         if (el) {
-            el.querySelector('.wp-cell-letter').textContent = data.letter;
+            const inputEl = el.querySelector('.wp-cell-input');
+            if (inputEl) {
+                inputEl.value = data.letter;
+                inputEl.readOnly = true;
+            }
             el.classList.add('wp-cell-revealed');
         }
         updateSubmitButton();
