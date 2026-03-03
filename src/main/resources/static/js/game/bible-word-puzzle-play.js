@@ -276,7 +276,9 @@ function renderBoard() {
         hiddenInput.addEventListener('compositionend', (e) => {
             isComposing = false;
             compositionJustEnded = true;
-            setTimeout(() => { compositionJustEnded = false; }, 0);
+            // iOS Safari may dispatch the input event asynchronously after compositionend;
+            // use 50ms (instead of 0) so the input handler still sees compositionJustEnded=true.
+            setTimeout(() => { compositionJustEnded = false; }, 50);
 
             const targetRow = composingRow;
             const targetCol = composingCol;
@@ -301,16 +303,27 @@ function renderBoard() {
                     scheduleSave();
                     updateSubmitButton();
                 }
-                // Only auto-advance if the user hasn't tapped a different cell
-                if (state.selectedRow === targetRow && state.selectedCol === targetCol) {
-                    moveToNextCell();
-                }
+                // Delay auto-advance for iOS Korean IME compatibility.
+                // iOS Safari may fire compositionend prematurely for each jamo (e.g. "ㄱ")
+                // before the full syllable ("가") is composed. Waiting allows a follow-up
+                // compositionstart to arrive before we move to the next cell.
+                setTimeout(() => {
+                    if (isComposing) return;
+                    if (state.selectedRow === targetRow && state.selectedCol === targetCol) {
+                        moveToNextCell();
+                    }
+                    hiddenInput.value = '';
+                }, 30);
+            } else {
+                hiddenInput.value = '';
             }
-            hiddenInput.value = '';
         });
 
         hiddenInput.addEventListener('input', (e) => {
             if (e.isComposing || isComposing || compositionJustEnded) return;
+            // iOS Safari: e.isComposing can be false during Korean composition;
+            // inputType is a more reliable indicator on iOS.
+            if (e.inputType === 'insertCompositionText') return;
             const val = hiddenInput.value;
             if (val) {
                 setCurrentCellLetter(val.charAt(val.length - 1));
@@ -516,6 +529,11 @@ function moveToNextEntry(reverse) {
 function focusHiddenInput() {
     const input = document.querySelector('.wp-hidden-input');
     if (!input) return;
+
+    // Don't disrupt ongoing IME composition (iOS Korean IME fix).
+    // Clearing the value or re-focusing during composition can cause
+    // premature compositionend on iOS Safari.
+    if (isComposing) return;
 
     const selectedEl = getCellElement(state.selectedRow, state.selectedCol);
     if (selectedEl) {
