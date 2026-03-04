@@ -15,7 +15,6 @@ const App = {
         App.bindBackButton();
         App.bindForm();
         App.bindCancel();
-        App.bindTitleCount();
 
         if (App.state.editPostId) {
             App.loadPostForEdit(App.state.editPostId);
@@ -127,16 +126,6 @@ const App = {
         });
     },
 
-    bindTitleCount() {
-        const input = document.getElementById("postTitle");
-        const counter = document.getElementById("titleCount");
-        if (!input || !counter) return;
-
-        input.addEventListener("input", () => {
-            counter.textContent = `${input.value.length} / 200`;
-        });
-    },
-
     validate() {
         let valid = true;
 
@@ -159,7 +148,7 @@ const App = {
             valid = false;
         } else if (title.value.trim().length > 200) {
             title.classList.add("is-invalid");
-            titleError.textContent = "제목은 200자 이내여야 합니다.";
+            titleError.textContent = "제목은 200자 이내로 입력해 주세요.";
             valid = false;
         } else {
             title.classList.remove("is-invalid");
