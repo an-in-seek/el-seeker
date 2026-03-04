@@ -8,7 +8,6 @@ const state = {
     attemptId: null,
     board: null,
     entries: [],
-    cells: [],
     cellMap: {},          // "row,col" -> cell
     selectedRow: null,
     selectedCol: null,
@@ -47,8 +46,8 @@ const saveBanner = $('wpSaveBanner');
 const errorEl = $('wpError');
 
 // Top nav
-const backButton = document.getElementById('topNavBackButton');
-const pageTitleLabel = document.getElementById('pageTitleLabel');
+const backButton = $('topNavBackButton');
+const pageTitleLabel = $('pageTitleLabel');
 
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -282,7 +281,6 @@ function startPlay(data, title) {
 
     // Build cell map
     state.cellMap = {};
-    state.cells = data.cells;
     data.cells.forEach(c => {
         state.cellMap[`${c.row},${c.col}`] = { ...c };
     });
@@ -553,8 +551,6 @@ function onKeyDown(e) {
             postCompositionKeyupDeadline = 0;
             state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
             selectCell(state.selectedRow, state.selectedCol);
-            break;
-        default:
             break;
     }
 }
