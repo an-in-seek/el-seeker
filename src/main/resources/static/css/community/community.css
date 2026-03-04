@@ -684,3 +684,14 @@ body {
         right: max(24px, calc((100vw - (1320px + 24px)) / 2 - 48px));
     }
 }
+
+/* ── Section Nav 공존 보정 (모바일) ── */
+@media (max-width: 599.98px) {
+    body:has(.section-nav) .writer-fab.mobile-only {
+        bottom: calc(2rem + var(--bottom-tab-height));
+    }
+
+    body:has(.section-nav) .scroll-to-top-btn {
+        bottom: calc(6.5rem + var(--bottom-tab-height));
+    }
+}

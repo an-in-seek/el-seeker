@@ -12,6 +12,7 @@ const App = {
     init() {
         App.state.editPostId = App.getEditPostId();
         App.setPageTitle();
+        App.bindBackButton();
         App.bindForm();
         App.bindCancel();
         App.bindTitleCount();
@@ -31,6 +32,17 @@ const App = {
 
     isEditMode() {
         return App.state.editPostId !== null;
+    },
+
+    bindBackButton() {
+        const backButton = document.getElementById("topNavBackButton");
+        if (backButton) {
+            backButton.classList.remove("d-none");
+            backButton.addEventListener("click", () => {
+                const backLink = document.body.dataset.backLink || "/web/community";
+                window.location.href = backLink;
+            });
+        }
     },
 
     setPageTitle() {
