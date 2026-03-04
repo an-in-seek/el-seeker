@@ -116,7 +116,7 @@ Bottom Tab Bar와 Navigation Rail 모두 동일한 매핑 로직을 공유합니
 6. 그 외          → 활성 항목 없음 (모두 비활성)
 ```
 
-- `/web/community/write`는 커뮤니티 활성
+- `/web/community/123` 등 커뮤니티 하위 경로에서도 커뮤니티 활성 (단, 해당 페이지에 section-nav가 포함된 경우에만 의미 있음)
 - `/web/member/mypage`, `/web/auth/login` 등 5개 카테고리 외 경로에서는 **어떤 항목도 활성화하지 않음**
 - 홈(`/`)은 `pathname === "/"` exact match로 처리 (prefix 매칭 시 모든 경로에 해당하는 문제 방지)
 
@@ -263,16 +263,22 @@ Navigation Rail은 좌측 고정(80px)이고 `fixed-bottom-nav`는 `left: 0; wid
 
 | 페이지 분류 | 모바일 (Bottom Tab Bar) | 태블릿 (Navigation Rail) | 비고 |
 |---|---|---|---|
-| 홈, 학습, 게임 목록, 커뮤니티 목록 | **표시** | **표시** | 주요 랜딩 페이지 |
-| 성경 번역본 선택, 책 목록 | **표시** | **표시** | |
-| 성경 구절 읽기, 장 목록, 책 설명 | **스크롤 auto-hide** | **표시** | 모바일만 `fixed-bottom-nav` 공존 처리 (5.2절 참조) |
-| 커뮤니티 상세, 글쓰기 | **표시** | **표시** | |
-| 개별 게임 페이지 (퀴즈, 타자 등) | **숨김** | **숨김** | 게임 몰입 UX 보장 |
+| 홈 (`index.html`) | **표시** | **표시** | 메인 랜딩 페이지 |
+| 성경 번역본 선택, 책 목록 | **표시** | **표시** | `translation-list`, `book-list` |
+| 성경 구절 읽기, 장 목록, 책 설명 | **스크롤 auto-hide** | **표시** | `verse-list`, `chapter-list`, `book-description` — 모바일만 `fixed-bottom-nav` 공존 처리 (5.2절 참조) |
+| 성경 검색 | **표시** | **표시** | `search.html` |
+| 학습 목록 | **표시** | **표시** | `study.html` |
+| 학습 상세 페이지 | **표시** | **표시** | `dictionary-list/detail`, `lords-prayer`, `apostles-creed`, `twelve-disciples`, `twelve-tribes`, `bible-genealogy`, `bible-overview-video`, `history`, `history-era`, `history-event` |
+| 게임 목록 | **표시** | **표시** | `game.html` |
+| 커뮤니티 목록 | **표시** | **표시** | `community.html` |
+| 커뮤니티 상세, 글쓰기 | **숨김** | **숨김** | 콘텐츠 집중 UX — `data-back-link`로 목록 복귀 |
+| 개별 게임 페이지 (퀴즈, 타자, 퍼즐 등) | **숨김** | **숨김** | 게임 몰입 UX 보장 |
+| 마이페이지 | **표시** | **표시** | `mypage.html` |
+| 회원 탈퇴 | **표시** | **표시** | `withdraw.html` |
 | 로그인 페이지 | **숨김** | **숨김** | 독립 레이아웃 (`has-fixed-nav` 미사용) |
 | 관리자 페이지 (`/web/admin/**`) | **숨김** | **숨김** | 별도 레이아웃 |
 | 법적 페이지 (이용약관, 개인정보) | **숨김** | **숨김** | 독립 레이아웃 |
 | 오류 페이지 (404/500) | **숨김** | **숨김** | Spring Boot 기본 오류 페이지, fragment 포함 불가 |
-| 회원 탈퇴 완료 | **숨김** | **숨김** | 탈퇴 후 네비게이션 불필요 |
 
 ### 5.5 Thymeleaf fragment 포함 전략
 
