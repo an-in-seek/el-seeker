@@ -129,8 +129,10 @@ function createHiddenInput() {
 
     hiddenInput.addEventListener('compositionend', (e) => {
         isComposing = false;
-        if (e.data) {
-            commitCellInput(e.data.charAt(e.data.length - 1));
+        const committedText = e.data || hiddenInput.value || '';
+        const committedChar = committedText.charAt(committedText.length - 1);
+        if (committedChar) {
+            commitCellInput(committedChar);
             moveToNextCell();
             lastCommitAt = Date.now();
             ignoreNextInput = true;
