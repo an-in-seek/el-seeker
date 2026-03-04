@@ -801,7 +801,7 @@ function showResult(data) {
     const wordList = $('wpWordList');
     wordList.innerHTML = '';
     if (data.words && data.words.length > 0) {
-        data.words.forEach((word, i) => {
+        data.words.forEach((word) => {
             const item = document.createElement('div');
             item.className = 'wp-word-item';
 
