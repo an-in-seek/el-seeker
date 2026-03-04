@@ -100,6 +100,9 @@ async function initPuzzle() {
 // ══════════════════════════════════════════
 
 function createHiddenInput() {
+    let ignoreNextInput = false;
+    let lastCommitAt = 0;
+
     hiddenInput = document.createElement('input');
     hiddenInput.className = 'wp-hidden-input';
     hiddenInput.type = 'text';
@@ -120,13 +123,19 @@ function createHiddenInput() {
     // ── IME Composition (한글 조합) ──
     hiddenInput.addEventListener('compositionstart', () => {
         isComposing = true;
+        ignoreNextInput = false;
         hiddenInput.value = '';
     });
 
     hiddenInput.addEventListener('compositionend', (e) => {
         isComposing = false;
-        if (e.data) {
-            commitCellInput(e.data.charAt(e.data.length - 1));
+        const committedText = e.data || hiddenInput.value || '';
+        const committedChar = committedText.charAt(committedText.length - 1);
+        if (committedChar) {
+            commitCellInput(committedChar);
+            moveToNextCell();
+            lastCommitAt = Date.now();
+            ignoreNextInput = true;
         }
         hiddenInput.value = '';
         compositionEndedAt = Date.now();
@@ -140,13 +149,13 @@ function createHiddenInput() {
         const code = e.keyCode;
         setTimeout(() => {
             if (!compositionEndedAt || Date.now() - compositionEndedAt > 300) return;
-            compositionEndedAt = 0;
+            if (key === 'Enter' || code === 13 || key === 'Tab' || code === 9) {
+                compositionEndedAt = 0;
+                return;
+            }
 
-            if (key === 'Enter' || code === 13) {
-                moveToNextCell();
-            } else if (key === 'Tab' || code === 9) {
-                moveToNextEntry(e.shiftKey);
-            } else if (key === ' ' || code === 32) {
+            compositionEndedAt = 0;
+            if (key === ' ' || code === 32) {
                 state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
                 selectCell(state.selectedRow, state.selectedCol);
             }
@@ -163,6 +172,15 @@ function createHiddenInput() {
                     composingText.charAt(composingText.length - 1));
             }
             return;
+        }
+
+        if (ignoreNextInput && Date.now() - lastCommitAt < 120) {
+            ignoreNextInput = false;
+            hiddenInput.value = '';
+            return;
+        }
+        if (ignoreNextInput) {
+            ignoreNextInput = false;
         }
         if (e.inputType === 'insertCompositionText') return;
 
