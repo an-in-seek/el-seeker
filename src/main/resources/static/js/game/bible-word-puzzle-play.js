@@ -308,9 +308,6 @@ function renderBoard() {
     boardEl.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
     boardEl.innerHTML = '';
 
-    // Build set of valid cell positions
-    const validCells = new Set(Object.keys(state.cellMap));
-
     // Build clue number map from entries
     const clueNumberMap = {};
     state.entries.forEach(e => {
@@ -325,7 +322,7 @@ function renderBoard() {
             cellEl.dataset.row = r;
             cellEl.dataset.col = c;
 
-            if (validCells.has(key)) {
+            if (state.cellMap[key]) {
                 cellEl.className = 'wp-cell';
                 const cellData = state.cellMap[key];
 
@@ -373,7 +370,6 @@ function onCellClick(row, col) {
         // Both or neither start here → keep current direction
     }
     selectCell(row, col);
-    focusCellInput(row, col);
 }
 
 function selectCell(row, col) {
@@ -817,11 +813,11 @@ function showResult(data) {
             `).join('');
 
             item.innerHTML = `
-                <button class="wp-word-header" type="button" aria-expanded="false" data-idx="${i}">
+                <button class="wp-word-header" type="button" aria-expanded="false">
                     <span class="wp-word-surface">${escapeHtml(word.surfaceForm)}</span>
                     ${word.originalLexeme ? `<span class="wp-word-original">${escapeHtml(word.originalLexeme)} (${word.originalLanguageCode === 'HEBREW' ? '히브리어' : '헬라어'})</span>` : ''}
                 </button>
-                <div class="wp-word-body d-none" data-body-idx="${i}">
+                <div class="wp-word-body d-none">
                     <p class="wp-word-definition">${escapeHtml(word.dictionaryDefinition)}</p>
                     ${refsHtml}
                 </div>
