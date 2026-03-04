@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head th:replace="~{fragments/head :: head('성경 구절 목록 | ElSeeker', true, '/css/bible/verse-list.css?v=2.3')}"
       th:with="pageDescription='선택한 장의 성경 구절을 읽고 공유하거나 복사, 메모할 수 있습니다.'"></head>
-<body class="has-fixed-nav">
+<body class="has-fixed-nav has-dual-bottom-nav">
 
 <header th:replace="~{fragments/header :: header}"
         th:with="pageTitle='성경 구절 목록', pageTitleVisible=true"></header>
@@ -86,5 +86,6 @@
 </div>
 
 <script type="module" src="/js/bible/verse-list.js?v=2.4"></script>
+<div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>

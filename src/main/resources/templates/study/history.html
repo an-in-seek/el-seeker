@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head th:replace="~{fragments/head :: head('성경 역사 | ElSeeker', true, '/css/study/history.css?v=2.2')}"
       th:with="pageDescription='성경 연대기 흐름 속에서 시대별 사건과 관련 성경책을 한눈에 살펴볼 수 있는 학습 페이지입니다.'"></head>
-<body class="has-fixed-nav">
+<body class="has-fixed-nav has-dual-bottom-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -51,5 +51,6 @@
 </main>
 
 <script type="module" src="/js/study/history.js?v=2.2"></script>
+<div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>

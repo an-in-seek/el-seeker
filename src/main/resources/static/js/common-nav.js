@@ -1,0 +1,66 @@
+/**
+ * 섹션 네비게이션 (Bottom Tab Bar / Navigation Rail)
+ * - 클릭 시 Active 상태 즉시 전환 (SSR 깜빡임 대응)
+ * - 스크롤 방향 기반 auto-hide (공존 페이지 전용)
+ * - 키보드 네비게이션 (화살표키)
+ */
+
+const nav = document.querySelector('.section-nav');
+
+if (nav) {
+    const navItems = nav.querySelectorAll('.section-nav-item');
+
+    // --- 클릭 피드백: 즉시 Active 상태 전환 (SSR 페이지 리로드 깜빡임 대응) ---
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(el => {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            });
+            item.classList.add('active');
+            item.setAttribute('aria-current', 'page');
+        });
+    });
+
+    // --- 스크롤 auto-hide (모바일 + has-dual-bottom-nav 페이지 전용) ---
+    if (document.body.classList.contains('has-dual-bottom-nav')) {
+        let lastScrollY = window.scrollY;
+        const SCROLL_THRESHOLD = 10;
+
+        window.addEventListener('scroll', () => {
+            const delta = window.scrollY - lastScrollY;
+            if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+
+            if (delta > 0 && window.scrollY > 0) {
+                document.body.classList.add('bottom-tab-hidden');
+            } else {
+                document.body.classList.remove('bottom-tab-hidden');
+            }
+            lastScrollY = window.scrollY;
+        }, { passive: true });
+    }
+
+    // --- 키보드 네비게이션 (화살표키로 항목 간 이동, CSS order 기반 시각적 순서) ---
+    nav.addEventListener('keydown', (e) => {
+        const items = [...navItems].sort((a, b) => {
+            const orderA = parseInt(getComputedStyle(a).order) || 0;
+            const orderB = parseInt(getComputedStyle(b).order) || 0;
+            return orderA - orderB;
+        });
+        const currentIndex = items.indexOf(document.activeElement);
+        if (currentIndex === -1) return;
+
+        let nextIndex;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            nextIndex = (currentIndex + 1) % items.length;
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            nextIndex = (currentIndex - 1 + items.length) % items.length;
+        }
+
+        if (nextIndex !== undefined) {
+            items[nextIndex].focus();
+        }
+    });
+}

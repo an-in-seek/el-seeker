@@ -4,7 +4,7 @@
 <head th:replace="~{fragments/head :: head('성경 사전 | ElSeeker', true, '/css/search.css?v=2.2')}"
       th:with="pageDescription='성경에 등장하는 단어와 용어를 검색하고 정의, 원어, 관련 구절을 확인할 수 있는 성경 사전입니다.'"></head>
 
-<body class="has-fixed-nav">
+<body class="has-fixed-nav has-dual-bottom-nav">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -39,6 +39,7 @@
 <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">↑</button>
 
 <script type="module" src="/js/study/dictionary-list.js?v=2.2"></script>
+<div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 
 </html>

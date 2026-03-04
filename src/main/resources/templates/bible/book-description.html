@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/head :: head('책 개요 | ElSeeker', true, '/css/bible/book-description.css?v=1.0')}"
       th:with="pageDescription='성경 각 책의 개요, 저자, 기록 시기와 배경을 요약해 안내합니다.'"></head>
 
-<body class="has-fixed-nav">
+<body class="has-fixed-nav has-dual-bottom-nav">
 
 <header th:replace="~{fragments/header :: header}"
         th:with="pageTitle='책 개요', pageTitleVisible=true"></header>
@@ -71,5 +71,6 @@
 
 <script type="module" src="/js/bible/book-description.js?v=2.2"></script>
 
+<div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>

@@ -26,6 +26,16 @@ const elements = {
     resetButton: document.getElementById("resetLotsButton")
 };
 
+// 뒤로가기 버튼 활성화
+const backButton = document.getElementById("topNavBackButton");
+if (backButton) {
+    backButton.classList.remove("d-none");
+    backButton.addEventListener("click", () => {
+        const backLink = document.body.dataset.backLink || "/web/game";
+        window.location.href = backLink;
+    });
+}
+
 let gameState = {
     stage: STAGES.SETUP,
     lots: [],
