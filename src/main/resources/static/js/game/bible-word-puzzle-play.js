@@ -100,6 +100,10 @@ async function initPuzzle() {
 // ══════════════════════════════════════════
 
 function createHiddenInput() {
+    let ignoreNextInput = false;
+    let lastCommitAt = 0;
+    let skipPostCompositionKeyup = false;
+
     hiddenInput = document.createElement('input');
     hiddenInput.className = 'wp-hidden-input';
     hiddenInput.type = 'text';
@@ -120,37 +124,40 @@ function createHiddenInput() {
     // ── IME Composition (한글 조합) ──
     hiddenInput.addEventListener('compositionstart', () => {
         isComposing = true;
+        ignoreNextInput = false;
         hiddenInput.value = '';
     });
 
     hiddenInput.addEventListener('compositionend', (e) => {
         isComposing = false;
-        if (e.data) {
-            commitCellInput(e.data.charAt(e.data.length - 1));
+        const committedText = e.data || hiddenInput.value || '';
+        const committedChar = committedText.charAt(committedText.length - 1);
+        if (committedChar) {
+            commitCellInput(committedChar);
+            moveToNextCell();
+            lastCommitAt = Date.now();
+            ignoreNextInput = true;
         }
         hiddenInput.value = '';
-        compositionEndedAt = Date.now();
+        skipPostCompositionKeyup = true;
     });
 
-    // 조합 종료 직후 keyup으로 Enter/Tab/Space 감지
-    // setTimeout(0)으로 defer — 일부 브라우저에서 keyup이 compositionend보다
-    // 먼저 발생하는 이벤트 순서 차이를 해결
+    // 조합 종료 직후 1회 keyup만 보정 처리
     hiddenInput.addEventListener('keyup', (e) => {
+        if (!skipPostCompositionKeyup) return;
+
         const key = e.key;
         const code = e.keyCode;
-        setTimeout(() => {
-            if (!compositionEndedAt || Date.now() - compositionEndedAt > 300) return;
-            compositionEndedAt = 0;
+        skipPostCompositionKeyup = false;
 
-            if (key === 'Enter' || code === 13) {
-                moveToNextCell();
-            } else if (key === 'Tab' || code === 9) {
-                moveToNextEntry(e.shiftKey);
-            } else if (key === ' ' || code === 32) {
-                state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
-                selectCell(state.selectedRow, state.selectedCol);
-            }
-        }, 0);
+        if (key === 'Enter' || code === 13 || key === 'Tab' || code === 9) {
+            return;
+        }
+
+        if (key === ' ' || code === 32) {
+            state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
+            selectCell(state.selectedRow, state.selectedCol);
+        }
     });
 
     // ── Input (조합 미리보기 + 영문 직접 입력) ──
@@ -163,6 +170,15 @@ function createHiddenInput() {
                     composingText.charAt(composingText.length - 1));
             }
             return;
+        }
+
+        if (ignoreNextInput && Date.now() - lastCommitAt < 120) {
+            ignoreNextInput = false;
+            hiddenInput.value = '';
+            return;
+        }
+        if (ignoreNextInput) {
+            ignoreNextInput = false;
         }
         if (e.inputType === 'insertCompositionText') return;
 
