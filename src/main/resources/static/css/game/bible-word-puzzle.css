@@ -154,26 +154,35 @@
     color: var(--bs-secondary);
     line-height: 1;
 }
-.wp-cell-input {
+/* Letter display (visual only — input은 hidden input이 담당) */
+.wp-cell-letter {
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1;
+    color: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Single hidden input for Korean IME (Hidden Input pattern)
+   wrapper에 고정 배치 — DOM 재배치 없이 iOS Safari 키보드 안정성 보장 */
+.wp-hidden-input {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
     border: none;
     background: transparent;
-    text-align: center;
-    font-size: 1.05rem;
-    font-weight: 500;
+    font-size: 16px; /* iOS zoom 방지 */
     padding: 0;
     margin: 0;
-    outline: none;
-    color: inherit;
-    font-family: inherit;
+    z-index: -1;
     caret-color: transparent;
     -webkit-appearance: none;
     appearance: none;
-    z-index: 1;
+    pointer-events: none;
 }
 
 /* ── Clue Bar ── */
@@ -349,7 +358,7 @@
     .wp-cell-number {
         font-size: clamp(0.4rem, 1.5vw, 0.55rem);
     }
-    .wp-cell-input {
+    .wp-cell-letter {
         font-size: clamp(0.85rem, 3.5vw, 1.1rem);
     }
     .wp-cell-selected::after {
