@@ -5,8 +5,7 @@
 
 /* 상단 하단 여백 */
 .content-wrapper {
-    /* padding-top: 1rem !important; */
-    /* padding-bottom: 1rem !important; */
+    padding-bottom: 1rem;
 }
 
 
@@ -193,10 +192,9 @@
     pointer-events: auto;
     background: #eafaf1;
     border: 1px solid #b7e4c7;
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.08),
-        0 4px 6px rgba(0, 0, 0, 0.04),
-        0 0 0 1px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08),
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
     border-radius: 9999px;
     padding: 0.25rem 0.5rem 0.25rem 0.25rem;
     min-width: 320px;

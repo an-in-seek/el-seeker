@@ -179,7 +179,7 @@
     }
 
     body.has-dual-bottom-nav.bottom-tab-hidden .content-wrapper {
-        padding-bottom: 0;
+        padding-bottom: 1rem;
     }
 }
 
