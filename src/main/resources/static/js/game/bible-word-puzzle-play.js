@@ -22,7 +22,10 @@ const state = {
 
 // IME composition tracking for Korean input
 let isComposing = false;
-let compositionEndedAt = 0; // compositionend 시점 기록 (keyup 연계용)
+let ignoreNextInput = false;
+let lastCommitAt = 0;
+let skipPostCompositionKeyup = false;
+let postCompositionKeyupDeadline = 0;
 
 // Single hidden input for all cell input (Hidden Input pattern)
 let hiddenInput = null;
@@ -100,9 +103,6 @@ async function initPuzzle() {
 // ══════════════════════════════════════════
 
 function createHiddenInput() {
-    let ignoreNextInput = false;
-    let lastCommitAt = 0;
-
     hiddenInput = document.createElement('input');
     hiddenInput.className = 'wp-hidden-input';
     hiddenInput.type = 'text';
@@ -124,6 +124,8 @@ function createHiddenInput() {
     hiddenInput.addEventListener('compositionstart', () => {
         isComposing = true;
         ignoreNextInput = false;
+        skipPostCompositionKeyup = false;
+        postCompositionKeyupDeadline = 0;
         hiddenInput.value = '';
     });
 
@@ -131,35 +133,40 @@ function createHiddenInput() {
         isComposing = false;
         const committedText = e.data || hiddenInput.value || '';
         const committedChar = committedText.charAt(committedText.length - 1);
-        if (committedChar) {
+
+        if (committedChar && committedChar.trim()) {
+            skipPostCompositionKeyup = true;
+            postCompositionKeyupDeadline = Date.now() + 300;
             commitCellInput(committedChar);
             moveToNextCell();
             lastCommitAt = Date.now();
             ignoreNextInput = true;
         }
+
         hiddenInput.value = '';
-        compositionEndedAt = Date.now();
     });
 
-    // 조합 종료 직후 keyup으로 Enter/Tab/Space 감지
-    // setTimeout(0)으로 defer — 일부 브라우저에서 keyup이 compositionend보다
-    // 먼저 발생하는 이벤트 순서 차이를 해결
+    // 조합 종료 직후 keyup은 1회만 처리
     hiddenInput.addEventListener('keyup', (e) => {
+        if (!skipPostCompositionKeyup) return;
+        if (Date.now() > postCompositionKeyupDeadline) {
+            skipPostCompositionKeyup = false;
+            postCompositionKeyupDeadline = 0;
+            return;
+        }
+
+        skipPostCompositionKeyup = false;
+        postCompositionKeyupDeadline = 0;
+
         const key = e.key;
         const code = e.keyCode;
-        setTimeout(() => {
-            if (!compositionEndedAt || Date.now() - compositionEndedAt > 300) return;
-            if (key === 'Enter' || code === 13 || key === 'Tab' || code === 9) {
-                compositionEndedAt = 0;
-                return;
-            }
 
-            compositionEndedAt = 0;
-            if (key === ' ' || code === 32) {
-                state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
-                selectCell(state.selectedRow, state.selectedCol);
-            }
-        }, 0);
+        if (key === 'Enter' || code === 13 || key === 'Tab' || code === 9) return;
+
+        if (key === ' ' || code === 32) {
+            state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
+            selectCell(state.selectedRow, state.selectedCol);
+        }
     });
 
     // ── Input (조합 미리보기 + 영문 직접 입력) ──
@@ -174,7 +181,7 @@ function createHiddenInput() {
             return;
         }
 
-        if (ignoreNextInput && Date.now() - lastCommitAt < 120) {
+        if (ignoreNextInput && Date.now() - lastCommitAt < 180) {
             ignoreNextInput = false;
             hiddenInput.value = '';
             return;
@@ -499,6 +506,13 @@ function onKeyDown(e) {
     if (state.selectedRow == null) return;
     if (isComposing) return;
 
+    if (skipPostCompositionKeyup
+        && Date.now() <= postCompositionKeyupDeadline
+        && (e.key === 'Enter' || e.key === 'Tab' || e.key === ' ')) {
+        e.preventDefault();
+        return;
+    }
+
     switch (e.key) {
         case 'ArrowLeft':
             e.preventDefault();
@@ -523,17 +537,20 @@ function onKeyDown(e) {
             break;
         case 'Tab':
             e.preventDefault();
-            compositionEndedAt = 0;
+            skipPostCompositionKeyup = false;
+            postCompositionKeyupDeadline = 0;
             moveToNextEntry(e.shiftKey);
             break;
         case 'Enter':
             e.preventDefault();
-            compositionEndedAt = 0;
+            skipPostCompositionKeyup = false;
+            postCompositionKeyupDeadline = 0;
             moveToNextCell();
             break;
         case ' ':
             e.preventDefault();
-            compositionEndedAt = 0;
+            skipPostCompositionKeyup = false;
+            postCompositionKeyupDeadline = 0;
             state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
             selectCell(state.selectedRow, state.selectedCol);
             break;
