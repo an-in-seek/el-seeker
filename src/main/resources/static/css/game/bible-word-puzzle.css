@@ -153,6 +153,7 @@
     font-weight: 700;
     color: var(--bs-secondary);
     line-height: 1;
+    z-index: 2;
 }
 /* Letter display for revealed cells */
 .wp-cell-letter {
@@ -174,7 +175,7 @@
     border: none;
     background: transparent;
     text-align: center;
-    font-size: 1.05rem;
+    font-size: 16px; /* iOS zoom 방지 — 16px 미만이면 Safari가 자동 확대 */
     font-weight: 500;
     color: inherit;
     outline: none;
@@ -182,7 +183,6 @@
     margin: 0;
     z-index: 1;
     caret-color: transparent;
-    font-size: 16px; /* iOS zoom 방지 */
     -webkit-appearance: none;
     appearance: none;
 }
