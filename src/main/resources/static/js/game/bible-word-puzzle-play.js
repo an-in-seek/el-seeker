@@ -262,6 +262,10 @@ function renderBoard() {
     }
 }
 
+function isMoveTriggerKey(e) {
+    return e.key === 'Enter' || e.key === ' ' || e.code === 'Enter' || e.code === 'Space';
+}
+
 function createCellInput(row, col, cellData) {
     const input = document.createElement('input');
     input.type = 'text';
@@ -296,9 +300,11 @@ function createCellInput(row, col, cellData) {
 
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
-        if (isComposing) {
+        const composingNow = isComposing || e.isComposing || e.keyCode === 229;
+
+        if (composingNow) {
             // IME 조합 중에도 이동 키는 보류 등록
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (isMoveTriggerKey(e)) {
                 e.preventDefault();
                 pendingMove = moveToNextCell;
             }
@@ -344,6 +350,19 @@ function createCellInput(row, col, cellData) {
                 }
                 break;
         }
+    });
+
+    // 일부 브라우저/IME 조합에서는 Enter 이동이 keydown 단계에서 누락될 수 있어 keyup에서 보정
+    input.addEventListener('keyup', (e) => {
+        if (isComposing || e.isComposing) return;
+        if (!isMoveTriggerKey(e)) return;
+
+        // keydown에서 이미 이동했다면 선택 셀이 바뀌므로 중복 이동 방지
+        const isStillSelected = state.selectedRow === row && state.selectedCol === col;
+        if (!isStillSelected) return;
+
+        e.preventDefault();
+        moveToNextCell();
     });
 
     return input;
