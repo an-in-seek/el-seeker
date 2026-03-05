@@ -292,10 +292,10 @@ function createCellInput(row, col, cellData) {
         const composedChar = (e.data || input.value || '').slice(-1) || null;
         compositionEndCellKey = cellKey;
 
-        const cellData = state.cellMap[`${row},${col}`];
-        if (cellData && !cellData.isRevealed && composedChar) {
+        const currentCellData = state.cellMap[`${row},${col}`];
+        if (currentCellData && !currentCellData.isRevealed && composedChar) {
             input.value = composedChar;
-            cellData.inputLetter = composedChar;
+            currentCellData.inputLetter = composedChar;
         }
 
         // 다음 틱에서 최종 동기화 및 보류된 이동 실행
