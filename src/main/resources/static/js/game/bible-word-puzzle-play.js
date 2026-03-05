@@ -19,8 +19,8 @@ const state = {
     saveTimeout: null
 };
 
-// IME composition tracking
-let isComposing = false;
+// IME composition tracking (cell 단위)
+let composingCellKey = null;
 let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
 
 // ── DOM refs ──
@@ -267,6 +267,7 @@ function isMoveTriggerKey(e) {
 }
 
 function createCellInput(row, col, cellData) {
+    const cellKey = `${row},${col}`;
     const input = document.createElement('input');
     input.type = 'text';
     input.maxLength = 1;
@@ -279,28 +280,37 @@ function createCellInput(row, col, cellData) {
 
     // ── IME Composition ──
     input.addEventListener('compositionstart', () => {
-        isComposing = true;
+        composingCellKey = cellKey;
     });
 
     input.addEventListener('compositionend', () => {
-        isComposing = false;
+        if (composingCellKey === cellKey) composingCellKey = null;
+        // 일부 브라우저에서 조합 완료 문자가 compositionend 직후 반영되므로 다음 틱에 동기화
+        setTimeout(() => {
+            syncCellFromInput(row, col);
+            if (pendingMove) {
+                const action = pendingMove;
+                pendingMove = null;
+                action();
+            }
+        }, 0);
+    });
+
+    input.addEventListener('blur', () => {
+        if (composingCellKey === cellKey) composingCellKey = null;
+        pendingMove = null;
         syncCellFromInput(row, col);
-        if (pendingMove) {
-            const action = pendingMove;
-            pendingMove = null;
-            action();
-        }
     });
 
     // ── Input ──
     input.addEventListener('input', () => {
-        if (isComposing) return;
+        if (composingCellKey === cellKey) return;
         syncCellFromInput(row, col);
     });
 
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
-        const composingNow = isComposing || e.isComposing || e.keyCode === 229;
+        const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
 
         if (composingNow) {
             // IME 조합 중에도 이동 키는 보류 등록
@@ -354,7 +364,7 @@ function createCellInput(row, col, cellData) {
 
     // 일부 브라우저/IME 조합에서는 Enter 이동이 keydown 단계에서 누락될 수 있어 keyup에서 보정
     input.addEventListener('keyup', (e) => {
-        if (isComposing || e.isComposing) return;
+        if (composingCellKey === cellKey || e.isComposing) return;
         if (!isMoveTriggerKey(e)) return;
 
         // keydown에서 이미 이동했다면 선택 셀이 바뀌므로 중복 이동 방지
@@ -387,8 +397,19 @@ function onCellClick(row, col) {
 }
 
 function selectCell(row, col) {
+    const prevRow = state.selectedRow;
+    const prevCol = state.selectedCol;
+
     state.selectedRow = row;
     state.selectedCol = col;
+
+    // 다른 셀로 이동 시 기존 입력을 종료해 IME 조합이 이전 셀에 남지 않게 처리
+    if (prevRow != null && prevCol != null && (prevRow !== row || prevCol !== col)) {
+        const prevCellEl = getCellElement(prevRow, prevCol);
+        const prevInput = prevCellEl?.querySelector('.wp-cell-input');
+        if (prevInput) prevInput.blur();
+        pendingMove = null;
+    }
 
     // Find matching entry for clue bar
     const entry = findEntryForCell(row, col, state.direction)
@@ -516,7 +537,6 @@ function moveToNextEntry(reverse) {
 }
 
 function focusCellInput(row, col) {
-    if (isComposing) return;
     const key = `${row},${col}`;
     const cellData = state.cellMap[key];
     if (!cellData || cellData.isRevealed) return;
