@@ -19,15 +19,8 @@ const state = {
     saveTimeout: null
 };
 
-// IME composition tracking for Korean input
+// IME composition tracking
 let isComposing = false;
-let ignoreNextInput = false;
-let lastCommitAt = 0;
-let skipPostCompositionKeyup = false;
-let postCompositionKeyupDeadline = 0;
-
-// Single hidden input for all cell input (Hidden Input pattern)
-let hiddenInput = null;
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -52,7 +45,6 @@ const pageTitleLabel = $('pageTitleLabel');
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
     initNav();
-    createHiddenInput();
     setupPlayListeners();
     initPuzzle();
 });
@@ -96,127 +88,35 @@ async function initPuzzle() {
 }
 
 // ══════════════════════════════════════════
-// Hidden Input (Best Practice for Korean IME)
-// ─ 단일 input으로 모든 셀 입력을 처리하여
-//   focus 전환에 의한 side effect를 원천 차단
+// Per-cell Input helpers
 // ══════════════════════════════════════════
 
-function createHiddenInput() {
-    hiddenInput = document.createElement('input');
-    hiddenInput.className = 'wp-hidden-input';
-    hiddenInput.type = 'text';
-    hiddenInput.setAttribute('autocomplete', 'off');
-    hiddenInput.setAttribute('autocorrect', 'off');
-    hiddenInput.setAttribute('autocapitalize', 'off');
-    hiddenInput.setAttribute('spellcheck', 'false');
-    hiddenInput.setAttribute('inputmode', 'text');
-    hiddenInput.setAttribute('aria-label', '퍼즐 입력');
-
-    // wrapper에 고정 배치 — boardEl.innerHTML='' 영향 없고, DOM 재배치 불필요
-    const wrapper = boardEl.closest('.wp-board-wrapper');
-    if (wrapper) {
-        wrapper.style.position = 'relative';
-        wrapper.appendChild(hiddenInput);
-    }
-
-    // ── IME Composition (한글 조합) ──
-    hiddenInput.addEventListener('compositionstart', () => {
-        isComposing = true;
-        ignoreNextInput = false;
-        skipPostCompositionKeyup = false;
-        postCompositionKeyupDeadline = 0;
-        hiddenInput.value = '';
-    });
-
-    hiddenInput.addEventListener('compositionend', (e) => {
-        isComposing = false;
-        const committedText = e.data || hiddenInput.value || '';
-        const committedChar = committedText.charAt(committedText.length - 1);
-
-        if (committedChar && committedChar.trim()) {
-            skipPostCompositionKeyup = true;
-            postCompositionKeyupDeadline = Date.now() + 300;
-            commitCellInput(committedChar);
-            moveToNextCell();
-            lastCommitAt = Date.now();
-            ignoreNextInput = true;
-        }
-
-        hiddenInput.value = '';
-    });
-
-    // 조합 종료 직후 keyup은 1회만 처리
-    hiddenInput.addEventListener('keyup', (e) => {
-        if (!skipPostCompositionKeyup) return;
-        if (Date.now() > postCompositionKeyupDeadline) {
-            skipPostCompositionKeyup = false;
-            postCompositionKeyupDeadline = 0;
-            return;
-        }
-
-        skipPostCompositionKeyup = false;
-        postCompositionKeyupDeadline = 0;
-
-        const key = e.key;
-        const code = e.keyCode;
-
-        if (key === 'Enter' || code === 13 || key === 'Tab' || code === 9) return;
-
-        if (key === ' ' || code === 32) {
-            state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
-            selectCell(state.selectedRow, state.selectedCol);
-        }
-    });
-
-    // ── Input (조합 미리보기 + 영문 직접 입력) ──
-    hiddenInput.addEventListener('input', (e) => {
-        if (isComposing || e.isComposing) {
-            // 한글 조합 중 — 중간 과정을 셀에 미리보기 표시
-            const composingText = hiddenInput.value;
-            if (composingText) {
-                updateCellDisplay(state.selectedRow, state.selectedCol,
-                    composingText.charAt(composingText.length - 1));
-            }
-            return;
-        }
-
-        if (ignoreNextInput && Date.now() - lastCommitAt < 180) {
-            ignoreNextInput = false;
-            hiddenInput.value = '';
-            return;
-        }
-        if (ignoreNextInput) {
-            ignoreNextInput = false;
-        }
-        if (e.inputType === 'insertCompositionText') return;
-
-        const val = hiddenInput.value;
-        if (!val) return;
-
-        hiddenInput.value = '';
-        commitCellInput(val.charAt(val.length - 1));
-    });
-}
-
-function commitCellInput(letter) {
-    if (!letter || !letter.trim()) return; // 공백 문자 무시
-    const { selectedRow: r, selectedCol: c } = state;
-    if (r == null || c == null) return;
-    const key = `${r},${c}`;
+function syncCellFromInput(row, col) {
+    const key = `${row},${col}`;
     const cellData = state.cellMap[key];
     if (!cellData || cellData.isRevealed) return;
 
-    cellData.inputLetter = letter;
-    updateCellDisplay(r, c, letter);
-    state.dirtyCells.push({ row: r, col: c, letter });
+    const cellEl = getCellElement(row, col);
+    if (!cellEl) return;
+    const input = cellEl.querySelector('.wp-cell-input');
+    if (!input) return;
+
+    const value = input.value || null;
+    cellData.inputLetter = value;
+    state.dirtyCells.push({ row, col, letter: value });
     scheduleSave();
     updateSubmitButton();
-    // 자동 이동 없음 — Enter/Tab 키로 셀 이동을 제어
 }
 
 function updateCellDisplay(row, col, letter) {
     const el = getCellElement(row, col);
     if (!el) return;
+    const input = el.querySelector('.wp-cell-input');
+    if (input) {
+        input.value = letter || '';
+        return;
+    }
+    // Fallback for revealed cells rendered as span
     const letterEl = el.querySelector('.wp-cell-letter');
     if (letterEl) letterEl.textContent = letter || '';
 }
@@ -233,10 +133,7 @@ function setupPlayListeners() {
         window.location.href = '/web/game/bible-word-puzzle';
     });
 
-    // Keyboard
-    document.addEventListener('keydown', onKeyDown);
-
-    // 셀 클릭 시 hidden input의 blur 방지 — focus 전환 없이 셀 선택만 처리
+    // 셀 클릭 시 blur 방지 — focus 전환 없이 셀 선택만 처리
     boardEl.addEventListener('pointerdown', (e) => {
         const cell = e.target.closest('.wp-cell');
         if (cell && !cell.classList.contains('wp-cell-black')) {
@@ -252,12 +149,19 @@ function setupPlayListeners() {
         if (clickedCell && !clickedCell.classList.contains('wp-cell-black')) return;
         if (!clickedCell && boardEl.contains(e.target)) return;
         if (e.target.closest('.wp-action-bar')) return;
+
+        // Blur current cell input
+        const currentCellEl = getCellElement(state.selectedRow, state.selectedCol);
+        if (currentCellEl) {
+            const input = currentCellEl.querySelector('.wp-cell-input');
+            if (input) input.blur();
+        }
+
         state.selectedRow = null;
         state.selectedCol = null;
         highlightCells();
         clueNumber.textContent = '';
         clueText.textContent = '칸을 선택하세요';
-        if (hiddenInput) hiddenInput.blur();
     });
 
     // Flush dirty cells on page unload (browser back, tab close)
@@ -334,14 +238,17 @@ function renderBoard() {
                     cellEl.appendChild(numEl);
                 }
 
-                // Letter display (visual only — input은 hidden input이 담당)
-                const letterEl = document.createElement('span');
-                letterEl.className = 'wp-cell-letter';
-                letterEl.textContent = cellData.inputLetter || '';
-                cellEl.appendChild(letterEl);
-
                 if (cellData.isRevealed) {
+                    // Revealed cell — read-only span
+                    const letterEl = document.createElement('span');
+                    letterEl.className = 'wp-cell-letter';
+                    letterEl.textContent = cellData.inputLetter || '';
+                    cellEl.appendChild(letterEl);
                     cellEl.classList.add('wp-cell-revealed');
+                } else {
+                    // Editable cell — native input
+                    const input = createCellInput(r, c, cellData);
+                    cellEl.appendChild(input);
                 }
 
                 cellEl.addEventListener('click', () => onCellClick(r, c));
@@ -352,6 +259,81 @@ function renderBoard() {
             boardEl.appendChild(cellEl);
         }
     }
+}
+
+function createCellInput(row, col, cellData) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 1;
+    input.className = 'wp-cell-input';
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('spellcheck', 'false');
+    input.value = cellData.inputLetter || '';
+
+    // ── IME Composition ──
+    input.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+
+    input.addEventListener('compositionend', () => {
+        isComposing = false;
+        syncCellFromInput(row, col);
+    });
+
+    // ── Input ──
+    input.addEventListener('input', () => {
+        if (isComposing) return;
+        syncCellFromInput(row, col);
+    });
+
+    // ── Keydown (이동 제어) ──
+    input.addEventListener('keydown', (e) => {
+        if (isComposing) return;
+
+        switch (e.key) {
+            case 'Enter':
+                e.preventDefault();
+                moveToNextCell();
+                break;
+            case ' ':
+                e.preventDefault();
+                moveToNextCell();
+                break;
+            case 'Tab':
+                e.preventDefault();
+                moveToNextEntry(e.shiftKey);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                moveInDirection(0, -1);
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                moveInDirection(0, 1);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                moveInDirection(-1, 0);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                moveInDirection(1, 0);
+                break;
+            case 'Backspace':
+                e.preventDefault();
+                if (input.value) {
+                    input.value = '';
+                    syncCellFromInput(row, col);
+                } else {
+                    moveToPrevCell();
+                }
+                break;
+        }
+    });
+
+    return input;
 }
 
 function onCellClick(row, col) {
@@ -436,22 +418,6 @@ function getCellElement(row, col) {
     return boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
 }
 
-function setCurrentCellLetter(letter) {
-    const { selectedRow: r, selectedCol: c } = state;
-    if (r == null || c == null) return;
-    const key = `${r},${c}`;
-    const cellData = state.cellMap[key];
-    if (!cellData || cellData.isRevealed) return;
-
-    cellData.inputLetter = letter || null;
-    updateCellDisplay(r, c, letter);
-
-    // Mark dirty
-    state.dirtyCells.push({ row: r, col: c, letter: letter || null });
-    scheduleSave();
-    updateSubmitButton();
-}
-
 function moveToNextCell() {
     const entry = getCurrentEntry();
     if (!entry) return;
@@ -495,62 +461,6 @@ function moveToPrevCell() {
     }
 }
 
-function onKeyDown(e) {
-    if (playSection.classList.contains('d-none')) return;
-    if (state.selectedRow == null) return;
-    if (isComposing) return;
-
-    if (skipPostCompositionKeyup
-        && Date.now() <= postCompositionKeyupDeadline
-        && (e.key === 'Enter' || e.key === 'Tab' || e.key === ' ')) {
-        e.preventDefault();
-        return;
-    }
-
-    switch (e.key) {
-        case 'ArrowLeft':
-            e.preventDefault();
-            moveInDirection(0, -1);
-            break;
-        case 'ArrowRight':
-            e.preventDefault();
-            moveInDirection(0, 1);
-            break;
-        case 'ArrowUp':
-            e.preventDefault();
-            moveInDirection(-1, 0);
-            break;
-        case 'ArrowDown':
-            e.preventDefault();
-            moveInDirection(1, 0);
-            break;
-        case 'Backspace':
-            e.preventDefault();
-            setCurrentCellLetter(null);
-            moveToPrevCell();
-            break;
-        case 'Tab':
-            e.preventDefault();
-            skipPostCompositionKeyup = false;
-            postCompositionKeyupDeadline = 0;
-            moveToNextEntry(e.shiftKey);
-            break;
-        case 'Enter':
-            e.preventDefault();
-            skipPostCompositionKeyup = false;
-            postCompositionKeyupDeadline = 0;
-            moveToNextCell();
-            break;
-        case ' ':
-            e.preventDefault();
-            skipPostCompositionKeyup = false;
-            postCompositionKeyupDeadline = 0;
-            state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
-            selectCell(state.selectedRow, state.selectedCol);
-            break;
-    }
-}
-
 function moveInDirection(dr, dc) {
     const newR = state.selectedRow + dr;
     const newC = state.selectedCol + dc;
@@ -574,14 +484,15 @@ function moveToNextEntry(reverse) {
 }
 
 function focusCellInput(row, col) {
-    if (isComposing || !hiddenInput) return;
+    if (isComposing) return;
     const key = `${row},${col}`;
     const cellData = state.cellMap[key];
     if (!cellData || cellData.isRevealed) return;
 
-    // DOM 이동 없이 focus만 — iOS Safari 키보드 안정성 보장
-    hiddenInput.value = '';
-    hiddenInput.focus({ preventScroll: true });
+    const cellEl = getCellElement(row, col);
+    if (!cellEl) return;
+    const input = cellEl.querySelector('.wp-cell-input');
+    if (input) input.focus({ preventScroll: true });
 }
 
 // ── Timer ──
@@ -685,7 +596,15 @@ async function onRevealLetter() {
 
         const el = getCellElement(data.row, data.col);
         if (el) {
-            updateCellDisplay(data.row, data.col, data.letter);
+            // Replace input with revealed span
+            const input = el.querySelector('.wp-cell-input');
+            if (input) input.remove();
+
+            const letterEl = document.createElement('span');
+            letterEl.className = 'wp-cell-letter';
+            letterEl.textContent = data.letter;
+            el.appendChild(letterEl);
+
             el.classList.add('wp-cell-revealed');
         }
         updateSubmitButton();
