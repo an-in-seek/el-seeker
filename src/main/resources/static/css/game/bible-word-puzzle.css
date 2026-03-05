@@ -153,8 +153,9 @@
     font-weight: 700;
     color: var(--bs-secondary);
     line-height: 1;
+    z-index: 2;
 }
-/* Letter display (visual only — input은 hidden input이 담당) */
+/* Letter display for revealed cells */
 .wp-cell-letter {
     font-size: 1.05rem;
     font-weight: 500;
@@ -164,25 +165,26 @@
     z-index: 1;
 }
 
-/* Single hidden input for Korean IME (Hidden Input pattern)
-   wrapper에 고정 배치 — DOM 재배치 없이 iOS Safari 키보드 안정성 보장 */
-.wp-hidden-input {
+/* Per-cell native input — 브라우저 IME 조합을 직접 처리 */
+.wp-cell-input {
     position: absolute;
     top: 0;
     left: 0;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     background: transparent;
-    font-size: 16px; /* iOS zoom 방지 */
+    text-align: center;
+    font-size: 16px; /* iOS zoom 방지 — 16px 미만이면 Safari가 자동 확대 */
+    font-weight: 500;
+    color: inherit;
+    outline: none;
     padding: 0;
     margin: 0;
-    z-index: -1;
+    z-index: 1;
     caret-color: transparent;
     -webkit-appearance: none;
     appearance: none;
-    pointer-events: none;
 }
 
 /* ── Clue Bar ── */
@@ -360,6 +362,9 @@
     }
     .wp-cell-letter {
         font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+    }
+    .wp-cell-input {
+        font-size: 16px; /* iOS zoom 방지 — 모바일에서도 16px 유지 */
     }
     .wp-cell-selected::after {
         bottom: 3px;
