@@ -21,6 +21,7 @@ const state = {
 
 // IME composition tracking
 let isComposing = false;
+let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -280,6 +281,11 @@ function createCellInput(row, col, cellData) {
     input.addEventListener('compositionend', () => {
         isComposing = false;
         syncCellFromInput(row, col);
+        if (pendingMove) {
+            const action = pendingMove;
+            pendingMove = null;
+            action();
+        }
     });
 
     // ── Input ──
@@ -290,7 +296,14 @@ function createCellInput(row, col, cellData) {
 
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
-        if (isComposing) return;
+        if (isComposing) {
+            // IME 조합 중에도 이동 키는 보류 등록
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                pendingMove = moveToNextCell;
+            }
+            return;
+        }
 
         switch (e.key) {
             case 'Enter':
