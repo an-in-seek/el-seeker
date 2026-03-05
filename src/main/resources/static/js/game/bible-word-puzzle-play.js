@@ -297,7 +297,15 @@ function createCellInput(row, col, cellData) {
     });
 
     input.addEventListener('blur', () => {
-        if (composingCellKey === cellKey) composingCellKey = null;
+        if (composingCellKey === cellKey) {
+            // 한글 IME 조합 직후 blur가 먼저 오면 최종 글자가 아직 input.value에 반영되지 않을 수 있음
+            setTimeout(() => {
+                if (composingCellKey === cellKey) composingCellKey = null;
+                syncCellFromInput(row, col);
+            }, 0);
+            // 조합 중 셀 전환을 위한 pendingMove는 유지
+            return;
+        }
         pendingMove = null;
         syncCellFromInput(row, col);
     });
@@ -399,6 +407,18 @@ function onCellClick(row, col) {
 function selectCell(row, col) {
     const prevRow = state.selectedRow;
     const prevCol = state.selectedCol;
+
+    // 조합 중에는 즉시 포커스를 옮기지 않고 조합 완료 후 이동
+    if (prevRow != null && prevCol != null && (prevRow !== row || prevCol !== col)) {
+        const prevKey = `${prevRow},${prevCol}`;
+        if (composingCellKey === prevKey) {
+            pendingMove = () => selectCell(row, col);
+            const prevCellEl = getCellElement(prevRow, prevCol);
+            const prevInput = prevCellEl?.querySelector('.wp-cell-input');
+            if (prevInput) prevInput.blur();
+            return;
+        }
+    }
 
     state.selectedRow = row;
     state.selectedCol = col;
