@@ -21,6 +21,7 @@ const state = {
 
 // IME composition tracking (cell 단위)
 let composingCellKey = null;
+let compositionEndCellKey = null;  // compositionend 직후 후속 input/blur 이벤트의 덮어쓰기 방지
 let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
 
 // ── DOM refs ──
@@ -283,10 +284,28 @@ function createCellInput(row, col, cellData) {
         composingCellKey = cellKey;
     });
 
-    input.addEventListener('compositionend', () => {
+    input.addEventListener('compositionend', (e) => {
         if (composingCellKey === cellKey) composingCellKey = null;
-        // 일부 브라우저에서 조합 완료 문자가 compositionend 직후 반영되므로 다음 틱에 동기화
+
+        // blur()로 조합이 종료되면 브라우저가 input.value를 비울 수 있으므로
+        // compositionend 시점에 조합된 글자를 즉시 보존한다.
+        const composedChar = (e.data || input.value || '').slice(-1) || null;
+        compositionEndCellKey = cellKey;
+
+        const cellData = state.cellMap[`${row},${col}`];
+        if (cellData && !cellData.isRevealed && composedChar) {
+            input.value = composedChar;
+            cellData.inputLetter = composedChar;
+        }
+
+        // 다음 틱에서 최종 동기화 및 보류된 이동 실행
         setTimeout(() => {
+            // 브라우저가 값을 지웠다면 복원
+            if (compositionEndCellKey === cellKey && composedChar && !input.value) {
+                input.value = composedChar;
+            }
+            compositionEndCellKey = null;
+
             syncCellFromInput(row, col);
             if (pendingMove) {
                 const action = pendingMove;
@@ -306,6 +325,8 @@ function createCellInput(row, col, cellData) {
             // 조합 중 셀 전환을 위한 pendingMove는 유지
             return;
         }
+        // compositionend가 이미 값을 저장했으면 blur에서 다시 동기화하지 않음 (브라우저가 값을 비운 경우 방지)
+        if (compositionEndCellKey === cellKey) return;
         pendingMove = null;
         syncCellFromInput(row, col);
     });
@@ -313,6 +334,8 @@ function createCellInput(row, col, cellData) {
     // ── Input ──
     input.addEventListener('input', () => {
         if (composingCellKey === cellKey) return;
+        // compositionend 직후 브라우저가 발생시키는 input 이벤트에서 빈 값으로 덮어쓰기 방지
+        if (compositionEndCellKey === cellKey) return;
         syncCellFromInput(row, col);
     });
 
