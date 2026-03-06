@@ -337,6 +337,12 @@ function createCellInput(row, col, cellData) {
     });
 
     input.addEventListener('blur', () => {
+        // blur 시 모바일 fallback 이동 타이머 취소 (셀 이탈이므로 자동 이동 불필요)
+        if (compositionEndMoveTimeout) {
+            clearTimeout(compositionEndMoveTimeout);
+            compositionEndMoveTimeout = null;
+        }
+
         if (composingCellKey === cellKey) {
             // 한글 IME 조합 직후 blur가 먼저 오면 최종 글자가 아직 input.value에 반영되지 않을 수 있음
             setTimeout(() => {
