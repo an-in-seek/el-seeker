@@ -368,13 +368,16 @@ function createCellInput(row, col, cellData) {
 
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
-        // compositionend 후 별도 keydown이 발생하면 모바일 fallback 이동을 취소
-        if (compositionEndMoveTimeout) {
+        const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
+
+        // compositionend 후 별도 keydown이 발생하면 모바일 fallback 이동을 취소.
+        // 단, IME 유령 이벤트(composingNow)에서는 취소하지 않는다.
+        // 모바일에서 compositionend 직후 keyCode 229인 keydown이 올 수 있는데,
+        // 이 이벤트는 Enter를 실제로 처리하지 못하므로 fallback 타이머를 유지해야 한다.
+        if (compositionEndMoveTimeout && !composingNow) {
             clearTimeout(compositionEndMoveTimeout);
             compositionEndMoveTimeout = null;
         }
-
-        const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
 
         if (composingNow) {
             // IME 조합 중에도 이동 키는 보류 등록
