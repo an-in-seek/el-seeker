@@ -23,6 +23,7 @@ const state = {
 let composingCellKey = null;
 let compositionEndCellKey = null;  // compositionend 직후 후속 input/blur 이벤트의 덮어쓰기 방지
 let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
+let compositionEndMoveTimeout = null;  // 모바일 IME에서 Enter 키 이벤트 미발생 시 fallback 이동
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -264,7 +265,8 @@ function renderBoard() {
 }
 
 function isMoveTriggerKey(e) {
-    return e.key === 'Enter' || e.key === ' ' || e.code === 'Enter' || e.code === 'Space';
+    return e.key === 'Enter' || e.key === ' ' || e.code === 'Enter' || e.code === 'Space'
+        || e.keyCode === 13 || e.keyCode === 32;
 }
 
 function createCellInput(row, col, cellData) {
@@ -282,6 +284,10 @@ function createCellInput(row, col, cellData) {
     // ── IME Composition ──
     input.addEventListener('compositionstart', () => {
         composingCellKey = cellKey;
+        if (compositionEndMoveTimeout) {
+            clearTimeout(compositionEndMoveTimeout);
+            compositionEndMoveTimeout = null;
+        }
     });
 
     input.addEventListener('compositionend', (e) => {
@@ -313,6 +319,21 @@ function createCellInput(row, col, cellData) {
                 action();
             }
         }, 0);
+
+        // 모바일 fallback: Android 등에서 IME가 Enter 키 이벤트를 소비하여
+        // 별도의 keydown/keyup이 발생하지 않는 경우, 일정 시간 후 자동 이동.
+        // 데스크톱에서는 compositionend 후 별도의 Enter keydown이 발생하므로
+        // 해당 keydown에서 이 timeout을 취소한다.
+        if (compositionEndMoveTimeout) clearTimeout(compositionEndMoveTimeout);
+        if (composedChar) {
+            compositionEndMoveTimeout = setTimeout(() => {
+                compositionEndMoveTimeout = null;
+                if (state.selectedRow === row && state.selectedCol === col
+                    && !composingCellKey && input.value) {
+                    moveToNextCell();
+                }
+            }, 100);
+        }
     });
 
     input.addEventListener('blur', () => {
@@ -341,6 +362,12 @@ function createCellInput(row, col, cellData) {
 
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
+        // compositionend 후 별도 keydown이 발생하면 모바일 fallback 이동을 취소
+        if (compositionEndMoveTimeout) {
+            clearTimeout(compositionEndMoveTimeout);
+            compositionEndMoveTimeout = null;
+        }
+
         const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
 
         if (composingNow) {
