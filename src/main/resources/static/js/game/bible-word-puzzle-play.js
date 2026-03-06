@@ -23,7 +23,6 @@ const state = {
 let composingCellKey = null;
 let compositionEndCellKey = null;  // compositionend 직후 후속 input/blur 이벤트의 덮어쓰기 방지
 let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
-let compositionEndMoveTimeout = null;  // 모바일 IME에서 Enter 키 이벤트 미발생 시 fallback 이동
 
 // ── DOM refs ──
 const $ = (id) => document.getElementById(id);
@@ -290,10 +289,6 @@ function createCellInput(row, col, cellData) {
     // ── IME Composition ──
     input.addEventListener('compositionstart', () => {
         composingCellKey = cellKey;
-        if (compositionEndMoveTimeout) {
-            clearTimeout(compositionEndMoveTimeout);
-            compositionEndMoveTimeout = null;
-        }
     });
 
     input.addEventListener('compositionend', (e) => {
@@ -328,29 +323,9 @@ function createCellInput(row, col, cellData) {
             }
         }, 0);
 
-        // 모바일 fallback: Android 등에서 IME가 Enter 키 이벤트를 소비하여
-        // 별도의 keydown/keyup이 발생하지 않는 경우, 일정 시간 후 자동 이동.
-        // 데스크톱에서는 compositionend 후 별도의 Enter keydown이 발생하므로
-        // 해당 keydown에서 이 timeout을 취소한다.
-        if (compositionEndMoveTimeout) clearTimeout(compositionEndMoveTimeout);
-        if (composedChar) {
-            compositionEndMoveTimeout = setTimeout(() => {
-                compositionEndMoveTimeout = null;
-                if (state.selectedRow === row && state.selectedCol === col
-                    && !composingCellKey && input.value) {
-                    moveToNextCell();
-                }
-            }, 100);
-        }
     });
 
     input.addEventListener('blur', () => {
-        // blur 시 모바일 fallback 이동 타이머 취소 (셀 이탈이므로 자동 이동 불필요)
-        if (compositionEndMoveTimeout) {
-            clearTimeout(compositionEndMoveTimeout);
-            compositionEndMoveTimeout = null;
-        }
-
         if (composingCellKey === cellKey) {
             // 한글 IME 조합 직후 blur가 먼저 오면 최종 글자가 아직 input.value에 반영되지 않을 수 있음
             setTimeout(() => {
@@ -377,15 +352,6 @@ function createCellInput(row, col, cellData) {
     // ── Keydown (이동 제어) ──
     input.addEventListener('keydown', (e) => {
         const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
-
-        // compositionend 후 별도 keydown이 발생하면 모바일 fallback 이동을 취소.
-        // 단, IME 유령 이벤트(composingNow)에서는 취소하지 않는다.
-        // 모바일에서 compositionend 직후 keyCode 229인 keydown이 올 수 있는데,
-        // 이 이벤트는 Enter를 실제로 처리하지 못하므로 fallback 타이머를 유지해야 한다.
-        if (compositionEndMoveTimeout && !composingNow) {
-            clearTimeout(compositionEndMoveTimeout);
-            compositionEndMoveTimeout = null;
-        }
 
         if (composingNow) {
             // IME 조합 중에도 이동 키는 보류 등록
