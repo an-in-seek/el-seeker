@@ -362,8 +362,8 @@ function createCellInput(row, col, cellData) {
             return;
         }
 
-        // compositionend의 setTimeout(0)/pendingMove 또는 fallback timeout이
-        // 이미 이동을 실행했을 수 있으므로 이 셀이 여전히 선택 상태인지 확인
+        // compositionend의 pendingMove가 이미 이동을 실행했을 수 있으므로
+        // 이 셀이 여전히 선택 상태인지 확인
         pendingMove = null;
         const isStillHere = state.selectedRow === row && state.selectedCol === col;
 
