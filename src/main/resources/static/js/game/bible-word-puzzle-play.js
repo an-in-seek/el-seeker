@@ -69,11 +69,12 @@ function initNav() {
 
 async function initPuzzle() {
     const puzzleId = new URLSearchParams(window.location.search).get('puzzleId');
-    if (!puzzleId) {
+    const parsed = parseInt(puzzleId, 10);
+    if (!puzzleId || isNaN(parsed)) {
         window.location.replace('/web/game/bible-word-puzzle');
         return;
     }
-    state.puzzleId = parseInt(puzzleId, 10);
+    state.puzzleId = parsed;
 
     try {
         // POST /attempts — 서버가 기존 attempt 있으면 자동 이어하기
@@ -106,22 +107,14 @@ function syncCellFromInput(row, col) {
 
     const value = input.value || null;
     cellData.inputLetter = value;
-    state.dirtyCells.push({ row, col, letter: value });
+    const existingIdx = state.dirtyCells.findIndex(c => c.row === row && c.col === col);
+    if (existingIdx !== -1) {
+        state.dirtyCells[existingIdx].letter = value;
+    } else {
+        state.dirtyCells.push({ row, col, letter: value });
+    }
     scheduleSave();
     updateSubmitButton();
-}
-
-function updateCellDisplay(row, col, letter) {
-    const el = getCellElement(row, col);
-    if (!el) return;
-    const input = el.querySelector('.wp-cell-input');
-    if (input) {
-        input.value = letter || '';
-        return;
-    }
-    // Fallback for revealed cells rendered as span
-    const letterEl = el.querySelector('.wp-cell-letter');
-    if (letterEl) letterEl.textContent = letter || '';
 }
 
 // ══════════════════════════════════════════
@@ -169,8 +162,19 @@ function setupPlayListeners() {
 
     // Flush dirty cells on page unload (browser back, tab close)
     window.addEventListener('beforeunload', (e) => {
+        stopTimer();
         if (state.dirtyCells.length > 0) {
-            flushDirtyCells();
+            const cellsToSave = [...state.dirtyCells];
+            state.dirtyCells = [];
+            const url = `${API_BASE}/${state.puzzleId}/attempts/${state.attemptId}/cells`;
+            const payload = JSON.stringify({ cells: cellsToSave, elapsedSeconds: state.elapsedSeconds });
+            // keepalive: true로 페이지 언로드 후에도 요청이 완료될 수 있게 보장
+            fetch(url, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload,
+                keepalive: true
+            }).catch(() => {});
             e.preventDefault();
         }
     });
@@ -279,6 +283,7 @@ function createCellInput(row, col, cellData) {
     input.setAttribute('autocorrect', 'off');
     input.setAttribute('autocapitalize', 'off');
     input.setAttribute('spellcheck', 'false');
+    input.setAttribute('aria-label', `${row + 1}행 ${col + 1}열`);
     input.value = cellData.inputLetter || '';
 
     // ── IME Composition ──
@@ -316,7 +321,9 @@ function createCellInput(row, col, cellData) {
             if (pendingMove) {
                 const action = pendingMove;
                 pendingMove = null;
-                action();
+                if (state.selectedRow === row && state.selectedCol === col) {
+                    action();
+                }
             }
         }, 0);
 
@@ -388,14 +395,16 @@ function createCellInput(row, col, cellData) {
             return;
         }
 
+        // compositionend의 setTimeout(0)/pendingMove 또는 fallback timeout이
+        // 이미 이동을 실행했을 수 있으므로 이 셀이 여전히 선택 상태인지 확인
+        pendingMove = null;
+        const isStillHere = state.selectedRow === row && state.selectedCol === col;
+
         switch (e.key) {
             case 'Enter':
-                e.preventDefault();
-                moveToNextCell();
-                break;
             case ' ':
                 e.preventDefault();
-                moveToNextCell();
+                if (isStillHere) moveToNextCell();
                 break;
             case 'Tab':
                 e.preventDefault();
@@ -427,19 +436,6 @@ function createCellInput(row, col, cellData) {
                 }
                 break;
         }
-    });
-
-    // 일부 브라우저/IME 조합에서는 Enter 이동이 keydown 단계에서 누락될 수 있어 keyup에서 보정
-    input.addEventListener('keyup', (e) => {
-        if (composingCellKey === cellKey || e.isComposing) return;
-        if (!isMoveTriggerKey(e)) return;
-
-        // keydown에서 이미 이동했다면 선택 셀이 바뀌므로 중복 이동 방지
-        const isStillSelected = state.selectedRow === row && state.selectedCol === col;
-        if (!isStillSelected) return;
-
-        e.preventDefault();
-        moveToNextCell();
     });
 
     return input;
@@ -522,9 +518,9 @@ function getCurrentEntry() {
 }
 
 function highlightCells() {
-    // Clear all highlights
+    // Clear selection/word highlights only (wp-cell-wrong은 setTimeout에서 자체 제거)
     boardEl.querySelectorAll('.wp-cell').forEach(el => {
-        el.classList.remove('wp-cell-selected', 'wp-cell-word-highlight', 'wp-cell-wrong');
+        el.classList.remove('wp-cell-selected', 'wp-cell-word-highlight');
     });
 
     const entry = getCurrentEntry();
@@ -554,11 +550,17 @@ function moveToNextCell() {
     const entry = getCurrentEntry();
     if (!entry) return;
 
+    // 현재 셀이 entry 내 몇 번째인지 계산
+    const offsetInEntry = state.direction === 'ACROSS'
+        ? state.selectedCol - entry.startCol
+        : state.selectedRow - entry.startRow;
+    const remaining = entry.length - offsetInEntry - 1;
+
     let nextR = state.selectedRow;
     let nextC = state.selectedCol;
 
-    // 현재 방향으로 다음 입력 가능한(비공개) 셀 탐색
-    for (let i = 0; i < entry.length; i++) {
+    // 현재 방향으로 entry 내 남은 셀만 탐색
+    for (let i = 0; i < remaining; i++) {
         if (state.direction === 'ACROSS') {
             nextC++;
         } else {
@@ -675,7 +677,12 @@ async function flushDirtyCells() {
         saveBanner.classList.add('d-none');
     } catch {
         saveBanner.classList.remove('d-none');
-        state.dirtyCells.push(...cellsToSave);
+        // 실패한 셀을 복원하되 이미 존재하는 셀은 중복 추가하지 않음
+        cellsToSave.forEach(saved => {
+            if (!state.dirtyCells.some(c => c.row === saved.row && c.col === saved.col)) {
+                state.dirtyCells.push(saved);
+            }
+        });
     }
 }
 
@@ -829,6 +836,10 @@ async function onSubmit() {
         } else {
             // CORRECT
             stopTimer();
+            if (state.saveTimeout) {
+                clearTimeout(state.saveTimeout);
+                state.saveTimeout = null;
+            }
             showResult(data);
         }
     } catch {
@@ -913,7 +924,6 @@ function showToast(msg) {
     const toast = document.createElement('div');
     toast.className = 'wp-toast';
     toast.textContent = msg;
-    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.85rem;z-index:9999;';
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }

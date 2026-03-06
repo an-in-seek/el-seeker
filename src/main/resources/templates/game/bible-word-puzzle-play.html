@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('성경 단어 퍼즐 | ElSeeker', true, '/css/game/bible-word-puzzle.css?v=2.4')}"
+        th:replace="~{fragments/head :: head('성경 단어 퍼즐 | ElSeeker', true, '/css/game/bible-word-puzzle.css?v=2.5')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -43,7 +43,7 @@
 
         <!-- Puzzle Board -->
         <div class="wp-board-wrapper">
-            <div class="wp-board" id="wpBoard" role="grid" aria-label="낱말 퍼즐 보드"></div>
+            <div class="wp-board" id="wpBoard" aria-label="낱말 퍼즐 보드"></div>
         </div>
 
         <!-- Action Toolbar -->
@@ -103,7 +103,7 @@
     </section>
 </main>
 
-<script type="module" src="/js/game/bible-word-puzzle-play.js?v=4.0"></script>
+<script type="module" src="/js/game/bible-word-puzzle-play.js?v=5.0"></script>
 </body>
 
 </html>
