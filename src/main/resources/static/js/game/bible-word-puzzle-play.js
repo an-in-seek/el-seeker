@@ -2,29 +2,29 @@ import { fetchWithAuthRetry } from '/js/common-util.js';
 
 const API_BASE = '/api/v1/game/word-puzzles';
 
-// ── State ──
+// ── 상태 ──
 const state = {
     puzzleId: null,
     attemptId: null,
     board: null,
     entries: [],
-    cellMap: {},          // "row,col" -> cell
+    cellMap: {},          // "행,열" → 셀 데이터
     selectedRow: null,
     selectedCol: null,
     direction: 'ACROSS',
     elapsedSeconds: 0,
     timerInterval: null,
-    // dirty cells for auto-save
+    // 변경된 셀 목록 (자동 저장용)
     dirtyCells: [],
     saveTimeout: null
 };
 
-// IME composition tracking (cell 단위)
+// 한글 IME 조합 상태 추적 (셀 단위)
 let composingCellKey = null;
-let compositionEndCellKey = null;  // compositionend 직후 후속 input/blur 이벤트의 덮어쓰기 방지
-let pendingMove = null;  // IME 조합 중 Enter/Space 입력 시 보류된 이동
+let compositionEndCellKey = null;  // 조합 종료 직후 input/blur 이벤트가 값을 덮어쓰지 않도록 방지
+let pendingMove = null;  // 조합 중 Enter/Space 입력 시 조합 완료 후 실행할 이동 함수
 
-// ── DOM refs ──
+// ── DOM 참조 ──
 const $ = (id) => document.getElementById(id);
 
 const playSection = $('wpPlaySection');
@@ -40,11 +40,11 @@ const submitBtn = $('wpSubmitBtn');
 const saveBanner = $('wpSaveBanner');
 const errorEl = $('wpError');
 
-// Top nav
+// 상단 내비게이션
 const backButton = $('topNavBackButton');
 const pageTitleLabel = $('pageTitleLabel');
 
-// ── Init ──
+// ── 초기화 ──
 document.addEventListener('DOMContentLoaded', () => {
     initNav();
     setupPlayListeners();
@@ -76,7 +76,7 @@ async function initPuzzle() {
     state.puzzleId = parsed;
 
     try {
-        // POST /attempts — 서버가 기존 attempt 있으면 자동 이어하기
+        // 서버에 풀이 시작 요청 — 기존 진행 중인 풀이가 있으면 이어하기
         const res = await fetchWithAuthRetry(`${API_BASE}/${state.puzzleId}/attempts`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
@@ -91,7 +91,7 @@ async function initPuzzle() {
 }
 
 // ══════════════════════════════════════════
-// Per-cell Input helpers
+// 셀 입력 처리
 // ══════════════════════════════════════════
 
 function syncCellFromInput(row, col) {
@@ -117,7 +117,7 @@ function syncCellFromInput(row, col) {
 }
 
 // ══════════════════════════════════════════
-// Puzzle Play
+// 퍼즐 플레이
 // ══════════════════════════════════════════
 
 function setupPlayListeners() {
@@ -136,7 +136,7 @@ function setupPlayListeners() {
         }
     });
 
-    // Deselect when clicking outside the board
+    // 보드 바깥 클릭 시 선택 해제
     document.addEventListener('click', (e) => {
         if (state.selectedRow == null) return;
         if (!playSection || playSection.classList.contains('d-none')) return;
@@ -145,7 +145,7 @@ function setupPlayListeners() {
         if (!clickedCell && boardEl.contains(e.target)) return;
         if (e.target.closest('.wp-action-bar')) return;
 
-        // Blur current cell input
+        // 현재 셀 입력 포커스 해제
         const currentCellEl = getCellElement(state.selectedRow, state.selectedCol);
         if (currentCellEl) {
             const input = currentCellEl.querySelector('.wp-cell-input');
@@ -159,7 +159,7 @@ function setupPlayListeners() {
         clueText.textContent = '칸을 선택하세요';
     });
 
-    // Flush dirty cells on page unload (browser back, tab close)
+    // 페이지 이탈 시 (뒤로가기, 탭 닫기) 변경된 셀 저장
     window.addEventListener('beforeunload', (e) => {
         stopTimer();
         if (state.dirtyCells.length > 0) {
@@ -167,7 +167,7 @@ function setupPlayListeners() {
             state.dirtyCells = [];
             const url = `${API_BASE}/${state.puzzleId}/attempts/${state.attemptId}/cells`;
             const payload = JSON.stringify({ cells: cellsToSave, elapsedSeconds: state.elapsedSeconds });
-            // keepalive: true로 페이지 언로드 후에도 요청이 완료될 수 있게 보장
+            // 페이지가 닫혀도 요청이 완료되도록 keepalive 옵션 사용
             fetch(url, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -189,7 +189,7 @@ function startPlay(data, title) {
     state.selectedCol = null;
     state.direction = 'ACROSS';
 
-    // Build cell map
+    // 셀 맵 구성
     state.cellMap = {};
     data.cells.forEach(c => {
         state.cellMap[`${c.row},${c.col}`] = { ...c };
@@ -204,7 +204,7 @@ function startPlay(data, title) {
     startTimer();
     updateSubmitButton();
 
-    // Select first cell
+    // 첫 번째 셀 선택
     if (data.cells.length > 0) {
         const firstEntry = data.entries[0];
         if (firstEntry) {
@@ -218,7 +218,7 @@ function renderBoard() {
     boardEl.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
     boardEl.innerHTML = '';
 
-    // Build clue number map from entries
+    // 단어 항목에서 힌트 번호 맵 구성
     const clueNumberMap = {};
     state.entries.forEach(e => {
         const key = `${e.startRow},${e.startCol}`;
@@ -236,7 +236,7 @@ function renderBoard() {
                 cellEl.className = 'wp-cell';
                 const cellData = state.cellMap[key];
 
-                // Clue number
+                // 힌트 번호 표시
                 if (clueNumberMap[key]) {
                     const numEl = document.createElement('span');
                     numEl.className = 'wp-cell-number';
@@ -245,14 +245,14 @@ function renderBoard() {
                 }
 
                 if (cellData.isRevealed) {
-                    // Revealed cell — read-only span
+                    // 공개된 셀 — 읽기 전용
                     const letterEl = document.createElement('span');
                     letterEl.className = 'wp-cell-letter';
                     letterEl.textContent = cellData.inputLetter || '';
                     cellEl.appendChild(letterEl);
                     cellEl.classList.add('wp-cell-revealed');
                 } else {
-                    // Editable cell — native input
+                    // 편집 가능한 셀 — 입력 필드
                     const input = createCellInput(r, c, cellData);
                     cellEl.appendChild(input);
                 }
@@ -286,7 +286,7 @@ function createCellInput(row, col, cellData) {
     input.setAttribute('enterkeyhint', 'next');
     input.value = cellData.inputLetter || '';
 
-    // ── IME Composition ──
+    // ── 한글 IME 조합 처리 ──
     input.addEventListener('compositionstart', () => {
         composingCellKey = cellKey;
     });
@@ -341,7 +341,7 @@ function createCellInput(row, col, cellData) {
         syncCellFromInput(row, col);
     });
 
-    // ── Input ──
+    // ── 입력 이벤트 ──
     input.addEventListener('input', () => {
         if (composingCellKey === cellKey) return;
         // compositionend 직후 브라우저가 발생시키는 input 이벤트에서 빈 값으로 덮어쓰기 방지
@@ -349,7 +349,7 @@ function createCellInput(row, col, cellData) {
         syncCellFromInput(row, col);
     });
 
-    // ── Keydown (이동 제어) ──
+    // ── 키보드 입력 (셀 이동 제어) ──
     input.addEventListener('keydown', (e) => {
         const composingNow = composingCellKey === cellKey || e.isComposing || e.keyCode === 229;
 
@@ -410,10 +410,10 @@ function createCellInput(row, col, cellData) {
 
 function onCellClick(row, col) {
     if (state.selectedRow === row && state.selectedCol === col) {
-        // Toggle direction at same cell
+        // 같은 셀 재클릭 시 방향 전환 (가로 ↔ 세로)
         state.direction = state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS';
     } else {
-        // Prefer the direction of the entry that starts at this cell
+        // 이 셀에서 시작하는 단어의 방향을 우선 선택
         const acrossStart = state.entries.find(e => e.directionCode === 'ACROSS' && e.startRow === row && e.startCol === col);
         const downStart = state.entries.find(e => e.directionCode === 'DOWN' && e.startRow === row && e.startCol === col);
         if (acrossStart && !downStart) {
@@ -421,7 +421,7 @@ function onCellClick(row, col) {
         } else if (downStart && !acrossStart) {
             state.direction = 'DOWN';
         }
-        // Both or neither start here → keep current direction
+        // 양쪽 다 시작하거나 둘 다 아닌 경우 → 현재 방향 유지
     }
     selectCell(row, col);
 }
@@ -453,7 +453,7 @@ function selectCell(row, col) {
         pendingMove = null;
     }
 
-    // Find matching entry for clue bar
+    // 현재 셀에 해당하는 단어 항목 찾기 (힌트 바 표시용)
     const entry = findEntryForCell(row, col, state.direction)
         || findEntryForCell(row, col, state.direction === 'ACROSS' ? 'DOWN' : 'ACROSS');
 
@@ -485,14 +485,14 @@ function getCurrentEntry() {
 }
 
 function highlightCells() {
-    // Clear selection/word highlights only (wp-cell-wrong은 setTimeout에서 자체 제거)
+    // 선택/단어 하이라이트만 초기화 (오답 표시는 타이머로 자동 제거됨)
     boardEl.querySelectorAll('.wp-cell').forEach(el => {
         el.classList.remove('wp-cell-selected', 'wp-cell-word-highlight');
     });
 
     const entry = getCurrentEntry();
     if (entry) {
-        // Highlight word
+        // 현재 단어의 셀들 하이라이트
         for (let i = 0; i < entry.length; i++) {
             const r = entry.directionCode === 'ACROSS' ? entry.startRow : entry.startRow + i;
             const c = entry.directionCode === 'ACROSS' ? entry.startCol + i : entry.startCol;
@@ -501,7 +501,7 @@ function highlightCells() {
         }
     }
 
-    // Highlight selected
+    // 선택된 셀 하이라이트
     const selEl = getCellElement(state.selectedRow, state.selectedCol);
     if (selEl) {
         selEl.classList.remove('wp-cell-word-highlight');
@@ -595,7 +595,7 @@ function focusCellInput(row, col) {
     if (input) input.focus({ preventScroll: true });
 }
 
-// ── Timer ──
+// ── 타이머 ──
 
 function startTimer() {
     stopTimer();
@@ -619,7 +619,7 @@ function updateTimerDisplay() {
     timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-// ── Auto-Save ──
+// ── 자동 저장 ──
 
 function scheduleSave() {
     if (state.saveTimeout) clearTimeout(state.saveTimeout);
@@ -653,14 +653,14 @@ async function flushDirtyCells() {
     }
 }
 
-// ── Submit Button ──
+// ── 제출 버튼 ──
 
 function updateSubmitButton() {
     const allFilled = Object.values(state.cellMap).every(c => c.inputLetter != null || c.isRevealed);
     submitBtn.disabled = !allFilled;
 }
 
-// ── Hints ──
+// ── 힌트 ──
 
 async function onRevealLetter() {
     if (state.selectedRow == null) return;
@@ -694,14 +694,14 @@ async function onRevealLetter() {
         if (!res.ok) throw new Error();
         const data = await res.json();
 
-        // Update cell
+        // 셀 상태 업데이트
         const cellData = state.cellMap[key];
         cellData.inputLetter = data.letter;
         cellData.isRevealed = true;
 
         const el = getCellElement(data.row, data.col);
         if (el) {
-            // Replace input with revealed span
+            // 입력 필드를 공개된 글자로 교체
             const input = el.querySelector('.wp-cell-input');
             if (input) input.remove();
 
@@ -741,7 +741,7 @@ async function onCheckWord() {
         if (!res.ok) throw new Error();
         const data = await res.json();
 
-        // Highlight results
+        // 정답/오답 결과 표시
         data.results.forEach(r => {
             const el = getCellElement(r.row, r.col);
             if (el) {
@@ -759,7 +759,7 @@ async function onCheckWord() {
     }
 }
 
-// ── Submit ──
+// ── 제출 ──
 
 async function onSubmit() {
     if (!confirm('제출하시겠습니까?')) return;
@@ -790,7 +790,7 @@ async function onSubmit() {
         const data = await res.json();
 
         if (data.result === 'WRONG') {
-            // Highlight wrong cells
+            // 오답 셀 표시
             data.wrongCells.forEach(wc => {
                 const el = getCellElement(wc.row, wc.col);
                 if (el) {
@@ -801,7 +801,7 @@ async function onSubmit() {
             showToast(`오답입니다. (오답 횟수: ${data.wrongSubmissionCount})`);
             submitBtn.disabled = false;
         } else {
-            // CORRECT
+            // 정답
             stopTimer();
             if (state.saveTimeout) {
                 clearTimeout(state.saveTimeout);
@@ -816,7 +816,7 @@ async function onSubmit() {
 }
 
 // ══════════════════════════════════════════
-// Result
+// 결과 화면
 // ══════════════════════════════════════════
 
 function showResult(data) {
@@ -825,7 +825,7 @@ function showResult(data) {
     $('wpResultHints').textContent = `${data.hintUsageCount}회`;
     $('wpResultWrong').textContent = `${data.wrongSubmissionCount}회`;
 
-    // Word study
+    // 학습 단어 목록
     const wordList = $('wpWordList');
     wordList.innerHTML = '';
     if (data.words && data.words.length > 0) {
@@ -867,7 +867,7 @@ function showResult(data) {
     showSection('result');
 }
 
-// ── Utilities ──
+// ── 유틸리티 ──
 
 function showSection(name) {
     playLoading.classList.add('d-none');
