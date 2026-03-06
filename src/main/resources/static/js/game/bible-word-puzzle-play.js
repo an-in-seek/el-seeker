@@ -284,6 +284,7 @@ function createCellInput(row, col, cellData) {
     input.setAttribute('autocapitalize', 'off');
     input.setAttribute('spellcheck', 'false');
     input.setAttribute('aria-label', `${row + 1}행 ${col + 1}열`);
+    input.setAttribute('enterkeyhint', 'next');
     input.value = cellData.inputLetter || '';
 
     // ── IME Composition ──
