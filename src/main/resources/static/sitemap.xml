@@ -19,54 +19,70 @@
         <priority>0.8</priority>
     </url>
 
-    <!-- 학습 -->
+    <!-- 학습 허브 -->
     <url>
         <loc>https://elseeker.com/web/study</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
+
+    <!-- 성경 사전 -->
     <url>
         <loc>https://elseeker.com/web/study/dictionary</loc>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
+
+    <!-- 성경 개요 영상 -->
     <url>
         <loc>https://elseeker.com/web/study/bible-overview-video</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+
+    <!-- 성경 족보 -->
     <url>
         <loc>https://elseeker.com/web/study/bible-genealogy</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+
+    <!-- 이스라엘 12지파 -->
     <url>
         <loc>https://elseeker.com/web/study/twelve-tribes</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+
+    <!-- 예수님의 12제자 -->
     <url>
         <loc>https://elseeker.com/web/study/twelve-disciples</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+
+    <!-- 주기도문 -->
     <url>
         <loc>https://elseeker.com/web/study/lords-prayer</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
+
+    <!-- 사도신경 -->
     <url>
         <loc>https://elseeker.com/web/study/apostles-creed</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
+
+    <!-- 성경 연대기 -->
     <url>
         <loc>https://elseeker.com/web/study/history</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
 
-    <!-- 게임 (허브만 — 개별 게임은 로그인 필수) -->
+    <!-- 게임 -->
     <url>
         <loc>https://elseeker.com/web/game</loc>
         <changefreq>weekly</changefreq>

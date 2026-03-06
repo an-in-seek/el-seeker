@@ -9,6 +9,7 @@
         resolvedCanonical=${!#strings.isEmpty(canonicalUrl) ? canonicalUrl : (requestUri != null ? siteUrl + requestUri : siteUrl)},
         resolvedTitle=${#strings.isEmpty(title) ? siteName : title},
         resolvedDescription=${#strings.isEmpty(pageDescription) ? '성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.' : pageDescription},
+        resolvedKeywords=${#strings.isEmpty(pageKeywords) ? '성경,온라인 성경,성경 읽기,성경 검색,성경 학습,성경 퀴즈,ElSeeker' : pageKeywords},
         resolvedOgType=${#strings.isEmpty(ogType) ? 'website' : ogType},
         resolvedOgImage=${#strings.isEmpty(ogImage) ? siteLogo : ogImage},
         resolvedTwitterCard=${#strings.isEmpty(twitterCard) ? 'summary_large_image' : twitterCard},
@@ -23,6 +24,8 @@
     <meta name="description" th:content="${resolvedDescription}"
           content="성경을 통해 하나님을 알아가는 여정을 돕는 ElSeeker입니다. 다양한 성경 번역본, 빠른 구절 검색, 성경 퀴즈와 학습 콘텐츠를 제공합니다.">
     <meta name="author" content="InSeek">
+    <meta name="keywords" th:content="${resolvedKeywords}"
+          content="성경,온라인 성경,성경 읽기,성경 검색,성경 학습,성경 퀴즈,ElSeeker">
     <meta name="robots" th:if="${!#strings.isEmpty(robotsContent)}" th:content="${robotsContent}">
     <link rel="canonical" th:href="${resolvedCanonical}" href="https://elseeker.com/">
 
