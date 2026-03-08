@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('7일 창조 스크롤 체험 - 창세기 1장 | ElSeeker', true, '/css/study/creation.css?v=2.3')}"
+      th:with="pageDescription='창세기 1장의 7일 창조 이야기를 풀스크린 스크롤로 체험하는 학습 페이지입니다. 빛의 창조부터 안식일까지, 하나님의 창조 과정을 시각적으로 만납니다.',
+               pageKeywords='창세기 1장,7일 창조,창조 이야기,빛이 있으라,하나님의 창조,창세기 공부,성경 창조론'"></head>
+<body class="has-fixed-nav creation-page">
+
+<header th:replace="~{fragments/header :: header}"
+        th:with="pageTitle='7일 창조', pageTitleVisible=true"></header>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;400;700&display=swap" rel="stylesheet">
+
+<main class="creation-main">
+
+    <!-- 프롤로그 -->
+    <section class="cr-section cr-prologue" data-day="0">
+        <div class="cr-deco cr-deco-void"></div>
+        <div class="cr-inner">
+            <span class="cr-label cr-fade">창세기 1장</span>
+            <h1 class="cr-title cr-fade">태초에 하나님이<br>천지를 창조하시니라</h1>
+            <p class="cr-body cr-fade">
+                땅이 혼돈하고 공허하며<br>
+                흑암이 깊음 위에 있고<br>
+                하나님의 영은 수면 위에 운행하시니라
+            </p>
+            <cite class="cr-ref cr-fade">창세기 1:1–2</cite>
+        </div>
+        <div class="cr-scroll-hint" aria-hidden="true">
+            <span class="cr-scroll-arrow"></span>
+        </div>
+    </section>
+
+    <!-- 첫째 날 — 빛 -->
+    <section class="cr-section cr-day1" data-day="1">
+        <div class="cr-deco cr-deco-light"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">1</div>
+            <span class="cr-label cr-fade">첫째 날</span>
+            <h2 class="cr-title cr-fade">빛이 있으라</h2>
+            <p class="cr-body cr-fade">
+                하나님이 이르시되 빛이 있으라 하시니 빛이 있었고<br>
+                그 빛이 하나님이 보시기에 좋았더라
+            </p>
+            <p class="cr-verdict cr-fade">저녁이 되고 아침이 되니 이는 첫째 날이니라</p>
+        </div>
+    </section>
+
+    <!-- 둘째 날 — 궁창 -->
+    <section class="cr-section cr-day2" data-day="2">
+        <div class="cr-deco cr-deco-sky"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">2</div>
+            <span class="cr-label cr-fade">둘째 날</span>
+            <h2 class="cr-title cr-fade">물 가운데 궁창이 있어<br>물과 물로 나뉘라</h2>
+            <p class="cr-body cr-fade">
+                하나님이 궁창을 만드사<br>
+                궁창 아래의 물과 궁창 위의 물로 나뉘게 하시니<br>
+                그대로 되니라
+            </p>
+            <p class="cr-verdict cr-fade">저녁이 되고 아침이 되니 이는 둘째 날이니라</p>
+        </div>
+    </section>
+
+    <!-- 셋째 날 — 땅과 식물 -->
+    <section class="cr-section cr-day3" data-day="3">
+        <div class="cr-deco cr-deco-earth"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">3</div>
+            <span class="cr-label cr-fade">셋째 날</span>
+            <h2 class="cr-title cr-fade">천하의 물이 한 곳으로 모이고<br>뭍이 드러나라</h2>
+            <p class="cr-body cr-fade">
+                하나님이 뭍을 땅이라 부르시고<br>
+                모인 물을 바다라 부르시니<br>
+                하나님이 보시기에 좋았더라
+            </p>
+            <p class="cr-verdict cr-fade">저녁이 되고 아침이 되니 이는 셋째 날이니라</p>
+        </div>
+    </section>
+
+    <!-- 넷째 날 — 해, 달, 별 -->
+    <section class="cr-section cr-day4" data-day="4">
+        <div class="cr-deco cr-deco-stars"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">4</div>
+            <span class="cr-label cr-fade">넷째 날</span>
+            <h2 class="cr-title cr-fade">하늘의 궁창에<br>광명체들이 있으라</h2>
+            <p class="cr-body cr-fade">
+                하나님이 두 큰 광명체를 만드사<br>
+                큰 광명체로 낮을 주관하게 하시고<br>
+                작은 광명체로 밤을 주관하게 하시며<br>
+                또 별들을 만드시고
+            </p>
+            <p class="cr-verdict cr-fade">저녁이 되고 아침이 되니 이는 넷째 날이니라</p>
+        </div>
+    </section>
+
+    <!-- 다섯째 날 — 물고기와 새 -->
+    <section class="cr-section cr-day5" data-day="5">
+        <div class="cr-deco cr-deco-sea"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">5</div>
+            <span class="cr-label cr-fade">다섯째 날</span>
+            <h2 class="cr-title cr-fade">물들은 생물을 번성하게 하라<br>새는 하늘의 궁창에서 날으라</h2>
+            <p class="cr-body cr-fade">
+                하나님이 큰 바다 짐승들과<br>
+                물에서 번성하여 움직이는 모든 생물을 그 종류대로 창조하시니<br>
+                하나님이 보시기에 좋았더라
+            </p>
+            <p class="cr-verdict cr-fade">저녁이 되고 아침이 되니 이는 다섯째 날이니라</p>
+        </div>
+    </section>
+
+    <!-- 여섯째 날 — 동물과 사람 -->
+    <section class="cr-section cr-day6" data-day="6">
+        <div class="cr-deco cr-deco-human"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">6</div>
+            <span class="cr-label cr-fade">여섯째 날</span>
+            <h2 class="cr-title cr-fade">우리의 형상을 따라<br>우리가 사람을 만들고</h2>
+            <p class="cr-body cr-fade">
+                하나님이 자기 형상 곧 하나님의 형상대로<br>
+                사람을 창조하시되 남자와 여자를 창조하시고<br>
+                하나님이 그들에게 복을 주시며 이르시되<br>
+                생육하고 번성하여 땅에 충만하라
+            </p>
+            <p class="cr-verdict cr-verdict-final cr-fade">하나님이 지으신 그 모든 것을 보시니<br>보시기에 심히 좋았더라</p>
+        </div>
+    </section>
+
+    <!-- 일곱째 날 — 안식 -->
+    <section class="cr-section cr-day7" data-day="7">
+        <div class="cr-deco cr-deco-rest"></div>
+        <div class="cr-inner">
+            <div class="cr-day-num cr-fade">7</div>
+            <span class="cr-label cr-fade">일곱째 날</span>
+            <h2 class="cr-title cr-fade">하나님이 그 일곱째 날을<br>복되게 하사 거룩하게 하셨으니</h2>
+            <p class="cr-body cr-fade">
+                천지와 만물이 다 이루어지니라<br>
+                하나님이 그가 하시던 일을 일곱째 날에 마치시니<br>
+                그가 하시던 모든 일을 그치고<br>
+                일곱째 날에 안식하시니라
+            </p>
+            <cite class="cr-ref cr-fade">창세기 2:1–3</cite>
+        </div>
+    </section>
+
+    <!-- 에필로그 -->
+    <section class="cr-section cr-epilogue" data-day="8">
+        <div class="cr-inner">
+            <p class="cr-epilogue-text cr-fade">
+                하나님이 지으신 그 모든 것을 보시니<br>보시기에 심히 좋았더라
+            </p>
+            <cite class="cr-ref cr-fade">창세기 1:31</cite>
+            <div class="cr-epilogue-links cr-fade">
+                <a href="/web/bible/translation" class="cr-btn">성경 읽기</a>
+                <a href="/web/study" class="cr-btn cr-btn-ghost">학습 더보기</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 진행 바 -->
+<div class="cr-progress" id="crProgress" aria-hidden="true">
+    <div class="cr-progress-fill" id="crProgressFill"></div>
+    <div class="cr-progress-label" id="crProgressLabel">0 / 7</div>
+</div>
+
+<script type="module" src="/js/study/creation.js?v=2.1"></script>
+</body>
+</html>

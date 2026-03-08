@@ -1,0 +1,629 @@
+/* ── 7일 창조 스크롤 체험 v2 ── */
+
+/* ── 기본 리셋 ── */
+.creation-page {
+    background: #000;
+}
+
+/* ── 네비게이션 숨김/노출 ── */
+.creation-page .top-nav-row {
+    transform: translateY(-100%);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+}
+
+.creation-page .top-nav-title {
+    margin-top: 0;
+}
+
+.creation-page.nav-visible .top-nav-row {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.creation-main {
+    background: #000;
+}
+
+/* ── 섹션 공통 ── */
+.cr-section {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.cr-inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 640px;
+    width: 100%;
+    padding: 5rem 2rem;
+}
+
+/* ── 날 번호 (대형 워터마크) ── */
+.cr-day-num {
+    font-family: 'Noto Serif KR', Georgia, serif;
+    font-size: clamp(6rem, 18vw, 12rem);
+    font-weight: 200;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.04);
+    margin-bottom: -1.5rem;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ── 타이포그래피 ── */
+.cr-label {
+    display: block;
+    font-family: 'Noto Serif KR', Georgia, serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 1.5rem;
+}
+
+.cr-title {
+    font-family: 'Noto Serif KR', Georgia, serif;
+    font-size: clamp(1.5rem, 5vw, 2.6rem);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.7;
+    letter-spacing: 0.03em;
+    margin: 0 0 2rem;
+}
+
+.cr-body {
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 2.2;
+    letter-spacing: 0.02em;
+    margin: 0 0 1.5rem;
+}
+
+.cr-verdict {
+    font-family: 'Noto Serif KR', Georgia, serif;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.08em;
+    margin: 0;
+}
+
+.cr-verdict-final {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+}
+
+.cr-ref {
+    display: block;
+    font-size: 0.75rem;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.25);
+    margin-top: 1.5rem;
+}
+
+/* ── 스크롤 힌트 (프롤로그) ── */
+.cr-scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.cr-scroll-arrow {
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    animation: cr-scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes cr-scroll-pulse {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 0.8; transform: translateY(8px); }
+}
+
+/* ── 장식 레이어 (.cr-deco) ── */
+.cr-deco {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* 프롤로그: 완전한 어둠 */
+.cr-prologue {
+    background: #000;
+}
+
+.cr-deco-void::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(40, 40, 80, 0.15) 0%, transparent 70%);
+    animation: cr-void-pulse 6s ease-in-out infinite;
+}
+
+@keyframes cr-void-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.8; }
+}
+
+/* 1일차: 빛 — 중앙에서 퍼지는 빛줄기 */
+.cr-day1 {
+    background: radial-gradient(ellipse at 50% 40%, #0c1230 0%, #040812 50%, #000 100%);
+}
+
+.cr-day1 .cr-title {
+    text-shadow: 0 0 80px rgba(232, 213, 160, 0.4), 0 0 160px rgba(232, 213, 160, 0.15);
+}
+
+.cr-deco-light::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at 50% 35%,
+        rgba(232, 213, 160, 0.08) 0%,
+        rgba(232, 213, 160, 0.03) 30%,
+        transparent 60%);
+    animation: cr-light-breathe 5s ease-in-out infinite;
+}
+
+.cr-deco-light::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    width: 2px;
+    height: 40%;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, rgba(232, 213, 160, 0.2), transparent);
+    filter: blur(8px);
+    animation: cr-light-ray 4s ease-in-out infinite alternate;
+}
+
+@keyframes cr-light-breathe {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes cr-light-ray {
+    0% { height: 30%; opacity: 0.3; }
+    100% { height: 50%; opacity: 0.6; }
+}
+
+/* 2일차: 궁창 — 수평 분리선 + 물결 */
+.cr-day2 {
+    background: linear-gradient(to bottom,
+        #051228 0%,
+        #082050 45%,
+        rgba(80, 140, 200, 0.08) 50%,
+        #061833 55%,
+        #020c1e 100%);
+}
+
+.cr-day2 .cr-title {
+    text-shadow: 0 0 60px rgba(122, 184, 232, 0.3);
+}
+
+.cr-deco-sky::before {
+    content: '';
+    position: absolute;
+    top: 48%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right,
+        transparent 10%,
+        rgba(122, 184, 232, 0.15) 40%,
+        rgba(122, 184, 232, 0.2) 50%,
+        rgba(122, 184, 232, 0.15) 60%,
+        transparent 90%);
+    animation: cr-sky-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes cr-sky-shimmer {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* 3일차: 땅과 식물 — 하단 지평선 + 초록 파티클 */
+.cr-day3 {
+    background: linear-gradient(to bottom,
+        #040e04 0%,
+        #0a2210 50%,
+        #102e12 75%,
+        #183a18 100%);
+}
+
+.cr-day3 .cr-title {
+    text-shadow: 0 0 60px rgba(93, 186, 110, 0.25);
+}
+
+.cr-deco-earth::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    background: linear-gradient(to top, rgba(30, 70, 30, 0.15), transparent);
+}
+
+.cr-deco-earth::after {
+    content: '';
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(93, 186, 110, 0.06) 0%, transparent 70%);
+    animation: cr-grow 5s ease-in-out infinite;
+}
+
+@keyframes cr-grow {
+    0%, 100% { transform: translateX(-50%) scale(0.8); opacity: 0.4; }
+    50% { transform: translateX(-50%) scale(1.2); opacity: 0.7; }
+}
+
+/* 4일차: 해, 달, 별 — 점 배경 + 글로우 */
+.cr-day4 {
+    background: radial-gradient(ellipse at 50% 30%, #0c0035 0%, #050020 50%, #010010 100%);
+}
+
+.cr-day4 .cr-title {
+    text-shadow: 0 0 80px rgba(255, 209, 102, 0.35), 0 0 200px rgba(255, 209, 102, 0.1);
+}
+
+.cr-deco-stars {
+    background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 25% 55%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1.5px 1.5px at 40% 15%, rgba(255,209,102,0.7), transparent),
+        radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1.5px 1.5px at 80% 60%, rgba(255,209,102,0.5), transparent),
+        radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1.5px 1.5px at 35% 85%, rgba(255,209,102,0.4), transparent);
+    animation: cr-twinkle 3s ease-in-out infinite alternate;
+}
+
+.cr-deco-stars::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 209, 102, 0.12) 0%, transparent 70%);
+    box-shadow: 0 0 60px 20px rgba(255, 209, 102, 0.06);
+}
+
+@keyframes cr-twinkle {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* 5일차: 물고기와 새 — 물결 + 깊은 바다 */
+.cr-day5 {
+    background: linear-gradient(to bottom,
+        #031a2e 0%,
+        #062840 40%,
+        #073550 60%,
+        #042030 100%);
+}
+
+.cr-day5 .cr-title {
+    text-shadow: 0 0 60px rgba(72, 202, 228, 0.3);
+}
+
+.cr-deco-sea::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 48%,
+            rgba(72, 202, 228, 0.03) 49%,
+            rgba(72, 202, 228, 0.05) 50%,
+            rgba(72, 202, 228, 0.03) 51%,
+            transparent 52%,
+            transparent 100%
+        );
+    animation: cr-wave 8s linear infinite;
+}
+
+@keyframes cr-wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(25%); }
+}
+
+/* 6일차: 동물과 사람 — 따뜻한 대지 */
+.cr-day6 {
+    background: radial-gradient(ellipse at 50% 60%, #2d1300 0%, #1a0a00 50%, #0d0500 100%);
+}
+
+.cr-day6 .cr-title {
+    text-shadow: 0 0 60px rgba(224, 122, 58, 0.3), 0 0 120px rgba(224, 122, 58, 0.1);
+}
+
+.cr-deco-human::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to top, rgba(50, 25, 5, 0.3), transparent);
+}
+
+.cr-deco-human::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(224, 122, 58, 0.05) 0%, transparent 70%);
+    animation: cr-life-glow 4s ease-in-out infinite;
+}
+
+@keyframes cr-life-glow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.8; }
+}
+
+/* 7일차: 안식 — 황금빛 고요 */
+.cr-day7 {
+    background: radial-gradient(ellipse at 50% 40%, #1e1600 0%, #120e00 50%, #080600 100%);
+}
+
+.cr-day7 .cr-title {
+    text-shadow: 0 0 80px rgba(244, 192, 111, 0.3), 0 0 200px rgba(244, 192, 111, 0.1);
+}
+
+.cr-deco-rest::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(244, 192, 111, 0.04) 0%, transparent 60%);
+    animation: cr-rest-glow 6s ease-in-out infinite;
+}
+
+@keyframes cr-rest-glow {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+}
+
+/* 에필로그 */
+.cr-epilogue {
+    min-height: 60vh;
+    min-height: 60dvh;
+    background: linear-gradient(to bottom, #0d0800, #000);
+}
+
+.cr-epilogue-text {
+    font-family: 'Noto Serif KR', Georgia, serif;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-weight: 400;
+    color: rgba(244, 192, 111, 0.85);
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.cr-epilogue-links {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.cr-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 1.4rem;
+    border: none;
+    border-radius: 10px;
+    background: rgba(244, 192, 111, 0.9);
+    color: #1a1000;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.cr-btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(244, 192, 111, 0.4);
+    color: rgba(244, 192, 111, 0.85);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .cr-btn:hover {
+        background: rgba(244, 192, 111, 1);
+        transform: translateY(-1px);
+    }
+    .cr-btn-ghost:hover {
+        background: rgba(244, 192, 111, 0.1);
+        border-color: rgba(244, 192, 111, 0.7);
+        color: #f4c06f;
+    }
+}
+
+.cr-btn:active {
+    transform: scale(0.97);
+}
+
+/* ── 스크롤 페이드인 ── */
+.cr-fade {
+    opacity: 0;
+    transform: translateY(30px);
+    filter: blur(5px);
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cr-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+}
+
+/* 섹션 내 순차 딜레이 */
+.cr-inner .cr-fade:nth-child(1) { transition-delay: 0.1s; }
+.cr-inner .cr-fade:nth-child(2) { transition-delay: 0.35s; }
+.cr-inner .cr-fade:nth-child(3) { transition-delay: 0.65s; }
+.cr-inner .cr-fade:nth-child(4) { transition-delay: 1s; }
+.cr-inner .cr-fade:nth-child(5) { transition-delay: 1.35s; }
+.cr-inner .cr-fade:nth-child(6) { transition-delay: 1.7s; }
+
+/* ── 진행 바 ── */
+.cr-progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.cr-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, rgba(232,213,160,0.6), rgba(244,192,111,0.8));
+    transition: width 0.3s ease;
+}
+
+.cr-progress-label {
+    position: absolute;
+    right: 12px;
+    bottom: 8px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── 감소된 모션 ── */
+@media (prefers-reduced-motion: reduce) {
+    .cr-fade {
+        transition: opacity 0.15s ease !important;
+        transform: none !important;
+        filter: none !important;
+    }
+    .cr-deco * {
+        animation: none !important;
+    }
+    .cr-scroll-arrow {
+        animation: none !important;
+    }
+}
+
+/* ── 모바일 (≤576px) ── */
+@media (max-width: 576px) {
+    .cr-inner {
+        padding: 4rem 1.25rem;
+    }
+
+    .cr-day-num {
+        font-size: clamp(4rem, 20vw, 7rem);
+        margin-bottom: -1rem;
+    }
+
+    .cr-title {
+        font-size: clamp(1.3rem, 6vw, 1.7rem);
+    }
+
+    .cr-body {
+        font-size: 0.88rem;
+        line-height: 2;
+    }
+
+    .cr-scroll-hint {
+        bottom: 2rem;
+    }
+
+    .cr-progress-label {
+        right: 8px;
+        bottom: 6px;
+        font-size: 0.6rem;
+    }
+
+    .cr-epilogue-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cr-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ── 태블릿 (577px–1024px) ── */
+@media (min-width: 577px) and (max-width: 1024px) {
+    .cr-inner {
+        max-width: 580px;
+        padding: 4.5rem 2rem;
+    }
+
+    .cr-day-num {
+        font-size: clamp(5rem, 14vw, 9rem);
+    }
+
+    .cr-title {
+        font-size: clamp(1.4rem, 4vw, 2.2rem);
+    }
+}
+
+/* ── 데스크탑 (≥1025px) ── */
+@media (min-width: 1025px) {
+    .cr-inner {
+        max-width: 680px;
+        padding: 6rem 2rem;
+    }
+
+    .cr-section {
+        min-height: 100vh;
+    }
+}

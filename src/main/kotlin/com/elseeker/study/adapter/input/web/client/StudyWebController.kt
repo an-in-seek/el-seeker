@@ -42,4 +42,9 @@ class StudyWebController {
     fun showApostlesCreed(): String {
         return "study/apostles-creed"
     }
+
+    @GetMapping("/creation")
+    fun showCreation(): String {
+        return "study/creation"
+    }
 }
