@@ -252,8 +252,7 @@ html:has(.creation-page) {
 
 /* 진입 시 단계적 블룸: 미세한 빛→완전 등장→호흡 루프 */
 .cr-day1.cr-revealed .cr-deco-light {
-    animation: cr-light-bloom 4s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-               cr-light-breathe 5s ease-in-out 4.5s infinite;
+    animation: cr-light-bloom 4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes cr-light-bloom {
@@ -311,19 +310,17 @@ html:has(.creation-page) {
     transition-delay: 1.2s;
 }
 
-/* 호흡 — 블룸 완료 후에만 실행 */
-@keyframes cr-light-breathe {
-    0%, 100% { opacity: 0.85; }
-    50% { opacity: 1; }
-}
 
-/* 2일차: 궁창 — 수평 분리선 + 물결 */
+/* 2일차: 궁창 — 어둠에서 물이 나뉘며 궁창이 드러남 */
 .cr-day2 {
     background: linear-gradient(to bottom,
         #051228 0%,
-        #082050 45%,
-        rgba(80, 140, 200, 0.08) 50%,
-        #061833 55%,
+        #071c42 38%,
+        #081e48 44%,
+        #0a2255 48%,
+        #071a3a 52%,
+        #061535 56%,
+        #051230 62%,
         #020c1e 100%);
 }
 
@@ -331,26 +328,57 @@ html:has(.creation-page) {
     text-shadow: 0 0 60px rgba(122, 184, 232, 0.3);
 }
 
+/* 배경은 정적 그라디언트 유지, 장식 요소만 애니메이션 */
+
+/* ②③ 궁창 분리선: 중앙에서 양옆으로 펼쳐지며 글로우 확대 */
 .cr-deco-sky::before {
     content: '';
     position: absolute;
     top: 48%;
-    left: 0;
-    width: 100%;
-    height: 2px;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    z-index: 2;
+    transform: translateX(-50%);
     background: linear-gradient(to right,
-        transparent 10%,
-        rgba(122, 184, 232, 0.15) 40%,
-        rgba(122, 184, 232, 0.2) 50%,
-        rgba(122, 184, 232, 0.15) 60%,
-        transparent 90%);
-    animation: cr-sky-shimmer 4s ease-in-out infinite;
+        transparent 0%,
+        rgba(122, 184, 232, 0.15) 15%,
+        rgba(122, 184, 232, 0.25) 50%,
+        rgba(122, 184, 232, 0.15) 85%,
+        transparent 100%);
+    box-shadow: 0 0 20px 4px rgba(122, 184, 232, 0.04);
+    transition: width 2.5s cubic-bezier(0.22, 1, 0.36, 1),
+                height 1.5s ease-out 2s,
+                box-shadow 2s ease-out 1.5s;
 }
 
-@keyframes cr-sky-shimmer {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+.cr-day2.cr-revealed .cr-deco-sky::before {
+    width: 100%;
+    height: 2px;
+    box-shadow: 0 0 40px 8px rgba(122, 184, 232, 0.1);
 }
+
+/* ④ 궁창 위 물 글로우 (1.5s 후 2s) */
+.cr-deco-sky::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 48%;
+    z-index: 2;
+    opacity: 0;
+    background: linear-gradient(to bottom,
+        rgba(60, 110, 180, 0.06) 0%,
+        rgba(80, 140, 200, 0.03) 60%,
+        transparent 100%);
+    transition: opacity 2s ease-out 1.5s;
+}
+
+.cr-day2.cr-revealed .cr-deco-sky::after {
+    opacity: 1;
+}
+
 
 /* 3일차: 땅과 식물 — 하단 지평선 + 초록 파티클 */
 .cr-day3 {

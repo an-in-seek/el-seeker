@@ -58,8 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, { threshold: 0.3 });
 
-    const day1 = main.querySelector('.cr-day1');
-    if (day1) revealObserver.observe(day1);
+    main.querySelectorAll('.cr-day1, .cr-day2').forEach((el) => revealObserver.observe(el));
 
     // ── 스크롤 힌트 숨김 (첫 스크롤 시) ──
     const scrollHint = document.querySelector('.cr-scroll-hint');
