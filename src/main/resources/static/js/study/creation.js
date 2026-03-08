@@ -48,6 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sections.forEach((sec) => sectionObserver.observe(sec));
 
+    // ── 스크롤 힌트 숨김 (첫 스크롤 시) ──
+    const scrollHint = document.querySelector('.cr-scroll-hint');
+    if (scrollHint) {
+        const hideHint = () => {
+            scrollHint.style.opacity = '0';
+            scrollHint.style.transition = 'opacity 0.6s ease';
+            window.removeEventListener('scroll', hideHint);
+        };
+        window.addEventListener('scroll', hideHint, { passive: true });
+    }
+
     // ── 네비게이션 숨김/노출 ──
     const page = document.querySelector('.creation-page');
     const epilogue = main.querySelector('.cr-epilogue');
