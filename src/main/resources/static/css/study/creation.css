@@ -328,8 +328,6 @@ html:has(.creation-page) {
     text-shadow: 0 0 60px rgba(122, 184, 232, 0.3);
 }
 
-/* 배경은 정적 그라디언트 유지, 장식 요소만 애니메이션 */
-
 /* ②③ 궁창 분리선: 중앙에서 양옆으로 펼쳐지며 글로우 확대 */
 .cr-deco-sky::before {
     content: '';
@@ -337,46 +335,24 @@ html:has(.creation-page) {
     top: 48%;
     left: 50%;
     width: 0;
-    height: 1px;
+    height: 2px;
     z-index: 2;
     transform: translateX(-50%);
     background: linear-gradient(to right,
         transparent 0%,
-        rgba(122, 184, 232, 0.15) 15%,
-        rgba(122, 184, 232, 0.25) 50%,
-        rgba(122, 184, 232, 0.15) 85%,
+        rgba(122, 184, 232, 0.3) 10%,
+        rgba(160, 210, 255, 0.5) 40%,
+        rgba(180, 220, 255, 0.6) 50%,
+        rgba(160, 210, 255, 0.5) 60%,
+        rgba(122, 184, 232, 0.3) 90%,
         transparent 100%);
-    box-shadow: 0 0 20px 4px rgba(122, 184, 232, 0.04);
-    transition: width 2.5s cubic-bezier(0.22, 1, 0.36, 1),
-                height 1.5s ease-out 2s,
-                box-shadow 2s ease-out 1.5s;
+    box-shadow: 0 0 12px 2px rgba(122, 184, 232, 0.15),
+                0 0 30px 4px rgba(122, 184, 232, 0.06);
+    transition: width 2s cubic-bezier(0.22, 1, 0.36, 1) 0.5s;
 }
 
 .cr-day2.cr-revealed .cr-deco-sky::before {
     width: 100%;
-    height: 2px;
-    box-shadow: 0 0 40px 8px rgba(122, 184, 232, 0.1);
-}
-
-/* ④ 궁창 위 물 글로우 (1.5s 후 2s) */
-.cr-deco-sky::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 48%;
-    z-index: 2;
-    opacity: 0;
-    background: linear-gradient(to bottom,
-        rgba(60, 110, 180, 0.06) 0%,
-        rgba(80, 140, 200, 0.03) 60%,
-        transparent 100%);
-    transition: opacity 2s ease-out 1.5s;
-}
-
-.cr-day2.cr-revealed .cr-deco-sky::after {
-    opacity: 1;
 }
 
 
