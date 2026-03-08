@@ -26,6 +26,10 @@
     background: #000;
 }
 
+html:has(.creation-page) {
+    scroll-snap-type: y mandatory;
+}
+
 /* ── 섹션 공통 ── */
 .cr-section {
     position: relative;
@@ -35,6 +39,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    scroll-snap-align: start;
 }
 
 .cr-inner {
@@ -462,8 +467,8 @@
 
 /* 에필로그 */
 .cr-epilogue {
-    min-height: 60vh;
-    min-height: 60dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     background: linear-gradient(to bottom, #0d0800, #000);
 }
 
