@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const STAR_COUNT = 1200;
+const STAR_COUNT = 1600;
 const MOUSE_INFLUENCE = 0.015;
 
 export function initUniverse(canvasId, sectionId) {
@@ -28,7 +28,9 @@ export function initUniverse(canvasId, sectionId) {
         positions[i3 + 1] = (Math.random() - 0.5) * 12;
         positions[i3 + 2] = (Math.random() - 0.5) * 10 - 2;
 
-        sizes[i] = Math.random() * 3 + 0.5;
+        sizes[i] = Math.random() < 0.05
+            ? Math.random() * 5 + 3        // 5% 밝은 별 (크게)
+            : Math.random() * 3 + 0.5;
 
         // 별 색상: 흰색 ~ 은은한 파랑/보라
         const tone = Math.random();
@@ -68,8 +70,13 @@ export function initUniverse(canvasId, sectionId) {
             void main() {
                 vColor = color;
                 vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-                float twinkle = sin(uTime * 1.5 + position.x * 3.0 + position.y * 2.0) * 0.3 + 0.7;
-                vAlpha = twinkle;
+
+                // 다층 twinkle: 느린 파동 + 빠른 깜빡 + 간헐적 플래시
+                float slow = sin(uTime * 0.8 + position.x * 2.0 + position.y * 1.5) * 0.35;
+                float fast = sin(uTime * 3.0 + position.y * 5.0 + position.z * 3.0) * 0.2;
+                float flash = pow(max(sin(uTime * 2.5 + position.x * 7.0 + position.z * 4.0), 0.0), 8.0) * 0.6;
+                vAlpha = clamp(0.3 + slow + fast + flash, 0.1, 1.0);
+
                 gl_PointSize = size * uPixelRatio * (4.0 / -mvPos.z);
                 gl_Position = projectionMatrix * mvPos;
             }
@@ -82,7 +89,7 @@ export function initUniverse(canvasId, sectionId) {
                 float dist = length(gl_PointCoord - vec2(0.5));
                 if (dist > 0.5) discard;
                 float glow = 1.0 - smoothstep(0.0, 0.5, dist);
-                glow = pow(glow, 1.5);
+                glow = pow(glow, 1.2);
                 gl_FragColor = vec4(vColor, glow * vAlpha);
             }
         `,
