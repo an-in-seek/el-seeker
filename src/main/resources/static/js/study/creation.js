@@ -48,6 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sections.forEach((sec) => sectionObserver.observe(sec));
 
+    // ── 섹션 진입 애니메이션 (1일차 빛 등장 등) ──
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('cr-revealed');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    const day1 = main.querySelector('.cr-day1');
+    if (day1) revealObserver.observe(day1);
+
     // ── 스크롤 힌트 숨김 (첫 스크롤 시) ──
     const scrollHint = document.querySelector('.cr-scroll-hint');
     if (scrollHint) {
