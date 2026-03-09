@@ -137,6 +137,7 @@
 /* ── Menu Grid ── */
 .home-menu-grid {
     --bs-gutter-y: 1rem;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
 }
 
 .home-menu-card {
@@ -156,8 +157,8 @@
     position: relative;
     overflow: hidden;
     border-radius: 16px;
-    margin-top: 1.5rem;
-    min-height: 360px;
+    margin-top: 0;
+    min-height: clamp(280px, 40vh, 420px);
     background: radial-gradient(ellipse at 30% 20%, #0b0d2e 0%, #050613 40%, #000 100%);
     display: flex;
     align-items: center;
@@ -268,11 +269,11 @@
         margin-left: calc(var(--bs-gutter-x, 1.5rem) / -2);
         margin-right: calc(var(--bs-gutter-x, 1.5rem) / -2);
         border-radius: 0;
-        min-height: 280px;
+        min-height: 220px;
     }
 
     .universe-content {
-        padding: 3rem 1.25rem;
+        padding: 2.5rem 1.25rem;
     }
 
     .home-hero {
@@ -338,5 +339,20 @@
 
     .home-hero-sub {
         font-size: 0.95rem;
+    }
+
+    .universe-section {
+        min-height: clamp(300px, 35vh, 380px);
+    }
+}
+
+/* ── 데스크톱 (≥992px) ── */
+@media (min-width: 992px) {
+    .universe-section {
+        min-height: clamp(360px, 40vh, 450px);
+    }
+
+    .universe-content {
+        padding: 5rem 2rem;
     }
 }
