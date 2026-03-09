@@ -71,11 +71,12 @@ export function initUniverse(canvasId, sectionId) {
                 vColor = color;
                 vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
 
-                // 다층 twinkle: 느린 파동 + 빠른 깜빡 + 간헐적 플래시
-                float slow = sin(uTime * 0.8 + position.x * 2.0 + position.y * 1.5) * 0.35;
-                float fast = sin(uTime * 3.0 + position.y * 5.0 + position.z * 3.0) * 0.2;
-                float flash = pow(max(sin(uTime * 2.5 + position.x * 7.0 + position.z * 4.0), 0.0), 8.0) * 0.6;
-                vAlpha = clamp(0.3 + slow + fast + flash, 0.1, 1.0);
+                // 다층 twinkle: 느린 파동 + 빠른 깜빡 + 강한 플래시 + 랜덤 스파크
+                float slow = sin(uTime * 1.0 + position.x * 2.0 + position.y * 1.5) * 0.4;
+                float fast = sin(uTime * 4.0 + position.y * 5.0 + position.z * 3.0) * 0.3;
+                float flash = pow(max(sin(uTime * 3.0 + position.x * 7.0 + position.z * 4.0), 0.0), 6.0) * 0.8;
+                float spark = pow(max(sin(uTime * 5.5 + position.z * 9.0 + position.x * 6.0), 0.0), 12.0) * 1.0;
+                vAlpha = clamp(0.2 + slow + fast + flash + spark, 0.05, 1.0);
 
                 gl_PointSize = size * uPixelRatio * (4.0 / -mvPos.z);
                 gl_Position = projectionMatrix * mvPos;
@@ -136,26 +137,6 @@ export function initUniverse(canvasId, sectionId) {
         isVisible = entries[0].isIntersecting;
     }, { threshold: 0.05 });
     visibilityObserver.observe(section);
-
-    // ── 섹션 전체 등장 (스크롤 시 우주 배경이 웅장하게 나타남) ──
-    const sectionRevealObserver = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-            section.classList.add('revealed');
-            sectionRevealObserver.disconnect();
-        }
-    }, { threshold: 0.15 });
-    sectionRevealObserver.observe(section);
-
-    // ── 텍스트 페이드인 (밤안개 속에서 서서히 드러남) ──
-    const fadeElements = section.querySelectorAll('.universe-fade');
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.3 });
-    fadeElements.forEach((el) => fadeObserver.observe(el));
 
     // ── 애니메이션 루프 ──
     const clock = new THREE.Clock();

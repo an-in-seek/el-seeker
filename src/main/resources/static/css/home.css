@@ -163,15 +163,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transform: scale(0.97);
-    transition: opacity 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                transform 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.universe-section.revealed {
-    opacity: 1;
-    transform: scale(1);
 }
 
 #universeCanvas {
@@ -180,12 +171,6 @@
     width: 100%;
     height: 100%;
     display: block;
-    opacity: 0;
-    transition: opacity 2s ease 0.3s;
-}
-
-.universe-section.revealed #universeCanvas {
-    opacity: 1;
 }
 
 .universe-content {
@@ -242,26 +227,6 @@
     }
 }
 
-/* 스크롤 페이드인 (밤안개 효과) */
-.universe-fade {
-    opacity: 0;
-    transform: translateY(30px);
-    filter: blur(6px);
-    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                filter 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-.universe-fade.visible {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-}
-.universe-fade:nth-child(2) {
-    transition-delay: 0.5s;
-}
-.universe-fade:nth-child(3) {
-    transition-delay: 0.9s;
-}
 
 /* ── Responsive ── */
 @media (max-width: 576px) {
