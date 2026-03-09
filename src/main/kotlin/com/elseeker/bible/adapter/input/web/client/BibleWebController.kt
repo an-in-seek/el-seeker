@@ -3,11 +3,15 @@ package com.elseeker.bible.adapter.input.web.client
 import com.elseeker.bible.adapter.input.web.client.response.BibleViewResponse
 import com.elseeker.bible.application.service.BibleService
 import com.elseeker.bible.domain.vo.BibleTranslationType
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+
+private const val ROLE_ADMIN = "ROLE_ADMIN"
+private val HIDDEN_TRANSLATION_TYPES = setOf(BibleTranslationType.NKRV)
 
 @Controller
 @RequestMapping("/web/bible")
@@ -16,19 +20,9 @@ class BibleWebController(
 ) {
 
     @GetMapping("/translation")
-    fun showTranslations(
-        model: Model,
-        @RequestParam(required = false) dev: String?
-    ): String {
-        val devEnabled = dev == "1" || dev.equals("true", ignoreCase = true)
+    fun showTranslations(model: Model): String {
         val translations = bibleService.getTranslations()
-            .let { items ->
-                if (devEnabled) {
-                    items
-                } else {
-                    items.filter { it.translationType != BibleTranslationType.NKRV }
-                }
-            } // TODO: 추후 개역개정 저작권 무료화되면 제거 예정
+            .filterNot { !isAdmin() && it.translationType in HIDDEN_TRANSLATION_TYPES }
             .map(BibleViewResponse.Translation::from)
         model.addAttribute("translations", translations)
         return "bible/translation-list"
@@ -62,4 +56,9 @@ class BibleWebController(
         model.addAttribute("keyword", keyword?.trim().orEmpty())
         return "bible/search"
     }
+
+    // ------------ Private Methods ------------
+    private fun isAdmin(): Boolean =
+        SecurityContextHolder.getContext().authentication
+            ?.authorities?.any { it.authority == ROLE_ADMIN } ?: false
 }

@@ -4,10 +4,6 @@ const UI_CLASSES = {
     HIDDEN: "d-none"
 };
 
-const CONFIG = {
-    DEV_CLICK_THRESHOLD: 12
-};
-
 const LABELS = {
     LANGUAGE: {
         ko: "한국어",
@@ -46,37 +42,10 @@ const App = {
         }
         App.state.returnPath = TranslationStore.consumeTranslationReturnPath();
         App.state.translationButtons = Array.from(App.elements.sourceList.querySelectorAll("button"));
-        App.initDevToggle();
         App.updatePageTitle();
         App.renderSections();
         App.hideSourceList();
         App.bindSelectionHandlers();
-    },
-
-    initDevToggle: () => {
-        const params = new URLSearchParams(window.location.search);
-        const devParam = params.get("dev");
-        const devEnabled = devParam === "1" || devParam === "true";
-        if (devEnabled) {
-            params.delete("dev");
-            const nextUrl = `${window.location.pathname}?${params.toString()}`.replace(/\?$/, "");
-            window.history.replaceState({}, "", nextUrl);
-        } else {
-            App.attachDevClickCounter();
-        }
-    },
-
-    attachDevClickCounter: () => {
-        let clickCount = 0;
-        document.addEventListener("click", () => {
-            clickCount += 1;
-            if (clickCount < CONFIG.DEV_CLICK_THRESHOLD) {
-                return;
-            }
-            const url = new URL(window.location.href);
-            url.searchParams.set("dev", "1");
-            window.location.replace(`${url.pathname}${url.search}${url.hash}`);
-        });
     },
 
     updatePageTitle: () => {
