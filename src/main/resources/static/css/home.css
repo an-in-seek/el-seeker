@@ -305,13 +305,17 @@
         right: 0.75rem;
     }
 
+    .home-menu-card {
+        min-height: auto;
+    }
+
     .home-menu-card .card-body {
         padding: 0.9rem 0.75rem;
     }
 
     .home-menu-card .fs-2 {
         font-size: 1.5rem !important;
-        margin-bottom: 0.25rem !important;
+        margin-bottom: 0 !important;
     }
 
     .home-menu-card .h5 {
