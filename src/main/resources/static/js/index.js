@@ -1,5 +1,5 @@
 import {LastReadStore, SessionStore, STORAGE_KEYS} from "/js/storage-util.js?v=2.2";
-import {initUniverse} from "/js/home/universe-bg.js?v=1.3";
+import {initUniverse} from "/js/home/universe-bg.js?v=1.4";
 
 const HERO_INTERVAL_MS = 5000;
 const HERO_SWIPE_THRESHOLD = 50;
