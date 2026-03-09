@@ -120,7 +120,7 @@ html:has(.creation-page) {
 /* ── 스크롤 힌트 (프롤로그) ── */
 .cr-scroll-hint {
     position: absolute;
-    bottom: 2.5rem;
+    bottom: 5rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
@@ -693,7 +693,7 @@ html:has(.creation-page) {
     }
 
     .cr-scroll-hint {
-        bottom: 2rem;
+        bottom: 4.5rem;
     }
 
     .cr-progress {
