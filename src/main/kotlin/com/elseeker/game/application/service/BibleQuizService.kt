@@ -10,6 +10,7 @@ import com.elseeker.game.application.component.QuizAttemptPolicy
 import com.elseeker.game.application.component.QuizStageValidator
 import com.elseeker.game.application.dto.*
 import com.elseeker.game.domain.model.QuizMemberProgress
+import com.elseeker.game.domain.model.QuizQuestion
 import com.elseeker.game.domain.model.QuizMemberQuestionStat
 import com.elseeker.game.domain.model.QuizStageProgress
 import com.elseeker.game.domain.event.GameCompletedEvent
@@ -148,10 +149,13 @@ class BibleQuizService(
         val currentIndex = stageProgress.currentQuestionIndex ?: 0
         quizStageValidator.requireQuestionIndexNotAhead(request.questionIndex, currentIndex)
         if (request.questionIndex < currentIndex) {
-            throwError(ErrorType.INVALID_PARAMETER, "question already answered")
+            return buildIdempotentAnswer(question, stageProgress)
         }
         val attempt = quizAttemptPolicy.getOngoingAttempt(member, stageNumber, request.mode)
-        quizAttemptPolicy.recordQuestionAttempt(attempt, question, request, isCorrect)
+        val isNewAttempt = quizAttemptPolicy.recordQuestionAttempt(attempt, question, request, isCorrect)
+        if (!isNewAttempt) {
+            return buildIdempotentAnswer(question, stageProgress)
+        }
         quizAttemptPolicy.updateQuestionStatIfRecord(request.mode, member, question, isCorrect)
         stageProgress.advance(request.questionIndex, isCorrect, request.mode)
         val score = stageProgress.currentScoreOrZero()
@@ -219,6 +223,20 @@ class BibleQuizService(
     private fun getOrCreateProgressByMemberId(memberId: Long, memberRef: Member): QuizMemberProgress {
         return quizProgressRepository.findByMemberId(memberId)
             ?: quizProgressRepository.save(QuizMemberProgress(member = memberRef))
+    }
+
+    private fun buildIdempotentAnswer(
+        question: QuizQuestion,
+        stageProgress: QuizStageProgress
+    ): QuizStageAnswerSnapshot {
+        val score = stageProgress.currentScoreOrZero()
+        val nextIndex = stageProgress.currentQuestionIndexOrZero()
+        return QuizStageAnswerSnapshot(
+            isCorrect = false,
+            correctIndex = question.answerIndex,
+            currentScore = score,
+            currentQuestionIndex = nextIndex
+        )
     }
 
     private fun getStageOrThrow(stageNumber: Int) =

@@ -58,10 +58,10 @@ class QuizAttemptPolicy(
         question: QuizQuestion,
         request: QuizStageAnswerRequest,
         isCorrect: Boolean
-    ) {
+    ): Boolean {
         val existingAttempt = quizQuestionAttemptRepository.findByStageAttemptAndQuestion(attempt, question)
         if (existingAttempt != null) {
-            throwError(ErrorType.INVALID_PARAMETER, "question already answered")
+            return false
         }
         val questionAttempt = QuizMemberQuestionAttempt(
             stageAttempt = attempt,
@@ -72,6 +72,7 @@ class QuizAttemptPolicy(
         )
         attempt.addQuestionAttempt(questionAttempt)
         quizStageAttemptRepository.save(attempt)
+        return true
     }
 
     fun completeAttempt(
