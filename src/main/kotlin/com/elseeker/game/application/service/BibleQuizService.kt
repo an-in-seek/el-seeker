@@ -147,14 +147,13 @@ class BibleQuizService(
         val isCorrect = request.selectedIndex == question.answerIndex
         val stageProgress = getOrCreateStageProgress(member, stageNumber)
         val currentIndex = stageProgress.currentQuestionIndex ?: 0
-        quizStageValidator.requireQuestionIndexNotAhead(request.questionIndex, currentIndex)
         if (request.questionIndex < currentIndex) {
-            return buildIdempotentAnswer(question, stageProgress)
+            return buildIdempotentAnswer(isCorrect, question, stageProgress)
         }
         val attempt = quizAttemptPolicy.getOngoingAttempt(member, stageNumber, request.mode)
         val isNewAttempt = quizAttemptPolicy.recordQuestionAttempt(attempt, question, request, isCorrect)
         if (!isNewAttempt) {
-            return buildIdempotentAnswer(question, stageProgress)
+            return buildIdempotentAnswer(isCorrect, question, stageProgress)
         }
         quizAttemptPolicy.updateQuestionStatIfRecord(request.mode, member, question, isCorrect)
         stageProgress.advance(request.questionIndex, isCorrect, request.mode)
@@ -226,13 +225,14 @@ class BibleQuizService(
     }
 
     private fun buildIdempotentAnswer(
+        isCorrect: Boolean,
         question: QuizQuestion,
         stageProgress: QuizStageProgress
     ): QuizStageAnswerSnapshot {
         val score = stageProgress.currentScoreOrZero()
         val nextIndex = stageProgress.currentQuestionIndexOrZero()
         return QuizStageAnswerSnapshot(
-            isCorrect = false,
+            isCorrect = isCorrect,
             correctIndex = question.answerIndex,
             currentScore = score,
             currentQuestionIndex = nextIndex
