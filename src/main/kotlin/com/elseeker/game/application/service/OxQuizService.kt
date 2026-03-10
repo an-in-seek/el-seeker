@@ -12,7 +12,10 @@ import com.elseeker.game.domain.model.OxMemberQuestionAttempt
 import com.elseeker.game.domain.model.OxMemberStageAttempt
 import com.elseeker.game.domain.model.OxStage
 import com.elseeker.member.adapter.output.jpa.MemberRepository
+import com.elseeker.game.domain.event.GameCompletedEvent
+import com.elseeker.game.domain.vo.GameType
 import com.elseeker.member.domain.model.Member
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -24,7 +27,8 @@ class OxQuizService(
     private val questionRepository: OxQuestionRepository,
     private val stageAttemptRepository: OxMemberStageAttemptRepository,
     private val questionAttemptRepository: OxMemberQuestionAttemptRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
 
     @Transactional(readOnly = true)
@@ -182,6 +186,8 @@ class OxQuizService(
         val accuracyPercent = if (totalQuestions > 0) {
             (attempt.score * 100) / totalQuestions
         } else 0
+
+        eventPublisher.publishEvent(GameCompletedEvent(member.id!!, GameType.OX_QUIZ))
 
         return OxCompleteResponse(
             score = attempt.score,

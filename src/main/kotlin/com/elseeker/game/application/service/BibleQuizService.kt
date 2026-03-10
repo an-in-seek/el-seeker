@@ -12,9 +12,12 @@ import com.elseeker.game.application.dto.*
 import com.elseeker.game.domain.model.QuizMemberProgress
 import com.elseeker.game.domain.model.QuizMemberQuestionStat
 import com.elseeker.game.domain.model.QuizStageProgress
+import com.elseeker.game.domain.event.GameCompletedEvent
+import com.elseeker.game.domain.vo.GameType
 import com.elseeker.game.domain.vo.QuizStageAttemptMode
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -28,7 +31,8 @@ class BibleQuizService(
     private val quizQuestionStatRepository: QuizQuestionStatRepository,
     private val memberRepository: MemberRepository,
     private val quizAttemptPolicy: QuizAttemptPolicy,
-    private val quizStageValidator: QuizStageValidator
+    private val quizStageValidator: QuizStageValidator,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
 
     @Transactional
@@ -181,6 +185,11 @@ class BibleQuizService(
             completedAt = request.completedAt
         )
         stageProgress.resetInProgress()
+
+        if (request.mode != QuizStageAttemptMode.REVIEW) {
+            eventPublisher.publishEvent(GameCompletedEvent(member.id!!, GameType.MULTIPLE_CHOICE))
+        }
+
         val accuracy = if (request.mode == QuizStageAttemptMode.REVIEW) null else getStageAccuracy(member, stageNumber)
         val nextStage = progress.currentStageNumber
         return QuizStageCompleteSnapshot(

@@ -49,7 +49,27 @@ interface WordPuzzleAttemptRepository : JpaRepository<WordPuzzleAttempt, Long> {
         @Param("member") member: Member
     ): WordPuzzleAttempt?
 
+    @Query(
+        """
+        SELECT a.wordPuzzle.id AS puzzleId, MAX(a.score) AS bestScore
+        FROM WordPuzzleAttempt a
+        WHERE a.member = :member
+        AND a.attemptStatusCode = :status
+        AND a.score IS NOT NULL
+        GROUP BY a.wordPuzzle.id
+        """
+    )
+    fun findBestScoresByMember(
+        @Param("member") member: Member,
+        @Param("status") status: AttemptStatus = AttemptStatus.COMPLETED
+    ): List<PuzzleBestScoreRow>
+
     @Modifying
     @Query("DELETE FROM WordPuzzleAttempt a WHERE a.member.id = :memberId")
     fun deleteAllByMemberId(@Param("memberId") memberId: Long)
+}
+
+interface PuzzleBestScoreRow {
+    val puzzleId: Long
+    val bestScore: Int?
 }

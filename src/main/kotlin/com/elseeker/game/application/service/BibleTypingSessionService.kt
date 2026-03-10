@@ -12,8 +12,11 @@ import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
 import com.elseeker.game.domain.model.BibleTypingSession
 import com.elseeker.game.domain.model.BibleTypingVerse
 import com.elseeker.game.domain.model.BibleTypingVerseId
+import com.elseeker.game.domain.event.GameCompletedEvent
+import com.elseeker.game.domain.vo.GameType
 import com.elseeker.member.domain.model.Member
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -24,6 +27,7 @@ class BibleTypingSessionService(
     private val sessionRepository: BibleTypingSessionRepository,
     private val verseRepository: BibleTypingVerseRepository,
     private val bibleReader: BibleReader,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
 
     @Transactional
@@ -102,6 +106,11 @@ class BibleTypingSessionService(
 
         // 10. 세션 저장
         sessionRepository.save(session)
+
+        // 11. 완료된 구절이면 랭킹 갱신
+        if (request.completed) {
+            eventPublisher.publishEvent(GameCompletedEvent(member.id!!, GameType.TYPING))
+        }
     }
 
     @Transactional

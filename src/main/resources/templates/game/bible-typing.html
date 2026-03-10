@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('성경 타자 | ElSeeker', true, '/css/hero.css?v=2.3,/css/card.css?v=2.3,/css/game/bible-typing.css?v=2.3')}"
+        th:replace="~{fragments/head :: head('성경 타자 | ElSeeker', true, '/css/hero.css?v=2.3,/css/card.css?v=2.3,/css/game/bible-typing.css?v=2.7')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -44,10 +44,11 @@
 
             <!-- Action Buttons -->
             <div class="typing-action-bar mb-3">
-                <button type="button" class="btn btn-dark px-4 rounded-pill d-none" id="typingStartBtn">시작</button>
-                <button type="button" class="btn btn-outline-secondary px-4 rounded-pill d-none"
+                <button type="button" class="typing-action-btn typing-btn-start d-none" id="typingStartBtn">시작</button>
+                <button type="button" class="typing-action-btn typing-btn-reset d-none"
                         id="typingResetBtn">초기화
                 </button>
+                <a href="/web/game/ranking?gameType=TYPING" class="typing-action-btn typing-btn-ranking">🏆 랭킹</a>
             </div>
 
             <!-- 상단 고정 스택: 구절 헤더 + 상태바 -->

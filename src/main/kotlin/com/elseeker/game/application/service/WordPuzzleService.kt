@@ -7,6 +7,8 @@ import com.elseeker.game.adapter.input.api.client.response.*
 import com.elseeker.game.adapter.output.jpa.*
 import com.elseeker.game.domain.model.*
 import com.elseeker.game.domain.vo.AttemptStatus
+import com.elseeker.game.domain.event.GameCompletedEvent
+import com.elseeker.game.domain.vo.GameType
 import com.elseeker.game.domain.vo.HintType
 import com.elseeker.game.domain.vo.PuzzleDirection
 import com.elseeker.game.domain.vo.PuzzleStatus
@@ -15,6 +17,7 @@ import com.elseeker.study.adapter.output.jpa.DictionaryRepository
 import com.elseeker.member.domain.model.Member
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -28,7 +31,8 @@ class WordPuzzleService(
     private val hintUsageRepository: WordPuzzleHintUsageRepository,
     private val progressRepository: MemberDictionaryProgressRepository,
     private val dictionaryRepository: DictionaryRepository,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
 
     // ── 1. 퍼즐 목록 조회 ──
@@ -310,6 +314,8 @@ class WordPuzzleService(
         // 정답 - 점수 산정 및 완료 처리
         val score = attempt.calculateScore(attempt.wordPuzzle.difficultyCode)
         attempt.complete(score)
+
+        eventPublisher.publishEvent(GameCompletedEvent(member.id!!, GameType.WORD_PUZZLE))
 
         // 단어별 진행도 업데이트
         entries.forEach { entry ->

@@ -14,6 +14,11 @@ class GameWebController {
         return "game/game"
     }
 
+    @GetMapping("/ranking")
+    fun showRanking(): String {
+        return "game/game-ranking"
+    }
+
     @GetMapping("/bible-quiz")
     fun showBibleQuiz(authentication: Authentication?): String {
         redirectIfUnauthenticated(authentication, "/web/game/bible-quiz")?.let { return it }

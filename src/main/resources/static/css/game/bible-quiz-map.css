@@ -116,24 +116,44 @@
     color: #1e293b;
 }
 
-/* Reset Button */
-.quiz-map-reset {
+/* Hero Action Buttons (shared base) */
+.quiz-map-reset,
+.quiz-map-ranking {
     font-weight: 600;
     font-size: 0.8rem;
-    color: #dc2626;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
     padding: 0.35rem 0.85rem;
     border-radius: 8px;
+    border: 1px solid;
     transition: all 0.2s ease;
-    margin-top: 0.5rem;
+    text-decoration: none;
+    line-height: 1.4;
+}
+
+/* Reset — soft red */
+.quiz-map-reset {
+    color: #fff;
+    background: #ef4444;
+    border-color: #ef4444;
+}
+
+/* Ranking — navy */
+.quiz-map-ranking {
+    color: #fff;
+    background: #2c5282;
+    border-color: #2c5282;
 }
 
 @media (hover: hover) and (pointer: fine) {
     .quiz-map-reset:hover {
-        background: #fee2e2;
-        border-color: #fca5a5;
-        color: #b91c1c;
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #fff;
+    }
+
+    .quiz-map-ranking:hover {
+        background: #1e3a5f;
+        border-color: #1e3a5f;
+        color: #fff;
     }
 }
 

@@ -92,6 +92,8 @@ class SecurityConfig(
                         "/web/auth/logout",
                         "/web/auth/logout/**",
                         "/web/game",
+                        "/web/game/ranking",
+                        "/api/v1/game/ranking",
                         "/api/v1/bibles/**",
                         "/api/v1/study/dictionaries/**",
                         "/api/v1/auth/refresh"
@@ -107,6 +109,7 @@ class SecurityConfig(
                         "/api/v1/auth/me",
                         "/api/v1/members/**",
                         "/api/v1/game/bible-quiz/**",
+                        "/api/v1/game/ranking/me",
                         "/api/v1/bible/reading/**"
                     ).authenticated()
                     // 게임 관련 페이지는 서버 단에서 인증을 강제
