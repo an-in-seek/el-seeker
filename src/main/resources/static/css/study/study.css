@@ -15,4 +15,8 @@
     .study-hero {
         padding: 1.25rem 1rem;
     }
+
+    .study-card-link .card-body p {
+        display: none;
+    }
 }
