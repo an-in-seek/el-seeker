@@ -78,8 +78,6 @@ function renderRankings(data) {
         document.getElementById('myRankNumber').textContent = myRanking.rank;
         document.getElementById('myRankTotal').textContent = `/ ${totalParticipants}명`;
         document.getElementById('myRankScore').textContent = formatScore(myRanking.rankingScore);
-        document.getElementById('myRankCompleted').textContent = myRanking.completedCount;
-        document.getElementById('myRankPerfect').textContent = myRanking.perfectCount;
         document.getElementById('myRankPercent').textContent =
             myRanking.topPercent != null ? `${myRanking.topPercent}%` : '-';
     }
@@ -116,8 +114,6 @@ function createRankingItem(item, isMe) {
             <span class="ri-name">${escapeHtml(item.nickname)}</span>
         </span>
         <span class="ri-score">${formatScore(item.rankingScore)}</span>
-        <span class="ri-completed">${item.completedCount}</span>
-        <span class="ri-perfect">${item.perfectCount}</span>
     `;
 
     return div;
