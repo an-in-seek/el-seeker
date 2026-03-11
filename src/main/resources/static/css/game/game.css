@@ -61,23 +61,6 @@
     }
 }
 
-.game-card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid #f1f5f9;
-}
-
-.game-card-meta .badge {
-    font-weight: 500;
-    color: #475569;
-    background-color: #f1f5f9 !important; /* Override text-bg-light for better contrast */
-    border: 1px solid #e2e8f0;
-    padding: 0.4em 0.6em;
-}
-
 /* Active Card Styles */
 .card-clickable {
     cursor: pointer;
@@ -122,10 +105,6 @@
 
 .card.coming-soon .text-muted {
     color: #cbd5e1 !important;
-}
-
-.card.coming-soon .badge {
-    opacity: 0.6;
 }
 
 @media (max-width: 576px) {
