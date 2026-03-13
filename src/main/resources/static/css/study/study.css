@@ -11,7 +11,7 @@
     letter-spacing: 0.02em;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 991px) {
     .study-hero {
         padding: 1.25rem 1rem;
     }
