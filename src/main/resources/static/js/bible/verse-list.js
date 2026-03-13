@@ -22,7 +22,10 @@ const ROUTES = {
 const HIGHLIGHT_COLORS = [
     {id: "yellow", label: "노랑", className: "verse-highlight-yellow"},
     {id: "green", label: "초록", className: "verse-highlight-green"},
-    {id: "pink", label: "핑크", className: "verse-highlight-pink"}
+    {id: "pink", label: "핑크", className: "verse-highlight-pink"},
+    {id: "blue", label: "파랑", className: "verse-highlight-blue"},
+    {id: "purple", label: "보라", className: "verse-highlight-purple"},
+    {id: "orange", label: "주황", className: "verse-highlight-orange"}
 ];
 
 const state = {
@@ -1035,12 +1038,21 @@ async function applyHighlightToSelection(colorId) {
         requestAuth(highlightState.auth);
         return;
     }
-    const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === colorId);
-    if (!colorConfig) {
-        return;
-    }
     const verseNumbers = getSelectedVerseNumbers();
     if (verseNumbers.length === 0) {
+        return;
+    }
+    if (colorId === "clear") {
+        await Promise.all(verseNumbers.map(async verseNum => {
+            if (selection.highlightMap.has(String(verseNum))) {
+                await deleteHighlight(verseNum);
+            }
+        }));
+        resetSelectionState();
+        return;
+    }
+    const colorConfig = HIGHLIGHT_COLORS.find(color => color.id === colorId);
+    if (!colorConfig) {
         return;
     }
     await Promise.all(verseNumbers.map(async verseNum => {

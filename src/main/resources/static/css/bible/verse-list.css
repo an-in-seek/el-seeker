@@ -52,6 +52,24 @@
     padding: 2px 4px;
 }
 
+.verse-highlight-blue {
+    background-color: #bbdefb;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.verse-highlight-purple {
+    background-color: #e1bee7;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.verse-highlight-orange {
+    background-color: #ffe0b2;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
 /* CSS-only Memo Icon */
 .verse-has-memo {
     position: relative;
@@ -282,10 +300,10 @@
 }
 
 .verse-fab-submenu {
-    /* Display toggle 대신 애니메이션을 위한 속성 사용 */
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    /* 3열 그리드 레이아웃 */
+    display: grid;
+    grid-template-columns: repeat(3, 32px);
+    justify-content: end;
     gap: 0.5rem;
 
     /* 닫힌 상태 (Default) */
@@ -310,8 +328,8 @@
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
-    max-height: 60px;
-    /* 충분한 높이 확보 */
+    max-height: 120px;
+    /* 충분한 높이 확보 (2행) */
     padding-top: 0.3rem;
 
     /* 열릴 때: 바운스 효과 */
@@ -341,6 +359,28 @@
 
 .verse-fab-color-pink {
     background: #ffd6e7;
+}
+
+.verse-fab-color-blue {
+    background: #bbdefb;
+}
+
+.verse-fab-color-purple {
+    background: #e1bee7;
+}
+
+.verse-fab-color-orange {
+    background: #ffe0b2;
+}
+
+.verse-fab-color-clear {
+    background: #f5f5f5;
+    color: #999;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 576px) {

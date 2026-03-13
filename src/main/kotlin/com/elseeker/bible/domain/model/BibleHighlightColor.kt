@@ -3,7 +3,10 @@ package com.elseeker.bible.domain.model
 enum class BibleHighlightColor(val id: String) {
     YELLOW("yellow"),
     GREEN("green"),
-    PINK("pink");
+    PINK("pink"),
+    BLUE("blue"),
+    PURPLE("purple"),
+    ORANGE("orange");
 
     companion object {
         fun from(value: String): BibleHighlightColor {

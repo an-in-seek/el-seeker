@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 구절 읽기 - 본문 보기 | ElSeeker', true, '/css/bible/verse-list.css?v=2.3')}"
+<head th:replace="~{fragments/head :: head('성경 구절 읽기 - 본문 보기 | ElSeeker', true, '/css/bible/verse-list.css?v=2.6')}"
       th:with="pageDescription='선택한 장의 성경 구절을 읽고 공유하거나 복사, 메모할 수 있습니다.',
                pageKeywords='성경 구절,성경 본문,성경 읽기,성경 말씀,성경 구절 복사'"></head>
 <body class="has-fixed-nav has-dual-bottom-nav">
@@ -47,6 +47,10 @@
             <button type="button" class="verse-fab-color verse-fab-color-yellow" data-highlight="yellow" aria-label="노랑 형광펜"></button>
             <button type="button" class="verse-fab-color verse-fab-color-green" data-highlight="green" aria-label="초록 형광펜"></button>
             <button type="button" class="verse-fab-color verse-fab-color-pink" data-highlight="pink" aria-label="핑크 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-blue" data-highlight="blue" aria-label="파랑 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-purple" data-highlight="purple" aria-label="보라 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-orange" data-highlight="orange" aria-label="주황 형광펜"></button>
+            <button type="button" class="verse-fab-color verse-fab-color-clear" data-highlight="clear" aria-label="형광펜 지우기">✕</button>
         </div>
     </div>
 </div>
@@ -86,7 +90,7 @@
     </div>
 </div>
 
-<script type="module" src="/js/bible/verse-list.js?v=2.4"></script>
+<script type="module" src="/js/bible/verse-list.js?v=2.6"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>
