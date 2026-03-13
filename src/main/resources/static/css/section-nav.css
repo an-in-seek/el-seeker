@@ -151,9 +151,7 @@
         transform: translateY(-100%);
     }
 
-    body.has-dual-bottom-nav.top-nav-hidden .top-nav-title {
-        margin-top: 0;
-    }
+    /* margin-top 유지: transform으로 숨길 때 레이아웃 시프트 방지 */
 }
 
 /* --- Auto-hide: 하단 네비 공존 페이지 (모바일 전용) --- */
@@ -194,9 +192,7 @@
         padding-bottom: var(--bottom-tab-height);
     }
 
-    body.has-dual-bottom-nav.bottom-tab-hidden .content-wrapper {
-        padding-bottom: 1rem;
-    }
+    /* padding-bottom 유지: transform으로 숨길 때 레이아웃 시프트 방지 */
 }
 
 @media (min-width: 600px) and (max-width: 991.98px) {
