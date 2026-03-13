@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 게임 - 퀴즈, 타자, 단어 퍼즐 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.2,/css/game/game.css?v=2.3')}"
+<head th:replace="~{fragments/head :: head('성경 게임 - 퀴즈, 타자, 단어 퍼즐 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/game/game.css?v=2.4')}"
       th:with="pageDescription='성경 O/X 퀴즈, 객관식 퀴즈, 성경 타자, 단어 퍼즐 등 재미있는 게임으로 말씀을 학습합니다.',
                pageKeywords='성경 퀴즈,성경 게임,성경 OX퀴즈,성경 타자,성경 단어 퍼즐,성경 학습 게임'"></head>
 <body class="has-fixed-nav has-dual-bottom-nav">
@@ -14,7 +14,7 @@
 
         <!-- 성경 O/X 퀴즈 (Active) -->
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-clickable h-100 border-0 shadow-sm" data-game-key="bible-ox-quiz"
+            <article class="card card-panel card-clickable h-100" data-game-key="bible-ox-quiz"
                      data-game-route="/web/game/bible-ox-quiz/map" tabindex="0" role="button" aria-label="성경 O/X 퀴즈 게임 시작하기">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="game-card-header mb-3">
@@ -30,7 +30,7 @@
 
         <!-- 성경 객관식 퀴즈 (Active) -->
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-clickable h-100 border-0 shadow-sm" data-game-key="bible-quiz"
+            <article class="card card-panel card-clickable h-100" data-game-key="bible-quiz"
                      data-game-route="/web/game/bible-quiz/map" tabindex="0" role="button" aria-label="성경 객관식 퀴즈 게임 시작하기">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="game-card-header mb-3">
@@ -44,7 +44,7 @@
 
         <!-- 성경 단어 퍼즐 (Active) -->
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-clickable h-100 border-0 shadow-sm" data-game-key="bible-word-puzzle"
+            <article class="card card-panel card-clickable h-100" data-game-key="bible-word-puzzle"
                      data-game-route="/web/game/bible-word-puzzle" tabindex="0" role="button" aria-label="성경 단어 퍼즐 게임 시작하기">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="game-card-header mb-3">
@@ -58,7 +58,7 @@
 
         <!-- 성경 타자 (Active) -->
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-clickable h-100 border-0 shadow-sm" data-game-key="bible-typing"
+            <article class="card card-panel card-clickable h-100" data-game-key="bible-typing"
                      data-game-route="/web/game/bible-typing" tabindex="0" role="button" aria-label="성경 타자 게임 화면으로 이동">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="game-card-header mb-3">
@@ -72,7 +72,7 @@
 
         <!-- 제비뽑기 (Active) -->
         <div class="col-12 col-md-6 col-lg-4">
-            <article class="card card-panel card-clickable h-100 border-0 shadow-sm" data-game-key="bible-casting-lots"
+            <article class="card card-panel card-clickable h-100" data-game-key="bible-casting-lots"
                      data-game-route="/web/game/bible-casting-lots" tabindex="0" role="button" aria-label="제비뽑기 시작하기">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="game-card-header mb-3">
