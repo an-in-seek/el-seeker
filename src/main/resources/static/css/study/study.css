@@ -28,7 +28,7 @@
     }
 
     .study-card-link .card-body h3 {
-        margin-bottom: 0;
+        margin-bottom: 0 !important;
     }
 
     .coming-soon .card-body {
@@ -37,6 +37,10 @@
 
     .coming-soon .card-body .d-flex {
         width: 100%;
+    }
+
+    .coming-soon .card-body .d-flex {
+        margin-bottom: 0 !important;
     }
 
     .coming-soon .card-body .d-flex h3 {
