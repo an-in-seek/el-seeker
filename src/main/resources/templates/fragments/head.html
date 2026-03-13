@@ -107,7 +107,7 @@
     <link th:if="${useCommonCss}" href="/css/common.css?v=2.2" rel="stylesheet">
     <link th:if="${useCommonCss}" href="/css/footer.css?v=2.2" rel="stylesheet">
     <link th:if="${useCommonCss}" href="/css/top-nav.css?v=2.2" rel="stylesheet">
-    <link th:if="${useCommonCss}" href="/css/section-nav.css?v=1.4" rel="stylesheet">
+    <link th:if="${useCommonCss}" href="/css/section-nav.css?v=1.5" rel="stylesheet">
     <th:block th:if="${extraCss != null}">
         <link th:each="cssPath : ${#strings.arraySplit(extraCss, ',')}"
               th:href="${cssPath}"
