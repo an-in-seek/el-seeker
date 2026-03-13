@@ -16,6 +16,11 @@
 .has-fixed-nav .search-controls {
     top: 52px;
     z-index: 1020;
+    transition: top 300ms ease;
+}
+
+.has-fixed-nav.top-nav-hidden .search-controls {
+    top: 0;
 }
 
 .search-results-scroll {
