@@ -16,7 +16,30 @@
         padding: 1.25rem 1rem;
     }
 
+    .study-card-link .card-body {
+        display: flex;
+        align-items: center;
+        min-height: 64px;
+        padding: 0.875rem 1rem;
+    }
+
     .study-card-link .card-body p {
         display: none;
+    }
+
+    .study-card-link .card-body h3 {
+        margin-bottom: 0;
+    }
+
+    .coming-soon .card-body {
+        flex-wrap: wrap;
+    }
+
+    .coming-soon .card-body .d-flex {
+        width: 100%;
+    }
+
+    .coming-soon .card-body .d-flex h3 {
+        margin-bottom: 0;
     }
 }
