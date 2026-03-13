@@ -11,8 +11,7 @@ export const STORAGE_KEYS = Object.freeze({
     CHAPTER_NUMBER: "chapterNumber",
     VERSE_ID: "verseId",
     VERSE_NUMBER: "verseNumber",
-    LAST_READ_LOCATION: "lastReadLocation",
-    HOME_VISITED: "homeVisited"
+    LAST_READ_LOCATION: "lastReadLocation"
 });
 
 // === Local Storage Utility ===
@@ -191,20 +190,3 @@ export const LastReadStore = {
     }
 };
 
-const onDomReady = callback => {
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", callback);
-    } else {
-        callback();
-    }
-};
-
-onDomReady(() => {
-    const homeButton = document.querySelector(".top-nav-home-button");
-    if (!homeButton) {
-        return;
-    }
-    homeButton.addEventListener("click", () => {
-        LastReadStore.clear();
-    });
-});

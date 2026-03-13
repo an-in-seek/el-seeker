@@ -1,4 +1,4 @@
-import {LastReadStore, SessionStore, STORAGE_KEYS} from "/js/storage-util.js?v=2.2";
+import {LastReadStore} from "/js/storage-util.js?v=2.3";
 import {initUniverse} from "/js/home/universe-bg.js?v=1.4";
 
 const HERO_INTERVAL_MS = 5000;
@@ -57,19 +57,6 @@ const initHeroCarousel = () => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    const homeVisited = SessionStore.get(STORAGE_KEYS.HOME_VISITED);
-    const lastRead = LastReadStore.get();
-    if (lastRead && !homeVisited) {
-        SessionStore.set(STORAGE_KEYS.HOME_VISITED, true);
-        const verseUrl = new URL("/web/bible/verse", window.location.origin);
-        verseUrl.searchParams.set("translationId", lastRead.translationId);
-        verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
-        verseUrl.searchParams.set("chapterNumber", lastRead.chapterNumber);
-        window.location.replace(`${verseUrl.pathname}${verseUrl.search}`);
-        return;
-    }
-    SessionStore.set(STORAGE_KEYS.HOME_VISITED, true);
-
     initHeroCarousel();
     initUniverse("universeCanvas", "universeSection");
 
@@ -77,5 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pageTitleLabel) {
         pageTitleLabel.textContent = "ElSeeker";
         pageTitleLabel.classList.remove("d-none");
+    }
+
+    const bibleMenuCard = document.getElementById("bibleMenuCard");
+    if (bibleMenuCard) {
+        bibleMenuCard.addEventListener("click", (e) => {
+            const lastRead = LastReadStore.get();
+            if (lastRead) {
+                e.preventDefault();
+                const verseUrl = new URL("/web/bible/verse", window.location.origin);
+                verseUrl.searchParams.set("translationId", lastRead.translationId);
+                verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
+                verseUrl.searchParams.set("chapterNumber", lastRead.chapterNumber);
+                window.location.href = `${verseUrl.pathname}${verseUrl.search}`;
+            }
+        });
     }
 });
