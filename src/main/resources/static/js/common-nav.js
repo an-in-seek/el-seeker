@@ -33,8 +33,10 @@ if (nav) {
 
             if (delta > 0 && window.scrollY > 0) {
                 document.body.classList.add('bottom-tab-hidden');
+                document.body.classList.add('top-nav-hidden');
             } else {
                 document.body.classList.remove('bottom-tab-hidden');
+                document.body.classList.remove('top-nav-hidden');
             }
             lastScrollY = window.scrollY;
         }, { passive: true });
