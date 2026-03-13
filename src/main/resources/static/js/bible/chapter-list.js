@@ -1,4 +1,4 @@
-import {BookStore, ChapterStore, TranslationStore} from "/js/storage-util.js?v=2.2";
+import {BookStore, ChapterStore, TranslationStore} from "/js/storage-util.js?v=2.3";
 import {checkAuthStatus} from "/js/auth/auth-check.js";
 
 const UI_CLASSES = {
