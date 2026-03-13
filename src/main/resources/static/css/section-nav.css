@@ -109,9 +109,9 @@
     .section-nav {
         position: fixed;
         left: 0;
-        top: var(--top-nav-height);
+        top: 0;
         width: var(--nav-rail-width);
-        height: calc(100vh - var(--top-nav-height));
+        height: 100vh;
         flex-direction: column;
         align-items: center;
         padding-top: 12px;
@@ -119,6 +119,7 @@
         border-right: 1px solid var(--section-nav-border);
         box-shadow: 1px 0 3px rgba(0, 0, 0, 0.08);
         overflow-y: auto;
+        z-index: 1040;
     }
 
     .section-nav-item {
@@ -196,9 +197,12 @@
 }
 
 @media (min-width: 600px) and (max-width: 991.98px) {
-    body:has(.section-nav) .content-wrapper,
-    body:has(.section-nav) > footer {
-        margin-left: var(--nav-rail-width);
+    body:has(.section-nav) {
+        padding-left: var(--nav-rail-width);
+    }
+
+    body:has(.section-nav) .top-nav-row {
+        left: var(--nav-rail-width);
     }
 }
 
