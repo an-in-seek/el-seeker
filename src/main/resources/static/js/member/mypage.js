@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (params.get("focus") === "nickname") {
             return "settings";
         }
-        return "memo";
+        return "settings";
     };
 
     tabButtons.forEach((btn) => {
