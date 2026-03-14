@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=2.2')}"
+        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=2.3')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -146,6 +146,26 @@
             </article>
         </div>
     </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="h6 fw-bold mb-3">내 메모</h3>
+                    <div id="mypageMemoList" class="mypage-memo-list">
+                        <p class="mypage-memo-loading text-muted">메모를 불러오는 중입니다...</p>
+                    </div>
+                    <div id="mypageMemoEmpty" class="mypage-memo-empty d-none">
+                        <p class="mb-2">아직 작성한 메모가 없습니다.</p>
+                        <a href="/web/bible/translation" class="btn btn-outline-primary btn-sm">성경 읽기에서 메모를 남겨보세요</a>
+                    </div>
+                    <button id="mypageMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
+                        더보기
+                    </button>
+                </div>
+            </article>
+        </div>
+    </div>
 </main>
 
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3 app-toast-container">
@@ -187,7 +207,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/member/mypage.js?v=2.2"></script>
+<script type="module" src="/js/member/mypage.js?v=2.3"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 
