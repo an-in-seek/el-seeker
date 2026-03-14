@@ -15,11 +15,19 @@ if (nav) {
     const navItems = nav.querySelectorAll('.section-nav-item');
     let navClicked = false;
 
+    // --- 현재 페이지와 동일 섹션인지 URL 경로 비교 ---
+    function isSameSection(href) {
+        const currentPath = window.location.pathname;
+        if (href === '/') return currentPath === '/';
+        return currentPath === href || currentPath.startsWith(href + '/');
+    }
+
     // --- 성경 탭: 최근 읽던 위치로 바로 이동 ---
     const bibleNavItem = nav.querySelector('a[href="/web/bible/translation"]');
     if (bibleNavItem) {
         bibleNavItem.addEventListener('click', (e) => {
-            if (navClicked || bibleNavItem.classList.contains('active')) {
+            if (navClicked || bibleNavItem.classList.contains('active')
+                || isSameSection('/web/bible')) {
                 e.preventDefault();
                 return;
             }
@@ -39,7 +47,8 @@ if (nav) {
     // --- 중복 클릭 방지 + 클릭 피드백: 즉시 Active 상태 전환 (SSR 페이지 리로드 깜빡임 대응) ---
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            if (navClicked || item.classList.contains('active')) {
+            const href = item.getAttribute('href');
+            if (navClicked || item.classList.contains('active') || isSameSection(href)) {
                 e.preventDefault();
                 return;
             }
