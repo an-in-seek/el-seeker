@@ -473,6 +473,89 @@
     }
 }
 
+/* ── 내 메모 섹션 ── */
+
+.mypage-memo-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.mypage-memo-loading {
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.mypage-memo-empty {
+    text-align: center;
+    padding: 2rem 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.mypage-memo-card {
+    display: block;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1rem 1.1rem;
+    background: #ffffff;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.mypage-memo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.mypage-memo-card-ref {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mypage-accent);
+}
+
+.mypage-memo-card-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.mypage-memo-card-content {
+    font-size: 0.875rem;
+    color: #475569;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .mypage-memo-card:hover {
+        border-color: var(--mypage-accent);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+}
+
+@media (max-width: 576px) {
+    .mypage-memo-card {
+        padding: 0.75rem 0.85rem;
+    }
+
+    .mypage-memo-card-ref {
+        font-size: 0.8rem;
+    }
+
+    .mypage-memo-card-content {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+    }
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;

@@ -2,6 +2,8 @@ package com.elseeker.bible.adapter.output.jpa
 
 import com.elseeker.bible.domain.model.BibleVerseMemo
 import com.elseeker.member.domain.model.Member
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID
@@ -10,6 +12,8 @@ import java.util.UUID
 interface BibleMemoRepository : JpaRepository<BibleVerseMemo, Long> {
 
     fun deleteAllByMember(member: Member)
+
+    fun findAllByMemberUid(memberUid: UUID, pageable: Pageable): Slice<BibleVerseMemo>
 
     fun findAllByMemberAndTranslationIdAndBookOrderAndChapterNumber(
         member: Member,

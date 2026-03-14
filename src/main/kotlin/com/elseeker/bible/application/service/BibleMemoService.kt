@@ -1,10 +1,14 @@
 package com.elseeker.bible.application.service
 
+import com.elseeker.bible.adapter.output.jpa.BibleBookRepository
 import com.elseeker.bible.adapter.output.jpa.BibleMemoRepository
 import com.elseeker.bible.domain.model.BibleVerseMemo
+import com.elseeker.bible.domain.result.BibleMemoResult
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.member.domain.model.Member
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -12,8 +16,41 @@ import java.util.UUID
 @Service
 @Transactional
 class BibleMemoService(
-    private val bibleMemoRepository: BibleMemoRepository
+    private val bibleMemoRepository: BibleMemoRepository,
+    private val bibleBookRepository: BibleBookRepository
 ) {
+
+    @Transactional(readOnly = true)
+    fun getMyMemos(memberUid: UUID, pageable: Pageable): BibleMemoResult.MemoSlice {
+        val sortedPageable = if (pageable.sort.isUnsorted) {
+            org.springframework.data.domain.PageRequest.of(
+                pageable.pageNumber, pageable.pageSize, Sort.by(Sort.Direction.DESC, "updatedAt")
+            )
+        } else {
+            pageable
+        }
+        val slice = bibleMemoRepository.findAllByMemberUid(memberUid, sortedPageable)
+
+        val bookNameMap = resolveBookNames(slice.content)
+
+        return BibleMemoResult.MemoSlice(
+            content = slice.content.map { memo ->
+                val bookName = bookNameMap[memo.translationId to memo.bookOrder] ?: ""
+                BibleMemoResult.MemoItem.from(memo, bookName)
+            },
+            hasNext = slice.hasNext(),
+            size = slice.size,
+            number = slice.number
+        )
+    }
+
+    private fun resolveBookNames(memos: List<BibleVerseMemo>): Map<Pair<Long, Int>, String> {
+        val keys = memos.map { it.translationId to it.bookOrder }.distinct()
+        return keys.mapNotNull { (translationId, bookOrder) ->
+            bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
+                ?.let { (translationId to bookOrder) to it.name }
+        }.toMap()
+    }
 
     @Transactional(readOnly = true)
     fun getChapterMemos(

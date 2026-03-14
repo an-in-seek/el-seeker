@@ -56,6 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let initialNickname = "";
     let pendingOAuthUnlink = null;
     let saveToastTimer = null;
+    let memoPage = 0;
+    let memoHasNext = false;
+    let memoLoading = false;
+
+    const memoList = document.getElementById("mypageMemoList");
+    const memoEmpty = document.getElementById("mypageMemoEmpty");
+    const memoMoreBtn = document.getElementById("mypageMemoMore");
 
     const redirectToLogin = () => {
         window.location.replace(buildLoginRedirectUrl());
@@ -394,6 +401,99 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const formatMemoDate = (value) => {
+        if (!value) {
+            return "";
+        }
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+        return date.toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+    };
+
+    const createMemoCard = (memo) => {
+        const card = document.createElement("a");
+        card.className = "mypage-memo-card";
+        card.href = `/web/bible/verse?translationId=${memo.translationId}&bookOrder=${memo.bookOrder}&chapterNumber=${memo.chapterNumber}`;
+
+        const ref = `${memo.bookName} ${memo.chapterNumber}:${memo.verseNumber}`;
+        const dateStr = formatMemoDate(memo.updatedAt);
+
+        card.innerHTML = `<div class="mypage-memo-card-header"><span class="mypage-memo-card-ref">${ref}</span><span class="mypage-memo-card-date">${dateStr}</span></div><div class="mypage-memo-card-content">${memo.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+        return card;
+    };
+
+    const loadMyMemos = async (append = false) => {
+        if (memoLoading) {
+            return;
+        }
+        memoLoading = true;
+        try {
+            const response = await fetchWithAuthRetry(`/api/v1/bibles/my-memos?page=${memoPage}&size=20`, {
+                credentials: "include",
+                headers: {Accept: "application/json"},
+            });
+            if (response.status === 401) {
+                redirectToLogin();
+                return;
+            }
+            if (!response.ok) {
+                return;
+            }
+            const data = await response.json().catch(() => null);
+            if (!data) {
+                return;
+            }
+
+            if (!append && memoList) {
+                memoList.innerHTML = "";
+            }
+
+            if (data.content && data.content.length > 0) {
+                data.content.forEach((memo) => {
+                    if (memoList) {
+                        memoList.appendChild(createMemoCard(memo));
+                    }
+                });
+                if (memoEmpty) {
+                    memoEmpty.classList.add("d-none");
+                }
+            } else if (!append) {
+                if (memoList) {
+                    memoList.innerHTML = "";
+                }
+                if (memoEmpty) {
+                    memoEmpty.classList.remove("d-none");
+                }
+            }
+
+            memoHasNext = data.hasNext === true;
+            if (memoMoreBtn) {
+                if (memoHasNext) {
+                    memoMoreBtn.classList.remove("d-none");
+                } else {
+                    memoMoreBtn.classList.add("d-none");
+                }
+            }
+        } catch (error) {
+            // silently fail
+        } finally {
+            memoLoading = false;
+        }
+    };
+
+    if (memoMoreBtn) {
+        memoMoreBtn.addEventListener("click", () => {
+            memoPage++;
+            loadMyMemos(true);
+        });
+    }
+
     setFormEnabled(false);
     if (oauthActionButtons && oauthActionButtons.length > 0) {
         oauthActionButtons.forEach((button) => {
@@ -459,6 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             updateOAuthCards(new Map());
             loadOAuthAccounts();
+            loadMyMemos();
         },
         onUnauthenticated: redirectToLogin,
         onError: () => showSaveToast("인증 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error"),
