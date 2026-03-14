@@ -13,7 +13,6 @@ const nav = document.querySelector('.section-nav');
 
 if (nav) {
     const navItems = nav.querySelectorAll('.section-nav-item');
-    let navClicked = false;
 
     // --- 현재 페이지와 동일 섹션인지 URL 경로 비교 ---
     function isSameSection(href) {
@@ -22,11 +21,21 @@ if (nav) {
         return currentPath === href || currentPath.startsWith(href + '/');
     }
 
+    // --- Active 상태 즉시 전환 (SSR 깜빡임 대응) ---
+    function activateItem(target) {
+        navItems.forEach(el => {
+            el.classList.remove('active');
+            el.removeAttribute('aria-current');
+        });
+        target.classList.add('active');
+        target.setAttribute('aria-current', 'page');
+    }
+
     // --- 성경 탭: 최근 읽던 위치로 바로 이동 ---
     const bibleNavItem = nav.querySelector('a[href="/web/bible/translation"]');
     if (bibleNavItem) {
         bibleNavItem.addEventListener('click', (e) => {
-            if (navClicked || bibleNavItem.classList.contains('active')
+            if (bibleNavItem.classList.contains('active')
                 || isSameSection('/web/bible')) {
                 e.preventDefault();
                 return;
@@ -34,7 +43,7 @@ if (nav) {
             const lastRead = LastReadStore.get();
             if (lastRead) {
                 e.preventDefault();
-                navClicked = true;
+                activateItem(bibleNavItem);
                 const verseUrl = new URL("/web/bible/verse", window.location.origin);
                 verseUrl.searchParams.set("translationId", lastRead.translationId);
                 verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
@@ -48,17 +57,11 @@ if (nav) {
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             const href = item.getAttribute('href');
-            if (navClicked || item.classList.contains('active') || isSameSection(href)) {
+            if (item.classList.contains('active') || isSameSection(href)) {
                 e.preventDefault();
                 return;
             }
-            navClicked = true;
-            navItems.forEach(el => {
-                el.classList.remove('active');
-                el.removeAttribute('aria-current');
-            });
-            item.classList.add('active');
-            item.setAttribute('aria-current', 'page');
+            activateItem(item);
         });
     });
 
