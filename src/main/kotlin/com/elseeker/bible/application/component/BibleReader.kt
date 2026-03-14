@@ -144,6 +144,7 @@ class BibleReader(
     fun searchBibleVersesSlice(
         translationId: Long,
         keyword: String,
+        bookOrder: Int?,
         page: Int,
         size: Int
     ): BibleSearchSliceResponse {
@@ -153,10 +154,11 @@ class BibleReader(
             val slice = bibleVerseRepository.searchSliceByTranslationAndText(
                 translationId,
                 keyword,
+                bookOrder,
                 PageRequest.of(page, size)
             )
             val totalCount = if (page == 0) {
-                bibleVerseRepository.countByTranslationAndText(translationId, keyword)
+                bibleVerseRepository.countByTranslationAndText(translationId, keyword, bookOrder)
             } else {
                 null
             }

@@ -36,10 +36,11 @@ class BibleService(
     fun searchBibleVersesSlice(
         translationId: Long,
         keyword: String,
+        bookOrder: Int?,
         page: Int,
         size: Int
     ): BibleSearchSliceResponse =
-        bibleReader.searchBibleVersesSlice(translationId, keyword, page, size)
+        bibleReader.searchBibleVersesSlice(translationId, keyword, bookOrder, page, size)
 
     fun getDailyVerse(
         translationType: BibleTranslationType,

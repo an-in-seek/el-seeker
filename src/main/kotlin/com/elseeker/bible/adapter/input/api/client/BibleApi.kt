@@ -76,10 +76,11 @@ class BibleApi(
     override fun searchBible(
         @PathVariable translationId: Long,
         @RequestParam keyword: String,
+        @RequestParam(required = false) bookOrder: Int?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int
     ): ResponseEntity<BibleSearchSliceResponse> {
-        val response = bibleService.searchBibleVersesSlice(translationId, keyword, page, size)
+        val response = bibleService.searchBibleVersesSlice(translationId, keyword, bookOrder, page, size)
         return ResponseEntity.ok(response)
     }
 

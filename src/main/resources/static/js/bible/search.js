@@ -34,6 +34,8 @@ const DomHelper = {
             searchForm: get("searchForm"),
             clearBtn: get("clearBtn"),
             searchBtn: get("searchBtn"),
+            bookFilterContainer: get("bookFilterContainer"),
+            bookFilterSelect: get("bookFilterSelect"),
             resultCount: get("resultCount"),
             emptyState: get("searchEmptyState"),
             searchLoading: get("searchLoading"),
@@ -54,7 +56,10 @@ const App = {
         isLoading: false,
         totalCount: null,
         activeKeyword: "",
-        initialKeyword: ""
+        initialKeyword: "",
+        books: [],
+        selectedBookOrder: null,
+        abortController: null
     },
 
     init: async () => {
@@ -73,6 +78,8 @@ const App = {
         App.state.translationType = translationInfo.type;
         App.updateTranslationTypeLabel();
 
+        await App.fetchBooks();
+        App.renderBookFilter();
         App.initFormControls();
         App.initResultHandlers();
         App.initScrollToTop();
@@ -141,6 +148,7 @@ const App = {
                 App.clearResults();
                 App.setEmptyState("검색어를 입력하고 검색을 시작하세요.");
                 App.resetSearchState();
+                App.resetBookFilter();
                 App.updateUrl();
             });
 
@@ -336,10 +344,22 @@ const App = {
         });
     },
 
+    cancelPendingFetch: () => {
+        if (App.state.abortController) {
+            App.state.abortController.abort();
+            App.state.abortController = null;
+        }
+    },
+
     fetchSearchPage: async page => {
         if (!App.state.activeKeyword || App.state.isLoading || !App.state.hasNext) {
             return;
         }
+        if (page === 0) {
+            App.cancelPendingFetch();
+        }
+        const controller = new AbortController();
+        App.state.abortController = controller;
         App.state.isLoading = true;
         if (page === 0) {
             App.setLoading(true);
@@ -347,7 +367,11 @@ const App = {
             App.setLoadingState("검색 중...");
         }
         try {
-            const response = await fetch(`${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/search?keyword=${encodeURIComponent(App.state.activeKeyword)}&page=${page}&size=${CONFIG.PAGE_SIZE}`);
+            let searchUrl = `${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/search?keyword=${encodeURIComponent(App.state.activeKeyword)}&page=${page}&size=${CONFIG.PAGE_SIZE}`;
+            if (App.state.selectedBookOrder !== null) {
+                searchUrl += `&bookOrder=${App.state.selectedBookOrder}`;
+            }
+            const response = await fetch(searchUrl, {signal: controller.signal});
             if (!response.ok) {
                 throw new Error("검색 실패");
             }
@@ -373,6 +397,9 @@ const App = {
             App.appendResults(data.content);
             App.state.hasNext = data.hasNext === true;
         } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
             if (page === 0) {
                 const {resultCount} = App.elements;
                 if (resultCount) {
@@ -382,16 +409,19 @@ const App = {
             }
             console.error(error);
         } finally {
-            App.state.isLoading = false;
-            if (page === 0) {
-                App.setLoading(false);
-                App.hideLoading();
+            if (App.state.abortController === controller) {
+                App.state.isLoading = false;
+                if (page === 0) {
+                    App.setLoading(false);
+                    App.hideLoading();
+                }
             }
         }
     },
 
     startSearch: async keyword => {
         const normalizedKeyword = keyword.trim();
+        App.cancelPendingFetch();
         App.clearResults();
         App.resetSearchState();
         if (!normalizedKeyword) {
@@ -477,6 +507,63 @@ const App = {
             console.warn(error.message);
         }
         return stored;
+    },
+
+    fetchBooks: async () => {
+        try {
+            const response = await fetch(`${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/books`);
+            if (!response.ok) {
+                return;
+            }
+            App.state.books = await response.json();
+        } catch (error) {
+            console.warn("책 목록 로드 실패:", error);
+        }
+    },
+
+    renderBookFilter: () => {
+        const {bookFilterContainer, bookFilterSelect} = App.elements;
+        if (!bookFilterContainer || !bookFilterSelect || App.state.books.length === 0) {
+            return;
+        }
+
+        App.state.books.forEach(book => {
+            const option = document.createElement("option");
+            option.value = book.bookOrder;
+            option.textContent = book.bookName;
+            bookFilterSelect.appendChild(option);
+        });
+
+        bookFilterSelect.addEventListener("change", App.handleBookFilterChange);
+        bookFilterContainer.classList.remove(UI_CLASSES.HIDDEN);
+    },
+
+    resetBookFilter: () => {
+        App.state.selectedBookOrder = null;
+        const {bookFilterSelect} = App.elements;
+        if (bookFilterSelect) {
+            bookFilterSelect.value = "";
+        }
+    },
+
+    handleBookFilterChange: async () => {
+        const {bookFilterSelect} = App.elements;
+        if (!bookFilterSelect) {
+            return;
+        }
+        const value = bookFilterSelect.value;
+        App.state.selectedBookOrder = value === "" ? null : parseInt(value, 10);
+
+        if (App.state.activeKeyword) {
+            App.cancelPendingFetch();
+            App.clearResults();
+            App.state.currentPage = 0;
+            App.state.hasNext = true;
+            App.state.totalCount = null;
+            App.state.isLoading = false;
+            await App.fetchSearchPage(0);
+            App.maybeLoadNextPage();
+        }
     },
 
     redirectToTranslation: () => {

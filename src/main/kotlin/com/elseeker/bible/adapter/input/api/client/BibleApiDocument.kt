@@ -59,6 +59,7 @@ interface BibleApiDocument {
     fun searchBible(
         translationId: Long,
         keyword: String,
+        bookOrder: Int?,
         page: Int,
         size: Int
     ): ResponseEntity<BibleSearchSliceResponse>

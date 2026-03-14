@@ -24,19 +24,22 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
                     c.id,
                     c.chapterNumber,
                     v.id,
-                    v.verseNumber, 
+                    v.verseNumber,
                     v.text
-                ) 
+                )
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
-        WHERE b.translationId = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        WHERE b.translationId = :translationId
+          AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          AND (:bookOrder IS NULL OR b.bookOrder = :bookOrder)
         ORDER BY b.bookOrder, c.chapterNumber, v.verseNumber
         """
     )
     fun searchSliceByTranslationAndText(
         @Param("translationId") translationId: Long,
         @Param("keyword") keyword: String,
+        @Param("bookOrder") bookOrder: Int?,
         pageable: Pageable
     ): Slice<BibleSearchResponse>
 
@@ -46,12 +49,15 @@ interface BibleVerseRepository : JpaRepository<BibleVerse, Long> {
         FROM BibleVerse v
         JOIN BibleChapter c ON v.chapterId = c.id
         JOIN BibleBook b ON c.bookId = b.id
-        WHERE b.translationId = :translationId AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        WHERE b.translationId = :translationId
+          AND LOWER(v.text) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          AND (:bookOrder IS NULL OR b.bookOrder = :bookOrder)
         """
     )
     fun countByTranslationAndText(
         @Param("translationId") translationId: Long,
-        @Param("keyword") keyword: String
+        @Param("keyword") keyword: String,
+        @Param("bookOrder") bookOrder: Int?
     ): Long
 
     @Query(
