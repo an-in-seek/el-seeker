@@ -596,12 +596,30 @@ nicknameInput.addEventListener("input", () => {
     // 초기값과 동일하면 저장 버튼 비활성화
     saveButton.disabled = (nicknameInput.value.trim() === initialNickname);
 });
+```
 
-// 초기 로드 시 버튼 비활성화 (기존 setFormEnabled(false)와 함께)
-saveButton.disabled = true;
+**저장 버튼 비활성화 — 2곳에서 처리 필요:**
 
-// 프로필 로드 완료 후 카운터 초기화
-nicknameCount.textContent = initialNickname.length;
+`setFormEnabled(true)`는 `saveButton.disabled = false`로 설정하므로,
+호출 직후에 `saveButton.disabled = true`를 명시적으로 추가해야 한다.
+그렇지 않으면 닉네임이 변경되지 않은 상태에서도 저장 버튼이 활성화되어 불필요한 API 호출이 가능.
+
+```javascript
+// (1) onAuthenticated 콜백 — 프로필 최초 로드 (기존 L554 직후)
+setFormEnabled(true);
+saveButton.disabled = true;  // 초기 로드: 변경 없으므로 비활성화
+if (nicknameCount) {
+    nicknameCount.textContent = initialNickname.length;  // 카운터 초기화
+}
+
+// (2) 닉네임 저장 성공 후 — finally 블록 (기존 L631, L642)
+initialNickname = updatedNickname;
+// ...
+setFormEnabled(true);
+saveButton.disabled = true;  // 저장 완료: 현재값 = initialNickname이므로 비활성화
+if (nicknameCount) {
+    nicknameCount.textContent = updatedNickname.length;  // 카운터 갱신
+}
 ```
 
 #### 4-4. 알림 피드백 통일 — successMessage 완전 제거
