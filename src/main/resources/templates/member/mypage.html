@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=3.0')}"
+        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=3.3')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -44,166 +44,182 @@
         </div>
     </section>
 
-    <div class="row g-3">
-        <div class="col-12">
-            <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h6 fw-bold mb-3">내 정보 수정</h3>
-                    <form id="mypageEditForm" class="mypage-edit-form">
-                        <div class="mb-3">
-                            <label class="form-label" for="mypageNicknameInput">닉네임</label>
-                            <div class="mypage-nickname-row">
-                                <input id="mypageNicknameInput" class="form-control" type="text"
-                                       autocomplete="nickname" required maxlength="50"
-                                       placeholder="닉네임을 입력해 주세요">
-                                <button id="mypageSaveButton" class="btn btn-primary" type="submit"
-                                        disabled>저장하기</button>
+    <div class="mypage-tabs-wrapper">
+        <nav class="mypage-tabs" role="tablist" aria-label="마이페이지 탭">
+            <button class="mypage-tab active" role="tab" aria-selected="true"
+                    aria-controls="mypageTabSettings" id="mypageTabBtnSettings"
+                    data-tab="settings" type="button">
+                <span class="tab-label">계정 설정</span>
+            </button>
+            <button class="mypage-tab" role="tab" aria-selected="false"
+                    aria-controls="mypageTabMemo" id="mypageTabBtnMemo"
+                    data-tab="memo" type="button">
+                <span class="tab-label">내 메모</span>
+                <span id="mypageTabMemoBadge" class="mypage-tab-badge d-none"></span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="mypageTabSettings" class="mypage-tab-panel" role="tabpanel"
+         aria-labelledby="mypageTabBtnSettings">
+        <div class="row g-3">
+            <div class="col-12">
+                <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h6 fw-bold mb-3">내 정보 수정</h2>
+                        <form id="mypageEditForm" class="mypage-edit-form">
+                            <div class="mb-3">
+                                <label class="form-label" for="mypageNicknameInput">닉네임</label>
+                                <div class="mypage-nickname-row">
+                                    <input id="mypageNicknameInput" class="form-control" type="text"
+                                           autocomplete="nickname" required maxlength="50"
+                                           placeholder="닉네임을 입력해 주세요">
+                                    <button id="mypageSaveButton" class="btn btn-primary" type="submit"
+                                            disabled>저장하기</button>
+                                </div>
+                                <div class="mypage-nickname-counter">
+                                    <span id="mypageNicknameCount">0</span>/50
+                                </div>
                             </div>
-                            <div class="mypage-nickname-counter">
-                                <span id="mypageNicknameCount">0</span>/50
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-12">
+                <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="h6 fw-bold mb-3">연동 계정</h2>
+                        <div id="mypageOAuthAccountsList" class="mypage-oauth-list">
+                            <div class="mypage-oauth-card" data-provider="kakao">
+                                <div class="mypage-oauth-header">
+                                    <img class="mypage-oauth-icon" src="/images/btn_kakao.svg" alt="Kakao 로고"
+                                         loading="lazy">
+                                    <span class="mypage-oauth-provider">Kakao</span>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                                <div class="mypage-oauth-details">
+                                    <div class="mypage-oauth-field">
+                                        <span>이메일</span>
+                                        <strong class="mypage-oauth-email">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>닉네임</span>
+                                        <strong class="mypage-oauth-nickname">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>연동일</span>
+                                        <strong class="mypage-oauth-connected">-</strong>
+                                    </div>
+                                </div>
+                                <div class="mypage-oauth-footer">
+                                    <p class="mypage-oauth-notice d-none"></p>
+                                    <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="kakao"
+                                       href="#">연동하기</a>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-card" data-provider="naver">
+                                <div class="mypage-oauth-header">
+                                    <img class="mypage-oauth-icon" src="/images/btn_naver.svg" alt="Naver 로고"
+                                         loading="lazy">
+                                    <span class="mypage-oauth-provider">Naver</span>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                                <div class="mypage-oauth-details">
+                                    <div class="mypage-oauth-field">
+                                        <span>이메일</span>
+                                        <strong class="mypage-oauth-email">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>닉네임</span>
+                                        <strong class="mypage-oauth-nickname">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>연동일</span>
+                                        <strong class="mypage-oauth-connected">-</strong>
+                                    </div>
+                                </div>
+                                <div class="mypage-oauth-footer">
+                                    <p class="mypage-oauth-notice d-none"></p>
+                                    <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="naver"
+                                       href="#">연동하기</a>
+                                </div>
+                            </div>
+                            <div class="mypage-oauth-card" data-provider="google">
+                                <div class="mypage-oauth-header">
+                                    <img class="mypage-oauth-icon" src="/images/btn_google.svg" alt="Google 로고"
+                                         loading="lazy">
+                                    <span class="mypage-oauth-provider">Google</span>
+                                    <div class="mypage-oauth-status">연동 확인 중</div>
+                                </div>
+                                <div class="mypage-oauth-details">
+                                    <div class="mypage-oauth-field">
+                                        <span>이메일</span>
+                                        <strong class="mypage-oauth-email">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>닉네임</span>
+                                        <strong class="mypage-oauth-nickname">-</strong>
+                                    </div>
+                                    <div class="mypage-oauth-field">
+                                        <span>연동일</span>
+                                        <strong class="mypage-oauth-connected">-</strong>
+                                    </div>
+                                </div>
+                                <div class="mypage-oauth-footer">
+                                    <p class="mypage-oauth-notice d-none"></p>
+                                    <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="google"
+                                       href="#">연동하기</a>
+                                </div>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </article>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-12">
+                <article class="mypage-danger-zone">
+                    <div class="mypage-danger-zone-body">
+                        <div>
+                            <h2 class="mypage-danger-zone-title">Danger Zone</h2>
+                            <p class="mypage-danger-zone-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
+                        </div>
+                        <a class="btn btn-outline-danger" href="/web/member/withdraw">회원탈퇴</a>
+                    </div>
+                </article>
+            </div>
         </div>
     </div>
 
-    <div class="row g-3 mt-1">
-        <div class="col-12">
-            <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h3 class="h6 fw-bold mb-3">연동 계정</h3>
-                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list">
-                        <div class="mypage-oauth-card" data-provider="kakao">
-                            <div class="mypage-oauth-header">
-                                <img class="mypage-oauth-icon" src="/images/btn_kakao.svg" alt="Kakao 로고"
-                                     loading="lazy">
-                                <div>
-                                    <div class="mypage-oauth-provider">Kakao</div>
-                                    <div class="mypage-oauth-status">연동 확인 중</div>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-details">
-                                <div class="mypage-oauth-field">
-                                    <span>이메일</span>
-                                    <strong class="mypage-oauth-email">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>닉네임</span>
-                                    <strong class="mypage-oauth-nickname">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>연동일</span>
-                                    <strong class="mypage-oauth-connected">-</strong>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-footer">
-                                <p class="mypage-oauth-notice d-none"></p>
-                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="kakao"
-                                   href="#">연동하기</a>
-                            </div>
+    <div id="mypageTabMemo" class="mypage-tab-panel d-none" role="tabpanel"
+         aria-labelledby="mypageTabBtnMemo">
+        <div class="row g-3">
+            <div class="col-12">
+                <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mypage-memo-header">
+                            <h2 class="h6 fw-bold mb-0">내 메모</h2>
+                            <span id="mypageMemoCountBadge" class="badge mypage-badge-count d-none"></span>
                         </div>
-                        <div class="mypage-oauth-card" data-provider="naver">
-                            <div class="mypage-oauth-header">
-                                <img class="mypage-oauth-icon" src="/images/btn_naver.svg" alt="Naver 로고"
-                                     loading="lazy">
-                                <div>
-                                    <div class="mypage-oauth-provider">Naver</div>
-                                    <div class="mypage-oauth-status">연동 확인 중</div>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-details">
-                                <div class="mypage-oauth-field">
-                                    <span>이메일</span>
-                                    <strong class="mypage-oauth-email">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>닉네임</span>
-                                    <strong class="mypage-oauth-nickname">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>연동일</span>
-                                    <strong class="mypage-oauth-connected">-</strong>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-footer">
-                                <p class="mypage-oauth-notice d-none"></p>
-                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="naver"
-                                   href="#">연동하기</a>
-                            </div>
+                        <div id="mypageMemoSkeleton" class="mypage-skeleton-group">
+                            <div class="skeleton skeleton-memo-card"></div>
+                            <div class="skeleton skeleton-memo-card"></div>
                         </div>
-                        <div class="mypage-oauth-card" data-provider="google">
-                            <div class="mypage-oauth-header">
-                                <img class="mypage-oauth-icon" src="/images/btn_google.svg" alt="Google 로고"
-                                     loading="lazy">
-                                <div>
-                                    <div class="mypage-oauth-provider">Google</div>
-                                    <div class="mypage-oauth-status">연동 확인 중</div>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-details">
-                                <div class="mypage-oauth-field">
-                                    <span>이메일</span>
-                                    <strong class="mypage-oauth-email">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>닉네임</span>
-                                    <strong class="mypage-oauth-nickname">-</strong>
-                                </div>
-                                <div class="mypage-oauth-field">
-                                    <span>연동일</span>
-                                    <strong class="mypage-oauth-connected">-</strong>
-                                </div>
-                            </div>
-                            <div class="mypage-oauth-footer">
-                                <p class="mypage-oauth-notice d-none"></p>
-                                <a class="btn btn-outline-secondary mypage-oauth-action" data-provider="google"
-                                   href="#">연동하기</a>
-                            </div>
+                        <div id="mypageMemoList" class="mypage-memo-list"></div>
+                        <div id="mypageMemoEmpty" class="mypage-memo-empty d-none">
+                            <p class="mb-2">아직 작성한 메모가 없습니다.</p>
+                            <a href="/web/bible/translation" class="btn btn-outline-primary btn-sm">성경 읽기에서 메모를 남겨보세요</a>
                         </div>
+                        <button id="mypageMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
+                            더보기
+                        </button>
                     </div>
-                </div>
-            </article>
-        </div>
-    </div>
-
-    <div class="row g-3 mt-1">
-        <div class="col-12">
-            <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="mypage-memo-header">
-                        <h3 class="h6 fw-bold mb-0">내 메모</h3>
-                        <span id="mypageMemoCountBadge" class="badge mypage-badge-count d-none"></span>
-                    </div>
-                    <div id="mypageMemoSkeleton" class="mypage-skeleton-group">
-                        <div class="skeleton skeleton-memo-card"></div>
-                        <div class="skeleton skeleton-memo-card"></div>
-                    </div>
-                    <div id="mypageMemoList" class="mypage-memo-list"></div>
-                    <div id="mypageMemoEmpty" class="mypage-memo-empty d-none">
-                        <p class="mb-2">아직 작성한 메모가 없습니다.</p>
-                        <a href="/web/bible/translation" class="btn btn-outline-primary btn-sm">성경 읽기에서 메모를 남겨보세요</a>
-                    </div>
-                    <button id="mypageMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
-                        더보기
-                    </button>
-                </div>
-            </article>
-        </div>
-    </div>
-
-    <div class="row g-3 mt-1">
-        <div class="col-12">
-            <article class="mypage-danger-zone">
-                <div class="mypage-danger-zone-body">
-                    <div>
-                        <h3 class="mypage-danger-zone-title">Danger Zone</h3>
-                        <p class="mypage-danger-zone-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
-                    </div>
-                    <a class="btn btn-outline-danger" href="/web/member/withdraw">회원탈퇴</a>
-                </div>
-            </article>
+                </article>
+            </div>
         </div>
     </div>
 </main>
@@ -247,7 +263,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/member/mypage.js?v=3.0"></script>
+<script type="module" src="/js/member/mypage.js?v=3.3"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 

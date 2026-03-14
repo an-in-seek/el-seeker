@@ -69,6 +69,70 @@ document.addEventListener("DOMContentLoaded", () => {
     const memoEmpty = document.getElementById("mypageMemoEmpty");
     const memoMoreBtn = document.getElementById("mypageMemoMore");
 
+    const tabButtons = document.querySelectorAll(".mypage-tab");
+    const tabPanels = {
+        settings: document.getElementById("mypageTabSettings"),
+        memo: document.getElementById("mypageTabMemo"),
+    };
+    const tabScrollPositions = {};
+
+    const switchTab = (tabName) => {
+        const currentActive = document.querySelector(".mypage-tab.active");
+        if (currentActive) {
+            const currentTab = currentActive.dataset.tab;
+            tabScrollPositions[currentTab] = window.scrollY;
+        }
+        tabButtons.forEach((btn) => {
+            const isTarget = btn.dataset.tab === tabName;
+            btn.classList.toggle("active", isTarget);
+            btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+        });
+        Object.entries(tabPanels).forEach(([key, panel]) => {
+            if (!panel) {
+                return;
+            }
+            if (key === tabName) {
+                panel.classList.remove("d-none");
+            } else {
+                panel.classList.add("d-none");
+            }
+        });
+        const params = new URLSearchParams(window.location.search);
+        params.set("tab", tabName);
+        const newUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+        window.history.replaceState({}, "", newUrl);
+        const savedScroll = tabScrollPositions[tabName];
+        if (savedScroll != null) {
+            window.scrollTo(0, savedScroll);
+        } else {
+            const tabsWrapper = document.querySelector(".mypage-tabs-wrapper");
+            if (tabsWrapper) {
+                const top = tabsWrapper.getBoundingClientRect().top + window.scrollY - 50;
+                if (window.scrollY > top) {
+                    window.scrollTo(0, top);
+                }
+            }
+        }
+    };
+
+    const getInitialTab = () => {
+        const params = new URLSearchParams(window.location.search);
+        const tabParam = params.get("tab");
+        if (tabParam === "memo" || tabParam === "settings") {
+            return tabParam;
+        }
+        if (params.get("focus") === "nickname") {
+            return "settings";
+        }
+        return "memo";
+    };
+
+    tabButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            switchTab(btn.dataset.tab);
+        });
+    });
+
     const redirectToLogin = () => {
         window.location.replace(buildLoginRedirectUrl());
     };
@@ -210,15 +274,47 @@ document.addEventListener("DOMContentLoaded", () => {
         updateText(document.getElementById("mypageOAuthCount"), providerMap.size);
     };
 
+    let modalTriggerElement = null;
+
+    const trapFocusInModal = (event) => {
+        if (!confirmModal || confirmModal.classList.contains("d-none")) {
+            return;
+        }
+        if (event.key !== "Tab") {
+            return;
+        }
+        const focusableElements = confirmModal.querySelectorAll(
+            "button:not([disabled]), [href]:not([disabled]), [tabindex]:not([tabindex='-1'])"
+        );
+        if (focusableElements.length === 0) {
+            return;
+        }
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        if (event.shiftKey) {
+            if (document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            }
+        } else {
+            if (document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+    };
+
     const openConfirmModal = (providerLabel) => {
         if (!confirmModal) {
             return;
         }
+        modalTriggerElement = document.activeElement;
         if (confirmMessage) {
             confirmMessage.textContent = `${providerLabel} 계정을 연동 해제하시겠습니까?`;
         }
         confirmModal.classList.remove("d-none");
         document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", trapFocusInModal);
         if (confirmSubmit) {
             confirmSubmit.focus();
         }
@@ -230,7 +326,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         confirmModal.classList.add("d-none");
         document.body.style.overflow = "";
+        document.removeEventListener("keydown", trapFocusInModal);
+        const triggerToRestore = modalTriggerElement;
         pendingOAuthUnlink = null;
+        modalTriggerElement = null;
+        if (triggerToRestore && typeof triggerToRestore.focus === "function") {
+            triggerToRestore.focus();
+        }
     };
 
     const updateOAuthCards = (providerMap) => {
@@ -242,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cards.forEach((card) => {
             const provider = card.dataset.provider;
             const providerLabel = providerLabels[provider] || provider;
-            const status = card.querySelector(".mypage-oauth-status");
+            const status = card.querySelector(".mypage-oauth-status, .mypage-oauth-status-badge");
             const emailField = card.querySelector(".mypage-oauth-email");
             const nicknameField = card.querySelector(".mypage-oauth-nickname");
             const connectedField = card.querySelector(".mypage-oauth-connected");
@@ -432,12 +534,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const createMemoCard = (memo) => {
         const card = document.createElement("a");
         card.className = "mypage-memo-card";
-        card.href = `/web/bible/verse?translationId=${memo.translationId}&bookOrder=${memo.bookOrder}&chapterNumber=${memo.chapterNumber}`;
+        card.href = `/web/bible/verse?translationId=${encodeURIComponent(memo.translationId)}&bookOrder=${encodeURIComponent(memo.bookOrder)}&chapterNumber=${encodeURIComponent(memo.chapterNumber)}`;
 
-        const ref = `${memo.bookName} ${memo.chapterNumber}:${memo.verseNumber}`;
-        const dateStr = formatMemoDate(memo.updatedAt);
+        const header = document.createElement("div");
+        header.className = "mypage-memo-card-header";
 
-        card.innerHTML = `<div class="mypage-memo-card-header"><span class="mypage-memo-card-ref">${ref}</span><span class="mypage-memo-card-date">${dateStr}</span></div><div class="mypage-memo-card-content">${memo.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+        const refSpan = document.createElement("span");
+        refSpan.className = "mypage-memo-card-ref";
+        refSpan.textContent = `${memo.bookName} ${memo.chapterNumber}:${memo.verseNumber}`;
+
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "mypage-memo-card-date";
+        dateSpan.textContent = formatMemoDate(memo.updatedAt);
+
+        header.appendChild(refSpan);
+        header.appendChild(dateSpan);
+
+        const content = document.createElement("div");
+        content.className = "mypage-memo-card-content";
+        content.textContent = memo.content;
+
+        card.appendChild(header);
+        card.appendChild(content);
         return card;
     };
 
@@ -495,6 +613,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     countBadge.classList.remove("d-none");
                 }
                 updateText(document.getElementById("mypageMemoCount"), data.totalCount);
+                const tabBadge = document.getElementById("mypageTabMemoBadge");
+                if (tabBadge) {
+                    if (data.totalCount > 0) {
+                        tabBadge.textContent = data.totalCount;
+                        tabBadge.classList.remove("d-none");
+                    } else {
+                        tabBadge.classList.add("d-none");
+                    }
+                }
             }
 
             memoHasNext = data.hasNext === true;
@@ -506,7 +633,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         } catch (error) {
-            // silently fail
+            if (!append && memoList) {
+                memoList.innerHTML = "";
+                const errorDiv = document.createElement("div");
+                errorDiv.className = "mypage-memo-empty";
+                const errorMsg = document.createElement("p");
+                errorMsg.className = "mb-2";
+                errorMsg.textContent = "메모를 불러오지 못했습니다.";
+                const retryBtn = document.createElement("button");
+                retryBtn.type = "button";
+                retryBtn.className = "btn btn-outline-primary btn-sm";
+                retryBtn.textContent = "다시 시도";
+                retryBtn.addEventListener("click", () => {
+                    memoPage = 0;
+                    loadMyMemos(false);
+                });
+                errorDiv.appendChild(errorMsg);
+                errorDiv.appendChild(retryBtn);
+                memoList.appendChild(errorDiv);
+            }
         } finally {
             memoSkeleton?.classList.add("d-none");
             memoLoading = false;
@@ -606,12 +751,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             showProfile();
 
+            const initialTab = getInitialTab();
+            switchTab(initialTab);
+
             if (focusNickname && nicknameInput) {
                 nicknameInput.focus();
                 nicknameInput.select();
                 nicknameInput.scrollIntoView({behavior: "smooth", block: "center"});
             }
-            updateOAuthCards(new Map());
             loadOAuthAccounts();
             loadMyMemos();
         },
