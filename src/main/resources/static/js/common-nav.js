@@ -1,6 +1,7 @@
 /**
  * 섹션 네비게이션 (Bottom Tab Bar / Navigation Rail)
  * - 클릭 시 Active 상태 즉시 전환 (SSR 깜빡임 대응)
+ * - 중복 클릭(어뷰징) 방지
  * - 스크롤 방향 기반 auto-hide (공존 페이지 전용)
  * - 키보드 네비게이션 (화살표키)
  * - 성경 탭: 최근 읽던 위치가 있으면 해당 화면으로 바로 이동
@@ -12,6 +13,7 @@ const nav = document.querySelector('.section-nav');
 
 if (nav) {
     const navItems = nav.querySelectorAll('.section-nav-item');
+    let navClicked = false;
 
     // --- 성경 탭: 최근 읽던 위치로 바로 이동 ---
     const bibleNavItem = nav.querySelector('a[href="/web/bible/translation"]');
@@ -20,6 +22,8 @@ if (nav) {
             const lastRead = LastReadStore.get();
             if (lastRead) {
                 e.preventDefault();
+                if (navClicked) return;
+                navClicked = true;
                 const verseUrl = new URL("/web/bible/verse", window.location.origin);
                 verseUrl.searchParams.set("translationId", lastRead.translationId);
                 verseUrl.searchParams.set("bookOrder", lastRead.bookOrder);
@@ -29,9 +33,14 @@ if (nav) {
         });
     }
 
-    // --- 클릭 피드백: 즉시 Active 상태 전환 (SSR 페이지 리로드 깜빡임 대응) ---
+    // --- 중복 클릭 방지 + 클릭 피드백: 즉시 Active 상태 전환 (SSR 페이지 리로드 깜빡임 대응) ---
     navItems.forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            if (navClicked) {
+                e.preventDefault();
+                return;
+            }
+            navClicked = true;
             navItems.forEach(el => {
                 el.classList.remove('active');
                 el.removeAttribute('aria-current');
