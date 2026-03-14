@@ -101,7 +101,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.section-nav-item').forEach(function (item) {
                 item.addEventListener('click', function (e) {
-                    if (this.classList.contains('active')) {
+                    if (this.pathname === window.location.pathname) {
                         e.preventDefault();
                     }
                 });
