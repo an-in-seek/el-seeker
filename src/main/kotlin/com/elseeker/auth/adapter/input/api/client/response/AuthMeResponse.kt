@@ -1,6 +1,7 @@
 package com.elseeker.auth.adapter.input.api.client.response
 
 import com.elseeker.member.domain.model.Member
+import java.time.Instant
 
 data class AuthMeResponse(
     val memberUid: String,
@@ -9,6 +10,7 @@ data class AuthMeResponse(
     val nickname: String,
     val profileImageUrl: String?,
     val provider: String,
+    val createdAt: Instant,
 ) {
     companion object {
         fun from(member: Member): AuthMeResponse {
@@ -23,6 +25,7 @@ data class AuthMeResponse(
                 nickname = member.nickname,
                 profileImageUrl = member.profileImageUrl,
                 provider = providerRegistrationId,
+                createdAt = member.createdAt,
             )
         }
     }

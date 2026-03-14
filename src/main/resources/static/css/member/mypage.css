@@ -17,8 +17,6 @@
     position: relative;
 }
 
-/* Removed the complex background blobs for a cleaner look */
-
 .mypage-hero {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -30,10 +28,7 @@
     padding: 2.5rem;
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    /* Subtle shadow */
 }
-
-/* Removed the radial gradient after element */
 
 .mypage-hero-content {
     display: grid;
@@ -63,14 +58,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.mypage-eyebrow {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--mypage-accent);
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.02em;
 }
 
 .mypage-title {
@@ -113,24 +100,53 @@
     border: 1px solid #e0f2fe;
 }
 
-.mypage-info-card,
-.mypage-action-card {
+.mypage-badge.join-date {
+    background: #f8fafc;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+/* ── 활동 요약 스탯 ── */
+
+.mypage-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.mypage-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mypage-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mypage-deep);
+}
+
+.mypage-stat-label {
+    font-size: 0.75rem;
+    color: var(--mypage-muted);
+}
+
+/* ── 카드 공통 ── */
+
+.mypage-info-card {
     position: relative;
     z-index: 1;
     animation: fadeUp 0.5s ease-out both;
+    animation-delay: 0.1s;
     border: 1px solid #e2e8f0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border-radius: 1rem;
     background: #ffffff;
 }
 
-.mypage-info-card {
-    animation-delay: 0.1s;
-}
-
-.mypage-action-card {
-    animation-delay: 0.2s;
-}
+/* ── OAuth 연동 ── */
 
 .mypage-oauth-list {
     display: grid;
@@ -175,6 +191,28 @@
     color: #64748b;
 }
 
+.mypage-oauth-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+}
+
+.mypage-oauth-status-badge.is-linked {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #dcfce7;
+}
+
+.mypage-oauth-status-badge.is-unlinked {
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+}
+
 .mypage-oauth-details {
     display: grid;
     gap: 0.45rem;
@@ -198,8 +236,22 @@
     color: #0f172a;
 }
 
+/* 미연동 카드: compact */
+.mypage-oauth-card.is-empty {
+    padding: 0.75rem 1rem;
+}
+
 .mypage-oauth-card.is-empty .mypage-oauth-details {
-    opacity: 0.4;
+    display: none;
+}
+
+.mypage-oauth-card.is-empty .mypage-oauth-header {
+    margin-bottom: 0;
+}
+
+.mypage-oauth-card.is-empty .mypage-oauth-footer {
+    flex-direction: row;
+    align-items: center;
 }
 
 .mypage-oauth-footer {
@@ -226,6 +278,8 @@
     border-color: #cbd5e1;
     color: #64748b;
 }
+
+/* ── 모달 ── */
 
 .mypage-modal {
     position: fixed;
@@ -272,24 +326,7 @@
     margin-top: 1rem;
 }
 
-.mypage-status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #dcfce7;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.mypage-divider {
-    height: 1px;
-    margin: 2rem 0;
-    background: #e2e8f0;
-}
+/* ── 닉네임 수정 ── */
 
 .mypage-edit-form .form-label {
     font-weight: 500;
@@ -334,146 +371,60 @@
     font-size: 0.95rem;
 }
 
-.mypage-action-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin: 1.5rem 0;
+.mypage-nickname-counter {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.35rem;
 }
 
-.mypage-action-grid .btn {
-    font-weight: 500;
+/* ── Danger Zone ── */
+
+.mypage-danger-zone {
+    margin-top: 2rem;
+    border: 1px solid #fecaca;
     border-radius: 0.75rem;
-    padding: 1rem;
+    background: #fef2f2;
+}
+
+.mypage-danger-zone-body {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-    color: #475569;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
 }
 
-.mypage-action-grid .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border-color: #cbd5e1;
-    color: #1e293b;
-}
-
-.mypage-withdraw-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 2rem;
-    padding: 1rem 1.1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    background: #f8fafc;
-}
-
-.mypage-withdraw-title {
-    font-size: 0.875rem;
+.mypage-danger-zone-title {
+    font-size: 0.95rem;
     font-weight: 600;
-    color: #475569;
-    margin: 0 0 0.2rem;
+    color: #991b1b;
+    margin: 0 0 0.25rem;
 }
 
-.mypage-withdraw-desc {
+.mypage-danger-zone-desc {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: #b91c1c;
     margin: 0;
 }
 
-.mypage-withdraw-btn {
-    flex-shrink: 0;
-    width: 100%;
-}
-
-.mypage-tips {
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    margin-top: 2rem;
-}
-
-.mypage-tips h3 {
-    color: #334155;
-    font-size: 0.95rem;
-}
-
-.mypage-daily-verse-text {
-    color: #0f172a;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 0.5rem;
-}
-
-.mypage-daily-verse-ref {
-    color: #64748b;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-}
-
-@media (max-width: 768px) {
-    .mypage-hero-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 1.5rem;
-    }
-
-    .mypage-avatar {
-        margin: 0 auto;
-        width: 100px;
-        height: 100px;
-    }
-
-    .mypage-badges {
-        justify-content: center;
-    }
-
-    .mypage-action-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-@media (max-width: 576px) {
-    .mypage-nickname-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .mypage-nickname-row .btn {
-        width: 100%;
-    }
-
-    .mypage-oauth-card {
-        padding: 0.75rem 0.85rem;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
-    }
-
-    .mypage-oauth-details {
-        gap: 0.35rem;
-    }
-
-    .mypage-oauth-field {
-        grid-template-columns: 1fr;
-        gap: 0.2rem;
-        font-size: 0.78rem;
-    }
-
-    .mypage-oauth-field span {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-}
-
 /* ── 내 메모 섹션 ── */
+
+.mypage-memo-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.mypage-badge-count {
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
 
 .mypage-memo-list {
     display: grid;
@@ -541,7 +492,82 @@
     }
 }
 
+/* ── Skeleton UI ── */
+
+.mypage-skeleton-group {
+    padding: 0.25rem 0;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+}
+
+.skeleton-title { width: 60%; height: 2rem; margin-bottom: 0.5rem; }
+.skeleton-text { width: 40%; height: 1rem; margin-bottom: 1rem; }
+.skeleton-badges { width: 50%; height: 1.5rem; }
+.skeleton-memo-card { width: 100%; height: 5rem; margin-bottom: 0.75rem; }
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── 반응형 ── */
+
+@media (max-width: 768px) {
+    .mypage-hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .mypage-avatar {
+        margin: 0 auto;
+        width: 100px;
+        height: 100px;
+    }
+
+    .mypage-badges {
+        justify-content: center;
+    }
+
+    .mypage-stats {
+        justify-content: center;
+    }
+}
+
 @media (max-width: 576px) {
+    .mypage-nickname-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mypage-nickname-row .btn {
+        width: 100%;
+    }
+
+    .mypage-oauth-card {
+        padding: 0.75rem 0.85rem;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+
+    .mypage-oauth-details {
+        gap: 0.35rem;
+    }
+
+    .mypage-oauth-field {
+        grid-template-columns: 60px 1fr;
+        gap: 0.5rem;
+        font-size: 0.78rem;
+    }
+
+    .mypage-oauth-field span {
+        font-size: 0.78rem;
+    }
+
     .mypage-memo-card {
         padding: 0.75rem 0.85rem;
     }
@@ -553,6 +579,15 @@
     .mypage-memo-card-content {
         font-size: 0.8rem;
         -webkit-line-clamp: 2;
+    }
+
+    .mypage-danger-zone-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mypage-danger-zone-body .btn {
+        width: 100%;
     }
 }
 

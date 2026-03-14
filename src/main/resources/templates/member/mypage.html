@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=2.3')}"
+        th:replace="~{fragments/head :: head('마이페이지 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/mypage.css?v=3.0')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -16,12 +16,30 @@
                 <img id="mypageAvatar" src="/images/user.png" alt="프로필 이미지" loading="lazy">
             </div>
             <div class="mypage-intro">
-                <h1 id="mypageTitle" class="mypage-title">계정을 불러오는 중입니다</h1>
-                <p id="mypageEmail" class="mypage-email">잠시만 기다려 주세요.</p>
-                <div class="mypage-badges">
-                    <span id="mypageRole" class="badge mypage-badge role">회원</span>
-                    <span id="mypageProvider" class="badge mypage-badge provider">연동 확인 중</span>
+                <div id="mypageSkeleton" class="mypage-skeleton-group">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-badges"></div>
                 </div>
+                <div id="mypageProfile" class="d-none">
+                    <h1 id="mypageTitle" class="mypage-title"></h1>
+                    <p id="mypageEmail" class="mypage-email"></p>
+                    <div class="mypage-badges">
+                        <span id="mypageRole" class="badge mypage-badge role">회원</span>
+                        <span id="mypageProvider" class="badge mypage-badge provider"></span>
+                        <span id="mypageJoinDate" class="badge mypage-badge join-date"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="mypageStats" class="mypage-stats d-none">
+            <div class="mypage-stat-item">
+                <span class="mypage-stat-value" id="mypageMemoCount">0</span>
+                <span class="mypage-stat-label">메모</span>
+            </div>
+            <div class="mypage-stat-item">
+                <span class="mypage-stat-value" id="mypageOAuthCount">0</span>
+                <span class="mypage-stat-label">연동 계정</span>
             </div>
         </div>
     </section>
@@ -30,20 +48,33 @@
         <div class="col-12">
             <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
+                    <h3 class="h6 fw-bold mb-3">내 정보 수정</h3>
                     <form id="mypageEditForm" class="mypage-edit-form">
-                        <h3 class="h6 fw-bold mb-3">내 정보 수정</h3>
                         <div class="mb-3">
                             <label class="form-label" for="mypageNicknameInput">닉네임</label>
                             <div class="mypage-nickname-row">
                                 <input id="mypageNicknameInput" class="form-control" type="text"
-                                       autocomplete="nickname" required>
-                                <button id="mypageSaveButton" class="btn btn-primary" type="submit">저장하기</button>
+                                       autocomplete="nickname" required maxlength="50"
+                                       placeholder="닉네임을 입력해 주세요">
+                                <button id="mypageSaveButton" class="btn btn-primary" type="submit"
+                                        disabled>저장하기</button>
+                            </div>
+                            <div class="mypage-nickname-counter">
+                                <span id="mypageNicknameCount">0</span>/50
                             </div>
                         </div>
                     </form>
+                </div>
+            </article>
+        </div>
+    </div>
 
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
                     <h3 class="h6 fw-bold mb-3">연동 계정</h3>
-                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list mb-4">
+                    <div id="mypageOAuthAccountsList" class="mypage-oauth-list">
                         <div class="mypage-oauth-card" data-provider="kakao">
                             <div class="mypage-oauth-header">
                                 <img class="mypage-oauth-icon" src="/images/btn_kakao.svg" alt="Kakao 로고"
@@ -132,16 +163,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div id="mypageSuccessMessage" class="alert alert-success mt-3 d-none" role="alert"></div>
-
-                    <div class="mypage-withdraw-card">
-                        <div class="mypage-withdraw-body">
-                            <h3 class="mypage-withdraw-title">회원탈퇴</h3>
-                            <p class="mypage-withdraw-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
-                        </div>
-                        <a class="btn btn-outline-danger mypage-withdraw-btn" href="/web/member/withdraw">회원탈퇴</a>
-                    </div>
                 </div>
             </article>
         </div>
@@ -151,10 +172,15 @@
         <div class="col-12">
             <article class="card card-panel card-soft mypage-info-card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h3 class="h6 fw-bold mb-3">내 메모</h3>
-                    <div id="mypageMemoList" class="mypage-memo-list">
-                        <p class="mypage-memo-loading text-muted">메모를 불러오는 중입니다...</p>
+                    <div class="mypage-memo-header">
+                        <h3 class="h6 fw-bold mb-0">내 메모</h3>
+                        <span id="mypageMemoCountBadge" class="badge mypage-badge-count d-none"></span>
                     </div>
+                    <div id="mypageMemoSkeleton" class="mypage-skeleton-group">
+                        <div class="skeleton skeleton-memo-card"></div>
+                        <div class="skeleton skeleton-memo-card"></div>
+                    </div>
+                    <div id="mypageMemoList" class="mypage-memo-list"></div>
                     <div id="mypageMemoEmpty" class="mypage-memo-empty d-none">
                         <p class="mb-2">아직 작성한 메모가 없습니다.</p>
                         <a href="/web/bible/translation" class="btn btn-outline-primary btn-sm">성경 읽기에서 메모를 남겨보세요</a>
@@ -162,6 +188,20 @@
                     <button id="mypageMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
                         더보기
                     </button>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <article class="mypage-danger-zone">
+                <div class="mypage-danger-zone-body">
+                    <div>
+                        <h3 class="mypage-danger-zone-title">Danger Zone</h3>
+                        <p class="mypage-danger-zone-desc">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</p>
+                    </div>
+                    <a class="btn btn-outline-danger" href="/web/member/withdraw">회원탈퇴</a>
                 </div>
             </article>
         </div>
@@ -207,7 +247,7 @@
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
-<script type="module" src="/js/member/mypage.js?v=2.3"></script>
+<script type="module" src="/js/member/mypage.js?v=3.0"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 
