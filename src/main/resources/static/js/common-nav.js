@@ -19,7 +19,7 @@ if (nav) {
     const bibleNavItem = nav.querySelector('a[href="/web/bible/translation"]');
     if (bibleNavItem) {
         bibleNavItem.addEventListener('click', (e) => {
-            if (navClicked) {
+            if (navClicked || bibleNavItem.classList.contains('active')) {
                 e.preventDefault();
                 return;
             }
