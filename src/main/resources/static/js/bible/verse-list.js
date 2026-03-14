@@ -1108,6 +1108,7 @@ function setHighlightFromServer(verseNum, colorConfig) {
     if (!verseEl) {
         return;
     }
+    HIGHLIGHT_COLORS.forEach(color => verseEl.classList.remove(color.className));
     verseEl.classList.add(colorConfig.className);
     selection.highlightMap.set(String(verseNum), colorConfig);
 }
