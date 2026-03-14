@@ -19,7 +19,7 @@
        └─ 메모 목록 조회 (최신순 기본)
             └─ 메모 카드 선택
                  └─ 해당 성경 구절 화면으로 이동
-                    (/web/bible/verse?translationId=..&bookOrder=..&chapter=..)
+                    (/web/bible/verse?translationId=..&bookOrder=..&chapterNumber=..)
 ```
 
 - 마이페이지 내 별도 섹션으로 배치한다. 기존 "내 정보 수정 / 연동 계정 / 회원탈퇴" 아래에 추가하거나, 마이페이지를 탭 구조로 확장하는 방식을 검토한다.
@@ -48,7 +48,7 @@
 ### 3-3. 구절 이동 링크
 
 - 각 메모 카드를 클릭하면 해당 구절의 성경 읽기 화면으로 이동한다.
-- URL 형식: `/web/bible/verse?translationId={translationId}&bookOrder={bookOrder}&chapter={chapterNumber}`
+- URL 형식: `/web/bible/verse?translationId={translationId}&bookOrder={bookOrder}&chapterNumber={chapterNumber}`
 - 이동 후 해당 절이 하이라이트되거나 스크롤 위치가 맞춰지면 이상적이나, 초기에는 장 단위 이동만으로 충분하다.
 
 ---
@@ -65,7 +65,7 @@
 
 | 쿼리 | 용도 |
 |------|------|
-| `findByMemberUid(memberUid, Pageable): Slice<BibleVerseMemo>` | 사용자의 전체 메모를 페이징 조회 |
+| `findAllByMemberUid(memberUid, Pageable): Slice<BibleVerseMemo>` | 사용자의 전체 메모를 페이징 조회 |
 
 - 정렬: `updatedAt DESC` (최신 수정순)
 - Slice 기반으로 `hasNext` 여부만 확인 (전체 count 쿼리 불필요)
@@ -113,9 +113,9 @@ GET /api/v1/members/me/bible-memos?page=0&size=20
 - Service: 메모 목록 조회 로직
 - API: `GET /api/v1/members/me/bible-memos` 엔드포인트
 - 화면: 마이페이지 하단에 메모 목록 섹션 추가 (카드형, 더보기 버튼)
+- 빈 상태: "아직 작성한 메모가 없습니다" 안내 + 성경 읽기 바로가기
 - 구절 이동: 카드 클릭 시 성경 읽기 화면으로 이동
 
 **2차 구현**
 - 메모 삭제 기능
-- 빈 상태 안내 및 성경 읽기 바로가기
 - 절 단위 스크롤 이동
