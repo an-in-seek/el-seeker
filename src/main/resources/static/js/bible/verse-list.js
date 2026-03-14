@@ -37,7 +37,8 @@ const state = {
     chapterNumber: null,
     verseNumber: null,
     fromSearch: false,
-    fromHome: false
+    fromHome: false,
+    fromMypage: false
 };
 
 const selection = {
@@ -137,6 +138,7 @@ function resolveInitialState() {
     const fromValue = params.get("from");
     state.fromSearch = fromValue === "search";
     state.fromHome = fromValue === "home";
+    state.fromMypage = fromValue === "mypage";
 }
 
 async function init() {
@@ -202,7 +204,7 @@ function setupBackButton(button) {
     }
     button.classList.remove(UI_CLASSES.HIDDEN);
     button.addEventListener("click", () => {
-        if (state.fromSearch) {
+        if (state.fromSearch || state.fromMypage) {
             history.back();
             return;
         }

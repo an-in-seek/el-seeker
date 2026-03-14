@@ -531,7 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const createMemoCard = (memo) => {
         const card = document.createElement("a");
         card.className = "mypage-memo-card";
-        card.href = `/web/bible/verse?translationId=${encodeURIComponent(memo.translationId)}&bookOrder=${encodeURIComponent(memo.bookOrder)}&chapterNumber=${encodeURIComponent(memo.chapterNumber)}`;
+        card.href = `/web/bible/verse?translationId=${encodeURIComponent(memo.translationId)}&bookOrder=${encodeURIComponent(memo.bookOrder)}&chapterNumber=${encodeURIComponent(memo.chapterNumber)}&verseNumber=${encodeURIComponent(memo.verseNumber)}&from=mypage`;
 
         const header = document.createElement("div");
         header.className = "mypage-memo-card-header";
