@@ -110,6 +110,7 @@
 
 .mypage-stats {
     display: flex;
+    justify-content: center;
     gap: 2rem;
     margin-top: 1.5rem;
     padding-top: 1.5rem;
@@ -141,6 +142,11 @@
     z-index: 20;
     background: #f1f5f9;
     margin-bottom: 1rem;
+    transition: top 300ms ease;
+}
+
+body.top-nav-hidden .mypage-tabs-wrapper {
+    top: 0;
 }
 
 .mypage-tabs {
@@ -627,7 +633,7 @@
     }
 
     .mypage-stats {
-        justify-content: center;
+        /* justify-content: center는 기본 스타일에서 이미 적용 */
     }
 }
 
