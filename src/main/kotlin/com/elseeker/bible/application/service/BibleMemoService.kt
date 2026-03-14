@@ -52,11 +52,15 @@ class BibleMemoService(
     }
 
     private fun resolveBookNames(memos: List<BibleVerseMemo>): Map<Pair<Long, Int>, String> {
-        val keys = memos.map { it.translationId to it.bookOrder }.distinct()
-        return keys.mapNotNull { (translationId, bookOrder) ->
-            bibleBookRepository.findByTranslationAndBook(translationId, bookOrder)
-                ?.let { (translationId to bookOrder) to it.name }
-        }.toMap()
+        return memos
+            .map { it.translationId to it.bookOrder }
+            .distinct()
+            .groupBy({ it.first }, { it.second })
+            .flatMap { (translationId, bookOrders) ->
+                bibleBookRepository.findByTranslationIdAndBookOrderIn(translationId, bookOrders)
+                    .map { (translationId to it.bookOrder) to it.name }
+            }
+            .toMap()
     }
 
     @Transactional(readOnly = true)

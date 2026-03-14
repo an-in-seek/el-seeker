@@ -36,4 +36,17 @@ interface BibleBookRepository : JpaRepository<BibleBook, Long> {
         translationId: Long,
         bookOrder: Int
     ): BibleBook?
+
+    @Query(
+        """
+            SELECT book
+            FROM BibleBook book
+            WHERE book.translationId = :translationId
+            AND book.bookOrder IN :bookOrders
+        """
+    )
+    fun findByTranslationIdAndBookOrderIn(
+        translationId: Long,
+        bookOrders: List<Int>
+    ): List<BibleBook>
 }

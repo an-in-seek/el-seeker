@@ -586,11 +586,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (data.content && data.content.length > 0) {
-                data.content.forEach((memo) => {
-                    if (memoList) {
-                        memoList.appendChild(createMemoCard(memo));
-                    }
-                });
+                if (memoList) {
+                    const fragment = document.createDocumentFragment();
+                    data.content.forEach((memo) => {
+                        fragment.appendChild(createMemoCard(memo));
+                    });
+                    memoList.appendChild(fragment);
+                }
                 if (memoEmpty) {
                     memoEmpty.classList.add("d-none");
                 }
@@ -821,7 +823,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateText(title, `${displayName}`);
                 updateText(email, updatedEmail || "이메일 정보 없음");
                 updateText(roleBadge, updatedRole);
-                loadOAuthAccounts();
 
                 initialNickname = updatedNickname;
                 if (nicknameCount) {
