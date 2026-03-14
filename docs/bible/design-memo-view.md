@@ -77,9 +77,11 @@
 ### 4-3. API 엔드포인트
 
 ```
-GET /api/v1/members/me/bible-memos?page=0&size=20
+GET /api/v1/bibles/my-memos?page=0&size=20
 ```
 
+- 기존 헥사고날 모듈 경계를 유지하여 bible 모듈(`/api/v1/bibles/...`) 하위에 배치한다.
+  - 대안: `/api/v1/members/me/bible-memos` (사용자 중심 경로). 단, 현재 프로젝트에 모듈 간 경로를 넘는 사례가 없으므로 bible 모듈 내 배치를 우선 고려한다.
 - 응답: `{ content: [...], hasNext: boolean, size: int, number: int }`
 - 각 항목: `{ memoId, translationId, bookOrder, bookName, chapterNumber, verseNumber, content, updatedAt }`
 
@@ -111,7 +113,7 @@ GET /api/v1/members/me/bible-memos?page=0&size=20
 **1차 구현 (MVP)**
 - Repository: 사용자 전체 메모 Slice 조회 쿼리 추가
 - Service: 메모 목록 조회 로직
-- API: `GET /api/v1/members/me/bible-memos` 엔드포인트
+- API: `GET /api/v1/bibles/my-memos` 엔드포인트
 - 화면: 마이페이지 하단에 메모 목록 섹션 추가 (카드형, 더보기 버튼)
 - 빈 상태: "아직 작성한 메모가 없습니다" 안내 + 성경 읽기 바로가기
 - 구절 이동: 카드 클릭 시 성경 읽기 화면으로 이동
