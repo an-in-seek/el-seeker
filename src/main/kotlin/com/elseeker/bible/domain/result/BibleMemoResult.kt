@@ -9,7 +9,8 @@ object BibleMemoResult {
         val content: List<MemoItem>,
         val hasNext: Boolean,
         val size: Int,
-        val number: Int
+        val number: Int,
+        val totalCount: Long?
     )
 
     data class MemoItem(

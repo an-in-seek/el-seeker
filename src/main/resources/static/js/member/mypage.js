@@ -31,10 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const oauthAccountsList = document.getElementById("mypageOAuthAccountsList");
     const roleBadge = document.getElementById("mypageRole");
     const providerBadge = document.getElementById("mypageProvider");
+    const joinDateBadge = document.getElementById("mypageJoinDate");
     const avatar = document.getElementById("mypageAvatar");
-    const successMessage = document.getElementById("mypageSuccessMessage");
     const editForm = document.getElementById("mypageEditForm");
     const nicknameInput = document.getElementById("mypageNicknameInput");
+    const nicknameCount = document.getElementById("mypageNicknameCount");
     const saveButton = document.getElementById("mypageSaveButton");
     const saveToast = document.getElementById("mypageToast");
     const saveToastIcon = document.getElementById("mypageToastIcon");
@@ -45,6 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmCancel = document.getElementById("mypageOAuthConfirmCancel");
     const confirmSubmit = document.getElementById("mypageOAuthConfirmSubmit");
     const confirmMessage = document.getElementById("mypageOAuthConfirmMessage");
+    const mypageSkeleton = document.getElementById("mypageSkeleton");
+    const mypageProfile = document.getElementById("mypageProfile");
+    const mypageStats = document.getElementById("mypageStats");
+    const memoSkeleton = document.getElementById("mypageMemoSkeleton");
     const urlParams = new URLSearchParams(window.location.search);
     const focusNickname = urlParams.get("focus") === "nickname";
     const returnUrl = urlParams.get("returnUrl");
@@ -66,6 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const redirectToLogin = () => {
         window.location.replace(buildLoginRedirectUrl());
+    };
+
+    const showProfile = () => {
+        mypageSkeleton?.classList.add("d-none");
+        mypageProfile?.classList.remove("d-none");
+        mypageStats?.classList.remove("d-none");
     };
 
     const showOAuthErrorFromUrl = () => {
@@ -97,18 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const resetMessages = () => {
-        if (successMessage) {
-            successMessage.classList.add("d-none");
-            successMessage.textContent = "";
-        }
-        if (saveToast) {
-            saveToast.classList.remove("show");
-            saveToast.setAttribute("aria-hidden", "true");
-        }
-        if (saveToastTimer) {
-            clearTimeout(saveToastTimer);
-            saveToastTimer = null;
-        }
+        hideSaveToast();
     };
 
     const hideSaveToast = () => {
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         saveToastTimer = setTimeout(() => {
             hideSaveToast();
-        }, 2500);
+        }, 4000);
     };
 
     const formatConnectedAt = (value) => {
@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         updateOAuthCards(providerMap);
         updateText(providerBadge, `연동 계정 ${providerMap.size}개`);
+        updateText(document.getElementById("mypageOAuthCount"), providerMap.size);
     };
 
     const openConfirmModal = (providerLabel) => {
@@ -217,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmMessage.textContent = `${providerLabel} 계정을 연동 해제하시겠습니까?`;
         }
         confirmModal.classList.remove("d-none");
+        document.body.style.overflow = "hidden";
         if (confirmSubmit) {
             confirmSubmit.focus();
         }
@@ -227,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         confirmModal.classList.add("d-none");
+        document.body.style.overflow = "";
         pendingOAuthUnlink = null;
     };
 
@@ -247,9 +250,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const notice = card.querySelector(".mypage-oauth-notice");
 
             const linkedAccount = providerMap.get(provider);
+
+            card.setAttribute("aria-label",
+                linkedAccount
+                    ? `${providerLabel} 계정 연동됨`
+                    : `${providerLabel} 계정 미연동`
+            );
+
             if (linkedAccount) {
                 card.classList.remove("is-empty");
-                updateText(status, "연동됨");
+                if (status) {
+                    status.className = "mypage-oauth-status-badge is-linked";
+                    status.textContent = "연동됨";
+                }
                 updateText(emailField, maskEmail(linkedAccount.email));
                 updateText(nicknameField, linkedAccount.nickname || "닉네임 없음");
                 updateText(connectedField, formatConnectedAt(linkedAccount.createdAt));
@@ -286,7 +299,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } else {
                 card.classList.add("is-empty");
-                updateText(status, "미연동");
+                if (status) {
+                    status.className = "mypage-oauth-status-badge is-unlinked";
+                    status.textContent = "미연동";
+                }
                 updateText(emailField, "-");
                 updateText(nicknameField, "-");
                 updateText(connectedField, "-");
@@ -358,10 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 showSaveToast("연동 해제에 실패했습니다. 다시 시도해 주세요.", "error");
                 return;
             }
-            if (successMessage) {
-                successMessage.textContent = "연동 계정이 해제되었습니다.";
-                successMessage.classList.remove("d-none");
-            }
+            showSaveToast("연동 계정이 해제되었습니다.");
             loadOAuthAccounts();
         } catch (error) {
             showSaveToast("연동 해제 중 오류가 발생했습니다. 다시 시도해 주세요.", "error");
@@ -433,6 +446,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         memoLoading = true;
+        if (!append) {
+            memoSkeleton?.classList.remove("d-none");
+        }
         try {
             const response = await fetchWithAuthRetry(`/api/v1/bibles/my-memos?page=${memoPage}&size=20`, {
                 credentials: "include",
@@ -472,6 +488,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
+            if (!append && data.totalCount != null) {
+                const countBadge = document.getElementById("mypageMemoCountBadge");
+                if (countBadge) {
+                    countBadge.textContent = data.totalCount;
+                    countBadge.classList.remove("d-none");
+                }
+                updateText(document.getElementById("mypageMemoCount"), data.totalCount);
+            }
+
             memoHasNext = data.hasNext === true;
             if (memoMoreBtn) {
                 if (memoHasNext) {
@@ -483,6 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             // silently fail
         } finally {
+            memoSkeleton?.classList.add("d-none");
             memoLoading = false;
         }
     };
@@ -495,6 +521,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     setFormEnabled(false);
+
+    if (nicknameInput) {
+        nicknameInput.addEventListener("input", () => {
+            const len = nicknameInput.value.trim().length;
+            if (nicknameCount) {
+                nicknameCount.textContent = len;
+            }
+            saveButton.disabled = (nicknameInput.value.trim() === initialNickname);
+        });
+    }
+
     if (oauthActionButtons && oauthActionButtons.length > 0) {
         oauthActionButtons.forEach((button) => {
             button.addEventListener("click", handleOAuthAction);
@@ -542,6 +579,16 @@ document.addEventListener("DOMContentLoaded", () => {
             updateText(roleBadge, roleLabel);
             updateText(providerBadge, "연동 계정 확인 중");
 
+            if (data.createdAt) {
+                const joinDate = new Date(data.createdAt);
+                if (!Number.isNaN(joinDate.getTime())) {
+                    const formatted = joinDate.toLocaleDateString("ko-KR", {
+                        year: "numeric", month: "long"
+                    });
+                    updateText(joinDateBadge, `가입 ${formatted}`);
+                }
+            }
+
             if (avatar && data.profileImageUrl) {
                 avatar.src = data.profileImageUrl;
                 avatar.alt = `${displayName} 프로필 이미지`;
@@ -551,7 +598,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (nicknameInput) {
                 nicknameInput.value = initialNickname;
             }
+            if (nicknameCount) {
+                nicknameCount.textContent = initialNickname.length;
+            }
             setFormEnabled(true);
+            saveButton.disabled = true;
+
+            showProfile();
+
             if (focusNickname && nicknameInput) {
                 nicknameInput.focus();
                 nicknameInput.select();
@@ -621,14 +675,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const updatedRole = roleLabels[data?.role] || data?.role || "회원";
                 const displayName = updatedNickname || (updatedEmail ? updatedEmail.split("@")[0] : "회원");
 
-                updateText(title, `${displayName} 님`);
+                updateText(title, `${displayName}`);
                 updateText(email, updatedEmail || "이메일 정보 없음");
                 updateText(roleBadge, updatedRole);
                 loadOAuthAccounts();
 
-                // Profile image update logic removed
-
                 initialNickname = updatedNickname;
+                if (nicknameCount) {
+                    nicknameCount.textContent = updatedNickname.length;
+                }
 
                 showSaveToast("회원 정보가 저장되었습니다.");
                 if (focusNickname && safeReturnUrl) {
@@ -640,6 +695,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 showSaveToast("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
             } finally {
                 setFormEnabled(true);
+                saveButton.disabled = true;
             }
         });
     }

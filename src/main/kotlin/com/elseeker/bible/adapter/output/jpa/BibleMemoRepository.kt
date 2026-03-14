@@ -13,6 +13,8 @@ interface BibleMemoRepository : JpaRepository<BibleVerseMemo, Long> {
 
     fun deleteAllByMember(member: Member)
 
+    fun countByMemberUid(memberUid: UUID): Long
+
     fun findAllByMemberUid(memberUid: UUID, pageable: Pageable): Slice<BibleVerseMemo>
 
     fun findAllByMemberAndTranslationIdAndBookOrderAndChapterNumber(

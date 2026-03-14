@@ -33,6 +33,12 @@ class BibleMemoService(
 
         val bookNameMap = resolveBookNames(slice.content)
 
+        val totalCount = if (sortedPageable.pageNumber == 0) {
+            bibleMemoRepository.countByMemberUid(memberUid)
+        } else {
+            null
+        }
+
         return BibleMemoResult.MemoSlice(
             content = slice.content.map { memo ->
                 val bookName = bookNameMap[memo.translationId to memo.bookOrder] ?: ""
@@ -40,7 +46,8 @@ class BibleMemoService(
             },
             hasNext = slice.hasNext(),
             size = slice.size,
-            number = slice.number
+            number = slice.number,
+            totalCount = totalCount
         )
     }
 
