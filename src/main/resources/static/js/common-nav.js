@@ -19,10 +19,13 @@ if (nav) {
     const bibleNavItem = nav.querySelector('a[href="/web/bible/translation"]');
     if (bibleNavItem) {
         bibleNavItem.addEventListener('click', (e) => {
+            if (navClicked) {
+                e.preventDefault();
+                return;
+            }
             const lastRead = LastReadStore.get();
             if (lastRead) {
                 e.preventDefault();
-                if (navClicked) return;
                 navClicked = true;
                 const verseUrl = new URL("/web/bible/verse", window.location.origin);
                 verseUrl.searchParams.set("translationId", lastRead.translationId);
@@ -36,7 +39,7 @@ if (nav) {
     // --- 중복 클릭 방지 + 클릭 피드백: 즉시 Active 상태 전환 (SSR 페이지 리로드 깜빡임 대응) ---
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            if (navClicked) {
+            if (navClicked || item.classList.contains('active')) {
                 e.preventDefault();
                 return;
             }
