@@ -449,46 +449,41 @@ function highlightVerse(verseNumber) {
         }
         const targetTd = targetVerse.closest("td");
 
-        // 먼저 스크롤 이동 (오버레이 없이)
-        targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
+        // 오버레이 생성 + 스포트라이트 대상 즉시 설정
+        const overlay = document.createElement("div");
+        overlay.className = "verse-spotlight-overlay";
+        document.body.appendChild(overlay);
 
-        // 스크롤 완료 후 오버레이 표시 (스크롤 애니메이션 대기)
-        setTimeout(() => {
-            const overlay = document.createElement("div");
-            overlay.className = "verse-spotlight-overlay";
-            document.body.appendChild(overlay);
+        targetVerse.classList.add("verse-spotlight-target");
+        if (targetTd) {
+            targetTd.classList.add("verse-spotlight-target-td");
+        }
 
-            // 스포트라이트 대상 설정
-            targetVerse.classList.add("verse-spotlight-target");
-            if (targetTd) {
-                targetTd.classList.add("verse-spotlight-target-td");
+        // 오버레이 페이드인 + 스크롤 이동 동시 실행
+        requestAnimationFrame(() => {
+            overlay.classList.add("is-active");
+            targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
+        });
+
+        let dismissed = false;
+        const dismiss = () => {
+            if (dismissed) {
+                return;
             }
+            dismissed = true;
+            overlay.classList.remove("is-active");
+            targetVerse.classList.remove("verse-spotlight-target");
+            if (targetTd) {
+                targetTd.classList.remove("verse-spotlight-target-td");
+            }
+            overlay.addEventListener("transitionend", () => overlay.remove(), {once: true});
+        };
 
-            // 오버레이 페이드인
-            requestAnimationFrame(() => {
-                overlay.classList.add("is-active");
-            });
+        // 클릭으로 해제
+        overlay.addEventListener("click", dismiss, {once: true});
 
-            let dismissed = false;
-            const dismiss = () => {
-                if (dismissed) {
-                    return;
-                }
-                dismissed = true;
-                overlay.classList.remove("is-active");
-                targetVerse.classList.remove("verse-spotlight-target");
-                if (targetTd) {
-                    targetTd.classList.remove("verse-spotlight-target-td");
-                }
-                overlay.addEventListener("transitionend", () => overlay.remove(), {once: true});
-            };
-
-            // 클릭으로 해제
-            overlay.addEventListener("click", dismiss, {once: true});
-
-            // 4초 후 자동 해제
-            setTimeout(dismiss, 4000);
-        }, 600);
+        // 4초 후 자동 해제
+        setTimeout(dismiss, 4000);
     }, 100);
 }
 
