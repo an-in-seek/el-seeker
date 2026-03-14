@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmMessage = document.getElementById("mypageOAuthConfirmMessage");
     const mypageSkeleton = document.getElementById("mypageSkeleton");
     const mypageProfile = document.getElementById("mypageProfile");
-    const mypageStats = document.getElementById("mypageStats");
     const memoSkeleton = document.getElementById("mypageMemoSkeleton");
     const urlParams = new URLSearchParams(window.location.search);
     const focusNickname = urlParams.get("focus") === "nickname";
@@ -140,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const showProfile = () => {
         mypageSkeleton?.classList.add("d-none");
         mypageProfile?.classList.remove("d-none");
-        mypageStats?.classList.remove("d-none");
     };
 
     const showOAuthErrorFromUrl = () => {
@@ -271,7 +269,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         updateOAuthCards(providerMap);
         updateText(providerBadge, `연동 계정 ${providerMap.size}개`);
-        updateText(document.getElementById("mypageOAuthCount"), providerMap.size);
     };
 
     let modalTriggerElement = null;
@@ -612,7 +609,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     countBadge.textContent = data.totalCount;
                     countBadge.classList.remove("d-none");
                 }
-                updateText(document.getElementById("mypageMemoCount"), data.totalCount);
                 const tabBadge = document.getElementById("mypageTabMemoBadge");
                 if (tabBadge) {
                     if (data.totalCount > 0) {
