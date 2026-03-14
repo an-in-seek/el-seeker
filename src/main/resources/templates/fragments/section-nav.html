@@ -97,6 +97,18 @@
         <span class="section-nav-label">커뮤니티</span>
     </a>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.section-nav-item').forEach(function (item) {
+                item.addEventListener('click', function (e) {
+                    if (this.pathname === window.location.pathname) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+
 </nav>
 </body>
 </html>
