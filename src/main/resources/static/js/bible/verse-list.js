@@ -445,11 +445,48 @@ function highlightVerse(verseNumber) {
         if (!targetVerse) {
             return;
         }
-        targetVerse.classList.add("highlighted-verse");
+        const targetTd = targetVerse.closest("td");
+
+        // 먼저 스크롤 이동 (오버레이 없이)
         targetVerse.scrollIntoView({behavior: "smooth", block: "center"});
+
+        // 스크롤 완료 후 오버레이 표시 (스크롤 애니메이션 대기)
         setTimeout(() => {
-            targetVerse.classList.remove("highlighted-verse");
-        }, 5000);
+            const overlay = document.createElement("div");
+            overlay.className = "verse-spotlight-overlay";
+            document.body.appendChild(overlay);
+
+            // 스포트라이트 대상 설정
+            targetVerse.classList.add("verse-spotlight-target");
+            if (targetTd) {
+                targetTd.classList.add("verse-spotlight-target-td");
+            }
+
+            // 오버레이 페이드인
+            requestAnimationFrame(() => {
+                overlay.classList.add("is-active");
+            });
+
+            let dismissed = false;
+            const dismiss = () => {
+                if (dismissed) {
+                    return;
+                }
+                dismissed = true;
+                overlay.classList.remove("is-active");
+                targetVerse.classList.remove("verse-spotlight-target");
+                if (targetTd) {
+                    targetTd.classList.remove("verse-spotlight-target-td");
+                }
+                overlay.addEventListener("transitionend", () => overlay.remove(), {once: true});
+            };
+
+            // 클릭으로 해제
+            overlay.addEventListener("click", dismiss, {once: true});
+
+            // 4초 후 자동 해제
+            setTimeout(dismiss, 4000);
+        }, 600);
     }, 100);
 }
 
