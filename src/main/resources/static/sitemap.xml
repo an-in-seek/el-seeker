@@ -82,6 +82,13 @@
         <priority>0.6</priority>
     </url>
 
+    <!-- 십계명 -->
+    <url>
+        <loc>https://elseeker.com/web/study/ten-commandments</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
     <!-- 성경 연대기 -->
     <url>
         <loc>https://elseeker.com/web/study/history</loc>

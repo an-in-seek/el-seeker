@@ -47,4 +47,9 @@ class StudyWebController {
     fun showCreation(): String {
         return "study/creation"
     }
+
+    @GetMapping("/ten-commandments")
+    fun showTenCommandments(): String {
+        return "study/ten-commandments"
+    }
 }
