@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
+import com.elseeker.common.adapter.input.api.response.PageResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
 
@@ -27,7 +27,7 @@ interface WordPuzzleApiDocument {
         @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") page: Int,
         @Parameter(description = "페이지 크기", example = "20") size: Int,
         @Parameter(hidden = true) principal: JwtPrincipal
-    ): ResponseEntity<Page<PuzzleSummaryResponse>>
+    ): ResponseEntity<PageResponse<PuzzleSummaryResponse>>
 
     @Operation(summary = "퍼즐 시작 (신규)", description = "새로운 attempt를 생성하고 보드 구조와 단서 목록을 반환합니다.")
     @ApiResponses(

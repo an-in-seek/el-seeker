@@ -5,7 +5,7 @@ import com.elseeker.game.adapter.input.api.client.request.*
 import com.elseeker.game.adapter.input.api.client.response.*
 import com.elseeker.game.application.service.WordPuzzleService
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
+import com.elseeker.common.adapter.input.api.response.PageResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,10 +27,10 @@ class WordPuzzleApi(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @AuthenticationPrincipal principal: JwtPrincipal
-    ): ResponseEntity<Page<PuzzleSummaryResponse>> {
+    ): ResponseEntity<PageResponse<PuzzleSummaryResponse>> {
         val pageable = PageRequest.of(page, size)
-        val response = wordPuzzleService.getPuzzles(theme, difficulty, pageable, principal.memberUid)
-        return ResponseEntity.ok(response)
+        val result = wordPuzzleService.getPuzzles(theme, difficulty, pageable, principal.memberUid)
+        return ResponseEntity.ok(PageResponse.from(result) { it })
     }
 
     @PostMapping("/{puzzleId}/attempts")
