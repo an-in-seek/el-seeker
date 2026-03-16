@@ -183,9 +183,15 @@
 }
 
 @media (hover: none) and (pointer: coarse) {
-    .top-nav .btn:hover,
-    .top-nav-account-item:hover {
+    .top-nav .btn-outline-secondary:hover {
         background-color: transparent;
+        color: var(--bs-btn-color, #6c757d);
+        border-color: #6c757d;
+        box-shadow: none;
+    }
+
+    .top-nav-account-item:hover {
+        background: transparent;
         color: inherit;
         box-shadow: none;
     }
