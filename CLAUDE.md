@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Gradle 8.12.1, Java 21 toolchain, Kotlin 1.9.25, Spring Boot 3.5.9
 - No linter or formatter configured
-- **프론트엔드 전용 변경(HTML, CSS, JS, Thymeleaf 템플릿)만 수행한 경우 `./gradlew build` 또는 `./gradlew test`를 실행하지 않는다.** Kotlin/Java 코드 변경이 포함된 경우에만 빌드/테스트를 실행한다.
+- **Do NOT run `./gradlew build` or `./gradlew test` for frontend-only changes (HTML, CSS, JS, Thymeleaf templates).** Only run build/test when Kotlin/Java code changes are included.
 
 ## Architecture
 
@@ -48,7 +48,8 @@ Modules: `bible`, `study`, `game`, `member`, `auth`, `common`
 - CSS: Bootstrap 5.3 via WebJars + feature-specific CSS files. BEM-like naming per feature (e.g., `genealogy-node`, `bible-overview-video-card`)
 - Hover styles: desktop-only via `@media (hover: hover) and (pointer: fine)`. Avoid hover-based UX for touch/mobile.
 - Client-only pages (no server API): `bible-overview-video`, `bible-genealogy` — data is static JS arrays
-- **CSS/JS 파일을 수정한 경우, 해당 파일을 참조하는 HTML 템플릿의 쿼리 파라미터 버전(`?v=`)을 반드시 올린다.** 예: `lords-prayer.css?v=1.0` → `lords-prayer.css?v=1.1`. 브라우저 캐시 무효화를 위해 필수.
+- **Cache busting**: When modifying CSS/JS files, always bump the `?v=` query parameter in the referencing HTML templates. e.g., `lords-prayer.css?v=1.0` → `lords-prayer.css?v=1.1`.
+- **Active menu handling**: Thymeleaf 3.1+ blocks direct access to `#request` in templates. Use `@ControllerAdvice` + `@ModelAttribute("currentPath")` to inject the current path from the server, then use `th:classappend="${#strings.startsWith(currentPath, '/path')} ? 'active'"` in templates. Do NOT use JS `location.pathname` for active class toggling (violates SSR principles). See: `GlobalModelAttribute.kt`
 
 ## Auth & Security
 
@@ -74,8 +75,8 @@ Modules: `bible`, `study`, `game`, `member`, `auth`, `common`
 
 ## Git Commit Convention
 
-- Commit 메시지는 AngularJS 컨벤션 prefix를 따른다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
-- 예: `feat: 성경 단어 퍼즐 기능 구현`, `fix: 퍼즐 보드 셀 렌더링 오류 수정`
+- Follow AngularJS commit convention prefixes: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`, etc.
+- Examples: `feat: add Bible word puzzle feature`, `fix: fix puzzle board cell rendering error`
 
 ## Environment Variables (prod)
 

@@ -155,6 +155,8 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * Swagger/OpenAPI 어노테이션은 `*ApiDocument` 인터페이스에 작성하고, 컨트롤러는 해당 인터페이스를 구현합니다.
 * 웹 UI의 뒤로가기 동작은 공통 네비게이션바의 백버튼(`topNavBackButton`)을 사용합니다. 커스텀 이동 경로가 필요하면 `<body>`에 `data-back-link`를 지정합니다.
 * Hover 스타일은 데스크톱(마우스) 환경에서만 적용합니다. 모든 hover CSS는 `@media (hover: hover) and (pointer: fine)` 내부에 작성하고, 모바일/터치 UI에서는 hover 기반 UX를 설계하지 않습니다.
+* **Active 메뉴 처리**: Thymeleaf 3.1부터 템플릿 내 `#request` 직접 접근이 차단되므로, `@ControllerAdvice` + `@ModelAttribute("currentPath")`로 서버에서 현재 경로를 주입합니다. 템플릿에서는 `th:classappend="${#strings.startsWith(currentPath, '/경로')} ? 'active'"` 패턴을 사용합니다. JS
+  `location.pathname`으로 active 클래스를 토글하는 방식은 SSR 원칙 위배로 사용하지 않습니다. (참고: `GlobalModelAttribute.kt`)
 
 ## SEO 가이드
 
@@ -190,29 +192,30 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 
 ### th:with 변수 목록
 
-| 변수 | 용도 | 예시 |
-|------|------|------|
-| `pageDescription` | 페이지 meta description | `'성경 66권의 개요를 영상으로 학습합니다.'` |
-| `robotsContent` | robots 메타 태그 | `'noindex'` |
-| `schemaType` | JSON-LD @type (기본: `WebPage`) | `'CollectionPage'`, `'Article'` |
-| `ogType` | Open Graph type (기본: `website`) | `'article'` |
-| `ogImage` | Open Graph 이미지 URL | `'https://elseeker.com/images/custom.png'` |
-| `canonicalUrl` | canonical URL 직접 지정 | `'https://elseeker.com/web/bible/search'` |
-| `twitterCard` | Twitter Card type (기본: `summary_large_image`) | `'summary'` |
+| 변수                | 용도                                            | 예시                                         |
+|-------------------|-----------------------------------------------|--------------------------------------------|
+| `pageDescription` | 페이지 meta description                          | `'성경 66권의 개요를 영상으로 학습합니다.'`                |
+| `robotsContent`   | robots 메타 태그                                  | `'noindex'`                                |
+| `schemaType`      | JSON-LD @type (기본: `WebPage`)                 | `'CollectionPage'`, `'Article'`            |
+| `ogType`          | Open Graph type (기본: `website`)               | `'article'`                                |
+| `ogImage`         | Open Graph 이미지 URL                            | `'https://elseeker.com/images/custom.png'` |
+| `canonicalUrl`    | canonical URL 직접 지정                           | `'https://elseeker.com/web/bible/search'`  |
+| `twitterCard`     | Twitter Card type (기본: `summary_large_image`) | `'summary'`                                |
 
 복수 변수를 콤마로 조합할 수 있습니다:
+
 ```html
 th:with="pageDescription='설명', schemaType='CollectionPage'"
 ```
 
 ### 페이지 분류별 SEO 정책
 
-| 분류 | pageDescription | noindex | sitemap 포함 |
-|------|:-:|:-:|:-:|
-| 공개 페이지 (성경, 학습, 커뮤니티 목록) | 필수 | X | O |
-| 로그인 필수 페이지 (게임, 마이페이지) | 선택 | O | X |
-| 관리자 페이지 | 불필요 | robots.txt로 차단 | X |
-| 에러 페이지 | 불필요 | O | X |
+| 분류                       | pageDescription |    noindex     | sitemap 포함 |
+|--------------------------|:---------------:|:--------------:|:----------:|
+| 공개 페이지 (성경, 학습, 커뮤니티 목록) |       필수        |       X        |     O      |
+| 로그인 필수 페이지 (게임, 마이페이지)   |       선택        |       O        |     X      |
+| 관리자 페이지                  |       불필요       | robots.txt로 차단 |     X      |
+| 에러 페이지                   |       불필요       |       O        |     X      |
 
 ### robots.txt 규칙
 

@@ -25,7 +25,7 @@
 - `./gradlew test`: run unit tests with JUnit 5.
 - `./gradlew bootJar`: build the runnable Spring Boot artifact.
 - Gradle toolchain targets Java 21; Kotlin 1.9.x + Spring Boot 3.5.x.
-- **프론트엔드 전용 변경(HTML, CSS, JS, Thymeleaf 템플릿)만 수행한 경우 `./gradlew build` 또는 `./gradlew test`를 실행하지 않는다.** Kotlin/Java 코드 변경이 포함된 경우에만 빌드/테스트를 실행한다.
+- **Do NOT run `./gradlew build` or `./gradlew test` for frontend-only changes (HTML, CSS, JS, Thymeleaf templates).** Only run build/test when Kotlin/Java code changes are included.
 
 ## Coding Style & Naming Conventions
 - Kotlin + Spring Boot 3; keep idiomatic Kotlin (data classes, null-safety) and Spring annotations.
@@ -45,9 +45,17 @@
 - Name tests `*Test.kt` and focus on service, repository, and controller behavior.
 
 ## Commit & Pull Request Guidelines
-- Commit 메시지는 AngularJS 컨벤션 prefix를 따른다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
+- Follow AngularJS commit convention prefixes: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`, etc.
 - Keep commits scoped to one feature/fix; include a short, imperative summary.
 - PRs should describe the change, link related issues, and include screenshots for UI/template changes.
+
+## Thymeleaf Active Menu Handling
+- Thymeleaf 3.1+ blocks direct access to `#request`, `#session`, and other Web API objects in templates.
+- **Prohibited**: Direct `#httpServletRequest` access in templates, JS `location.pathname` for active class toggling (violates SSR principles, causes flickering, degrades SEO/accessibility).
+- **Required**: Use `@ControllerAdvice` + `@ModelAttribute` to inject the current path from the server into the Model.
+  - Server: Return `request.getRequestURI()` from a `@ModelAttribute("currentPath")` method.
+  - View: Use `th:classappend="${#strings.startsWith(currentPath, '/path')} ? 'active'"`.
+- Reference implementation: `GlobalModelAttribute.kt` (`common/adapter/input/web/`)
 
 ## Configuration & Data Notes
 - H2 runs in-memory by default (`jdbc:h2:mem:test`); data is loaded from SQL in `src/main/resources/data`.
