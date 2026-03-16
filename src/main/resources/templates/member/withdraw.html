@@ -55,7 +55,7 @@
                         </label>
                     </div>
                     <div class="withdraw-actions">
-                        <a class="btn btn-outline-secondary" href="/">돌아가기</a>
+                        <a class="btn btn-outline-secondary" href="/web/member/mypage">돌아가기</a>
                         <a id="withdrawRequestLink"
                            class="btn btn-danger disabled"
                            href="#"
@@ -85,6 +85,12 @@
         if (pageTitleLabel) {
             pageTitleLabel.textContent = "회원탈퇴";
             pageTitleLabel.classList.remove("d-none");
+        }
+
+        const backButton = document.getElementById("topNavBackButton");
+        if (backButton) {
+            backButton.classList.remove("d-none");
+            backButton.addEventListener("click", () => history.back());
         }
 
         const confirmCheckbox = document.getElementById("withdrawConfirmCheckbox");
@@ -176,6 +182,5 @@
         });
     });
 </script>
-<div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>

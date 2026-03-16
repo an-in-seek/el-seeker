@@ -26,6 +26,26 @@ document.addEventListener("DOMContentLoaded", () => {
         pageTitleLabel.classList.remove("d-none");
     }
 
+    const backButton = document.getElementById("topNavBackButton");
+    if (backButton) {
+        backButton.classList.remove("d-none");
+        backButton.addEventListener("click", () => history.back());
+    }
+
+    // Top nav auto-hide on scroll
+    let lastScrollY = window.scrollY;
+    const SCROLL_THRESHOLD = 10;
+    window.addEventListener("scroll", () => {
+        const delta = window.scrollY - lastScrollY;
+        if (Math.abs(delta) < SCROLL_THRESHOLD) return;
+        if (delta > 0 && window.scrollY > 0) {
+            document.body.classList.add("top-nav-hidden");
+        } else {
+            document.body.classList.remove("top-nav-hidden");
+        }
+        lastScrollY = window.scrollY;
+    }, {passive: true});
+
     const title = document.getElementById("mypageTitle");
     const email = document.getElementById("mypageEmail");
     const oauthAccountsList = document.getElementById("mypageOAuthAccountsList");

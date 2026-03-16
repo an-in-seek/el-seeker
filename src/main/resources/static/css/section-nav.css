@@ -133,20 +133,6 @@
     }
 }
 
-/* --- Auto-hide: 상단 네비 (모바일 전용) --- */
-@media (max-width: 599.98px) {
-    body.has-dual-bottom-nav .top-nav-row {
-        transition: transform 300ms ease;
-        will-change: transform;
-    }
-
-    body.has-dual-bottom-nav.top-nav-hidden .top-nav-row {
-        transform: translateY(-100%);
-    }
-
-    /* margin-top 유지: transform으로 숨길 때 레이아웃 시프트 방지 */
-}
-
 /* --- Auto-hide: 하단 네비 공존 페이지 (모바일 전용) --- */
 @media (max-width: 599.98px) {
     body.has-dual-bottom-nav .section-nav {
