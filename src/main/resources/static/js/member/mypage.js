@@ -140,9 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tabParam === "memo" || tabParam === "settings") {
             return tabParam;
         }
-        if (params.get("focus") === "nickname") {
-            return "settings";
-        }
         return "settings";
     };
 
@@ -187,10 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         nicknameInput.disabled = !enabled;
         saveButton.disabled = !enabled;
-    };
-
-    const resetMessages = () => {
-        hideSaveToast();
     };
 
     const hideSaveToast = () => {
@@ -453,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         event.preventDefault();
-        resetMessages();
+        hideSaveToast();
         if (!memberUid) {
             showSaveToast("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error");
             return;
@@ -732,13 +725,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             memberUid = data.memberUid || null;
             memberEmail = data.email || "";
-            const emailValue = data.email || "";
             const nicknameValue = (data.nickname || "").trim();
-            const displayName = nicknameValue || (emailValue ? emailValue.split("@")[0] : "회원");
+            const displayName = nicknameValue || (memberEmail ? memberEmail.split("@")[0] : "회원");
             const roleLabel = roleLabels[data.role] || data.role || "회원";
 
-            updateText(title, `${displayName}`);
-            updateText(email, emailValue || "이메일 정보 없음");
+            updateText(title, displayName);
+            updateText(email, memberEmail || "이메일 정보 없음");
             updateText(roleBadge, roleLabel);
             updateText(providerBadge, "연동 계정 확인 중");
 
@@ -789,7 +781,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (editForm) {
         editForm.addEventListener("submit", async (event) => {
             event.preventDefault();
-            resetMessages();
+            hideSaveToast();
 
             if (!memberUid) {
                 showSaveToast("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error");
@@ -840,7 +832,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const updatedRole = roleLabels[data?.role] || data?.role || "회원";
                 const displayName = updatedNickname || (updatedEmail ? updatedEmail.split("@")[0] : "회원");
 
-                updateText(title, `${displayName}`);
+                updateText(title, displayName);
                 updateText(email, updatedEmail || "이메일 정보 없음");
                 updateText(roleBadge, updatedRole);
 
