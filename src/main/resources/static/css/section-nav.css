@@ -56,17 +56,9 @@
     flex-shrink: 0;
 }
 
-/* Icon state toggle: outline (default) / filled (active) */
+/* Icon: always show outline, hide filled */
 .section-nav-icon--filled {
     display: none;
-}
-
-.section-nav-item.active .section-nav-icon--outline {
-    display: none;
-}
-
-.section-nav-item.active .section-nav-icon--filled {
-    display: block;
 }
 
 .section-nav-label {
