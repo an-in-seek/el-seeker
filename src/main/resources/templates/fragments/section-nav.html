@@ -3,9 +3,8 @@
 <body>
 <nav th:fragment="section-nav"
      class="section-nav"
-     aria-label="섹션 탐색 메뉴"
-     th:with="currentPath=${#httpServletRequest != null ? #httpServletRequest.requestURI : ''}">
-
+     aria-label="섹션 탐색 메뉴">
+    
     <!-- 성경 -->
     <a href="/web/bible/translation"
        class="section-nav-item"
