@@ -3,6 +3,7 @@ package com.elseeker.auth.application.service
 import com.elseeker.auth.adapter.input.api.client.request.SocialLoginRequest
 import com.elseeker.auth.adapter.input.api.client.response.SocialLoginResponse
 import com.elseeker.auth.application.component.SocialTokenVerifier
+import com.elseeker.auth.application.component.SocialUserInfo
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.common.security.jwt.JwtProvider
@@ -44,14 +45,13 @@ class SocialLoginService(
         }
 
         val member = findOrCreateMember(userInfo)
-        val savedMember = memberRepository.save(member)
 
         val accessToken = jwtProvider.generateAccessToken(
-            savedMember.uid.toString(),
-            savedMember.email,
-            listOf(savedMember.memberRole),
+            member.uid.toString(),
+            member.email,
+            listOf(member.memberRole),
         )
-        val refreshToken = jwtProvider.generateRefreshToken(savedMember.uid.toString())
+        val refreshToken = jwtProvider.generateRefreshToken(member.uid.toString())
 
         return SocialLoginResponse(
             accessToken = accessToken,
@@ -66,9 +66,7 @@ class SocialLoginService(
      * 2. 동일 이메일의 기존 회원이 있으면 OAuth 계정을 연결 (소셜 provider는 이메일 인증 보장)
      * 3. 완전히 새로운 사용자면 회원 + OAuth 계정 생성
      */
-    private fun findOrCreateMember(
-        userInfo: com.elseeker.auth.application.component.SocialUserInfo,
-    ): Member {
+    private fun findOrCreateMember(userInfo: SocialUserInfo): Member {
         // 1. 기존 OAuth 계정 조회
         val existingAccount = memberOAuthAccountRepository.findByProviderAndProviderUserId(
             provider = userInfo.provider,
@@ -93,23 +91,26 @@ class SocialLoginService(
                 oauthNickname = userInfo.name,
                 oauthProfileImageUrl = userInfo.imageUrl,
             )
+            existingMember.initializeProfileFromOAuth(userInfo.name, userInfo.imageUrl)
             return existingMember
         }
 
         // 3. 신규 회원 생성
-        return Member.create(
+        val newMember = Member.create(
             email = userInfo.email,
             nickname = "",
             memberRole = MemberRole.USER,
             profileImageUrl = null,
-        ).also { newMember ->
-            newMember.addOAuthAccount(
+        ).also {
+            it.addOAuthAccount(
                 provider = userInfo.provider,
                 providerUserId = userInfo.providerUserId,
                 email = userInfo.email,
                 oauthNickname = userInfo.name,
                 oauthProfileImageUrl = userInfo.imageUrl,
             )
+            it.initializeProfileFromOAuth(userInfo.name, userInfo.imageUrl)
         }
+        return memberRepository.save(newMember)
     }
 }

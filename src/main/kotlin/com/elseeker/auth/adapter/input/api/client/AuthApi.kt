@@ -11,6 +11,7 @@ import com.elseeker.common.security.oauth.util.CookieUtils
 import com.elseeker.member.application.service.MemberService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
@@ -71,7 +72,7 @@ class AuthApi(
 
     @PostMapping("/social-login")
     override fun socialLogin(
-        @RequestBody request: SocialLoginRequest,
+        @Valid @RequestBody request: SocialLoginRequest,
     ): SocialLoginResponse {
         return socialLoginService.login(request)
     }

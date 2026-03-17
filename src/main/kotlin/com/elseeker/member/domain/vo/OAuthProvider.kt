@@ -1,5 +1,7 @@
 package com.elseeker.member.domain.vo
 
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
@@ -11,8 +13,8 @@ enum class OAuthProvider(val registrationId: String) {
     companion object {
         fun fromRegistrationId(registrationId: String): OAuthProvider {
             val normalized = registrationId.lowercase()
-            return values().firstOrNull { it.registrationId == normalized }
-                ?: throw IllegalArgumentException("지원하지 않는 소셜 로그인 제공자입니다: $registrationId")
+            return entries.firstOrNull { it.registrationId == normalized }
+                ?: throwError(ErrorType.INVALID_PARAMETER)
         }
     }
 }

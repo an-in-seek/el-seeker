@@ -34,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // Web UI/UX
     implementation("org.webjars:bootstrap:5.3.0")
@@ -56,6 +57,9 @@ dependencies {
 
     // DB
     implementation("org.postgresql:postgresql")
+
+    // Google ID Token 검증
+    implementation("com.google.api-client:google-api-client:2.7.2")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")

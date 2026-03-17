@@ -3,11 +3,16 @@ package com.elseeker.auth.application.component
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.elseeker.member.domain.vo.OAuthProvider
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.gson.GsonFactory
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
+import java.time.Duration
 
 /**
  * 소셜 로그인 토큰 검증 컴포넌트.
@@ -15,7 +20,7 @@ import org.springframework.web.client.RestClient
  * 앱에서 전달받은 소셜 토큰을 각 Provider API를 통해 검증하고
  * 사용자 정보를 추출합니다.
  *
- * - Google: ID Token → tokeninfo 엔드포인트로 검증 + audience(client ID) 확인
+ * - Google: ID Token → google-auth-library로 로컬 JWT 검증 + audience(client ID) 확인
  * - Kakao: Access Token → User Info API 호출
  * - Naver: Access Token → User Info API 호출
  */
@@ -27,9 +32,18 @@ class SocialTokenVerifier(
 
     private val logger = LoggerFactory.getLogger(SocialTokenVerifier::class.java)
 
-    private val restClient: RestClient = RestClient.create()
+    private val restClient: RestClient = RestClient.builder()
+        .requestFactory(SimpleClientHttpRequestFactory().apply {
+            setConnectTimeout(Duration.ofSeconds(3))
+            setReadTimeout(Duration.ofSeconds(5))
+        })
+        .build()
 
     private val mapType = object : ParameterizedTypeReference<Map<String, Any>>() {}
+
+    private val googleIdTokenVerifier: GoogleIdTokenVerifier = GoogleIdTokenVerifier.Builder(
+        NetHttpTransport(), GsonFactory.getDefaultInstance()
+    ).setAudience(listOf(googleClientId)).build()
 
     fun verify(provider: OAuthProvider, token: String): SocialUserInfo {
         return when (provider) {
@@ -42,36 +56,30 @@ class SocialTokenVerifier(
     /**
      * Google ID Token 검증.
      *
-     * Google tokeninfo 엔드포인트를 호출하여 서명과 만료를 검증하고,
+     * google-auth-library를 사용하여 로컬에서 JWT 서명과 만료를 검증하고,
      * audience(aud)가 서버의 Google Client ID와 일치하는지 확인합니다.
+     * Google 공개키는 라이브러리 내부에서 캐싱됩니다.
      *
      * 주의: Android 앱에서 GoogleSignInOptions.requestIdToken() 호출 시
      * 반드시 서버(웹)의 Client ID를 serverClientId로 설정해야 합니다.
      */
     private fun verifyGoogle(idToken: String): SocialUserInfo {
-        val response = try {
-            restClient.get()
-                .uri("https://oauth2.googleapis.com/tokeninfo?id_token={idToken}", idToken)
-                .retrieve()
-                .body(mapType)
+        val googleIdToken = try {
+            googleIdTokenVerifier.verify(idToken)
         } catch (e: Exception) {
-            logger.warn("Google ID Token 검증 실패: ${e.message}")
-            throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "google")
+            logger.warn("Google ID Token 검증 실패: {}", e.message)
+            null
         } ?: throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "google")
 
-        val aud = response["aud"] as? String
-        if (aud != googleClientId) {
-            logger.warn("Google ID Token audience 불일치: expected=$googleClientId, actual=$aud")
-            throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "google")
-        }
+        val payload = googleIdToken.payload
 
         return SocialUserInfo(
             provider = OAuthProvider.GOOGLE,
-            providerUserId = response["sub"] as? String
+            providerUserId = payload.subject
                 ?: throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "google"),
-            email = response["email"] as? String ?: "",
-            name = response["name"] as? String ?: "",
-            imageUrl = response["picture"] as? String,
+            email = payload.email ?: "",
+            name = payload["name"] as? String ?: "",
+            imageUrl = payload["picture"] as? String,
         )
     }
 
@@ -90,7 +98,7 @@ class SocialTokenVerifier(
                 .retrieve()
                 .body(mapType)
         } catch (e: Exception) {
-            logger.warn("Kakao Access Token 검증 실패: ${e.message}")
+            logger.warn("Kakao Access Token 검증 실패: {}", e.message)
             throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "kakao")
         } ?: throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "kakao")
 
@@ -122,7 +130,7 @@ class SocialTokenVerifier(
                 .retrieve()
                 .body(mapType)
         } catch (e: Exception) {
-            logger.warn("Naver Access Token 검증 실패: ${e.message}")
+            logger.warn("Naver Access Token 검증 실패: {}", e.message)
             throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "naver")
         } ?: throwError(ErrorType.SOCIAL_LOGIN_INVALID_TOKEN, "naver")
 
