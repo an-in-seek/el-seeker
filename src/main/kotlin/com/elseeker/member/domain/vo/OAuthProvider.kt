@@ -16,6 +16,11 @@ enum class OAuthProvider(val registrationId: String) {
             return entries.firstOrNull { it.registrationId == normalized }
                 ?: throwError(ErrorType.INVALID_PARAMETER)
         }
+
+        fun fromDbValue(dbValue: String): OAuthProvider {
+            return entries.firstOrNull { it.registrationId == dbValue }
+                ?: throw IllegalArgumentException("알 수 없는 OAuthProvider DB 값: $dbValue")
+        }
     }
 }
 
@@ -26,6 +31,6 @@ class OAuthProviderConverter : AttributeConverter<OAuthProvider, String> {
     }
 
     override fun convertToEntityAttribute(dbData: String?): OAuthProvider? {
-        return dbData?.let { OAuthProvider.fromRegistrationId(it) }
+        return dbData?.let { OAuthProvider.fromDbValue(it) }
     }
 }
