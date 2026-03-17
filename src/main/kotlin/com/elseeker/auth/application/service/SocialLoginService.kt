@@ -1,0 +1,115 @@
+package com.elseeker.auth.application.service
+
+import com.elseeker.auth.adapter.input.api.client.request.SocialLoginRequest
+import com.elseeker.auth.adapter.input.api.client.response.SocialLoginResponse
+import com.elseeker.auth.application.component.SocialTokenVerifier
+import com.elseeker.common.domain.ErrorType
+import com.elseeker.common.domain.throwError
+import com.elseeker.common.security.jwt.JwtProvider
+import com.elseeker.member.adapter.output.jpa.MemberOAuthAccountRepository
+import com.elseeker.member.adapter.output.jpa.MemberRepository
+import com.elseeker.member.domain.model.Member
+import com.elseeker.member.domain.vo.MemberRole
+import com.elseeker.member.domain.vo.OAuthProvider
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+/**
+ * 모바일 앱 소셜 로그인 서비스.
+ *
+ * 앱에서 네이티브 SDK로 획득한 소셜 토큰을 검증하고,
+ * 회원을 조회하거나 신규 생성한 뒤 자체 JWT를 발급합니다.
+ *
+ * [동작 흐름]
+ * 1. 소셜 토큰 검증 (Provider API 호출)
+ * 2. OAuth 계정으로 기존 회원 조회 → 없으면 이메일로 조회 → 없으면 신규 생성
+ * 3. JWT Access/Refresh Token 발급
+ * 4. JSON body로 토큰 응답 (쿠키 미사용)
+ */
+@Service
+class SocialLoginService(
+    private val socialTokenVerifier: SocialTokenVerifier,
+    private val memberRepository: MemberRepository,
+    private val memberOAuthAccountRepository: MemberOAuthAccountRepository,
+    private val jwtProvider: JwtProvider,
+) {
+
+    @Transactional
+    fun login(request: SocialLoginRequest): SocialLoginResponse {
+        val provider = OAuthProvider.fromRegistrationId(request.provider)
+        val userInfo = socialTokenVerifier.verify(provider, request.token)
+
+        if (userInfo.email.isBlank()) {
+            throwError(ErrorType.OAUTH_EMAIL_MISSING, provider.registrationId)
+        }
+
+        val member = findOrCreateMember(userInfo)
+        val savedMember = memberRepository.save(member)
+
+        val accessToken = jwtProvider.generateAccessToken(
+            savedMember.uid.toString(),
+            savedMember.email,
+            listOf(savedMember.memberRole),
+        )
+        val refreshToken = jwtProvider.generateRefreshToken(savedMember.uid.toString())
+
+        return SocialLoginResponse(
+            accessToken = accessToken,
+            refreshToken = refreshToken,
+        )
+    }
+
+    /**
+     * OAuth 계정 기준으로 기존 회원을 조회하거나 신규 생성합니다.
+     *
+     * 1. provider + providerUserId로 기존 OAuth 계정 조회 → 프로필 동기화 후 반환
+     * 2. 동일 이메일의 기존 회원이 있으면 OAuth 계정을 연결 (소셜 provider는 이메일 인증 보장)
+     * 3. 완전히 새로운 사용자면 회원 + OAuth 계정 생성
+     */
+    private fun findOrCreateMember(
+        userInfo: com.elseeker.auth.application.component.SocialUserInfo,
+    ): Member {
+        // 1. 기존 OAuth 계정 조회
+        val existingAccount = memberOAuthAccountRepository.findByProviderAndProviderUserId(
+            provider = userInfo.provider,
+            providerUserId = userInfo.providerUserId,
+        )
+        if (existingAccount != null) {
+            existingAccount.syncOAuthProfile(
+                email = userInfo.email,
+                nickname = userInfo.name,
+                profileImageUrl = userInfo.imageUrl,
+            )
+            return existingAccount.member
+        }
+
+        // 2. 동일 이메일 회원이 있으면 OAuth 계정 연결
+        val existingMember = memberRepository.findByEmail(userInfo.email)
+        if (existingMember != null) {
+            existingMember.addOAuthAccount(
+                provider = userInfo.provider,
+                providerUserId = userInfo.providerUserId,
+                email = userInfo.email,
+                oauthNickname = userInfo.name,
+                oauthProfileImageUrl = userInfo.imageUrl,
+            )
+            return existingMember
+        }
+
+        // 3. 신규 회원 생성
+        return Member.create(
+            email = userInfo.email,
+            nickname = "",
+            memberRole = MemberRole.USER,
+            profileImageUrl = null,
+        ).also { newMember ->
+            newMember.addOAuthAccount(
+                provider = userInfo.provider,
+                providerUserId = userInfo.providerUserId,
+                email = userInfo.email,
+                oauthNickname = userInfo.name,
+                oauthProfileImageUrl = userInfo.imageUrl,
+            )
+        }
+    }
+}

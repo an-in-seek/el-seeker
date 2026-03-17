@@ -96,7 +96,8 @@ class SecurityConfig(
                         "/api/v1/game/ranking",
                         "/api/v1/bibles/**",
                         "/api/v1/study/dictionaries/**",
-                        "/api/v1/auth/refresh"
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/social-login"
                     ).permitAll()
                     .requestMatchers(
                         org.springframework.http.HttpMethod.GET,

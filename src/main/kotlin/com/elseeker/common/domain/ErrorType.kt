@@ -17,6 +17,7 @@ enum class ErrorType(
     OAUTH_ACCOUNT_ALREADY_LINKED(HttpStatus.CONFLICT, "해당 소셜 계정은 이미 다른 사용자에 연결되어 있습니다.", LogLevel.WARN),
     OAUTH_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "소셜 계정을 찾을 수 없습니다.", LogLevel.WARN),
     OAUTH_LINK_REQUIRED(HttpStatus.BAD_REQUEST, "연동 전용 요청입니다. 마이페이지에서 연동을 진행해 주세요.", LogLevel.WARN),
+    SOCIAL_LOGIN_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "소셜 로그인 토큰이 유효하지 않습니다.", LogLevel.WARN),
     REQUIRED_NICKNAME(HttpStatus.BAD_REQUEST, "닉네임은 필수입니다.", LogLevel.WARN),
     INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST, "닉네임은 공백을 포함할 수 없습니다.", LogLevel.WARN),
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 닉네임입니다.", LogLevel.WARN),

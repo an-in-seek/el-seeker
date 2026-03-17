@@ -1,6 +1,9 @@
 package com.elseeker.auth.adapter.input.api.client
 
+import com.elseeker.auth.adapter.input.api.client.request.SocialLoginRequest
 import com.elseeker.auth.adapter.input.api.client.response.AuthMeResponse
+import com.elseeker.auth.adapter.input.api.client.response.SocialLoginResponse
+import com.elseeker.auth.application.service.SocialLoginService
 import com.elseeker.common.config.ElSeekerProperties
 import com.elseeker.common.security.jwt.JwtPrincipal
 import com.elseeker.common.security.jwt.JwtProvider
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
@@ -22,6 +26,7 @@ class AuthApi(
     private val memberService: MemberService,
     private val jwtProvider: JwtProvider,
     private val properties: ElSeekerProperties,
+    private val socialLoginService: SocialLoginService,
 ) : AuthApiDocument {
 
     @GetMapping("/me")
@@ -62,5 +67,12 @@ class AuthApi(
             request.isSecure
         )
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/social-login")
+    override fun socialLogin(
+        @RequestBody request: SocialLoginRequest,
+    ): SocialLoginResponse {
+        return socialLoginService.login(request)
     }
 }
