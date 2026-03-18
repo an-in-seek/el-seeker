@@ -83,10 +83,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let memoPage = 0;
     let memoHasNext = false;
     let memoLoading = false;
+    let memoTranslationFilter = null;
+    let memoBookFilter = null;
 
     const memoList = document.getElementById("mypageMemoList");
     const memoEmpty = document.getElementById("mypageMemoEmpty");
     const memoMoreBtn = document.getElementById("mypageMemoMore");
+    const memoFilterContainer = document.getElementById("mypageMemoFilter");
+    const memoTranslationSelect = document.getElementById("mypageMemoTranslationFilter");
+    const memoBookSelect = document.getElementById("mypageMemoBookFilter");
 
     const tabButtons = document.querySelectorAll(".mypage-tab");
     const tabPanels = {
@@ -578,7 +583,14 @@ document.addEventListener("DOMContentLoaded", () => {
             memoSkeleton?.classList.remove("d-none");
         }
         try {
-            const response = await fetchWithAuthRetry(`/api/v1/bibles/my-memos?page=${memoPage}&size=20`, {
+            let memoApiUrl = `/api/v1/bibles/my-memos?page=${memoPage}&size=20`;
+            if (memoTranslationFilter != null) {
+                memoApiUrl += `&translationId=${memoTranslationFilter}`;
+            }
+            if (memoBookFilter != null) {
+                memoApiUrl += `&bookOrder=${memoBookFilter}`;
+            }
+            const response = await fetchWithAuthRetry(memoApiUrl, {
                 credentials: "include",
                 headers: {Accept: "application/json"},
             });
@@ -668,6 +680,95 @@ document.addEventListener("DOMContentLoaded", () => {
             memoLoading = false;
         }
     };
+
+    const loadMemoTranslationFilter = async () => {
+        if (!memoTranslationSelect || !memoFilterContainer) {
+            return;
+        }
+        try {
+            const response = await fetchWithAuthRetry("/api/v1/bibles/my-memos/translations", {
+                credentials: "include",
+                headers: {Accept: "application/json"},
+            });
+            if (!response.ok) {
+                return;
+            }
+            const translations = await response.json().catch(() => []);
+            if (!Array.isArray(translations) || translations.length === 0) {
+                return;
+            }
+            memoFilterContainer.classList.remove("d-none");
+            memoTranslationSelect.innerHTML = '<option value="">전체 번역본</option>';
+            translations.forEach((t) => {
+                const option = document.createElement("option");
+                option.value = t.translationId;
+                option.textContent = t.translationName;
+                memoTranslationSelect.appendChild(option);
+            });
+            if (translations.length === 1) {
+                memoTranslationSelect.value = String(translations[0].translationId);
+                memoTranslationFilter = translations[0].translationId;
+                await loadMemoBookFilter(memoTranslationFilter);
+            }
+        } catch {
+            // 필터 로드 실패 시 무시
+        }
+    };
+
+    const loadMemoBookFilter = async (translationId) => {
+        if (!memoBookSelect) {
+            return;
+        }
+        memoBookSelect.innerHTML = '<option value="">전체 성경</option>';
+        memoBookFilter = null;
+        if (!translationId) {
+            memoBookSelect.disabled = true;
+            return;
+        }
+        try {
+            const response = await fetchWithAuthRetry(`/api/v1/bibles/my-memos/books?translationId=${translationId}`, {
+                credentials: "include",
+                headers: {Accept: "application/json"},
+            });
+            if (!response.ok) {
+                return;
+            }
+            const books = await response.json().catch(() => []);
+            if (!Array.isArray(books) || books.length === 0) {
+                memoBookSelect.disabled = true;
+                return;
+            }
+            books.forEach((book) => {
+                const option = document.createElement("option");
+                option.value = book.bookOrder;
+                option.textContent = book.bookName;
+                memoBookSelect.appendChild(option);
+            });
+            memoBookSelect.disabled = false;
+        } catch {
+            memoBookSelect.disabled = true;
+        }
+    };
+
+    if (memoTranslationSelect) {
+        memoTranslationSelect.addEventListener("change", async () => {
+            const value = memoTranslationSelect.value;
+            memoTranslationFilter = value ? parseInt(value, 10) : null;
+            memoBookFilter = null;
+            memoPage = 0;
+            await loadMemoBookFilter(memoTranslationFilter);
+            loadMyMemos(false);
+        });
+    }
+
+    if (memoBookSelect) {
+        memoBookSelect.addEventListener("change", () => {
+            const value = memoBookSelect.value;
+            memoBookFilter = value ? parseInt(value, 10) : null;
+            memoPage = 0;
+            loadMyMemos(false);
+        });
+    }
 
     if (memoMoreBtn) {
         memoMoreBtn.addEventListener("click", () => {
@@ -771,6 +872,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             loadOAuthAccounts();
             loadMyMemos();
+            loadMemoTranslationFilter();
         },
         onUnauthenticated: redirectToLogin,
         onError: () => showSaveToast("인증 정보를 확인할 수 없습니다. 다시 로그인해 주세요.", "error"),

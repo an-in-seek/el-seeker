@@ -496,6 +496,35 @@ body.top-nav-hidden .mypage-tabs-wrapper {
     border-radius: 999px;
 }
 
+.mypage-memo-filter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.mypage-memo-filter-select {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    color: #334155;
+    max-width: 160px;
+    transition: border-color 0.2s;
+}
+
+.mypage-memo-filter-select:focus {
+    border-color: var(--mypage-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+.mypage-memo-filter-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .mypage-memo-list {
     display: grid;
     gap: 0.75rem;

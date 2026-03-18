@@ -2,6 +2,7 @@ package com.elseeker.bible.application.service
 
 import com.elseeker.bible.adapter.output.jpa.BibleBookRepository
 import com.elseeker.bible.adapter.output.jpa.BibleMemoRepository
+import com.elseeker.bible.adapter.output.jpa.BibleTranslationRepository
 import com.elseeker.bible.domain.model.BibleVerseMemo
 import com.elseeker.bible.domain.result.BibleMemoResult
 import com.elseeker.common.domain.ErrorType
@@ -17,11 +18,17 @@ import java.util.UUID
 @Transactional
 class BibleMemoService(
     private val bibleMemoRepository: BibleMemoRepository,
-    private val bibleBookRepository: BibleBookRepository
+    private val bibleBookRepository: BibleBookRepository,
+    private val bibleTranslationRepository: BibleTranslationRepository
 ) {
 
     @Transactional(readOnly = true)
-    fun getMyMemos(memberUid: UUID, pageable: Pageable): BibleMemoResult.MemoSlice {
+    fun getMyMemos(
+        memberUid: UUID,
+        pageable: Pageable,
+        translationId: Long? = null,
+        bookOrder: Int? = null
+    ): BibleMemoResult.MemoSlice {
         val sortedPageable = if (pageable.sort.isUnsorted) {
             org.springframework.data.domain.PageRequest.of(
                 pageable.pageNumber, pageable.pageSize, Sort.by(Sort.Direction.DESC, "updatedAt")
@@ -29,12 +36,30 @@ class BibleMemoService(
         } else {
             pageable
         }
-        val slice = bibleMemoRepository.findAllByMemberUid(memberUid, sortedPageable)
+        val slice = when {
+            translationId != null && bookOrder != null ->
+                bibleMemoRepository.findAllByMemberUidAndTranslationIdAndBookOrder(memberUid, translationId, bookOrder, sortedPageable)
+            translationId != null ->
+                bibleMemoRepository.findAllByMemberUidAndTranslationId(memberUid, translationId, sortedPageable)
+            bookOrder != null ->
+                bibleMemoRepository.findAllByMemberUidAndBookOrder(memberUid, bookOrder, sortedPageable)
+            else ->
+                bibleMemoRepository.findAllByMemberUid(memberUid, sortedPageable)
+        }
 
         val bookNameMap = resolveBookNames(slice.content)
 
         val totalCount = if (sortedPageable.pageNumber == 0) {
-            bibleMemoRepository.countByMemberUid(memberUid)
+            when {
+                translationId != null && bookOrder != null ->
+                    bibleMemoRepository.countByMemberUidAndTranslationIdAndBookOrder(memberUid, translationId, bookOrder)
+                translationId != null ->
+                    bibleMemoRepository.countByMemberUidAndTranslationId(memberUid, translationId)
+                bookOrder != null ->
+                    bibleMemoRepository.countByMemberUidAndBookOrder(memberUid, bookOrder)
+                else ->
+                    bibleMemoRepository.countByMemberUid(memberUid)
+            }
         } else {
             null
         }
@@ -49,6 +74,26 @@ class BibleMemoService(
             number = slice.number,
             totalCount = totalCount
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getMemoTranslations(memberUid: UUID): List<BibleMemoResult.MemoTranslationItem> {
+        val translationIds = bibleMemoRepository.findDistinctTranslationIdsByMemberUid(memberUid)
+        if (translationIds.isEmpty()) return emptyList()
+        val translations = bibleTranslationRepository.findAllById(translationIds)
+        return translations
+            .sortedBy { it.translationOrder }
+            .map { BibleMemoResult.MemoTranslationItem(translationId = it.id!!, translationName = it.name) }
+    }
+
+    @Transactional(readOnly = true)
+    fun getMemoBookList(memberUid: UUID, translationId: Long): List<BibleMemoResult.MemoBookItem> {
+        val bookOrders = bibleMemoRepository.findDistinctBookOrdersByMemberUidAndTranslationId(memberUid, translationId)
+        if (bookOrders.isEmpty()) return emptyList()
+        val books = bibleBookRepository.findByTranslationIdAndBookOrderIn(translationId, bookOrders)
+        return books
+            .sortedBy { it.bookOrder }
+            .map { BibleMemoResult.MemoBookItem(bookOrder = it.bookOrder, bookName = it.name) }
     }
 
     private fun resolveBookNames(memos: List<BibleVerseMemo>): Map<Pair<Long, Int>, String> {

@@ -17,15 +17,34 @@ class BibleMyMemoApi(
     private val bibleMemoService: BibleMemoService
 ) {
 
+    @GetMapping("/translations")
+    fun getMyMemoTranslations(
+        @AuthenticationPrincipal principal: JwtPrincipal
+    ): ResponseEntity<List<BibleMemoResult.MemoTranslationItem>> {
+        val result = bibleMemoService.getMemoTranslations(principal.memberUid)
+        return ResponseEntity.ok(result)
+    }
+
+    @GetMapping("/books")
+    fun getMyMemoBooks(
+        @AuthenticationPrincipal principal: JwtPrincipal,
+        @RequestParam translationId: Long
+    ): ResponseEntity<List<BibleMemoResult.MemoBookItem>> {
+        val result = bibleMemoService.getMemoBookList(principal.memberUid, translationId)
+        return ResponseEntity.ok(result)
+    }
+
     @GetMapping
     fun getMyMemos(
         @AuthenticationPrincipal principal: JwtPrincipal,
         @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "20") size: Int
+        @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) translationId: Long?,
+        @RequestParam(required = false) bookOrder: Int?
     ): ResponseEntity<BibleMemoResult.MemoSlice> {
         val effectiveSize = size.coerceIn(1, 100)
         val pageable = PageRequest.of(page, effectiveSize)
-        val result = bibleMemoService.getMyMemos(principal.memberUid, pageable)
+        val result = bibleMemoService.getMyMemos(principal.memberUid, pageable, translationId, bookOrder)
         return ResponseEntity.ok(result)
     }
 }

@@ -13,6 +13,16 @@ object BibleMemoResult {
         val totalCount: Long?
     )
 
+    data class MemoTranslationItem(
+        val translationId: Long,
+        val translationName: String
+    )
+
+    data class MemoBookItem(
+        val bookOrder: Int,
+        val bookName: String
+    )
+
     data class MemoItem(
         val memoId: Long,
         val translationId: Long,
