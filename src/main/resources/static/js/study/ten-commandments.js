@@ -187,8 +187,6 @@ class TenCommandments {
     renderFullText() {
         this.fullTextEl.innerHTML = `
             <div class="ten-commandments-full-text-inner">
-                <h2 class="ten-commandments-full-text-title">십계명</h2>
-                <p class="ten-commandments-full-text-ref">출애굽기 20:1-17</p>
                 <div class="ten-commandments-full-text-body">${FULL_COMMANDMENTS_TEXT.replace(/\n/g, "<br>")}</div>
             </div>
         `;
@@ -204,7 +202,7 @@ class TenCommandments {
 
         this.historyEl.innerHTML = `
             <div class="ten-commandments-history-inner">
-                <h3 class="ten-commandments-history-title">십계명의 배경</h3>
+                <h2 class="ten-commandments-history-title">십계명의 배경</h2>
                 ${sections}
             </div>
         `;

@@ -199,8 +199,6 @@ class ApostlesCreed {
     renderFullText() {
         this.fullTextEl.innerHTML = `
             <div class="apostles-creed-full-text-inner">
-                <h2 class="apostles-creed-full-text-title">사도신경</h2>
-                <p class="apostles-creed-full-text-ref">Apostles' Creed</p>
                 <div class="apostles-creed-full-text-body">${FULL_CREED_TEXT.replace(/\n/g, "<br>")}</div>
             </div>
         `;
@@ -216,7 +214,7 @@ class ApostlesCreed {
 
         this.historyEl.innerHTML = `
             <div class="apostles-creed-history-inner">
-                <h3 class="apostles-creed-history-title">사도신경의 유래와 역사</h3>
+                <h2 class="apostles-creed-history-title">사도신경의 유래와 역사</h2>
                 ${sections}
             </div>
         `;

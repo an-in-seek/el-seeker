@@ -164,8 +164,6 @@ class LordsPrayer {
     renderFullText() {
         this.fullTextEl.innerHTML = `
             <div class="lords-prayer-full-text-inner">
-                <h2 class="lords-prayer-full-text-title">주기도문</h2>
-                <p class="lords-prayer-full-text-ref">마태복음 6:9-13</p>
                 <div class="lords-prayer-full-text-body">${FULL_PRAYER_TEXT.replace(/\n/g, "<br>")}</div>
             </div>
         `;
@@ -181,7 +179,7 @@ class LordsPrayer {
 
         this.historyEl.innerHTML = `
             <div class="lords-prayer-history-inner">
-                <h3 class="lords-prayer-history-title">주기도문의 유래와 역사</h3>
+                <h2 class="lords-prayer-history-title">주기도문의 유래와 역사</h2>
                 ${sections}
             </div>
         `;
