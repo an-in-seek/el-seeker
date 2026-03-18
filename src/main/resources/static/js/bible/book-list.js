@@ -32,7 +32,10 @@ const DomHelper = {
             oldTestamentToggle: get("oldTestamentToggle"),
             newTestamentList: get("newTestamentList"),
             newTestamentCount: get("newTestamentCount"),
-            newTestamentToggle: get("newTestamentToggle")
+            newTestamentToggle: get("newTestamentToggle"),
+            bookSearchInput: get("bookSearchInput"),
+            bookSearchClear: get("bookSearchClear"),
+            bookSearchEmpty: get("bookSearchEmpty")
         };
     }
 };
@@ -86,7 +89,8 @@ const SectionToggle = {
 const App = {
     elements: null,
     state: {
-        translationId: null
+        translationId: null,
+        allBooks: []
     },
 
     init: async () => {
@@ -106,6 +110,8 @@ const App = {
         if (!App.renderFromSessionStorage(App.state.translationId)) {
             await App.fetchBooksFromAPI(App.state.translationId);
         }
+
+        App.initBookSearch();
     },
 
     initNav: () => {
@@ -223,6 +229,7 @@ const App = {
     },
 
     renderBooks: (books, translationId) => {
+        App.state.allBooks = books;
         const oldTestament = [];
         const newTestament = [];
         books.forEach(book => {
@@ -235,6 +242,66 @@ const App = {
         App.renderGroup(oldTestament, App.elements.oldTestamentList, App.elements.oldTestamentCount, translationId);
         App.renderGroup(newTestament, App.elements.newTestamentList, App.elements.newTestamentCount, translationId);
         BookStore.saveListForTranslation(translationId, books);
+    },
+
+    initBookSearch: () => {
+        const {bookSearchInput, bookSearchClear} = App.elements;
+        if (!bookSearchInput) return;
+
+        bookSearchInput.addEventListener("input", () => {
+            const keyword = bookSearchInput.value.trim();
+            bookSearchClear.classList.toggle(UI_CLASSES.HIDDEN, keyword.length === 0);
+            App.filterBooks(keyword);
+        });
+
+        bookSearchClear.addEventListener("click", () => {
+            bookSearchInput.value = "";
+            bookSearchClear.classList.add(UI_CLASSES.HIDDEN);
+            App.filterBooks("");
+            bookSearchInput.focus();
+        });
+    },
+
+    filterBooks: keyword => {
+        const {allBooks} = App.state;
+        const translationId = App.state.translationId;
+        if (!allBooks.length) return;
+
+        const filtered = keyword
+            ? allBooks.filter(book => book.bookName.includes(keyword))
+            : allBooks;
+
+        const oldTestament = [];
+        const newTestament = [];
+        filtered.forEach(book => {
+            if (book.testamentType === "OLD") oldTestament.push(book);
+            else if (book.testamentType === "NEW") newTestament.push(book);
+        });
+
+        App.renderGroup(oldTestament, App.elements.oldTestamentList, App.elements.oldTestamentCount, translationId);
+        App.renderGroup(newTestament, App.elements.newTestamentList, App.elements.newTestamentCount, translationId);
+
+        const {oldTestamentToggle, oldTestamentList, newTestamentToggle, newTestamentList, bookSearchEmpty} = App.elements;
+
+        const oldSection = oldTestamentToggle?.closest(".book-section");
+        const newSection = newTestamentToggle?.closest(".book-section");
+
+        if (oldSection) oldSection.classList.toggle(UI_CLASSES.HIDDEN, oldTestament.length === 0);
+        if (newSection) newSection.classList.toggle(UI_CLASSES.HIDDEN, newTestament.length === 0);
+
+        if (keyword && oldTestament.length > 0) SectionToggle.apply(oldTestamentToggle, oldTestamentList, true);
+        if (keyword && newTestament.length > 0) SectionToggle.apply(newTestamentToggle, newTestamentList, true);
+
+        if (!keyword) {
+            if (oldSection) oldSection.classList.remove(UI_CLASSES.HIDDEN);
+            if (newSection) newSection.classList.remove(UI_CLASSES.HIDDEN);
+            SectionToggle.apply(oldTestamentToggle, oldTestamentList, SectionToggle.isExpanded("old"));
+            SectionToggle.apply(newTestamentToggle, newTestamentList, SectionToggle.isExpanded("new"));
+        }
+
+        if (bookSearchEmpty) {
+            bookSearchEmpty.classList.toggle(UI_CLASSES.HIDDEN, filtered.length > 0 || !keyword);
+        }
     },
 
     fetchBooksFromAPI: async translationId => {
