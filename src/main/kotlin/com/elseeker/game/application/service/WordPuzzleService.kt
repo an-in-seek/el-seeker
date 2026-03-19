@@ -343,8 +343,8 @@ class WordPuzzleService(
                 originalLexeme = word.originalLexeme,
                 references = word.references.map { ref ->
                     WordReferenceResponse(
-                        verseReference = ref.verseReference,
-                        verseExcerpt = ref.verseExcerpt
+                        verseReference = ref.verseLabel,
+                        verseExcerpt = ""
                     )
                 }
             )

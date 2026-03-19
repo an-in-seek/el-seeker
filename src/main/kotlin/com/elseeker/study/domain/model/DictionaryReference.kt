@@ -8,6 +8,12 @@ import java.time.Instant
 @Entity
 @Table(
     name = "dictionary_reference",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_dict_ref_verse",
+            columnNames = ["dictionary_id", "book_order", "chapter_number", "verse_number"]
+        )
+    ],
     indexes = [
         Index(name = "IDX_dictionary_reference_dictionary", columnList = "dictionary_id")
     ]
@@ -20,14 +26,20 @@ class DictionaryReference(
     @JoinColumn(name = "dictionary_id", nullable = false)
     val dictionary: Dictionary,
 
-    @Column(name = "verse_reference", nullable = false, length = 100)
-    val verseReference: String,
+    @Column(name = "book_order", nullable = false)
+    val bookOrder: Int,
 
-    @Column(name = "verse_excerpt", nullable = false, columnDefinition = "TEXT")
-    val verseExcerpt: String,
+    @Column(name = "chapter_number", nullable = false)
+    val chapterNumber: Int,
+
+    @Column(name = "verse_number", nullable = false)
+    val verseNumber: Int,
+
+    @Column(name = "verse_label", nullable = false, length = 100)
+    val verseLabel: String,
 
     @Column(name = "display_order", nullable = false)
-    val displayOrder: Int = 0,
+    var displayOrder: Int = 0,
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
