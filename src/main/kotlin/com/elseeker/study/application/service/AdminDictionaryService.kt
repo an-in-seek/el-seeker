@@ -37,7 +37,11 @@ class AdminDictionaryService(
             term = term,
             description = description,
             relatedVerses = relatedVerses,
+            originalLanguageCode = existing.originalLanguageCode,
+            originalLexeme = existing.originalLexeme,
+            bibleUsageCount = existing.bibleUsageCount,
         )
+        updated.references.addAll(existing.references)
         return dictionaryRepository.save(updated)
     }
 
