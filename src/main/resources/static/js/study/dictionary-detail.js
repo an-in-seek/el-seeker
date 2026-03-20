@@ -77,7 +77,7 @@ const App = {
     buildVerseUrl: (ref) => {
         const translationId = TranslationStore.getCurrentTranslationId();
         if (!translationId) return ROUTES.TRANSLATION_LIST;
-        return `${ROUTES.VERSE}?translationId=${translationId}&bookOrder=${ref.bookOrder}&chapterNumber=${ref.chapterNumber}&verseNumber=${ref.verseNumber}`;
+        return `${ROUTES.VERSE}?translationId=${translationId}&bookOrder=${ref.bookOrder}&chapterNumber=${ref.chapterNumber}&verseNumber=${ref.verseNumber}&from=dictionary`;
     },
 
     renderReferences: (refs) => {

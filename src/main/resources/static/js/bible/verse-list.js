@@ -139,6 +139,7 @@ function resolveInitialState() {
     state.fromSearch = fromValue === "search";
     state.fromHome = fromValue === "home";
     state.fromMypage = fromValue === "mypage";
+    state.fromDictionary = fromValue === "dictionary";
 }
 
 async function init() {
@@ -204,7 +205,7 @@ function setupBackButton(button) {
     }
     button.classList.remove(UI_CLASSES.HIDDEN);
     button.addEventListener("click", () => {
-        if (state.fromSearch || state.fromMypage) {
+        if (state.fromSearch || state.fromMypage || state.fromDictionary) {
             history.back();
             return;
         }
