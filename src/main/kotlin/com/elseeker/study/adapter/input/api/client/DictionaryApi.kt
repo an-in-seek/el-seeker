@@ -1,6 +1,7 @@
 package com.elseeker.study.adapter.input.api.client
 
 import com.elseeker.study.adapter.input.api.client.response.DictionaryApiResponse
+import com.elseeker.study.adapter.output.jpa.DictionaryReferenceRepository
 import com.elseeker.study.application.service.DictionaryService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -10,7 +11,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/study/dictionaries")
 class DictionaryApi(
-    private val dictionaryService: DictionaryService
+    private val dictionaryService: DictionaryService,
+    private val dictionaryReferenceRepository: DictionaryReferenceRepository
 ) : DictionaryApiDocument {
 
     @GetMapping
@@ -35,5 +37,13 @@ class DictionaryApi(
     ): ResponseEntity<DictionaryApiResponse.DictionaryDetail> {
         val response = dictionaryService.getDictionary(id).let(DictionaryApiResponse.DictionaryDetail::from)
         return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/{id}/references")
+    fun getDictionaryReferences(
+        @PathVariable id: Long
+    ): ResponseEntity<List<DictionaryApiResponse.ReferenceItem>> {
+        val refs = dictionaryReferenceRepository.findAllByDictionaryIdOrderByDisplayOrderAsc(id)
+        return ResponseEntity.ok(refs.map { DictionaryApiResponse.ReferenceItem.from(it) })
     }
 }

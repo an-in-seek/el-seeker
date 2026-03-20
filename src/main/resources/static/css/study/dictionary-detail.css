@@ -178,6 +178,20 @@ body {
     font-family: "Manrope", sans-serif;
 }
 
+.related-verse-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .related-verse-link:hover {
+        background: #e0e7ff;
+        border-color: #818cf8;
+        color: #4338ca;
+    }
+}
+
 /* Decorative Quote Icon */
 .related-verses-box::before {
     content: '“';

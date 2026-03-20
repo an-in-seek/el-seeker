@@ -1,6 +1,7 @@
 package com.elseeker.study.adapter.input.api.client.response
 
 import com.elseeker.study.domain.model.Dictionary
+import com.elseeker.study.domain.model.DictionaryReference
 
 object DictionaryApiResponse {
 
@@ -41,6 +42,26 @@ object DictionaryApiResponse {
                     description = entity.description,
                     relatedVerses = entity.relatedVerses
                 )
+        }
+    }
+
+    data class ReferenceItem(
+        val referenceId: Long,
+        val bookOrder: Int,
+        val chapterNumber: Int,
+        val verseNumber: Int,
+        val verseLabel: String,
+        val displayOrder: Int
+    ) {
+        companion object {
+            fun from(ref: DictionaryReference) = ReferenceItem(
+                referenceId = ref.id!!,
+                bookOrder = ref.bookOrder,
+                chapterNumber = ref.chapterNumber,
+                verseNumber = ref.verseNumber,
+                verseLabel = ref.verseLabel,
+                displayOrder = ref.displayOrder
+            )
         }
     }
 }

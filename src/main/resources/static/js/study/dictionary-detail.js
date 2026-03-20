@@ -1,5 +1,12 @@
+import {TranslationStore} from "/js/storage-util.js?v=2.3";
+
 const UI_CLASSES = {
     HIDDEN: "d-none"
+};
+
+const ROUTES = {
+    VERSE: "/web/bible/verse",
+    TRANSLATION_LIST: "/web/bible/translation"
 };
 
 const DomHelper = {
@@ -8,7 +15,8 @@ const DomHelper = {
         return {
             backButton: get("topNavBackButton"),
             pageTitleLabel: get("pageTitleLabel"),
-            relatedVerses: document.querySelector(".related-verses-content")
+            referencesContainer: get("referencesContainer"),
+            referencesEmpty: get("referencesEmpty")
         };
     }
 };
@@ -18,7 +26,7 @@ const App = {
     init: () => {
         App.elements = DomHelper.getElements();
         App.initNav();
-        App.renderRelatedVersesTags();
+        App.loadReferences();
     },
 
     initNav: () => {
@@ -36,32 +44,56 @@ const App = {
         }
     },
 
-    renderRelatedVersesTags: () => {
-        const {relatedVerses} = App.elements;
-        if (!relatedVerses || relatedVerses.classList.contains("empty-text")) {
-            return;
+    loadReferences: async () => {
+        const dictionaryId = document.body.dataset.dictionaryId;
+        if (!dictionaryId) return;
+
+        const {referencesContainer, referencesEmpty} = App.elements;
+        if (!referencesContainer) return;
+
+        try {
+            const response = await fetch(`/api/v1/study/dictionaries/${dictionaryId}/references`);
+            if (!response.ok) {
+                App.showEmpty();
+                return;
+            }
+            const refs = await response.json();
+            if (!Array.isArray(refs) || refs.length === 0) {
+                App.showEmpty();
+                return;
+            }
+            App.renderReferences(refs);
+        } catch {
+            App.showEmpty();
         }
-        const rawText = relatedVerses.textContent?.trim();
-        if (!rawText) {
-            return;
-        }
-        const parts = rawText
-            .split(/\s*,\s*|\n+/)
-            .map(part => part.trim())
-            .filter(Boolean);
-        if (parts.length === 0) {
-            return;
-        }
-        const container = document.createElement("div");
-        container.className = "related-verses-tags";
-        parts.forEach(part => {
-            const tag = document.createElement("span");
-            tag.className = "related-verse-tag";
-            tag.textContent = part;
-            tag.title = part;
-            container.appendChild(tag);
+    },
+
+    showEmpty: () => {
+        const {referencesContainer, referencesEmpty} = App.elements;
+        if (referencesContainer) referencesContainer.classList.add(UI_CLASSES.HIDDEN);
+        if (referencesEmpty) referencesEmpty.classList.remove(UI_CLASSES.HIDDEN);
+    },
+
+    buildVerseUrl: (ref) => {
+        const translationId = TranslationStore.getCurrentTranslationId();
+        if (!translationId) return ROUTES.TRANSLATION_LIST;
+        return `${ROUTES.VERSE}?translationId=${translationId}&bookOrder=${ref.bookOrder}&chapterNumber=${ref.chapterNumber}&verseNumber=${ref.verseNumber}`;
+    },
+
+    renderReferences: (refs) => {
+        const {referencesContainer, referencesEmpty} = App.elements;
+        if (referencesEmpty) referencesEmpty.classList.add(UI_CLASSES.HIDDEN);
+        referencesContainer.classList.remove(UI_CLASSES.HIDDEN);
+        referencesContainer.innerHTML = "";
+
+        refs.forEach(ref => {
+            const tag = document.createElement("a");
+            tag.className = "related-verse-tag related-verse-link";
+            tag.textContent = ref.verseLabel;
+            tag.title = `${ref.verseLabel} 구절로 이동`;
+            tag.href = App.buildVerseUrl(ref);
+            referencesContainer.appendChild(tag);
         });
-        relatedVerses.replaceChildren(container);
     }
 };
 

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
-<head th:replace="~{fragments/head :: head('성경 단어 뜻풀이 - 원어·관련 구절 | ElSeeker', true, '/css/study/dictionary-detail.css')}"
+<head th:replace="~{fragments/head :: head('성경 단어 뜻풀이 - 원어·관련 구절 | ElSeeker', true, '/css/study/dictionary-detail.css?v=1.1')}"
       th:with="pageDescription='성경 단어의 정의, 원어(히브리어/헬라어), 관련 성경 구절을 상세히 살펴볼 수 있습니다.',
                pageKeywords='성경 단어,성경 뜻풀이,히브리어 원어,헬라어 원어,성경 용어 해설'"></head>
 
-<body class="has-fixed-nav has-dual-bottom-nav" th:attr="data-back-link=${backLink}">
+<body class="has-fixed-nav has-dual-bottom-nav" th:attr="data-back-link=${backLink},data-dictionary-id=${dictionary.id}">
 
 <header th:replace="~{fragments/header :: header}"></header>
 
@@ -30,15 +30,26 @@
                         </div>
                     </section>
 
-                    <!-- Related Verses Section -->
-                    <section class="dictionary-section">
+                    <!-- Related Verses Section (references API) -->
+                    <section class="dictionary-section" id="referencesSection">
                         <h2 class="section-title">
                             <span class="section-icon">🔗</span> 관련 성경 구절
                         </h2>
                         <div class="related-verses-box">
+                            <div id="referencesContainer" class="related-verses-tags"></div>
+                            <div id="referencesEmpty" class="related-verses-content empty-text d-none">등록된 관련 구절이 없습니다.</div>
+                        </div>
+                    </section>
+
+                    <!-- Legacy Related Verses (text) -->
+                    <section class="dictionary-section" id="legacyVersesSection"
+                             th:if="${!dictionary.relatedVerses.isBlank()}">
+                        <h2 class="section-title">
+                            <span class="section-icon">📜</span> 관련 구절 (텍스트)
+                        </h2>
+                        <div class="related-verses-box">
                             <div class="related-verses-content"
-                                 th:classappend="${dictionary.relatedVerses.isBlank()} ? 'empty-text' : ''"
-                                 th:text="${dictionary.relatedVerses.isBlank()} ? '등록된 관련 구절이 없습니다.' : ${dictionary.relatedVerses}">
+                                 th:text="${dictionary.relatedVerses}">
                                 관련 성경 구절
                             </div>
                         </div>
@@ -48,7 +59,7 @@
         </div>
     </div>
 </main>
-<script type="module" src="/js/study/dictionary-detail.js?v=2.2"></script>
+<script type="module" src="/js/study/dictionary-detail.js?v=2.3"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 
