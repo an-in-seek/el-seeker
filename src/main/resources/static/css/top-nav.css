@@ -192,7 +192,8 @@
 /* --- Top nav auto-hide on scroll (mobile) --- */
 @media (max-width: 599.98px) {
     body.has-dual-bottom-nav .top-nav-row,
-    body.mypage-page .top-nav-row {
+    body.mypage-page .top-nav-row,
+    body.typing-page .top-nav-row {
         transition: transform 300ms ease;
         will-change: transform;
     }
@@ -200,16 +201,6 @@
     body.top-nav-hidden .top-nav-row {
         transform: translateY(-100%);
     }
-}
-
-/* --- Top nav auto-hide on scroll (typing page, all sizes) --- */
-body.typing-page .top-nav-row {
-    transition: transform 300ms ease;
-    will-change: transform;
-}
-
-body.typing-page.top-nav-hidden .top-nav-row {
-    transform: translateY(-100%);
 }
 
 @media (hover: none) and (pointer: coarse) {

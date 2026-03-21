@@ -331,7 +331,17 @@
     }
 }
 
-/* Adjust sticky stack when top nav is hidden */
-body.top-nav-hidden .typing-sticky-stack {
-    top: 4px;
+/* Adjust sticky stack when top nav is hidden (mobile) */
+@media (max-width: 599.98px) {
+    body.top-nav-hidden .typing-sticky-stack {
+        top: 4px;
+    }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+    body.typing-page .top-nav-row,
+    .typing-sticky-stack {
+        transition: none !important;
+    }
 }
