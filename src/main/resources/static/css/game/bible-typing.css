@@ -214,7 +214,6 @@
     padding-left: 0.5rem;
 }
 
-
 /* Verse Row */
 .typing-verse-row {
     border: 1px solid #f1f5f9;
@@ -313,8 +312,6 @@
     .typing-status-bar {
         padding: 1rem;
     }
-
-
 
     .status-item {
         min-width: auto;
