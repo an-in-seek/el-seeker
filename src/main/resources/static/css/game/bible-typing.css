@@ -11,10 +11,6 @@
     padding: 0;
 }
 
-.typing-page .content-wrapper {
-    padding-top: 0.5rem;
-}
-
 /* Typography */
 .typing-kicker {
     display: block;
@@ -141,8 +137,8 @@
 /* Sticky HUD Stack */
 .typing-sticky-stack {
     position: sticky;
-    top: 76px;
-    /* Below fixed header */
+    top: 56px;
+    /* Below fixed header (52px nav + 4px buffer) */
     z-index: 100;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
