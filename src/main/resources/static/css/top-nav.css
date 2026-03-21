@@ -192,7 +192,8 @@
 /* --- Top nav auto-hide on scroll (mobile) --- */
 @media (max-width: 599.98px) {
     body.has-dual-bottom-nav .top-nav-row,
-    body.mypage-page .top-nav-row {
+    body.mypage-page .top-nav-row,
+    body.typing-page .top-nav-row {
         transition: transform 300ms ease;
         will-change: transform;
     }

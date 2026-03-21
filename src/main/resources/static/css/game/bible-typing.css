@@ -6,11 +6,6 @@
     background: #f8fafc;
 }
 
-/* Collapse empty title bar spacing */
-.typing-page .top-nav-title {
-    padding: 0;
-}
-
 /* Typography */
 .typing-kicker {
     display: block;
@@ -139,6 +134,7 @@
     position: sticky;
     top: 56px;
     /* Below fixed header (52px nav + 4px buffer) */
+    transition: top 300ms ease;
     z-index: 100;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
@@ -332,5 +328,20 @@
 
     .typing-verse-row {
         padding: 1rem;
+    }
+}
+
+/* Adjust sticky stack when top nav is hidden (mobile) */
+@media (max-width: 599.98px) {
+    body.top-nav-hidden .typing-sticky-stack {
+        top: 4px;
+    }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+    body.typing-page .top-nav-row,
+    .typing-sticky-stack {
+        transition: none !important;
     }
 }
