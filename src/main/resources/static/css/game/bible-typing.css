@@ -210,32 +210,8 @@
 .typing-verse-list {
     display: grid;
     gap: 1rem;
-    max-height: 600px;
-    overflow-y: auto;
     padding-right: 0.5rem;
     padding-left: 0.5rem;
-    /* Added padding-left to prevent clipping */
-}
-
-/* Scrollbar Styling */
-.typing-verse-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.typing-verse-list::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-}
-
-.typing-verse-list::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .typing-verse-list::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
 }
 
 /* Verse Row */
@@ -336,8 +312,6 @@
     .typing-status-bar {
         padding: 1rem;
     }
-
-
 
     .status-item {
         min-width: auto;
