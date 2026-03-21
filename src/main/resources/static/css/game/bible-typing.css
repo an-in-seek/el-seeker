@@ -134,6 +134,7 @@
     position: sticky;
     top: 56px;
     /* Below fixed header (52px nav + 4px buffer) */
+    transition: top 300ms ease;
     z-index: 100;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
@@ -328,4 +329,9 @@
     .typing-verse-row {
         padding: 1rem;
     }
+}
+
+/* Adjust sticky stack when top nav is hidden */
+body.top-nav-hidden .typing-sticky-stack {
+    top: 4px;
 }

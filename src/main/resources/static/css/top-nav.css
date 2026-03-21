@@ -202,6 +202,16 @@
     }
 }
 
+/* --- Top nav auto-hide on scroll (typing page, all sizes) --- */
+body.typing-page .top-nav-row {
+    transition: transform 300ms ease;
+    will-change: transform;
+}
+
+body.typing-page.top-nav-hidden .top-nav-row {
+    transform: translateY(-100%);
+}
+
 @media (hover: none) and (pointer: coarse) {
     .top-nav .btn-outline-secondary:hover {
         background-color: transparent;
