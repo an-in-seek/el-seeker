@@ -6,11 +6,6 @@
     background: #f8fafc;
 }
 
-/* Collapse empty title bar spacing */
-.typing-page .top-nav-title {
-    padding: 0;
-}
-
 /* Typography */
 .typing-kicker {
     display: block;
