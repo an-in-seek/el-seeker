@@ -174,11 +174,30 @@ class BibleOverviewVideo {
         const targetCard = document.querySelector(`.bible-overview-video-card[data-book-order="${bookOrder}"]`);
         if (!targetCard) return;
 
-        targetCard.scrollIntoView({behavior: "smooth", block: "center"});
-        targetCard.classList.add("is-highlighted");
-        targetCard.addEventListener("animationend", () => {
-            targetCard.classList.remove("is-highlighted");
-        }, {once: true});
+        setTimeout(() => {
+            const overlay = document.createElement("div");
+            overlay.className = "video-spotlight-overlay";
+            document.body.appendChild(overlay);
+
+            targetCard.classList.add("is-spotlight-target");
+
+            requestAnimationFrame(() => {
+                overlay.classList.add("is-active");
+                targetCard.scrollIntoView({behavior: "smooth", block: "center"});
+            });
+
+            let dismissed = false;
+            const dismiss = () => {
+                if (dismissed) return;
+                dismissed = true;
+                overlay.classList.remove("is-active");
+                targetCard.classList.remove("is-spotlight-target");
+                overlay.addEventListener("transitionend", () => overlay.remove(), {once: true});
+            };
+
+            overlay.addEventListener("click", dismiss, {once: true});
+            setTimeout(dismiss, 4000);
+        }, 100);
     }
 }
 

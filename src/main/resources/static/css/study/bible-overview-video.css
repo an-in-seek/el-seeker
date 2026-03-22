@@ -137,15 +137,33 @@
     }
 }
 
-.bible-overview-video-card.is-highlighted {
-    animation: card-highlight 1.5s ease-out;
+/* Spotlight overlay */
+.video-spotlight-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1040;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
 }
 
-@keyframes card-highlight {
-    0%, 30% {
-        box-shadow: 0 0 0 3px #3b82f6;
-    }
-    100% {
-        box-shadow: none;
-    }
+.video-spotlight-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* Spotlight target card */
+.bible-overview-video-card.is-spotlight-target {
+    position: relative;
+    z-index: 1041;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 1),
+                0 4px 24px rgba(0, 0, 0, 0.25);
+    transition: box-shadow 0.4s ease, background 0.4s ease;
 }
