@@ -31,6 +31,7 @@ const DomHelper = {
             bookDescription: get("bookDescription"),
             bookDescriptionSummary: get("bookDescriptionSummary"),
             overviewVideoBtn: get("overviewVideoBtn"),
+            gameBtn: get("gameBtn"),
             chapterList: get("chapterList"),
             prevBtn: get("prevBookBtn"),
             bookSelectLink: get("bookSelectLink"),
@@ -298,6 +299,9 @@ const App = {
         if (overviewVideoBtn) {
             overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
         }
+        if (App.elements.gameBtn) {
+            App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}`;
+        }
     },
 
     setupPrevNext: books => {
@@ -443,6 +447,9 @@ window.addEventListener("popstate", async () => {
     }
     if (App.elements.overviewVideoBtn) {
         App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
+    }
+    if (App.elements.gameBtn) {
+        App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}`;
     }
     App.updatePrevNextState();
     if (!App.renderFromSessionStorage()) {
