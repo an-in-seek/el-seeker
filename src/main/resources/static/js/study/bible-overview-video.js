@@ -88,6 +88,7 @@ class BibleOverviewVideo {
     init() {
         this.initNav();
         this.render();
+        this.scrollToTargetBook();
     }
 
     initNav() {
@@ -129,6 +130,7 @@ class BibleOverviewVideo {
 
             const link = document.createElement("a");
             link.className = "bible-overview-video-card";
+            link.dataset.bookOrder = book.bookOrder;
             link.href = book.youtubeUrl;
             link.target = "_blank";
             link.rel = "noopener noreferrer";
@@ -146,6 +148,7 @@ class BibleOverviewVideo {
 
         const div = document.createElement("div");
         div.className = "bible-overview-video-card is-disabled";
+        div.dataset.bookOrder = book.bookOrder;
         div.innerHTML = `
             <div class="bible-overview-video-thumb is-fallback">
                 <span class="bible-overview-video-play" aria-hidden="true"></span>
@@ -154,6 +157,20 @@ class BibleOverviewVideo {
             <span class="bible-overview-video-badge">준비중</span>
         `;
         return div;
+    }
+
+    scrollToTargetBook() {
+        const bookOrder = new URLSearchParams(window.location.search).get("bookOrder");
+        if (!bookOrder) return;
+
+        const targetCard = document.querySelector(`.bible-overview-video-card[data-book-order="${bookOrder}"]`);
+        if (!targetCard) return;
+
+        targetCard.scrollIntoView({behavior: "smooth", block: "center"});
+        targetCard.classList.add("is-highlighted");
+        targetCard.addEventListener("animationend", () => {
+            targetCard.classList.remove("is-highlighted");
+        }, {once: true});
     }
 }
 
