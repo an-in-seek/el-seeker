@@ -45,7 +45,15 @@ class BibleOxQuizMap {
             pageTitleLabel.classList.remove("d-none");
         }
         this.backButton.classList.remove("d-none");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        this.from = urlParams.get("from");
+
         this.backButton.addEventListener("click", () => {
+            if (this.from === "chapter-list") {
+                history.back();
+                return;
+            }
             window.location.href = "/web/game";
         });
     }
@@ -111,9 +119,14 @@ class BibleOxQuizMap {
                 </div>
             `;
 
-            card.addEventListener("click", () => {
-                window.location.href = `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
-            });
+            const navigateToQuiz = () => {
+                const quizUrl = this.from
+                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&from=${this.from}`
+                    : `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
+                window.location.href = quizUrl;
+            };
+
+            card.addEventListener("click", navigateToQuiz);
 
             card.setAttribute("tabindex", "0");
             card.setAttribute("role", "button");
@@ -121,7 +134,7 @@ class BibleOxQuizMap {
             card.addEventListener("keydown", (e) => {
                 if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    window.location.href = `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
+                    navigateToQuiz();
                 }
             });
 

@@ -100,7 +100,15 @@ class BibleOverviewVideo {
             pageTitleLabel.classList.remove("d-none");
         }
         this.backButton.classList.remove("d-none");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        this.from = urlParams.get("from");
+
         this.backButton.addEventListener("click", () => {
+            if (this.from === "chapter-list") {
+                history.back();
+                return;
+            }
             window.location.href = "/web/study";
         });
     }
