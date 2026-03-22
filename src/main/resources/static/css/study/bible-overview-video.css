@@ -1,3 +1,94 @@
+/* Book search */
+.book-search-wrapper {
+    position: sticky;
+    top: 52px;
+    z-index: 1020;
+    background-color: #fff;
+    padding: 0.75rem 0;
+    margin: -0.75rem 0 0.25rem;
+    transition: top 300ms ease;
+}
+
+.top-nav-hidden .book-search-wrapper {
+    top: 0;
+}
+
+.book-search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.book-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: #868e96;
+    pointer-events: none;
+}
+
+.book-search-input {
+    width: 100%;
+    padding: 0.7rem 2.5rem 0.7rem 2.6rem;
+    font-size: 0.95rem;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    outline: none;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.book-search-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+.book-search-input:focus {
+    border-color: #91a7ff;
+    background-color: #fff;
+}
+
+.book-search-input::placeholder {
+    color: #adb5bd;
+}
+
+.book-search-clear {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #495057;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.book-search-clear svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .book-search-clear:hover {
+        background-color: #ced4da;
+    }
+}
+
+.book-search-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #868e96;
+    font-size: 0.95rem;
+}
+
 .bible-overview-video-loading {
     max-width: 640px;
     margin: 0 auto;
