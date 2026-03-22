@@ -136,3 +136,16 @@
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 }
+
+.bible-overview-video-card.is-highlighted {
+    animation: card-highlight 1.5s ease-out;
+}
+
+@keyframes card-highlight {
+    0%, 30% {
+        box-shadow: 0 0 0 3px #3b82f6;
+    }
+    100% {
+        box-shadow: none;
+    }
+}

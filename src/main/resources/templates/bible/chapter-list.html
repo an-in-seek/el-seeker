@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('성경 장 목록 - 책별 장 선택 | ElSeeker', true, '/css/bible/chapter-list.css?v=2.2')}"
+<head th:replace="~{fragments/head :: head('성경 장 목록 - 책별 장 선택 | ElSeeker', true, '/css/bible/chapter-list.css?v=2.3')}"
       th:with="pageDescription='선택한 성경 책의 장 목록과 책 개요를 빠르게 둘러볼 수 있습니다.',
                pageKeywords='성경 장,성경 읽기,성경 본문,성경책 개요'"></head>
 
@@ -10,18 +10,36 @@
         th:with="pageTitle='성경 장 목록', pageTitleVisible=true"></header>
 <main class="container content-wrapper mb-80">
     <!-- 책 개요 -->
-    <a id="bookDescription"
-       class="book-description text-decoration-none"
-       href="#"
-       aria-label="책 상세 보기"
-       title="책 개요를 보려면 클릭하세요">
-        <div class="book-description-row">
-            <div class="book-description-text">
-                📘 <span id="bookDescriptionSummary"></span>
+    <div class="book-info-section">
+        <a id="bookDescription"
+           class="book-description text-decoration-none"
+           href="#"
+           aria-label="책 상세 보기"
+           title="책 개요를 보려면 클릭하세요">
+            <div class="book-description-row">
+                <div class="book-description-text">
+                    📘 <span id="bookDescriptionSummary"></span>
+                </div>
+                <div class="book-description-icon">➡️</div>
             </div>
-            <div class="book-description-icon">➡️</div>
+        </a>
+        <div class="book-action-buttons">
+            <a id="overviewVideoBtn"
+               class="book-action-btn"
+               href="#"
+               aria-label="개요 영상 보기">
+                <span class="book-action-btn-icon" aria-hidden="true">▶️</span>
+                <span class="book-action-btn-label">개요 영상</span>
+            </a>
+            <a id="gameBtn"
+               class="book-action-btn"
+               href="/web/game/bible-ox-quiz/map"
+               aria-label="O/X 퀴즈 게임">
+                <span class="book-action-btn-icon" aria-hidden="true">🎮</span>
+                <span class="book-action-btn-label">게임</span>
+            </a>
         </div>
-    </a>
+    </div>
     <!-- 장 선택 그리드 -->
     <div id="chapterList" class="chapter-grid"></div>
 </main>
@@ -56,7 +74,7 @@
     </div>
 </div>
 
-<script type="module" src="/js/bible/chapter-list.js?v=2.2"></script>
+<script type="module" src="/js/bible/chapter-list.js?v=2.3"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 </html>
