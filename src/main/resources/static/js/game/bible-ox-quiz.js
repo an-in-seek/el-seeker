@@ -80,8 +80,12 @@ class BibleOxQuiz {
             pageTitleLabel.classList.remove("d-none");
         }
         this.backButton.classList.remove("d-none");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get("returnUrl");
+
         this.backButton.addEventListener("click", () => {
-            window.location.href = "/web/game/bible-ox-quiz/map";
+            window.location.href = returnUrl || "/web/game/bible-ox-quiz/map";
         });
     }
 
