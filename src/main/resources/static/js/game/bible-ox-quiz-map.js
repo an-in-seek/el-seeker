@@ -47,10 +47,14 @@ class BibleOxQuizMap {
         this.backButton.classList.remove("d-none");
 
         const urlParams = new URLSearchParams(window.location.search);
-        this.returnUrl = urlParams.get("returnUrl");
+        this.from = urlParams.get("from");
 
         this.backButton.addEventListener("click", () => {
-            window.location.href = this.returnUrl || "/web/game";
+            if (this.from === "chapter-list") {
+                history.back();
+                return;
+            }
+            window.location.href = "/web/game";
         });
     }
 
@@ -116,8 +120,8 @@ class BibleOxQuizMap {
             `;
 
             card.addEventListener("click", () => {
-                const quizUrl = this.returnUrl
-                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&returnUrl=${encodeURIComponent(this.returnUrl)}`
+                const quizUrl = this.from
+                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&from=${this.from}`
                     : `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
                 window.location.href = quizUrl;
             });
@@ -128,8 +132,8 @@ class BibleOxQuizMap {
             card.addEventListener("keydown", (e) => {
                 if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    const quizUrl = this.returnUrl
-                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&returnUrl=${encodeURIComponent(this.returnUrl)}`
+                    const quizUrl = this.from
+                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&from=${this.from}`
                     : `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
                 window.location.href = quizUrl;
                 }

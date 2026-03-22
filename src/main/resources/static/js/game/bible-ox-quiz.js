@@ -6,6 +6,7 @@
  */
 
 import { checkAuthStatus, buildLoginRedirectUrl } from "/js/auth/auth-check.js";
+import { TranslationStore } from "/js/storage-util.js";
 
 const API_BASE = "/api/v1/game/bible-ox-quiz";
 const MAX_STAGE = 66;
@@ -82,10 +83,18 @@ class BibleOxQuiz {
         this.backButton.classList.remove("d-none");
 
         const urlParams = new URLSearchParams(window.location.search);
-        const returnUrl = urlParams.get("returnUrl");
+        this.from = urlParams.get("from");
 
         this.backButton.addEventListener("click", () => {
-            window.location.href = returnUrl || "/web/game/bible-ox-quiz/map";
+            if (this.from === "chapter-list") {
+                const translationId = TranslationStore.getCurrentTranslationId();
+                const bookOrder = parseInt(urlParams.get("stage"), 10);
+                window.location.href = translationId && bookOrder
+                    ? `/web/bible/chapter?translationId=${translationId}&bookOrder=${bookOrder}`
+                    : "/web/game/bible-ox-quiz/map";
+                return;
+            }
+            window.location.href = "/web/game/bible-ox-quiz/map";
         });
     }
 

@@ -300,8 +300,7 @@ const App = {
             overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
         }
         if (App.elements.gameBtn) {
-            const chapterListUrl = `${ROUTES.CHAPTER_LIST}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
-            App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}&returnUrl=${encodeURIComponent(chapterListUrl)}`;
+            App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}&from=chapter-list`;
         }
     },
 
