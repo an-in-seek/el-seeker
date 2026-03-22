@@ -15,7 +15,8 @@ const ROUTES = {
     BOOK_LIST: "/web/bible/book",
     CHAPTER_LIST: "/web/bible/chapter",
     CHAPTER_DESCRIPTION: "/web/bible/book/description",
-    VERSE_LIST: "/web/bible/verse"
+    VERSE_LIST: "/web/bible/verse",
+    OVERVIEW_VIDEO: "/web/study/bible-overview-video"
 };
 
 const DomHelper = {
@@ -29,6 +30,7 @@ const DomHelper = {
             pageTitleLabel: get("pageTitleLabel"),
             bookDescription: get("bookDescription"),
             bookDescriptionSummary: get("bookDescriptionSummary"),
+            overviewVideoBtn: get("overviewVideoBtn"),
             chapterList: get("chapterList"),
             prevBtn: get("prevBookBtn"),
             bookSelectLink: get("bookSelectLink"),
@@ -275,7 +277,8 @@ const App = {
             pageTitleLabel,
             bookSelectLinkLabel,
             bookSelectLink,
-            bookDescription
+            bookDescription,
+            overviewVideoBtn
         } = App.elements;
         if (translationTypeLabel && translationType) {
             translationTypeLabel.textContent = translationType;
@@ -291,6 +294,9 @@ const App = {
         }
         if (bookDescription) {
             bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
+        }
+        if (overviewVideoBtn) {
+            overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
         }
     },
 
@@ -353,7 +359,10 @@ const App = {
             pageTitleLabel.textContent = data.book.bookName;
         }
         if (bookDescriptionSummary) {
-            bookDescriptionSummary.textContent = data.book.descriptionSummary;
+            const summary = data.book.descriptionSummary || "";
+            bookDescriptionSummary.textContent = summary.length > 40
+                ? summary.substring(0, 40) + "…"
+                : summary;
         }
         if (chapterList) {
             chapterList.innerHTML = "";
@@ -404,6 +413,9 @@ const App = {
         if (App.elements.bookDescription) {
             App.elements.bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
         }
+        if (App.elements.overviewVideoBtn) {
+            App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
+        }
 
         App.updatePrevNextState();
 
@@ -437,6 +449,9 @@ window.addEventListener("popstate", async () => {
     }
     if (App.elements.bookDescription) {
         App.elements.bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
+    }
+    if (App.elements.overviewVideoBtn) {
+        App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
     }
     App.updatePrevNextState();
     if (!App.renderFromSessionStorage()) {
