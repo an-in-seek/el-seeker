@@ -297,7 +297,7 @@ const App = {
             bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
         }
         if (overviewVideoBtn) {
-            overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
+            overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}&from=chapter-list`;
         }
         if (App.elements.gameBtn) {
             App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}&from=chapter-list`;
