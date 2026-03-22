@@ -19,6 +19,10 @@ class BibleOxQuizMap {
         this.backButton = document.getElementById("topNavBackButton");
         this.stageListSection = document.getElementById("oxStageList");
         this.stageGrid = document.getElementById("oxStageGrid");
+        this.bookSearchInput = document.getElementById("bookSearchInput");
+        this.bookSearchClear = document.getElementById("bookSearchClear");
+        this.bookSearchEmpty = document.getElementById("bookSearchEmpty");
+        this.allStages = [];
     }
 
     async init() {
@@ -66,12 +70,43 @@ class BibleOxQuizMap {
             }
 
             const data = await response.json();
+            this.allStages = data.stages;
             this.renderStageList(data);
             this.hideLoading();
             this.stageListSection.classList.remove("d-none");
+            this.initBookSearch();
             this.scrollToBookOrder();
         } catch (error) {
             this.showError(error.message);
+        }
+    }
+
+    initBookSearch() {
+        if (!this.bookSearchInput) return;
+
+        this.bookSearchInput.addEventListener("input", () => {
+            const keyword = this.bookSearchInput.value.trim();
+            this.bookSearchClear.classList.toggle("d-none", keyword.length === 0);
+            this.filterBooks(keyword);
+        });
+
+        this.bookSearchClear.addEventListener("click", () => {
+            this.bookSearchInput.value = "";
+            this.bookSearchClear.classList.add("d-none");
+            this.filterBooks("");
+            this.bookSearchInput.focus();
+        });
+    }
+
+    filterBooks(keyword) {
+        const filtered = keyword
+            ? this.allStages.filter(stage => stage.bookName.includes(keyword))
+            : this.allStages;
+
+        this.renderStageList({ stages: filtered });
+
+        if (this.bookSearchEmpty) {
+            this.bookSearchEmpty.classList.toggle("d-none", filtered.length > 0 || !keyword);
         }
     }
 
