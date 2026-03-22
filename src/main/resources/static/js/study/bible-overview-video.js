@@ -160,7 +160,7 @@ class BibleOverviewVideo {
     }
 
     scrollToTargetBook() {
-        const bookOrder = new URLSearchParams(window.location.search).get("bookOrder");
+        const bookOrder = parseInt(new URLSearchParams(window.location.search).get("bookOrder"), 10);
         if (!bookOrder) return;
 
         const targetCard = document.querySelector(`.bible-overview-video-card[data-book-order="${bookOrder}"]`);
