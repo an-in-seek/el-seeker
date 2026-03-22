@@ -359,10 +359,7 @@ const App = {
             pageTitleLabel.textContent = data.book.bookName;
         }
         if (bookDescriptionSummary) {
-            const summary = data.book.descriptionSummary || "";
-            bookDescriptionSummary.textContent = summary.length > 40
-                ? summary.substring(0, 40) + "…"
-                : summary;
+            bookDescriptionSummary.textContent = data.book.descriptionSummary || "";
         }
         if (chapterList) {
             chapterList.innerHTML = "";
@@ -409,12 +406,6 @@ const App = {
 
         if (bookName) {
             App.updateHeader(TranslationStore.getCurrentTranslationType(), bookName);
-        }
-        if (App.elements.bookDescription) {
-            App.elements.bookDescription.href = `${ROUTES.CHAPTER_DESCRIPTION}?translationId=${App.state.translationId}&bookOrder=${App.state.bookOrder}`;
-        }
-        if (App.elements.overviewVideoBtn) {
-            App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
         }
 
         App.updatePrevNextState();
