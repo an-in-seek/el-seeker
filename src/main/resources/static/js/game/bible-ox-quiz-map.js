@@ -83,9 +83,34 @@ class BibleOxQuizMap {
         }
         const cards = this.stageGrid.querySelectorAll(".ox-stage-card");
         const targetCard = cards[bookOrder - 1];
-        if (targetCard) {
-            targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (!targetCard) {
+            return;
         }
+
+        setTimeout(() => {
+            const overlay = document.createElement("div");
+            overlay.className = "ox-quiz-spotlight-overlay";
+            document.body.appendChild(overlay);
+
+            targetCard.classList.add("is-spotlight-target");
+
+            requestAnimationFrame(() => {
+                overlay.classList.add("is-active");
+                targetCard.scrollIntoView({behavior: "smooth", block: "center"});
+            });
+
+            let dismissed = false;
+            const dismiss = () => {
+                if (dismissed) return;
+                dismissed = true;
+                overlay.classList.remove("is-active");
+                targetCard.classList.remove("is-spotlight-target");
+                overlay.addEventListener("transitionend", () => overlay.remove(), {once: true});
+            };
+
+            overlay.addEventListener("click", dismiss, {once: true});
+            setTimeout(dismiss, 4000);
+        }, 100);
     }
 
     renderStageList(data) {
