@@ -119,12 +119,14 @@ class BibleOxQuizMap {
                 </div>
             `;
 
-            card.addEventListener("click", () => {
+            const navigateToQuiz = () => {
                 const quizUrl = this.from
                     ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&from=${this.from}`
                     : `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
                 window.location.href = quizUrl;
-            });
+            };
+
+            card.addEventListener("click", navigateToQuiz);
 
             card.setAttribute("tabindex", "0");
             card.setAttribute("role", "button");
@@ -132,10 +134,7 @@ class BibleOxQuizMap {
             card.addEventListener("keydown", (e) => {
                 if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    const quizUrl = this.from
-                    ? `/web/game/bible-ox-quiz?stage=${stage.stageNumber}&from=${this.from}`
-                    : `/web/game/bible-ox-quiz?stage=${stage.stageNumber}`;
-                window.location.href = quizUrl;
+                    navigateToQuiz();
                 }
             });
 
