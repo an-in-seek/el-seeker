@@ -82,12 +82,18 @@ class BibleOverviewVideo {
         this.contentEl = document.getElementById("videoContent");
         this.oldTestamentGrid = document.getElementById("oldTestamentGrid");
         this.newTestamentGrid = document.getElementById("newTestamentGrid");
+        this.oldTestamentSection = document.getElementById("oldTestamentSection");
+        this.newTestamentSection = document.getElementById("newTestamentSection");
         this.backButton = document.getElementById("topNavBackButton");
+        this.bookSearchInput = document.getElementById("bookSearchInput");
+        this.bookSearchClear = document.getElementById("bookSearchClear");
+        this.bookSearchEmpty = document.getElementById("bookSearchEmpty");
     }
 
     init() {
         this.initNav();
         this.render();
+        this.initBookSearch();
         this.scrollToTargetBook();
     }
 
@@ -165,6 +171,49 @@ class BibleOverviewVideo {
             <span class="bible-overview-video-badge">준비중</span>
         `;
         return div;
+    }
+
+    initBookSearch() {
+        if (!this.bookSearchInput) return;
+
+        this.bookSearchInput.addEventListener("input", () => {
+            const keyword = this.bookSearchInput.value.trim();
+            this.bookSearchClear.classList.toggle("d-none", keyword.length === 0);
+            this.filterBooks(keyword);
+        });
+
+        this.bookSearchClear.addEventListener("click", () => {
+            this.bookSearchInput.value = "";
+            this.bookSearchClear.classList.add("d-none");
+            this.filterBooks("");
+            this.bookSearchInput.focus();
+        });
+    }
+
+    filterBooks(keyword) {
+        const filtered = keyword
+            ? BIBLE_VIDEOS.filter(book => book.bookName.includes(keyword))
+            : BIBLE_VIDEOS;
+
+        const oldTestament = filtered.filter(b => b.bookOrder <= 39);
+        const newTestament = filtered.filter(b => b.bookOrder >= 40);
+
+        this.oldTestamentGrid.innerHTML = "";
+        this.newTestamentGrid.innerHTML = "";
+        oldTestament.forEach(book => this.oldTestamentGrid.appendChild(this.createCard(book)));
+        newTestament.forEach(book => this.newTestamentGrid.appendChild(this.createCard(book)));
+
+        this.oldTestamentSection.classList.toggle("d-none", oldTestament.length === 0);
+        this.newTestamentSection.classList.toggle("d-none", newTestament.length === 0);
+
+        if (!keyword) {
+            this.oldTestamentSection.classList.remove("d-none");
+            this.newTestamentSection.classList.remove("d-none");
+        }
+
+        if (this.bookSearchEmpty) {
+            this.bookSearchEmpty.classList.toggle("d-none", filtered.length > 0 || !keyword);
+        }
     }
 
     scrollToTargetBook() {
