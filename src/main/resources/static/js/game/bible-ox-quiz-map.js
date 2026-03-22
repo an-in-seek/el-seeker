@@ -61,8 +61,22 @@ class BibleOxQuizMap {
             this.renderStageList(data);
             this.hideLoading();
             this.stageListSection.classList.remove("d-none");
+            this.scrollToBookOrder();
         } catch (error) {
             this.showError(error.message);
+        }
+    }
+
+    scrollToBookOrder() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookOrder = parseInt(urlParams.get("bookOrder"), 10);
+        if (Number.isNaN(bookOrder)) {
+            return;
+        }
+        const cards = this.stageGrid.querySelectorAll(".ox-stage-card");
+        const targetCard = cards[bookOrder - 1];
+        if (targetCard) {
+            targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }
 
