@@ -448,9 +448,6 @@ window.addEventListener("popstate", async () => {
     if (App.elements.overviewVideoBtn) {
         App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}`;
     }
-    if (App.elements.gameBtn) {
-        App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}`;
-    }
     App.updatePrevNextState();
     if (!App.renderFromSessionStorage()) {
         await App.fetchChaptersFromAPI();
