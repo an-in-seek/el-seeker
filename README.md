@@ -2,84 +2,135 @@
 
 ElSeeker는 "하나님을 구하는 사람" 또는 "하나님을 찾는 사람"이라는 의미를 지닌 성경 플랫폼 서비스입니다. Kotlin과 Spring Boot 기반으로 개발되었으며 REST API와 Thymeleaf 기반 웹 UI를 통해 성경 번역본, 책, 장, 절 데이터를
 조회하고 검색할 수 있습니다.
-성경 퀴즈 스테이지와 스터디(사전/역사) 콘텐츠를 제공하고, 기본은 인메모리 H2 데이터베이스를 사용하며 애플리케이션 시작 시 SQL 시드 파일로 초기 데이터를 로딩합니다.
+성경 퀴즈 스테이지와 스터디(사전/역사) 콘텐츠를 제공하고, PostgreSQL 데이터베이스를 사용하며 애플리케이션 시작 시 SQL 시드 파일로 초기 데이터를 로딩합니다.
+
+---
 
 ## 브랜드/철학
 
 ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 의미를 바탕으로, 성경을 통해 하나님을 알아가는 여정을 돕는 플랫폼을 지향합니다.
 
+---
+
 ## 주요 기능
 
 ### 성경 (Bible)
 
-* 번역본/책/장/절 계층 탐색 웹 UI 및 REST API 제공 (KRV 66권 전체, NKRV 일부, KJV 목록)
-* 성경 구절 키워드 검색 (번역본 단위, 페이지네이션 지원)
-* 오늘의 말씀 — 매일 변경되는 랜덤 구절 조회 API
-* 이전/다음 장 네비게이션 API
-* 책 소개(Book Description) 페이지 — 각 성경 책의 요약 정보 제공
-* 구절 메모 — 장별 메모 조회·등록·삭제 (로그인 필수)
-* 구절 하이라이트 — 장별 하이라이트 조회·등록·삭제 (로그인 필수)
-* 읽기 진행도 — 장 단위 읽기 기록 조회·등록 (로그인 필수)
+| 기능           | 설명                                                  |
+|--------------|-----------------------------------------------------|
+| 번역본/책/장/절 탐색 | 계층 탐색 웹 UI 및 REST API (KRV 66권 전체, NKRV 일부, KJV 목록) |
+| 구절 검색        | 번역본 단위 키워드 검색, 페이지네이션 지원                            |
+| 오늘의 말씀       | 매일 변경되는 랜덤 구절 조회 API                                |
+| 장 네비게이션      | 이전/다음 장 이동 API                                      |
+| 책 소개         | 각 성경 책의 요약 정보 페이지                                   |
+| 구절 메모        | 장별 메모 조회·등록·삭제 (로그인 필수)                             |
+| 구절 하이라이트     | 장별 하이라이트 조회·등록·삭제 (로그인 필수)                          |
+| 읽기 진행도       | 장 단위 읽기 기록 조회·등록 (로그인 필수)                           |
 
 ### 게임 (Game)
 
-* **성경 퀴즈** — 스테이지별 문항 풀기, 난이도 선택, 점수 기록, 진행도 초기화
-* **성경 OX 퀴즈** — 참/거짓 문항 스테이지, 문항별 즉시 채점, 스테이지 완료 기록
-* **성경 타자 연습** — 번역본/책/장 단위 타자 세션 생성·종료, 절별 진행도 저장, 정확도·속도 측정, 최근 진행 이어하기
-* **성경 뽑기** — 랜덤 구절 추첨
-* **성경 단어 퍼즐** — 난이도별 낱말 퍼즐 목록 조회, 플레이(자동 저장·이어하기), 힌트(글자 공개·단어 확인), 제출 채점 및 결과 학습
+| 기능       | 설명                                           |
+|----------|----------------------------------------------|
+| 성경 퀴즈    | 스테이지별 문항 풀기, 난이도 선택, 점수 기록, 진행도 초기화          |
+| 성경 OX 퀴즈 | 참/거짓 문항 스테이지, 문항별 즉시 채점, 스테이지 완료 기록          |
+| 성경 타자 연습 | 번역본/책/장 단위 타자 세션, 절별 진행도 저장, 정확도·속도 측정, 이어하기 |
+| 성경 뽑기    | 랜덤 구절 추첨                                     |
+| 성경 단어 퍼즐 | 난이도별 낱말 퍼즐, 자동 저장·이어하기, 힌트, 제출 채점 및 결과 학습    |
 
 ### 학습 (Study)
 
-* **성경 사전** — 성경 용어 키워드 검색, 상세 조회 (REST API 및 웹 UI)
-* **성경 역사** — 시대별 타임라인 탐색, 시대 상세, 개별 사건 상세 (정치/문화적 배경, 성경 참조)
-* **성경 개요 영상** — 66권 유튜브 영상 목록 (클라이언트 전용, 정적 데이터)
-* **성경 족보** — 마태복음/누가복음 족보 비교 (클라이언트 전용, 정적 데이터)
-* **12사도** — 예수님의 12제자 학습 페이지
-* **12지파** — 이스라엘 12지파 학습 페이지
-* **사도신경** — 사도신경 내용 학습 페이지
-* **주기도문** — 주기도문 내용 학습 페이지
+| 기능       | 설명                                       |
+|----------|------------------------------------------|
+| 성경 사전    | 성경 용어 키워드 검색, 상세 조회 (REST API 및 웹 UI)    |
+| 성경 역사    | 시대별 타임라인 탐색, 시대·사건 상세 (정치/문화적 배경, 성경 참조) |
+| 성경 개요 영상 | 66권 유튜브 영상 목록 (클라이언트 전용, 정적 데이터)         |
+| 성경 족보    | 마태복음/누가복음 족보 비교 (클라이언트 전용, 정적 데이터)       |
+| 12사도     | 예수님의 12제자 학습 페이지                         |
+| 12지파     | 이스라엘 12지파 학습 페이지                         |
+| 사도신경     | 사도신경 내용 학습 페이지                           |
+| 주기도문     | 주기도문 내용 학습 페이지                           |
 
 ### 커뮤니티 (Community)
 
-* 게시글 작성·수정·삭제, 목록 조회(페이지네이션), 상세 조회
-* 인기 게시글(Top Posts) 조회
-* 댓글 작성·수정·삭제
-* 리액션(좋아요 등) 등록·취소
-* 게시글·댓글 신고
+| 기능     | 설명                             |
+|--------|--------------------------------|
+| 게시글    | 작성·수정·삭제, 목록 조회(페이지네이션), 상세 조회 |
+| 인기 게시글 | Top Posts 조회                   |
+| 댓글     | 작성·수정·삭제                       |
+| 리액션    | 좋아요 등 등록·취소                    |
+| 신고     | 게시글·댓글 신고                      |
 
 ### 회원 (Member)
 
-* OAuth2 소셜 로그인 (Google, Naver, Kakao)
-* JWT 기반 무상태 인증 — Access/Refresh 토큰 HttpOnly 쿠키 발급, 자동 갱신
-* 마이페이지 — 프로필(닉네임·프로필 이미지) 조회·수정
-* OAuth 계정 관리 — 연동 계정 목록 조회, 추가 연동, 연동 해제 (최초 가입 계정 보호)
-* OAuth 프로필 초기화 — 특정 연동 계정의 닉네임·이메일로 프로필 설정
-* 회원 탈퇴 — 계정 및 연관 데이터 영구 삭제
+| 기능            | 설명                                                    |
+|---------------|-------------------------------------------------------|
+| 소셜 로그인        | OAuth2 (Google, Naver, Kakao)                         |
+| 인증            | JWT 기반 무상태 인증, Access/Refresh 토큰 HttpOnly 쿠키 발급·자동 갱신 |
+| 마이페이지         | 프로필(닉네임·프로필 이미지) 조회·수정                                |
+| OAuth 계정 관리   | 연동 계정 목록 조회, 추가 연동, 연동 해제 (최초 가입 계정 보호)               |
+| OAuth 프로필 초기화 | 특정 연동 계정의 닉네임·이메일로 프로필 설정                             |
+| 회원 탈퇴         | 계정 및 연관 데이터 영구 삭제                                     |
 
 ### 관리자 (Admin)
 
-* **성경 관리** — 번역본, 책, 책 소개, 장, 절 CRUD
-* **사전 관리** — 성경 사전 항목 CRUD (키워드 검색)
-* **단어 퍼즐 관리** — 퍼즐 CRUD, 퍼즐 항목(Entry) CRUD
-* **퀴즈 관리** — 퀴즈 스테이지·문항 CRUD
-* **OX 퀴즈 관리** — OX 스테이지·문항 CRUD
-* **커뮤니티 관리** — 게시글 CRUD·상태 변경, 댓글 상태 변경·삭제·복원, 신고 목록 조회
-* **회원 관리** — 회원 목록 조회(검색), 회원 정보 수정
+| 기능       | 설명                                       |
+|----------|------------------------------------------|
+| 성경 관리    | 번역본, 책, 책 소개, 장, 절 CRUD                  |
+| 사전 관리    | 성경 사전 항목 CRUD (키워드 검색)                   |
+| 단어 퍼즐 관리 | 퍼즐 CRUD, 퍼즐 항목(Entry) CRUD               |
+| 퀴즈 관리    | 퀴즈 스테이지·문항 CRUD                          |
+| OX 퀴즈 관리 | OX 스테이지·문항 CRUD                          |
+| 커뮤니티 관리  | 게시글 CRUD·상태 변경, 댓글 상태 변경·삭제·복원, 신고 목록 조회 |
+| 회원 관리    | 회원 목록 조회(검색), 회원 정보 수정                   |
 
 ### 기타
 
-* 이용약관 및 개인정보처리방침 페이지
-* SpringDoc 기반 OpenAPI 및 Swagger UI 제공
+| 기능     | 설명                                |
+|--------|-----------------------------------|
+| 법적 페이지 | 이용약관 및 개인정보처리방침                   |
+| API 문서 | SpringDoc 기반 OpenAPI 및 Swagger UI |
+
+---
 
 ## 기술 스택
 
-* Kotlin 1.9.25, Spring Boot 3.5.9, Java 21
-* Spring Web, Spring Data JPA (Hibernate), Spring Security
-* OAuth2 Client, JWT
-* H2 인메모리 데이터베이스 (기본), PostgreSQL 드라이버 포함
-* Thymeleaf, WebJars (Bootstrap, jQuery)
-* SpringDoc OpenAPI
+> **Kotlin 1.9.25** · **Java 21** · **Gradle 8.12.1** · **Spring Boot 3.5.9**
+
+### Backend
+
+- **Spring Boot 3.5.9** — Web, Data JPA, Security, Validation, OAuth2 Client, Thymeleaf
+- **Kotlin JDSL 3.5.5** — 동적 쿼리 (커뮤니티 모듈 검색 등)
+- **Jackson Kotlin Module** — JSON 직렬화
+- **kotlin-logging 3.0.5** — 로깅
+- **nv-i18n 1.29** — 국제화
+
+### Database
+
+- **PostgreSQL 17** — 로컬/운영 공통 (로컬은 `ddl-auto: create` + SQL 시드 자동 로딩)
+- **Hibernate (Spring Data JPA)** — ORM
+
+### 인증
+
+- **OAuth2 Client** — Google, Naver, Kakao
+- **JJWT 0.12.3** — Access/Refresh 토큰, HttpOnly 쿠키
+- **Google API Client 2.7.2** — ID Token 검증
+
+### Frontend
+
+- **Thymeleaf** — SSR 템플릿 엔진
+- **Bootstrap 5.3.0** — WebJars
+- **JavaScript (ES6)** — 번들러 없음, 모듈 방식
+
+### 문서화
+
+- **SpringDoc OpenAPI 2.8.14** — Swagger UI
+
+### 테스트
+
+- **JUnit 5** · **Kotest 5.9.1** — 테스트 프레임워크
+- **Testcontainers** — PostgreSQL 통합 테스트
+
+---
 
 ## 프로젝트 구조
 
@@ -149,6 +200,8 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
     * `game`: 게임 서비스 테스트
 * `docs/`: 도메인별 문서 (ERD 등)
 
+---
+
 ## 개발 가이드
 
 * Commit 메시지는 AngularJS 컨벤션 prefix를 따릅니다: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:` 등.
@@ -157,6 +210,8 @@ ElSeeker는 "하나님을 구하는 사람/하나님을 찾는 사람"이라는 
 * Hover 스타일은 데스크톱(마우스) 환경에서만 적용합니다. 모든 hover CSS는 `@media (hover: hover) and (pointer: fine)` 내부에 작성하고, 모바일/터치 UI에서는 hover 기반 UX를 설계하지 않습니다.
 * **Active 메뉴 처리**: Thymeleaf 3.1부터 템플릿 내 `#request` 직접 접근이 차단되므로, `@ControllerAdvice` + `@ModelAttribute("currentPath")`로 서버에서 현재 경로를 주입합니다. 템플릿에서는 `th:classappend="${#strings.startsWith(currentPath, '/경로')} ? 'active'"` 패턴을 사용합니다. JS
   `location.pathname`으로 active 클래스를 토글하는 방식은 SSR 원칙 위배로 사용하지 않습니다. (참고: `GlobalModelAttribute.kt`)
+
+---
 
 ## SEO 가이드
 
@@ -227,17 +282,19 @@ th:with="pageDescription='설명', schemaType='CollectionPage'"
 * `/api/` — API 엔드포인트 차단
 * `Sitemap` — sitemap.xml 위치 명시
 
+---
+
 ## 로컬 실행 방법
 
 ```bash
 ./gradlew bootRun
 ```
 
+* 로컬 PostgreSQL이 실행 중이어야 합니다 (기본: `localhost:5432/el_seeker`, `postgres`/`postgres`)
 * 애플리케이션 접속: `http://localhost:8080`
 * Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-* H2 콘솔: `http://localhost:8080/h2-console`
 
-    * JDBC URL: `jdbc:h2:mem:test`
+---
 
 ## 빌드 및 테스트
 
@@ -247,16 +304,22 @@ th:with="pageDescription='설명', schemaType='CollectionPage'"
 ./gradlew bootJar
 ```
 
+---
+
 ## 시간대 정책
 
 API는 모든 시간 값을 UTC 기준 ISO-8601 형식으로 응답합니다. 사용자 타임존에 따른 표시 변환은 클라이언트에서 수행합니다.
 예: `2024-01-01T10:00:00Z`
+
+---
 
 ## 인증 및 토큰 갱신
 
 * OAuth2 로그인 성공 시 Access/Refresh JWT가 HttpOnly 쿠키로 발급됩니다.
 * Access 토큰이 만료되면 서버 `JwtRefreshFilter`가 Refresh 토큰으로 자동 재발급을 시도합니다.
 * 명시적 재발급은 `POST /api/v1/auth/refresh`로 수행합니다(실패 시 401).
+
+---
 
 ## REST API 엔드포인트
 
@@ -351,6 +414,8 @@ GET /api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chap
 * 관리자 API는 `/api/v1/admin/**` 경로에 있으며 `ADMIN` 권한이 필요합니다.
 * 주요 영역: `admin/bible`, `admin/dictionaries`, `admin/word-puzzles`, `admin/members`, `admin/quiz`, `admin/ox`, `admin/community`
 * 상세 엔드포인트는 Swagger UI를 참고하세요.
+
+---
 
 ## 웹 UI 라우트
 
@@ -497,6 +562,8 @@ fragments/
   admin/admin-sidebar
 ```
 
+---
+
 ## 데이터 로딩 방식
 
 애플리케이션 시작 시 JPA가 테이블을 생성한 이후 `spring.sql.init` 설정을 통해 SQL 시드 데이터를 자동으로 로딩합니다. 시드 파일은 `src/main/resources/data` 경로에 위치하며 다음과 같은 파일로 구성되어 있습니다.
@@ -505,12 +572,12 @@ fragments/
 * `bible_book_description_ko.sql`, `bible_book_description_en.sql` — 책 소개 (한/영)
 * `krv/bible_krv_book.sql` — KRV 책 목록
 * `krv/bible_krv_01_genesis.sql` ~ `krv/bible_krv_66_revelation.sql` — KRV 66권 전체 본문
-* `nkrv/bible_nkrv_book.sql` — NKRV 책 목록
-* `nkrv/bible_nkrv_01_genesis.sql`, `nkrv/bible_nkrv_02_exodus.sql` — NKRV 창세기/출애굽기
 * `kjv/bible_kjv_book.sql` — KJV 책 목록 (본문 미포함)
 * `bible_quiz.sql` — 성경 퀴즈 데이터
 * `quiz_ox_quiz.sql` — OX 퀴즈 데이터
 * `word_puzzle_step1.sql`, `word_puzzle_step2.sql` — 단어 퍼즐 데이터
 * `dictionary.sql` — 성경 사전 데이터
 
-현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다. 새번역(NKRV)은 창세기/출애굽기만, KJV는 책 목록만 제공됩니다.
+현재 시드 데이터는 개역한글(KRV) 66권 전체 본문을 포함합니다.
+
+---
