@@ -150,6 +150,9 @@ class BibleQuizService(
         if (request.questionIndex < currentIndex) {
             return buildIdempotentAnswer(isCorrect, question, stageProgress)
         }
+        if (request.questionIndex > currentIndex) {
+            throwError(ErrorType.INVALID_PARAMETER, "questionIndex=${request.questionIndex}")
+        }
         val attempt = quizAttemptPolicy.getOngoingAttempt(member, stageNumber, request.mode)
         val isNewAttempt = quizAttemptPolicy.recordQuestionAttempt(attempt, question, request, isCorrect)
         if (!isNewAttempt) {
