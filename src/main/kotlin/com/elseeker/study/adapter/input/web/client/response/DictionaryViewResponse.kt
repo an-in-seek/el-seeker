@@ -35,7 +35,6 @@ object DictionaryViewResponse {
         val id: Long,
         val term: String,
         val description: String,
-        val relatedVerses: String
     ) {
         companion object {
             fun from(entity: Dictionary) =
@@ -43,7 +42,6 @@ object DictionaryViewResponse {
                     id = entity.id!!,
                     term = entity.term,
                     description = entity.description?.trim().orEmpty(),
-                    relatedVerses = entity.relatedVerses?.trim().orEmpty()
                 )
         }
     }

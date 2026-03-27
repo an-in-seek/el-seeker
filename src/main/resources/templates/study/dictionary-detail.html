@@ -41,19 +41,6 @@
                         </div>
                     </section>
 
-                    <!-- Legacy Related Verses (text) -->
-                    <section class="dictionary-section" id="legacyVersesSection"
-                             th:if="${!dictionary.relatedVerses.isBlank()}">
-                        <h2 class="section-title">
-                            <span class="section-icon">📜</span> 관련 구절 (텍스트)
-                        </h2>
-                        <div class="related-verses-box">
-                            <div class="related-verses-content"
-                                 th:text="${dictionary.relatedVerses}">
-                                관련 성경 구절
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </article>
         </div>

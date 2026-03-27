@@ -31,10 +31,6 @@
                 <label for="description">설명</label>
                 <textarea id="description" th:text="${dictionary?.description}"></textarea>
             </div>
-            <div class="form-group">
-                <label for="relatedVerses">관련 구절 (레거시)</label>
-                <textarea id="relatedVerses" th:text="${dictionary?.relatedVerses}"></textarea>
-            </div>
             <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a href="/web/admin/dictionaries" class="btn btn-outline-secondary btn-sm">취소</a>
@@ -91,7 +87,6 @@
         const body = {
             term: document.getElementById("term").value,
             description: document.getElementById("description").value || null,
-            relatedVerses: document.getElementById("relatedVerses").value || null,
         };
         try {
             if (editId) {

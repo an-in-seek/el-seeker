@@ -26,17 +26,17 @@ class AdminDictionaryService(
         dictionaryRepository.findByIdOrNull(id) ?: throwError(ErrorType.DICTIONARY_NOT_FOUND, "id=$id")
 
     @Transactional
-    fun create(term: String, description: String?, relatedVerses: String?): Dictionary =
-        dictionaryRepository.save(Dictionary(term = term, description = description, relatedVerses = relatedVerses))
+    fun create(term: String, description: String?): Dictionary =
+        dictionaryRepository.save(Dictionary(term = term, description = description))
 
     @Transactional
-    fun update(id: Long, term: String, description: String?, relatedVerses: String?): Dictionary {
+    fun update(id: Long, term: String, description: String?): Dictionary {
         val existing = findById(id)
         val updated = Dictionary(
             id = existing.id,
             term = term,
             description = description,
-            relatedVerses = relatedVerses,
+            relatedVerses = existing.relatedVerses,
             originalLanguageCode = existing.originalLanguageCode,
             originalLexeme = existing.originalLexeme,
             bibleUsageCount = existing.bibleUsageCount,

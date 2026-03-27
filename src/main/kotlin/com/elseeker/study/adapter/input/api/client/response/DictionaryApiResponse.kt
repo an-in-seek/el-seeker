@@ -9,15 +9,13 @@ object DictionaryApiResponse {
         val id: Long,
         val term: String,
         val description: String?,
-        val relatedVerses: String?
     ) {
         companion object {
             fun from(entity: Dictionary) =
                 DictionaryItem(
                     id = entity.id!!,
                     term = entity.term,
-                    description = entity.description,
-                    relatedVerses = entity.relatedVerses
+                    description = entity.description
                 )
         }
     }
@@ -31,16 +29,14 @@ object DictionaryApiResponse {
     data class DictionaryDetail(
         val id: Long,
         val term: String,
-        val description: String?,
-        val relatedVerses: String?
+        val description: String?
     ) {
         companion object {
             fun from(entity: Dictionary) =
                 DictionaryDetail(
                     id = entity.id!!,
                     term = entity.term,
-                    description = entity.description,
-                    relatedVerses = entity.relatedVerses
+                    description = entity.description
                 )
         }
     }

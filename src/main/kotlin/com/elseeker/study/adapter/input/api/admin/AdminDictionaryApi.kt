@@ -32,13 +32,13 @@ class AdminDictionaryApi(
 
     @PostMapping
     fun create(@RequestBody request: AdminDictionaryRequest): ResponseEntity<DictionaryItem> {
-        val created = adminDictionaryService.create(request.term, request.description, request.relatedVerses)
+        val created = adminDictionaryService.create(request.term, request.description)
         return ResponseEntity.ok(DictionaryItem.from(created))
     }
 
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody request: AdminDictionaryRequest): ResponseEntity<DictionaryItem> {
-        val updated = adminDictionaryService.update(id, request.term, request.description, request.relatedVerses)
+        val updated = adminDictionaryService.update(id, request.term, request.description)
         return ResponseEntity.ok(DictionaryItem.from(updated))
     }
 
@@ -52,14 +52,12 @@ class AdminDictionaryApi(
         val id: Long,
         val term: String,
         val description: String?,
-        val relatedVerses: String?,
     ) {
         companion object {
             fun from(d: Dictionary) = DictionaryItem(
                 id = d.id!!,
                 term = d.term,
                 description = d.description,
-                relatedVerses = d.relatedVerses,
             )
         }
     }
