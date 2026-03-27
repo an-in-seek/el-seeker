@@ -12,6 +12,7 @@ import com.elseeker.bible.domain.vo.BibleBookKey
 import com.elseeker.bible.domain.vo.BibleTestamentType
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.common.IntegrationTest
+import com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 import com.elseeker.game.adapter.output.jpa.BibleTypingVerseRepository
 import com.elseeker.game.adapter.output.jpa.GameRankingRepository
 import com.elseeker.game.adapter.output.jpa.OxMemberStageAttemptRepository
@@ -43,6 +44,7 @@ class GameRankingServiceTest @Autowired constructor(
     private val bibleBookRepository: BibleBookRepository,
     private val bibleChapterRepository: BibleChapterRepository,
     private val bibleVerseRepository: BibleVerseRepository,
+    private val bibleTypingSessionRepository: BibleTypingSessionRepository,
 ) : IntegrationTest() {
 
     @Nested
@@ -278,9 +280,6 @@ class GameRankingServiceTest @Autowired constructor(
             )
             session = bibleTypingSessionRepository.save(session)
         }
-
-        @Autowired
-        private lateinit var bibleTypingSessionRepository: com.elseeker.game.adapter.output.jpa.BibleTypingSessionRepository
 
         @Test
         fun `정확도와 CPM을 반영한 새 공식으로 랭킹 점수를 계산한다`() {
