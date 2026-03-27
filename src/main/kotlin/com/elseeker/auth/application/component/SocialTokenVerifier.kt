@@ -6,7 +6,7 @@ import com.elseeker.member.domain.vo.OAuthProvider
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.client.SimpleClientHttpRequestFactory
@@ -30,7 +30,7 @@ class SocialTokenVerifier(
     private val googleClientId: String,
 ) {
 
-    private val logger = LoggerFactory.getLogger(SocialTokenVerifier::class.java)
+    private val logger = KotlinLogging.logger {}
 
     private val restClient: RestClient = RestClient.builder()
         .requestFactory(SimpleClientHttpRequestFactory().apply {

@@ -6,7 +6,7 @@ import com.elseeker.game.domain.model.GameRanking
 import com.elseeker.game.domain.vo.GameType
 import com.elseeker.member.adapter.output.jpa.MemberRepository
 import com.elseeker.member.domain.model.Member
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.dao.DataAccessException
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -27,7 +27,7 @@ class GameRankingService(
     private val typingVerseRepository: BibleTypingVerseRepository
 ) {
 
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = KotlinLogging.logger {}
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)

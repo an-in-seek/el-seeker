@@ -7,7 +7,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletRequest
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.*
@@ -27,7 +27,7 @@ class JwtProvider(
     private val elSeekerProperties: ElSeekerProperties,
 ) {
 
-    private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
+    private val logger = KotlinLogging.logger {}
 
     /**
      * JWT 서명 및 검증에 사용되는 Secret Key입니다.
