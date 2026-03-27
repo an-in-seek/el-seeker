@@ -72,6 +72,7 @@ class GameRankingService(
         return gameRankingRepository.countByGameType(gameType)
     }
 
+    // ----------------- Private Methods -----------------
     private fun recalculateOxQuiz(member: Member, ranking: GameRanking) {
         val bestScores = oxStageAttemptRepository.findBestScoresByMember(member)
         val totalScore = bestScores.sumOf { it.bestScore ?: 0 }
