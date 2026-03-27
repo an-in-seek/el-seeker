@@ -330,9 +330,6 @@
         padding: 1rem;
     }
 
-    .typing-verse-card {
-        margin-bottom: 50vh;
-    }
 }
 
 /* Adjust sticky stack when top nav is hidden (mobile) */
