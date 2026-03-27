@@ -329,6 +329,10 @@
     .typing-verse-row {
         padding: 1rem;
     }
+
+    .typing-verse-card {
+        padding-bottom: 50vh;
+    }
 }
 
 /* Adjust sticky stack when top nav is hidden (mobile) */
