@@ -114,11 +114,17 @@ class GameRankingService(
     private fun recalculateTyping(member: Member, ranking: GameRanking) {
         val stats = typingVerseRepository.findTypingStatsByMember(member)
         val avgAccuracy = stats?.avgAccuracy ?: 0.0
+        val avgCpm = stats?.avgCpm ?: 0.0
         val completedCount = stats?.completedCount?.toInt() ?: 0
         val perfectCount = stats?.perfectCount?.toInt() ?: 0
 
+        // ranking_score = AVG(accuracy) × (1 + AVG(cpm) / 1000) + completed_count × 0.2 + perfect_count × 0.5
+        val baseScore = avgAccuracy * (1.0 + avgCpm / 1000.0)
+        val volumeBonus = completedCount * 0.2 + perfectCount * 0.5
+        val totalScore = baseScore + volumeBonus
+
         ranking.updateScore(
-            rankingScore = BigDecimal.valueOf(avgAccuracy).setScale(2, RoundingMode.HALF_UP),
+            rankingScore = BigDecimal.valueOf(totalScore).setScale(2, RoundingMode.HALF_UP),
             completedCount = completedCount,
             perfectCount = perfectCount
         )

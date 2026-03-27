@@ -15,6 +15,7 @@ interface BibleTypingVerseRepository : JpaRepository<BibleTypingVerse, BibleTypi
     @Query(
         """
         SELECT AVG(v.accuracy) AS avgAccuracy,
+               AVG(v.cpm) AS avgCpm,
                COUNT(v) AS completedCount,
                SUM(CASE WHEN v.accuracy = 100.0 THEN 1 ELSE 0 END) AS perfectCount
         FROM BibleTypingVerse v
@@ -28,6 +29,7 @@ interface BibleTypingVerseRepository : JpaRepository<BibleTypingVerse, BibleTypi
 
 interface TypingStatsRow {
     val avgAccuracy: Double?
+    val avgCpm: Double?
     val completedCount: Long
     val perfectCount: Long
 }
