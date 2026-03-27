@@ -469,11 +469,11 @@ class GameRankingService(
 ```
 사용자가 게임 완료
     ↓
-각 게임 서비스가 ApplicationEventPublisher로 이벤트 발행:
-  - OxQuizService.completeStage()          → GameCompletedEvent(memberId, OX_QUIZ)
-  - BibleQuizService.completeStage()       → GameCompletedEvent(memberId, MULTIPLE_CHOICE)
-  - WordPuzzleService.submit()             → GameCompletedEvent(memberId, WORD_PUZZLE)
-  - BibleTypingSessionService.saveVerseProgress() → GameCompletedEvent(memberId, TYPING)
+각 게임 서비스가 완료 처리 후 ApplicationEventPublisher로 이벤트 발행:
+  - OxQuizService.completeStage()          → 스테이지 완료 후 발행
+  - BibleQuizService.completeStage()       → 스테이지 완료 후 발행
+  - WordPuzzleService.submit()             → attempt.complete(score) 후 발행
+  - BibleTypingSessionService.saveVerseProgress() → request.completed=true인 경우만 발행
     ↓
 GameRankingService.onGameCompleted() 수신
   (@TransactionalEventListener, phase = AFTER_COMMIT)
