@@ -382,6 +382,14 @@ const focusVerseInput = (index) => {
     if (!input) return;
     input.focus();
     input.scrollIntoView({block: "center", behavior: "smooth"});
+
+    if (window.visualViewport) {
+        const scrollAfterKeyboard = () => {
+            input.scrollIntoView({block: "center", behavior: "smooth"});
+            window.visualViewport.removeEventListener("resize", scrollAfterKeyboard);
+        };
+        window.visualViewport.addEventListener("resize", scrollAfterKeyboard, {once: true});
+    }
 };
 
 const formatLocalDateTime = (date) => {
@@ -1009,6 +1017,24 @@ const initialize = async () => {
         }
         lastScrollY = window.scrollY;
     }, {passive: true});
+})();
+
+/* --- Mobile keyboard: dynamic bottom margin via visualViewport --- */
+(() => {
+    if (!window.visualViewport) return;
+
+    const KEYBOARD_THRESHOLD = 150;
+    const verseCard = document.querySelector(".typing-verse-card");
+    if (!verseCard) return;
+
+    window.visualViewport.addEventListener("resize", () => {
+        const keyboardHeight = window.innerHeight - window.visualViewport.height;
+        if (keyboardHeight > KEYBOARD_THRESHOLD) {
+            verseCard.style.marginBottom = `${keyboardHeight}px`;
+        } else {
+            verseCard.style.marginBottom = "";
+        }
+    });
 })();
 
 document.addEventListener("DOMContentLoaded", initialize);
