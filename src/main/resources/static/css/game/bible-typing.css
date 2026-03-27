@@ -330,6 +330,10 @@
         padding: 1rem;
     }
 
+    /* 모바일 키보드가 마지막 구절 입력 영역을 가리지 않도록 하단 여백 확보 */
+    .typing-verse-list {
+        padding-bottom: 40vh;
+    }
 }
 
 /* Adjust sticky stack when top nav is hidden (mobile) */
