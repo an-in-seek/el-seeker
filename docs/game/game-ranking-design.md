@@ -18,7 +18,7 @@ ElSeeker 게임 모듈의 **점수 기반 랭킹(순위) 조회 기능**.
 | O/X 퀴즈 | 스테이지별 최고 점수 합산 | 660점 (66스테이지 × 10점) | `ox_quiz_member_stage_attempt` |
 | 객관식 퀴즈 | 스테이지별 최고 점수 합산 (RECORD 모드만) | 100점 (10스테이지 × 10점) | `quiz_member_stage_attempt` |
 | 단어 퍼즐 | 퍼즐별 최고 점수 합산 | 가변 (퍼즐 수 × 최대 2,000점) | `word_puzzle_attempt` |
-| 성경 타이핑 | 절별 정확도 평균 | 100.00점 | `bible_typing_verse` |
+| 성경 타이핑 | 정확도×CPM 보정 + 완료/만점 보너스 | 가변 (참여량에 비례) | `bible_typing_verse` |
 
 ### 1.2 용어 정의
 
@@ -134,7 +134,11 @@ ORDER BY ranking_score DESC;
   - `member_id`, `translation_id`, `book_order`, `chapter_number`
 
 **랭킹 점수 산출:**
+
+> **변경 예정**: 현재는 `AVG(accuracy)`만 사용. CPM + 완료/만점 보너스 반영 예정 (9.4절 참고).
+
 ```sql
+-- 현재 구현
 SELECT s.member_id,
        ROUND(AVG(v.accuracy), 2) AS avg_accuracy,
        COUNT(*) AS completed_verses
@@ -143,6 +147,18 @@ JOIN bible_typing_session s ON v.session_id = s.id
 WHERE v.completed = true
 GROUP BY s.member_id
 ORDER BY avg_accuracy DESC;
+
+-- 변경 예정: AVG(cpm) 추가 조회
+SELECT s.member_id,
+       ROUND(AVG(v.accuracy), 2) AS avg_accuracy,
+       ROUND(AVG(v.cpm), 2) AS avg_cpm,
+       COUNT(*) AS completed_count,
+       COUNT(*) FILTER (WHERE v.accuracy = 100.0) AS perfect_count
+FROM bible_typing_verse v
+JOIN bible_typing_session s ON v.session_id = s.id
+WHERE v.completed = true
+GROUP BY s.member_id;
+-- ranking_score = avg_accuracy × (1 + avg_cpm / 1000) + completed_count × 0.2 + perfect_count × 0.5
 ```
 
 ---
@@ -695,13 +711,40 @@ perfect_count = 최고 점수 ≥ 1,500인 퍼즐 수
 
 ### 9.4 성경 타이핑
 
+> **변경 예정**: 현재 구현은 `AVG(accuracy)`만 사용. 아래 공식으로 개선 예정.
+
 ```
-ranking_score = AVG(절별 정확도)  -- 0.00~100.00 (소수점 2자리, HALF_UP)
+base_score = AVG(accuracy) × (1 + AVG(cpm) / 1000)
+ranking_score = base_score + completed_count × 0.2 + perfect_count × 0.5
+
 completed_count = 완료한 절 수
 perfect_count = 정확도 100% 절 수
-
-최대: 100.00점
 ```
+
+**구성 요소:**
+- `AVG(accuracy)` — 정확도 기반 (0~100), 소수점 2자리 HALF_UP
+- `AVG(cpm) / 1000` — 속도 보정 계수 (CPM 300 → +30% 보너스)
+- `completed_count × 0.2` — 참여 보상 (100절당 +20점)
+- `perfect_count × 0.5` — 만점 보상 (100절당 +50점)
+
+**예시:**
+
+| 유저 | 정확도 | CPM | 완료 | 만점 | base | +완료 | +만점 | 최종 |
+|------|--------|-----|------|------|------|-------|-------|------|
+| A (꾸준+정확) | 100.0 | 250 | 500 | 400 | 125.00 | +100.0 | +200.0 | **425.00** |
+| B (빠름+많음) | 98.0 | 400 | 300 | 150 | 137.20 | +60.0 | +75.0 | **272.20** |
+| C (정확+소량) | 100.0 | 200 | 50 | 45 | 120.00 | +10.0 | +22.5 | **152.50** |
+| D (빠름+부정확) | 90.0 | 500 | 200 | 30 | 135.00 | +40.0 | +15.0 | **190.00** |
+
+**설계 의도:**
+- 많이 + 정확하게 칠수록 유리 (참여 장려)
+- 정확도 100%인 절은 완료 보상(0.2) + 만점 보상(0.5) = 절당 0.7점
+- 정확도 < 100%인 절은 완료 보상(0.2)만 = 절당 0.2점
+- base_score는 실력 지표, 볼륨 보너스는 꾸준함 지표
+
+**구현 변경 필요:**
+- `BibleTypingVerseRepository.findTypingStatsByMember()` — 반환 타입 `TypingStatsRow`에 `avgCpm: Double?` 필드 추가
+- `GameRankingService.recalculateTyping()` — 새 공식 적용 (`base_score + 완료 보너스 + 만점 보너스`)
 
 ### 9.5 동점 처리
 
