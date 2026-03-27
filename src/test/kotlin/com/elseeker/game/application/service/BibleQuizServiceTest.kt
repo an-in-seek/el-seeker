@@ -133,7 +133,7 @@ class BibleQuizServiceTest @Autowired constructor(
         }
 
         @Test
-        fun `이미 답한 문제는 예외가 발생한다`() {
+        fun `이미 답한 문제는 멱등 응답을 반환한다`() {
             // given
             startStageRecord(stage1.stageNumber)
             val question = firstQuestion(stage1)
@@ -144,13 +144,14 @@ class BibleQuizServiceTest @Autowired constructor(
                 mode = QuizStageAttemptMode.RECORD,
                 answeredAt = Instant.now()
             )
-            bibleQuizService.submitAnswer(stage1.stageNumber, request, member.uid)
+            val firstResponse = bibleQuizService.submitAnswer(stage1.stageNumber, request, member.uid)
 
-            // when & then
-            val exception = shouldThrow<ServiceError> {
-                bibleQuizService.submitAnswer(stage1.stageNumber, request, member.uid)
-            }
-            exception.errorType shouldBe ErrorType.INVALID_PARAMETER
+            // when — 동일 요청 재전송 (멱등)
+            val secondResponse = bibleQuizService.submitAnswer(stage1.stageNumber, request, member.uid)
+
+            // then — 동일 결과 반환, 점수 중복 가산 없음
+            secondResponse.isCorrect shouldBe firstResponse.isCorrect
+            secondResponse.currentScore shouldBe firstResponse.currentScore
         }
 
         @Test
