@@ -183,6 +183,9 @@ class HolyWeek {
         this.initNav();
         this.initScrollToTop();
         this.render();
+        this.initScrollReveal();
+        this.initProgressBar();
+        this.initPhaseIndicator();
     }
 
     initNav() {
@@ -209,6 +212,75 @@ class HolyWeek {
         }, { passive: true });
     }
 
+    initScrollReveal() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("hw-revealed");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+
+        this.gridEl.querySelectorAll(".holy-week-card, .holy-week-divider").forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    initProgressBar() {
+        const bar = document.createElement("div");
+        bar.className = "hw-progress";
+        bar.innerHTML = `<div class="hw-progress-fill" id="hwProgressFill"></div>`;
+        document.body.appendChild(bar);
+        this.progressFill = document.getElementById("hwProgressFill");
+
+        window.addEventListener("scroll", () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+            this.progressFill.style.width = pct + "%";
+        }, { passive: true });
+    }
+
+    initPhaseIndicator() {
+        const indicator = document.createElement("div");
+        indicator.className = "holy-week-phase-indicator";
+        indicator.innerHTML = `
+            <span class="holy-week-phase-dot"></span>
+            <span class="holy-week-phase-label" id="holyWeekPhaseLabel">고난</span>
+        `;
+        document.body.appendChild(indicator);
+        this.phaseIndicator = indicator;
+        this.phaseIndicator.dataset.phase = "passion";
+        this.phaseLabelEl = document.getElementById("holyWeekPhaseLabel");
+
+        const phaseObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const phase = entry.target.dataset.phase;
+                    if (phase) {
+                        this.phaseIndicator.dataset.phase = phase;
+                        this.phaseLabelEl.textContent = phase === "glory" ? "영광" : "고난";
+                    }
+                }
+            });
+        }, { threshold: 0.3, rootMargin: "-20% 0px -60% 0px" });
+
+        this.gridEl.querySelectorAll(".holy-week-card").forEach(el => {
+            phaseObserver.observe(el);
+        });
+
+        const gridObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                this.phaseIndicator.classList.toggle("is-visible", entry.isIntersecting);
+            });
+        }, { threshold: 0 });
+
+        gridObserver.observe(this.gridEl);
+    }
+
     render() {
         this.renderOverview();
         this.renderCards();
@@ -224,23 +296,31 @@ class HolyWeek {
             </div>
         `).join("");
 
+        const isMobile = window.innerWidth <= 576;
+
         this.overviewEl.innerHTML = `
-            <div class="holy-week-overview-inner">
-                <h2 class="holy-week-overview-title">성주간의 의미와 배경</h2>
-                ${sections}
+            <div class="holy-week-hero">
+                <h1 class="holy-week-hero-title">성주간 타임라인</h1>
+                <p class="holy-week-hero-subtitle">종려주일부터 승천까지 · 13개의 사건</p>
             </div>
+            <details class="holy-week-overview-inner"${isMobile ? "" : " open"}>
+                <summary>
+                    <h2 class="holy-week-overview-title">성주간의 의미와 배경</h2>
+                    <span class="holy-week-overview-toggle" aria-hidden="true">▾</span>
+                </summary>
+                <div class="holy-week-overview-body">${sections}</div>
+            </details>
         `;
     }
 
     renderCards() {
-        HOLY_WEEK_EVENTS.forEach((event, idx) => {
+        HOLY_WEEK_EVENTS.forEach((event) => {
             if (event.order === 11) {
                 const divider = document.createElement("div");
                 divider.className = "holy-week-divider";
                 divider.innerHTML = `
-                    <div class="holy-week-divider-line"></div>
-                    <span class="holy-week-divider-text">안식일의 침묵 — 그리고 영광의 시작</span>
-                    <div class="holy-week-divider-line"></div>
+                    <span class="holy-week-divider-text">안식일의 침묵</span>
+                    <span class="holy-week-divider-sub">토요일 (니산월 15일) — 무덤 속의 고요</span>
                 `;
                 this.gridEl.appendChild(divider);
             }
@@ -253,21 +333,25 @@ class HolyWeek {
     createCard(event) {
         const card = document.createElement("div");
         card.className = `holy-week-card holy-week-card--${event.phase}`;
+        card.id = `event-${event.order}`;
+        card.dataset.phase = event.phase;
 
+        const phaseLabel = event.phase === "glory" ? "영광 단계" : "고난 단계";
         const timeHtml = event.time
             ? `<span class="holy-week-card-time">${event.time}</span>`
             : "";
 
         card.innerHTML = `
-            <div class="holy-week-card-header">
+            <div class="holy-week-card-header" role="group" aria-label="${event.title}">
+                <span class="visually-hidden">${phaseLabel}, ${event.order}번째 사건</span>
                 <span class="holy-week-card-order">${event.order}</span>
                 <span class="holy-week-card-day">${event.day}</span>
                 ${timeHtml}
             </div>
             <div class="holy-week-card-body">
-                <p class="holy-week-card-title">
+                <h3 class="holy-week-card-title">
                     <span class="holy-week-card-title-emoji" aria-hidden="true">${event.emoji}</span>${event.title}
-                </p>
+                </h3>
                 <p class="holy-week-card-desc">${event.description}</p>
                 <div class="holy-week-card-verse">
                     <span class="holy-week-card-verse-ref">${event.verse}</span>
