@@ -184,8 +184,6 @@ class HolyWeek {
         this.initScrollToTop();
         this.render();
         this.initScrollReveal();
-        this.initProgressBar();
-        this.initPhaseIndicator();
     }
 
     initNav() {
@@ -227,24 +225,6 @@ class HolyWeek {
         this.gridEl.querySelectorAll(".holy-week-card, .holy-week-divider").forEach(el => {
             observer.observe(el);
         });
-    }
-
-    initProgressBar() {
-        const bar = document.createElement("div");
-        bar.className = "hw-progress";
-        bar.innerHTML = `<div class="hw-progress-fill" id="hwProgressFill"></div>`;
-        document.body.appendChild(bar);
-        this.progressFill = document.getElementById("hwProgressFill");
-
-        window.addEventListener("scroll", () => {
-            const scrollTop = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-            this.progressFill.style.width = pct + "%";
-        }, {passive: true});
-    }
-
-    initPhaseIndicator() {
     }
 
     render() {
