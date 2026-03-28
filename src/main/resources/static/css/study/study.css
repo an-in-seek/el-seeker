@@ -19,6 +19,15 @@
     justify-content: center;
 }
 
+.study-card-link h3 {
+    display: flex;
+    align-items: center;
+}
+
+.study-card-link h3 img {
+    flex-shrink: 0;
+}
+
 .study-card-link .badge {
     font-weight: 600;
     letter-spacing: 0.02em;
