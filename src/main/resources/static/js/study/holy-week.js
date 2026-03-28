@@ -244,42 +244,7 @@ class HolyWeek {
         }, { passive: true });
     }
 
-    initPhaseIndicator() {
-        const indicator = document.createElement("div");
-        indicator.className = "holy-week-phase-indicator";
-        indicator.innerHTML = `
-            <span class="holy-week-phase-dot"></span>
-            <span class="holy-week-phase-label" id="holyWeekPhaseLabel">고난</span>
-        `;
-        document.body.appendChild(indicator);
-        this.phaseIndicator = indicator;
-        this.phaseIndicator.dataset.phase = "passion";
-        this.phaseLabelEl = document.getElementById("holyWeekPhaseLabel");
-
-        const phaseObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const phase = entry.target.dataset.phase;
-                    if (phase) {
-                        this.phaseIndicator.dataset.phase = phase;
-                        this.phaseLabelEl.textContent = phase === "glory" ? "영광" : "고난";
-                    }
-                }
-            });
-        }, { threshold: 0.3, rootMargin: "-20% 0px -60% 0px" });
-
-        this.gridEl.querySelectorAll(".holy-week-card").forEach(el => {
-            phaseObserver.observe(el);
-        });
-
-        const gridObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                this.phaseIndicator.classList.toggle("is-visible", entry.isIntersecting);
-            });
-        }, { threshold: 0 });
-
-        gridObserver.observe(this.gridEl);
-    }
+    initPhaseIndicator() {}
 
     render() {
         this.renderOverview();

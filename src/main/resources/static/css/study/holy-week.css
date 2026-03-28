@@ -412,52 +412,6 @@
     border-radius: 0 2px 2px 0;
 }
 
-/* Phase Indicator */
-.holy-week-phase-indicator {
-    position: fixed;
-    top: 4rem;
-    right: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(8px);
-    border: 1px solid #e2e8f0;
-    font-size: 0.72rem;
-    font-weight: 600;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 50;
-    pointer-events: none;
-}
-
-.holy-week-phase-indicator.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.holy-week-phase-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #8b5cf6;
-}
-
-.holy-week-phase-label {
-    color: #6d28d9;
-}
-
-.holy-week-phase-indicator[data-phase="glory"] .holy-week-phase-dot {
-    background: #fbbf24;
-}
-
-.holy-week-phase-indicator[data-phase="glory"] .holy-week-phase-label {
-    color: #b45309;
-}
-
 @media (max-width: 576px) {
     .holy-week-card-header {
         padding: 0.75rem 0.85rem;
@@ -469,10 +423,5 @@
 
     .holy-week-card-title {
         font-size: 0.95rem;
-    }
-
-    .holy-week-phase-indicator {
-        top: 3.5rem;
-        right: 0.5rem;
     }
 }
