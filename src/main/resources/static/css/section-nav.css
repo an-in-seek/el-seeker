@@ -168,7 +168,7 @@
 /* --- Content wrapper 여백 보정 --- */
 @media (max-width: 599.98px) {
     body:has(.section-nav) .content-wrapper {
-        padding-bottom: var(--bottom-tab-height);
+        padding-bottom: calc(var(--bottom-tab-height) + 1rem);
     }
 
     /* padding-bottom 유지: transform으로 숨길 때 레이아웃 시프트 방지 */
