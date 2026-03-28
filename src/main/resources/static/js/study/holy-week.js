@@ -205,11 +205,11 @@ class HolyWeek {
     initScrollToTop() {
         if (!this.scrollToTopBtn) return;
         this.scrollToTopBtn.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.scrollTo({top: 0, behavior: "smooth"});
         });
         window.addEventListener("scroll", () => {
             this.scrollToTopBtn.classList.toggle("is-visible", window.scrollY >= 300);
-        }, { passive: true });
+        }, {passive: true});
     }
 
     initScrollReveal() {
@@ -222,7 +222,7 @@ class HolyWeek {
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+        }, {threshold: 0.1, rootMargin: "0px 0px -40px 0px"});
 
         this.gridEl.querySelectorAll(".holy-week-card, .holy-week-divider").forEach(el => {
             observer.observe(el);
@@ -241,10 +241,11 @@ class HolyWeek {
             const docHeight = document.documentElement.scrollHeight - window.innerHeight;
             const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
             this.progressFill.style.width = pct + "%";
-        }, { passive: true });
+        }, {passive: true});
     }
 
-    initPhaseIndicator() {}
+    initPhaseIndicator() {
+    }
 
     render() {
         this.renderOverview();
@@ -264,10 +265,6 @@ class HolyWeek {
         const isMobile = window.innerWidth <= 576;
 
         this.overviewEl.innerHTML = `
-            <div class="holy-week-hero">
-                <h1 class="holy-week-hero-title">성주간 타임라인</h1>
-                <p class="holy-week-hero-subtitle">종려주일부터 승천까지 · 13개의 사건</p>
-            </div>
             <details class="holy-week-overview-inner"${isMobile ? "" : " open"}>
                 <summary>
                     <h2 class="holy-week-overview-title">성주간의 의미와 배경</h2>
