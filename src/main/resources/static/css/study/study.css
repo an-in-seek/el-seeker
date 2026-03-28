@@ -4,6 +4,18 @@
 
 .study-card-link {
     display: block;
+    height: 100%;
+}
+
+.study-card-link .card {
+    height: 100%;
+}
+
+.study-card-link .card-body {
+    min-height: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .study-card-link .badge {
@@ -18,7 +30,9 @@
 
     .study-card-link .card-body {
         display: flex;
+        flex-direction: row;
         align-items: center;
+        justify-content: flex-start;
         min-height: 64px;
         padding: 0.875rem 1rem;
     }
