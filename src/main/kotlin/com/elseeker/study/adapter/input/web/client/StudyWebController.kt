@@ -52,4 +52,9 @@ class StudyWebController {
     fun showTenCommandments(): String {
         return "study/ten-commandments"
     }
+
+    @GetMapping("/holy-week")
+    fun showHolyWeek(): String {
+        return "study/holy-week"
+    }
 }
