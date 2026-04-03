@@ -1,6 +1,11 @@
+/* 장 메모 / 읽음 버튼 50:50 균등 배치 */
+.flex-half {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 /* 읽음 완료 버튼 */
 .mark-read-btn {
-    min-width: 100%;
 }
 
 .mark-read-btn.read-done {
@@ -409,6 +414,49 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* 장 메모 오버레이 패널 */
+.chapter-memo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chapter-memo-panel {
+    background: #fff;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.chapter-memo-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.chapter-memo-panel-body {
+    padding: 1rem;
+}
+
+.chapter-memo-panel-body textarea {
+    resize: vertical;
+}
+
+.chapter-memo-panel-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #dee2e6;
 }
 
 @media (max-width: 576px) {

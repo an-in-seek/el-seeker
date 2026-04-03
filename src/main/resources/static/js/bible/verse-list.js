@@ -63,6 +63,12 @@ const readState = {
     loadingChapterKey: null
 };
 
+const chapterMemoState = {
+    memoId: null,
+    content: null,
+    loaded: false
+};
+
 const chapterState = {
     loadToken: 0,
     dirtyMemos: new Set(),
@@ -95,6 +101,12 @@ function getElements() {
         verseTable: get("verseTableBody"),
         prevBtn: get("prevChapterBtn"),
         markReadBtn: get("markReadBtn"),
+        chapterMemoBtn: get("chapterMemoBtn"),
+        chapterMemoOverlay: get("chapterMemoOverlay"),
+        chapterMemoInput: get("chapterMemoInput"),
+        chapterMemoSaveBtn: get("chapterMemoSaveBtn"),
+        chapterMemoDeleteBtn: get("chapterMemoDeleteBtn"),
+        chapterMemoCloseBtn: get("chapterMemoCloseBtn"),
         chapterSelectLink: get("chapterSelectLink"),
         chapterSelectLinkLabel: get("chapterSelectLinkLabel"),
         nextBtn: get("nextChapterBtn"),
@@ -230,6 +242,7 @@ function bindEvents() {
     if (markReadBtn) {
         markReadBtn.addEventListener("click", handleMarkRead);
     }
+    bindChapterMemoEvents();
     if (verseTable) {
         verseTable.addEventListener("click", handleVerseClick);
         verseTable.addEventListener("keydown", handleMemoInputAttempt);
@@ -380,6 +393,10 @@ async function loadChapter(direction) {
         updateStateFromChapter(data);
         updateVerseUrl();
         memoState.cache = new Map();
+        chapterMemoState.memoId = null;
+        chapterMemoState.content = null;
+        chapterMemoState.loaded = false;
+        updateChapterMemoButton();
         renderChapter(data, []);
         readState.isRead = false;
         updateReadButton();
@@ -684,6 +701,15 @@ async function applyChapterState(loadToken) {
         }
         updateReadButton();
         applyHighlightsMerged(stateResult.data.highlights || [], chapterState.dirtyHighlights);
+        if (stateResult.data.chapterMemo) {
+            chapterMemoState.memoId = stateResult.data.chapterMemo.chapterMemoId;
+            chapterMemoState.content = stateResult.data.chapterMemo.content;
+        } else {
+            chapterMemoState.memoId = null;
+            chapterMemoState.content = null;
+        }
+        chapterMemoState.loaded = true;
+        updateChapterMemoButton();
         return;
     }
     if (stateResult?.status === "unauthorized") {
@@ -691,6 +717,10 @@ async function applyChapterState(loadToken) {
         applyAuthSnapshot(false);
         readState.isRead = false;
         updateReadButton();
+        chapterMemoState.memoId = null;
+        chapterMemoState.content = null;
+        chapterMemoState.loaded = false;
+        updateChapterMemoButton();
         return;
     }
     chapterState.status = "error";
@@ -910,6 +940,10 @@ function handleOutsideFabClick(event) {
 
 function handleFabEscapeKey(event) {
     if (event.key !== "Escape") {
+        return;
+    }
+    if (!elements.chapterMemoOverlay?.classList.contains("d-none")) {
+        closeChapterMemoPanel();
         return;
     }
     const fab = elements?.fab;
@@ -1392,6 +1426,138 @@ function fallbackCopy(text) {
     textarea.select();
     document.execCommand("copy");
     document.body.removeChild(textarea);
+}
+
+function bindChapterMemoEvents() {
+    if (elements.chapterMemoBtn) {
+        elements.chapterMemoBtn.addEventListener("click", handleChapterMemoClick);
+    }
+    if (elements.chapterMemoSaveBtn) {
+        elements.chapterMemoSaveBtn.addEventListener("click", saveChapterMemo);
+    }
+    if (elements.chapterMemoDeleteBtn) {
+        elements.chapterMemoDeleteBtn.addEventListener("click", deleteChapterMemo);
+    }
+    if (elements.chapterMemoCloseBtn) {
+        elements.chapterMemoCloseBtn.addEventListener("click", closeChapterMemoPanel);
+    }
+    if (elements.chapterMemoOverlay) {
+        elements.chapterMemoOverlay.addEventListener("click", (e) => {
+            if (e.target === elements.chapterMemoOverlay) {
+                closeChapterMemoPanel();
+            }
+        });
+    }
+}
+
+function updateChapterMemoButton() {
+    const btn = elements?.chapterMemoBtn;
+    if (!btn) {
+        return;
+    }
+    const hasMemo = Boolean(chapterMemoState.content);
+    btn.classList.toggle("btn-outline-secondary", !hasMemo);
+    btn.classList.toggle("btn-secondary", hasMemo);
+}
+
+function openChapterMemoPanel() {
+    const overlay = elements?.chapterMemoOverlay;
+    if (!overlay) {
+        return;
+    }
+    elements.chapterMemoInput.value = chapterMemoState.content || "";
+    elements.chapterMemoDeleteBtn.classList.toggle("d-none", !chapterMemoState.memoId);
+    overlay.classList.remove("d-none");
+    overlay.setAttribute("aria-hidden", "false");
+}
+
+function closeChapterMemoPanel() {
+    const overlay = elements?.chapterMemoOverlay;
+    if (!overlay) {
+        return;
+    }
+    overlay.classList.add("d-none");
+    overlay.setAttribute("aria-hidden", "true");
+}
+
+async function handleChapterMemoClick() {
+    if (!await ensureChapterStateReady()) {
+        showAlert("사용자 상태를 불러오는 중입니다. 잠시 후 다시 시도해주세요.", "danger");
+        return;
+    }
+    if (!memoState.auth.allowed) {
+        requestAuth(memoState.auth);
+        return;
+    }
+    openChapterMemoPanel();
+}
+
+async function saveChapterMemo() {
+    const content = elements.chapterMemoInput.value.trim();
+    if (!content) {
+        return;
+    }
+    const requestChapterKey = getCurrentChapterKey();
+    try {
+        const response = await fetch(buildChapterMemoUrl(), {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({content})
+        });
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
+        if (response.status === 401) {
+            requestAuth(memoState.auth);
+            return;
+        }
+        if (!response.ok) {
+            throw new Error("장 메모 저장 실패");
+        }
+        const memo = await response.json();
+        chapterMemoState.memoId = memo.chapterMemoId;
+        chapterMemoState.content = memo.content;
+        updateChapterMemoButton();
+        closeChapterMemoPanel();
+    } catch (error) {
+        showAlert("장 메모 저장 중 오류가 발생했습니다.", "danger");
+        console.error(error);
+    }
+}
+
+async function deleteChapterMemo() {
+    const requestChapterKey = getCurrentChapterKey();
+    try {
+        const response = await fetch(buildChapterMemoUrl(), {
+            method: "DELETE",
+            credentials: "include"
+        });
+        if (!isCurrentChapter(requestChapterKey)) {
+            return;
+        }
+        if (response.status === 401) {
+            requestAuth(memoState.auth);
+            return;
+        }
+        if (!response.ok) {
+            throw new Error("장 메모 삭제 실패");
+        }
+        chapterMemoState.memoId = null;
+        chapterMemoState.content = null;
+        updateChapterMemoButton();
+        closeChapterMemoPanel();
+    } catch (error) {
+        showAlert("장 메모 삭제 중 오류가 발생했습니다.", "danger");
+        console.error(error);
+    }
+}
+
+function buildChapterMemoUrl() {
+    return `${API_CONFIG.MEMOS_BASE}/${state.translationId}/books/${state.bookOrder}/chapters/${state.chapterNumber}/chapter-memo`;
 }
 
 document.addEventListener("DOMContentLoaded", init);

@@ -1,8 +1,10 @@
 package com.elseeker.bible.adapter.input.api.client
 
+import com.elseeker.bible.adapter.input.api.client.response.BibleChapterMemoApiResponse
 import com.elseeker.bible.adapter.input.api.client.response.BibleChapterStateResponse
 import com.elseeker.bible.adapter.input.api.client.response.BibleHighlightApiResponse
 import com.elseeker.bible.adapter.input.api.client.response.BibleMemoApiResponse
+import com.elseeker.bible.application.service.BibleChapterMemoService
 import com.elseeker.bible.application.service.BibleHighlightService
 import com.elseeker.bible.application.service.BibleMemoService
 import com.elseeker.bible.application.service.BibleReadingProgressService
@@ -20,7 +22,8 @@ import org.springframework.web.bind.annotation.RestController
 class BibleChapterViewApi(
     private val bibleMemoService: BibleMemoService,
     private val bibleHighlightService: BibleHighlightService,
-    private val bibleReadingProgressService: BibleReadingProgressService
+    private val bibleReadingProgressService: BibleReadingProgressService,
+    private val bibleChapterMemoService: BibleChapterMemoService
 ) : BibleChapterViewApiDocument {
 
     private val privateNoStore = CacheControl.noStore().cachePrivate()
@@ -50,13 +53,20 @@ class BibleChapterViewApi(
             bookOrder,
             chapterNumber
         )
+        val chapterMemo = bibleChapterMemoService.getChapterMemo(
+            principal.memberUid,
+            translationId,
+            bookOrder,
+            chapterNumber
+        )?.let(BibleChapterMemoApiResponse.ChapterMemoItem::from)
         return ResponseEntity.ok()
             .cacheControl(privateNoStore)
             .body(
                 BibleChapterStateResponse(
                     memos = memos,
                     highlights = highlights,
-                    isRead = isRead
+                    isRead = isRead,
+                    chapterMemo = chapterMemo
                 )
             )
     }
