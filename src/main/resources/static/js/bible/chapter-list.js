@@ -5,6 +5,12 @@ const UI_CLASSES = {
     HIDDEN: "d-none"
 };
 
+const bookMemoState = {
+    memoId: null,
+    content: null,
+    loaded: false
+};
+
 const API_CONFIG = {
     TRANSLATIONS: "/api/v1/bibles/translations",
     READING_BASE: "/api/v1/bible/reading"
@@ -36,7 +42,13 @@ const DomHelper = {
             prevBtn: get("prevBookBtn"),
             bookSelectLink: get("bookSelectLink"),
             bookSelectLinkLabel: get("bookSelectLinkLabel"),
-            nextBtn: get("nextBookBtn")
+            nextBtn: get("nextBookBtn"),
+            bookMemoBtn: get("bookMemoBtn"),
+            bookMemoOverlay: get("bookMemoOverlay"),
+            bookMemoInput: get("bookMemoInput"),
+            bookMemoSaveBtn: get("bookMemoSaveBtn"),
+            bookMemoDeleteBtn: get("bookMemoDeleteBtn"),
+            bookMemoCloseBtn: get("bookMemoCloseBtn")
         };
     }
 };
@@ -78,6 +90,8 @@ const App = {
         App.setupPrevNext(books);
 
         await App.initAuthStatus();
+        App.bindBookMemoEvents();
+        App.loadBookMemo();
 
         if (!App.renderFromSessionStorage()) {
             await App.fetchChaptersFromAPI();
@@ -417,6 +431,155 @@ const App = {
         if (!App.renderFromSessionStorage()) {
             await App.fetchChaptersFromAPI();
         }
+
+        bookMemoState.memoId = null;
+        bookMemoState.content = null;
+        bookMemoState.loaded = false;
+        App.updateBookMemoButton();
+        App.loadBookMemo();
+    },
+
+    bindBookMemoEvents: () => {
+        const el = App.elements;
+        if (el.bookMemoBtn) {
+            el.bookMemoBtn.addEventListener("click", App.handleBookMemoClick);
+        }
+        if (el.bookMemoSaveBtn) {
+            el.bookMemoSaveBtn.addEventListener("click", App.saveBookMemo);
+        }
+        if (el.bookMemoDeleteBtn) {
+            el.bookMemoDeleteBtn.addEventListener("click", App.deleteBookMemo);
+        }
+        if (el.bookMemoCloseBtn) {
+            el.bookMemoCloseBtn.addEventListener("click", App.closeBookMemoPanel);
+        }
+        if (el.bookMemoOverlay) {
+            el.bookMemoOverlay.addEventListener("click", (e) => {
+                if (e.target === el.bookMemoOverlay) App.closeBookMemoPanel();
+            });
+        }
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !el.bookMemoOverlay?.classList.contains("d-none")) {
+                App.closeBookMemoPanel();
+            }
+        });
+    },
+
+    buildBookMemoUrl: () => {
+        return `${API_CONFIG.TRANSLATIONS}/${App.state.translationId}/books/${App.state.bookOrder}/book-memo`;
+    },
+
+    loadBookMemo: async () => {
+        if (!App.isAuthenticated) {
+            bookMemoState.memoId = null;
+            bookMemoState.content = null;
+            bookMemoState.loaded = false;
+            App.updateBookMemoButton();
+            return;
+        }
+        try {
+            const url = App.buildBookMemoUrl();
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {Accept: "application/json"}
+            });
+            if (response.status === 204) {
+                bookMemoState.memoId = null;
+                bookMemoState.content = null;
+            } else if (response.ok) {
+                const memo = await response.json();
+                bookMemoState.memoId = memo.bookMemoId;
+                bookMemoState.content = memo.content;
+            } else if (response.status === 401) {
+                App.isAuthenticated = false;
+                bookMemoState.memoId = null;
+                bookMemoState.content = null;
+            }
+        } catch (error) {
+            console.warn("책 메모 조회 실패:", error.message);
+        }
+        bookMemoState.loaded = true;
+        App.updateBookMemoButton();
+    },
+
+    updateBookMemoButton: () => {
+        const btn = App.elements?.bookMemoBtn;
+        if (!btn) return;
+        const hasMemo = Boolean(bookMemoState.content);
+        btn.classList.toggle("book-action-btn-active", hasMemo);
+    },
+
+    handleBookMemoClick: () => {
+        if (!App.isAuthenticated) {
+            const currentUrl = window.location.pathname + window.location.search;
+            window.location.href = `/web/auth/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+            return;
+        }
+        App.openBookMemoPanel();
+    },
+
+    openBookMemoPanel: () => {
+        const overlay = App.elements?.bookMemoOverlay;
+        if (!overlay) return;
+        App.elements.bookMemoInput.value = bookMemoState.content || "";
+        App.elements.bookMemoDeleteBtn.classList.toggle("d-none", !bookMemoState.memoId);
+        overlay.classList.remove("d-none");
+        overlay.setAttribute("aria-hidden", "false");
+    },
+
+    closeBookMemoPanel: () => {
+        const overlay = App.elements?.bookMemoOverlay;
+        if (!overlay) return;
+        overlay.classList.add("d-none");
+        overlay.setAttribute("aria-hidden", "true");
+    },
+
+    saveBookMemo: async () => {
+        const content = App.elements.bookMemoInput.value.trim();
+        if (!content) return;
+        try {
+            const response = await fetch(App.buildBookMemoUrl(), {
+                method: "PUT",
+                credentials: "include",
+                headers: {"Content-Type": "application/json", Accept: "application/json"},
+                body: JSON.stringify({content})
+            });
+            if (response.status === 401) {
+                window.location.href = `/web/auth/login?returnUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                return;
+            }
+            if (!response.ok) throw new Error("책 메모 저장 실패");
+            const memo = await response.json();
+            bookMemoState.memoId = memo.bookMemoId;
+            bookMemoState.content = memo.content;
+            App.updateBookMemoButton();
+            App.closeBookMemoPanel();
+        } catch (error) {
+            alert("책 메모 저장 중 오류가 발생했습니다.");
+            console.error(error);
+        }
+    },
+
+    deleteBookMemo: async () => {
+        try {
+            const response = await fetch(App.buildBookMemoUrl(), {
+                method: "DELETE",
+                credentials: "include"
+            });
+            if (response.status === 401) {
+                window.location.href = `/web/auth/login?returnUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                return;
+            }
+            if (!response.ok) throw new Error("책 메모 삭제 실패");
+            bookMemoState.memoId = null;
+            bookMemoState.content = null;
+            App.updateBookMemoButton();
+            App.closeBookMemoPanel();
+        } catch (error) {
+            alert("책 메모 삭제 중 오류가 발생했습니다.");
+            console.error(error);
+        }
     },
 
     redirectToTranslation: () => {
@@ -455,4 +618,5 @@ window.addEventListener("popstate", async () => {
     if (!App.renderFromSessionStorage()) {
         await App.fetchChaptersFromAPI();
     }
+    App.loadBookMemo();
 });

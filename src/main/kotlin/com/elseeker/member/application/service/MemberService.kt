@@ -1,5 +1,7 @@
 package com.elseeker.member.application.service
 
+import com.elseeker.bible.adapter.output.jpa.BibleBookMemoRepository
+import com.elseeker.bible.adapter.output.jpa.BibleChapterMemoRepository
 import com.elseeker.bible.adapter.output.jpa.BibleHighlightRepository
 import com.elseeker.bible.adapter.output.jpa.BibleMemoRepository
 import com.elseeker.bible.adapter.output.jpa.BibleReadingProgressRepository
@@ -26,6 +28,8 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val memberOAuthAccountRepository: MemberOAuthAccountRepository,
     private val bibleMemoRepository: BibleMemoRepository,
+    private val bibleChapterMemoRepository: BibleChapterMemoRepository,
+    private val bibleBookMemoRepository: BibleBookMemoRepository,
     private val bibleHighlightRepository: BibleHighlightRepository,
     private val bibleReadingProgressRepository: BibleReadingProgressRepository,
     private val bibleTypingSessionRepository: BibleTypingSessionRepository,
@@ -65,6 +69,8 @@ class MemberService(
             )
         )
         bibleMemoRepository.deleteAllByMember(member)
+        bibleChapterMemoRepository.deleteAllByMember(member)
+        bibleBookMemoRepository.deleteAllByMember(member)
         bibleHighlightRepository.deleteAllByMember(member)
         bibleReadingProgressRepository.deleteAllByMember(member)
         bibleTypingSessionRepository.deleteAllByMember(member)

@@ -70,8 +70,63 @@
     border-right: none;
 }
 
+.book-action-btn:not(:first-child):not(:last-child) {
+    border-radius: 0;
+    border-right: none;
+}
+
 .book-action-btn:last-child {
     border-radius: 0 0 6px 0;
+}
+
+button.book-action-btn {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.book-action-btn-active {
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+    color: #0f5132;
+}
+
+.book-memo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.book-memo-panel {
+    background: #fff;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.book-memo-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.book-memo-panel-body {
+    padding: 1rem;
+}
+
+.book-memo-panel-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #dee2e6;
 }
 
 .book-action-btn-icon {
