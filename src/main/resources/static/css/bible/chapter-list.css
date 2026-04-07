@@ -131,6 +131,8 @@ button.book-action-btn {
 
 .book-action-btn-icon {
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
 }
 
 .book-action-btn-label {
