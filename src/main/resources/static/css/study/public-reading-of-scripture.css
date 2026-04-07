@@ -1,0 +1,170 @@
+.prs-loading {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.prs-section {
+    margin-bottom: 2rem;
+}
+
+.prs-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.prs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.prs-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .prs-card:hover:not(.is-disabled):not(.is-spotlight-target) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
+        color: inherit;
+    }
+}
+
+.prs-card.is-disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+
+/* Thumbnail */
+.prs-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #f1f5f9;
+}
+
+.prs-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.prs-thumb.is-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+}
+
+.prs-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .prs-card:hover:not(.is-disabled):not(.is-spotlight-target) .prs-play {
+        background: rgba(220, 38, 38, 0.85);
+    }
+}
+
+.prs-book-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    padding: 0.6rem 0.75rem 0.5rem;
+    text-align: center;
+}
+
+.prs-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.2);
+    color: #64748b;
+    margin: 0 auto 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .prs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .prs-book-name {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.5rem 0.4rem;
+    }
+
+    .prs-play {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .prs-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+/* Spotlight overlay */
+.prs-spotlight-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1040;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.prs-spotlight-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* Spotlight target card */
+.prs-card.is-spotlight-target {
+    position: relative;
+    z-index: 1041;
+    overflow: visible;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 1),
+                0 4px 24px rgba(0, 0, 0, 0.25);
+    transition: box-shadow 0.4s ease, background 0.4s ease;
+}

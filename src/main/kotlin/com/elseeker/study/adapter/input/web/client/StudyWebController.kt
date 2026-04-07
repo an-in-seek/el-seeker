@@ -57,4 +57,9 @@ class StudyWebController {
     fun showHolyWeek(): String {
         return "study/holy-week"
     }
+
+    @GetMapping("/public-reading-of-scripture")
+    fun showPublicReadingOfScripture(): String {
+        return "study/public-reading-of-scripture"
+    }
 }

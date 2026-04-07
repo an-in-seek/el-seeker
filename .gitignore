@@ -53,3 +53,4 @@ out/
 
 ### Etc ###
 /src/main/resources/data/community_sample.sql
+/docs/mobile/social-login-api.md
