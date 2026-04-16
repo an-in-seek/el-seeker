@@ -82,6 +82,19 @@
     import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
     initAdminSidebarToggle();
 
+    const savedKeyword = sessionStorage.getItem("adminDictKeyword") || "";
+    const listUrl = savedKeyword
+        ? `/web/admin/dictionaries?keyword=${encodeURIComponent(savedKeyword)}`
+        : "/web/admin/dictionaries";
+
+    // 취소 링크에 키워드 반영
+    const cancelLink = document.querySelector(".admin-form-actions a[href='/web/admin/dictionaries']");
+    if (cancelLink) cancelLink.href = listUrl;
+
+    // breadcrumb 링크에도 키워드 반영
+    const breadcrumbLink = document.querySelector(".admin-breadcrumb a[href='/web/admin/dictionaries']");
+    if (breadcrumbLink) breadcrumbLink.href = listUrl;
+
     // 사전 저장
     document.getElementById("saveBtn").addEventListener("click", async () => {
         const body = {
@@ -94,7 +107,7 @@
             } else {
                 await fetchAdmin("/api/v1/admin/dictionaries", {method: "POST", body: JSON.stringify(body)});
             }
-            location.href = "/web/admin/dictionaries";
+            location.href = listUrl;
         } catch (e) {
             alert(e.message);
         }

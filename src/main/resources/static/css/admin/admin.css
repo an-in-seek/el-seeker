@@ -402,6 +402,10 @@ body.admin-sidebar-open {
         padding: 1rem;
     }
 
+    .admin-form textarea {
+        min-height: 50vh;
+    }
+
     .admin-form-actions {
         flex-direction: column;
     }
@@ -432,6 +436,10 @@ body.admin-sidebar-open {
 
     .admin-form-actions.mobile-actions .btn.btn-primary {
         flex: 2;
+    }
+
+    #referencesSection {
+        padding-bottom: calc(1rem + 5rem);
     }
 
     .admin-card-actions {

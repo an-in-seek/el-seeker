@@ -81,6 +81,10 @@
 <script type="module">
     import {handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
     initAdminSidebarToggle();
+
+    const keyword = new URLSearchParams(location.search).get("keyword") || "";
+    sessionStorage.setItem("adminDictKeyword", keyword);
+
     window.deleteDictionary = (btn) => {
         const id = btn.dataset.id;
         const name = btn.dataset.name;
