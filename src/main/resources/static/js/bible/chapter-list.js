@@ -22,7 +22,8 @@ const ROUTES = {
     CHAPTER_LIST: "/web/bible/chapter",
     CHAPTER_DESCRIPTION: "/web/bible/book/description",
     VERSE_LIST: "/web/bible/verse",
-    OVERVIEW_VIDEO: "/web/study/bible-overview-video"
+    OVERVIEW_VIDEO: "/web/study/bible-overview-video",
+    PUBLIC_READING: "/web/study/public-reading-of-scripture"
 };
 
 const DomHelper = {
@@ -37,6 +38,7 @@ const DomHelper = {
             bookDescription: get("bookDescription"),
             bookDescriptionSummary: get("bookDescriptionSummary"),
             overviewVideoBtn: get("overviewVideoBtn"),
+            listenBibleBtn: get("listenBibleBtn"),
             gameBtn: get("gameBtn"),
             chapterList: get("chapterList"),
             prevBtn: get("prevBookBtn"),
@@ -312,6 +314,9 @@ const App = {
         }
         if (overviewVideoBtn) {
             overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}&from=chapter-list`;
+        }
+        if (App.elements.listenBibleBtn) {
+            App.elements.listenBibleBtn.href = `${ROUTES.PUBLIC_READING}?bookOrder=${App.state.bookOrder}&from=chapter-list`;
         }
         if (App.elements.gameBtn) {
             App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}&from=chapter-list`;
@@ -610,6 +615,9 @@ window.addEventListener("popstate", async () => {
     }
     if (App.elements.overviewVideoBtn) {
         App.elements.overviewVideoBtn.href = `${ROUTES.OVERVIEW_VIDEO}?bookOrder=${App.state.bookOrder}&from=chapter-list`;
+    }
+    if (App.elements.listenBibleBtn) {
+        App.elements.listenBibleBtn.href = `${ROUTES.PUBLIC_READING}?bookOrder=${App.state.bookOrder}&from=chapter-list`;
     }
     if (App.elements.gameBtn) {
         App.elements.gameBtn.href = `/web/game/bible-ox-quiz/map?bookOrder=${App.state.bookOrder}&from=chapter-list`;
