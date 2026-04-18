@@ -519,8 +519,8 @@ function renderVerseRow(verse) {
                   <div class="form-group">
                     <textarea class="form-control mb-2" rows="3" placeholder="메모를 입력하세요..." id="memo-input-${v}"></textarea>
                     <div class="text-end">
-                      <button class="btn btn-sm btn-primary memo-save-btn" data-verse="${v}">💾 저장</button>
                       <button class="btn btn-sm btn-danger memo-delete-btn" data-verse="${v}">🗑️ 삭제</button>
+                      <button class="btn btn-sm btn-primary memo-save-btn" data-verse="${v}">💾 저장</button>
                     </div>
                   </div>
                 </div>
@@ -840,6 +840,9 @@ async function deleteMemo(verseNum) {
     }
     if (!memoState.auth.allowed) {
         requestAuth(memoState.auth);
+        return;
+    }
+    if (!window.confirm("이 구절의 메모를 삭제하시겠습니까?")) {
         return;
     }
     const requestChapterKey = getCurrentChapterKey();
