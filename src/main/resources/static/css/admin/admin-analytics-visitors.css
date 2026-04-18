@@ -1,0 +1,141 @@
+/* 방문자 통계 관리 화면 */
+
+.analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0 24px;
+}
+
+.analytics-kpi-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.analytics-kpi-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.analytics-kpi-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.analytics-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.analytics-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.analytics-section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.analytics-range-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.analytics-range-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.analytics-chart-wrapper {
+    position: relative;
+    width: 100%;
+    background: #f9fafb;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+    min-height: 280px;
+}
+
+.analytics-chart {
+    width: 100%;
+    height: 260px;
+    display: block;
+}
+
+.analytics-chart-grid-line {
+    stroke: #e5e7eb;
+    stroke-width: 1;
+}
+
+.analytics-chart-axis-label {
+    font-size: 10px;
+    fill: #9ca3af;
+}
+
+.analytics-chart-point {
+    fill: #2563eb;
+}
+
+.analytics-chart-empty {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.analytics-chart-wrapper.is-empty .analytics-chart {
+    visibility: hidden;
+}
+
+.analytics-chart-wrapper.is-empty .analytics-chart-empty {
+    display: flex;
+}
+
+.analytics-table-wrapper {
+    overflow-x: auto;
+}
+
+.analytics-daily-table th:nth-child(2),
+.analytics-daily-table th:nth-child(3),
+.analytics-daily-table td:nth-child(2),
+.analytics-daily-table td:nth-child(3) {
+    text-align: right;
+}
+
+@media (max-width: 640px) {
+    .analytics-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .analytics-range-form {
+        width: 100%;
+    }
+
+    .analytics-range-form label {
+        flex: 1;
+    }
+}
