@@ -29,6 +29,11 @@
     /* iPhone 등 노치 있는 기기에서 안전 영역 확보 */
     padding-top: 10px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom));
+
+    /* iOS Safari / Samsung Internet URL 바 토글 시 position:fixed 점프 완화
+       (합성 레이어 승격으로 viewport 변화 재계산 경로 분리) */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 /* 내부 컨테이너: 중앙정렬 + 최대 폭 제한 */
