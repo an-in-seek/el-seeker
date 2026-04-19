@@ -12,7 +12,7 @@ const HOME_TRIGGERS = {
     dictionary: {
         title: "성경 사전 인기 검색어",
         endpoint: "/api/v1/study/dictionaries/search-keywords/ranking",
-        linkTemplate: "/web/study/dictionary?keyword={kw}",
+        linkTemplate: "/web/study/dictionary?keyword={kw}&from=home",
         ariaTemplate: "순위 {rank}위, {keyword} 사전 검색",
     },
 };

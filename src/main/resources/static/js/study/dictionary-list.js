@@ -1,4 +1,4 @@
-import {initPopularSearchDialog} from "/js/popular-search.js?v=1.0";
+import {initPopularSearchDialog} from "/js/popular-search.js?v=1.1";
 
 const API_CONFIG = {
     BASE_URL: "/api/v1/study/dictionaries",
@@ -90,7 +90,8 @@ const App = {
         hasNext: false,
         isLoading: false,
         activeKeyword: "",
-        totalCount: null
+        totalCount: null,
+        from: null
     },
 
     init: () => {
@@ -99,12 +100,15 @@ const App = {
             return;
         }
 
+        const urlParams = new URLSearchParams(window.location.search);
+        App.state.from = urlParams.get("from");
+
         App.initNav();
         App.bindEvents();
         App.loadKeywordRanking();
         App.initRankingDialog();
 
-        const initialKeyword = new URLSearchParams(window.location.search).get("keyword") ?? "";
+        const initialKeyword = urlParams.get("keyword") ?? "";
         if (App.elements.keywordInput) {
             App.elements.keywordInput.value = initialKeyword;
         }
@@ -120,7 +124,7 @@ const App = {
         if (backButton) {
             backButton.classList.remove(UI_CLASSES.HIDDEN);
             backButton.addEventListener("click", () => {
-                window.location.href = "/web/study";
+                window.location.href = App.state.from === "home" ? "/" : "/web/study";
             });
         }
     },
