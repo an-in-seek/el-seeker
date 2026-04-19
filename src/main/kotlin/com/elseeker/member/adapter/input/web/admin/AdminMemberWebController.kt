@@ -27,12 +27,12 @@ class AdminMemberWebController(
         val result = adminMemberService.findAll(keyword, pageable)
         model.addAttribute("page", result)
         model.addAttribute("keyword", keyword.orEmpty())
-        return "admin/admin-member-list"
+        return "admin/member/admin-member-list"
     }
 
     @GetMapping("/members/{id}/edit")
     fun memberEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("member", adminMemberService.findByIdWithOAuthAccounts(id))
-        return "admin/admin-member-form"
+        return "admin/member/admin-member-form"
     }
 }

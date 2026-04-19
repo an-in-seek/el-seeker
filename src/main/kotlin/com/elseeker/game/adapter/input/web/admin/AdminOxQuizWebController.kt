@@ -26,16 +26,16 @@ class AdminOxQuizWebController(
         val counts = adminOxQuizService.getQuestionCountsByStage()
         model.addAttribute("page", result)
         model.addAttribute("questionCounts", counts)
-        return "admin/admin-ox-stage-list"
+        return "admin/game/admin-ox-stage-list"
     }
 
     @GetMapping("/stages/new")
-    fun stageNewForm(): String = "admin/admin-ox-stage-form"
+    fun stageNewForm(): String = "admin/game/admin-ox-stage-form"
 
     @GetMapping("/stages/{id}/edit")
     fun stageEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("stage", adminOxQuizService.findStageById(id))
-        return "admin/admin-ox-stage-form"
+        return "admin/game/admin-ox-stage-form"
     }
 
     @GetMapping("/stages/{stageId}/questions")
@@ -49,13 +49,13 @@ class AdminOxQuizWebController(
         val result = adminOxQuizService.findQuestionsByStage(stageId, pageable)
         model.addAttribute("page", result)
         model.addAttribute("stage", adminOxQuizService.findStageById(stageId))
-        return "admin/admin-ox-question-list"
+        return "admin/game/admin-ox-question-list"
     }
 
     @GetMapping("/stages/{stageId}/questions/new")
     fun questionNewForm(@PathVariable stageId: Long, model: Model): String {
         model.addAttribute("stage", adminOxQuizService.findStageById(stageId))
-        return "admin/admin-ox-question-form"
+        return "admin/game/admin-ox-question-form"
     }
 
     @GetMapping("/questions/{id}/edit")
@@ -63,6 +63,6 @@ class AdminOxQuizWebController(
         val question = adminOxQuizService.findQuestionById(id)
         model.addAttribute("question", question)
         model.addAttribute("stage", question.stage)
-        return "admin/admin-ox-question-form"
+        return "admin/game/admin-ox-question-form"
     }
 }

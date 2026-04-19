@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Word Puzzle 관리 | ElSeeker</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/admin/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <aside th:replace="~{admin/fragments/admin-sidebar :: sidebar}"></aside>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-close></div>
+    <main class="admin-content">
+        <div class="admin-topbar">
+            <button class="admin-sidebar-toggle" type="button" aria-label="메뉴 열기" data-admin-sidebar-toggle>
+                <span></span>
+            </button>
+            <span class="admin-topbar-title">관리자</span>
+        </div>
+        <h2>성경 Word Puzzle 관리</h2>
+        <div class="admin-toolbar">
+            <div></div>
+            <a href="/web/admin/word-puzzles/new" class="btn btn-primary btn-sm">등록</a>
+        </div>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>테마</th>
+                    <th>난이도</th>
+                    <th>크기</th>
+                    <th>상태</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${page.content}">
+                    <td th:text="${p.id}"></td>
+                    <td th:text="${p.title}"></td>
+                    <td th:text="${p.themeCode}"></td>
+                    <td th:text="${p.difficultyCode}"></td>
+                    <td th:text="${p.boardWidth + 'x' + p.boardHeight}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${p.puzzleStatusCode.name() == 'DRAFT' ? 'bg-secondary' : (p.puzzleStatusCode.name() == 'PUBLISHED' ? 'bg-success' : 'bg-warning')}"
+                              th:text="${p.puzzleStatusCode}"></span>
+                    </td>
+                    <td class="admin-actions">
+                        <a th:href="@{/web/admin/word-puzzles/{id}/entries(id=${p.id})}" class="btn btn-outline-info btn-sm">단서</a>
+                        <a th:href="@{/web/admin/word-puzzles/{id}/edit(id=${p.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                        <button class="btn btn-outline-success btn-sm"
+                                th:if="${p.puzzleStatusCode.name() == 'DRAFT'}"
+                                th:data-id="${p.id}" onclick="changeStatus(this, 'PUBLISHED')">게시</button>
+                        <button class="btn btn-outline-warning btn-sm"
+                                th:if="${p.puzzleStatusCode.name() == 'PUBLISHED'}"
+                                th:data-id="${p.id}" onclick="changeStatus(this, 'ARCHIVED')">보관</button>
+                        <button class="btn btn-outline-success btn-sm"
+                                th:if="${p.puzzleStatusCode.name() == 'ARCHIVED'}"
+                                th:data-id="${p.id}" onclick="changeStatus(this, 'PUBLISHED')">재게시</button>
+                        <button class="btn btn-outline-danger btn-sm"
+                                th:if="${p.puzzleStatusCode.name() == 'DRAFT'}"
+                                th:data-id="${p.id}" th:data-name="${p.title}" onclick="deletePuzzle(this)">삭제</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(page.content)}">
+                    <td colspan="7" class="text-center text-muted">데이터가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-card-list">
+            <div class="admin-card" th:each="p : ${page.content}">
+                <div class="admin-card-title" th:text="${p.title}">제목</div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">ID</span>
+                    <span class="admin-card-value" th:text="${p.id}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">테마</span>
+                    <span class="admin-card-value" th:text="${p.themeCode}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">난이도</span>
+                    <span class="admin-card-value" th:text="${p.difficultyCode}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">크기</span>
+                    <span class="admin-card-value" th:text="${p.boardWidth + 'x' + p.boardHeight}"></span>
+                </div>
+                <div class="admin-card-row">
+                    <span class="admin-card-label">상태</span>
+                    <span class="badge"
+                          th:classappend="${p.puzzleStatusCode.name() == 'DRAFT' ? 'bg-secondary' : (p.puzzleStatusCode.name() == 'PUBLISHED' ? 'bg-success' : 'bg-warning')}"
+                          th:text="${p.puzzleStatusCode}"></span>
+                </div>
+                <div class="admin-card-actions">
+                    <a th:href="@{/web/admin/word-puzzles/{id}/entries(id=${p.id})}" class="btn btn-outline-info btn-sm">단서</a>
+                    <a th:href="@{/web/admin/word-puzzles/{id}/edit(id=${p.id})}" class="btn btn-outline-primary btn-sm">수정</a>
+                    <button class="btn btn-outline-success btn-sm"
+                            th:if="${p.puzzleStatusCode.name() == 'DRAFT'}"
+                            th:data-id="${p.id}" onclick="changeStatus(this, 'PUBLISHED')">게시</button>
+                    <button class="btn btn-outline-warning btn-sm"
+                            th:if="${p.puzzleStatusCode.name() == 'PUBLISHED'}"
+                            th:data-id="${p.id}" onclick="changeStatus(this, 'ARCHIVED')">보관</button>
+                    <button class="btn btn-outline-success btn-sm"
+                            th:if="${p.puzzleStatusCode.name() == 'ARCHIVED'}"
+                            th:data-id="${p.id}" onclick="changeStatus(this, 'PUBLISHED')">재게시</button>
+                    <button class="btn btn-outline-danger btn-sm"
+                            th:if="${p.puzzleStatusCode.name() == 'DRAFT'}"
+                            th:data-id="${p.id}" th:data-name="${p.title}" onclick="deletePuzzle(this)">삭제</button>
+                </div>
+            </div>
+            <div class="admin-card text-center text-muted" th:if="${#lists.isEmpty(page.content)}">데이터가 없습니다.</div>
+        </div>
+        <div class="admin-pagination" th:if="${page.totalPages > 1}">
+            <th:block th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}">
+                <a th:if="${i != page.number}" th:href="@{/web/admin/word-puzzles(page=${i},size=${page.size})}" th:text="${i + 1}"></a>
+                <span th:if="${i == page.number}" class="active" th:text="${i + 1}"></span>
+            </th:block>
+        </div>
+    </main>
+</div>
+<script type="module">
+    import {fetchAdmin, handleDelete, initAdminSidebarToggle} from "/js/admin/admin-common.js";
+    initAdminSidebarToggle();
+
+    window.deletePuzzle = (btn) => {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        handleDelete(`/api/v1/admin/word-puzzles/${id}`, name);
+    };
+
+    const STATUS_LABELS = {PUBLISHED: '게시됨', ARCHIVED: '보관됨', DRAFT: '임시저장'};
+    window.changeStatus = async (btn, status) => {
+        const label = STATUS_LABELS[status] || status;
+        if (!confirm(`상태를 '${label}'(으)로 변경하시겠습니까?`)) return;
+        try {
+            await fetchAdmin(`/api/v1/admin/word-puzzles/${btn.dataset.id}/status`, {
+                method: "PATCH",
+                body: JSON.stringify({status}),
+            });
+            location.reload();
+        } catch (e) {
+            alert(e.message);
+        }
+    };
+</script>
+</body>
+</html>

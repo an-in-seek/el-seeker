@@ -27,15 +27,15 @@ class AdminStudyWebController(
         val result = adminDictionaryService.findAll(keyword, pageable)
         model.addAttribute("page", result)
         model.addAttribute("keyword", keyword.orEmpty())
-        return "admin/admin-dictionary-list"
+        return "admin/study/admin-dictionary-list"
     }
 
     @GetMapping("/dictionaries/new")
-    fun dictionaryNewForm(): String = "admin/admin-dictionary-form"
+    fun dictionaryNewForm(): String = "admin/study/admin-dictionary-form"
 
     @GetMapping("/dictionaries/{id}/edit")
     fun dictionaryEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("dictionary", adminDictionaryService.findById(id))
-        return "admin/admin-dictionary-form"
+        return "admin/study/admin-dictionary-form"
     }
 }

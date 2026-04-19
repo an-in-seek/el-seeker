@@ -26,16 +26,16 @@ class AdminQuizWebController(
         val summaries = adminQuizService.getStageSummaries()
         model.addAttribute("page", result)
         model.addAttribute("questionCounts", summaries)
-        return "admin/admin-quiz-stage-list"
+        return "admin/game/admin-quiz-stage-list"
     }
 
     @GetMapping("/stages/new")
-    fun stageNewForm(): String = "admin/admin-quiz-stage-form"
+    fun stageNewForm(): String = "admin/game/admin-quiz-stage-form"
 
     @GetMapping("/stages/{id}/edit")
     fun stageEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("stage", adminQuizService.findStageById(id))
-        return "admin/admin-quiz-stage-form"
+        return "admin/game/admin-quiz-stage-form"
     }
 
     @GetMapping("/stages/{stageId}/questions")
@@ -49,13 +49,13 @@ class AdminQuizWebController(
         val result = adminQuizService.findQuestionsByStage(stageId, pageable)
         model.addAttribute("page", result)
         model.addAttribute("stage", adminQuizService.findStageById(stageId))
-        return "admin/admin-quiz-question-list"
+        return "admin/game/admin-quiz-question-list"
     }
 
     @GetMapping("/stages/{stageId}/questions/new")
     fun questionNewForm(@PathVariable stageId: Long, model: Model): String {
         model.addAttribute("stage", adminQuizService.findStageById(stageId))
-        return "admin/admin-quiz-question-form"
+        return "admin/game/admin-quiz-question-form"
     }
 
     @GetMapping("/questions/{id}/edit")
@@ -63,6 +63,6 @@ class AdminQuizWebController(
         val question = adminQuizService.findQuestionById(id)
         model.addAttribute("question", question)
         model.addAttribute("stage", question.stage)
-        return "admin/admin-quiz-question-form"
+        return "admin/game/admin-quiz-question-form"
     }
 }

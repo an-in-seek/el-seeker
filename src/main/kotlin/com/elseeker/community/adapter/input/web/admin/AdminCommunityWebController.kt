@@ -46,22 +46,22 @@ class AdminCommunityWebController(
         model.addAttribute("status", status)
         model.addAttribute("keyword", keyword.orEmpty())
         model.addAttribute("author", author.orEmpty())
-        return "admin/admin-community-post-list"
+        return "admin/community/admin-community-post-list"
     }
 
     @GetMapping("/posts/new")
-    fun postNewForm(): String = "admin/admin-community-post-form"
+    fun postNewForm(): String = "admin/community/admin-community-post-form"
 
     @GetMapping("/posts/{postId}/edit")
     fun postEditForm(@PathVariable postId: Long, model: Model): String {
         model.addAttribute("post", postService.getAdminPostDetail(postId))
-        return "admin/admin-community-post-form"
+        return "admin/community/admin-community-post-form"
     }
 
     @GetMapping("/posts/{postId}")
     fun postDetail(@PathVariable postId: Long, model: Model): String {
         model.addAttribute("post", postService.getAdminPostDetail(postId))
-        return "admin/admin-community-post-detail"
+        return "admin/community/admin-community-post-detail"
     }
 
     @GetMapping("/comments")
@@ -84,7 +84,7 @@ class AdminCommunityWebController(
         model.addAttribute("commentId", commentId)
         model.addAttribute("keyword", keyword.orEmpty())
         model.addAttribute("author", author.orEmpty())
-        return "admin/admin-community-comment-list"
+        return "admin/community/admin-community-comment-list"
     }
 
     @GetMapping("/reports")
@@ -98,6 +98,6 @@ class AdminCommunityWebController(
         val result = adminCommunityReportService.getAdminReports(targetType, pageable)
         model.addAttribute("page", result)
         model.addAttribute("targetType", targetType)
-        return "admin/admin-community-report-list"
+        return "admin/community/admin-community-report-list"
     }
 }

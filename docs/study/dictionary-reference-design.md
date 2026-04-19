@@ -130,7 +130,7 @@ data class AdminDictionaryReferenceResponse(
 
 #### Admin 웹 페이지
 
-- 사전 수정 폼(`admin-dictionary-form.html`)에 관련 구절 관리 섹션 추가
+- 사전 수정 폼(`templates/admin/study/admin-dictionary-form.html`)에 관련 구절 관리 섹션 추가
 - 구절 추가/삭제/순서 변경(드래그 or 화살표 버튼) UI
 
 ### Phase 2 — 클라이언트 반영

@@ -41,16 +41,16 @@ class AdminBibleWebController(
     ): String {
         val pageable = PageRequest.of(page, size, Sort.by("translationOrder"))
         model.addAttribute("page", adminBibleTranslationService.findAll(pageable))
-        return "admin/admin-bible-translation-list"
+        return "admin/bible/admin-bible-translation-list"
     }
 
     @GetMapping("/bible/translations/new")
-    fun translationNewForm(): String = "admin/admin-bible-translation-form"
+    fun translationNewForm(): String = "admin/bible/admin-bible-translation-form"
 
     @GetMapping("/bible/translations/{id}/edit")
     fun translationEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("translation", adminBibleTranslationService.findById(id))
-        return "admin/admin-bible-translation-form"
+        return "admin/bible/admin-bible-translation-form"
     }
 
     // ── BibleBook ──
@@ -66,20 +66,20 @@ class AdminBibleWebController(
         model.addAttribute("page", adminBibleBookService.findByTranslationId(translationId, pageable))
         model.addAttribute("translationId", translationId)
         model.addAttribute("translation", adminBibleTranslationService.findById(translationId))
-        return "admin/admin-bible-book-list"
+        return "admin/bible/admin-bible-book-list"
     }
 
     @GetMapping("/bible/translations/{translationId}/books/new")
     fun bookNewForm(@PathVariable translationId: Long, model: Model): String {
         model.addAttribute("translationId", translationId)
-        return "admin/admin-bible-book-form"
+        return "admin/bible/admin-bible-book-form"
     }
 
     @GetMapping("/bible/translations/{translationId}/books/{id}/edit")
     fun bookEditForm(@PathVariable translationId: Long, @PathVariable id: Long, model: Model): String {
         model.addAttribute("translationId", translationId)
         model.addAttribute("book", adminBibleBookService.findById(id))
-        return "admin/admin-bible-book-form"
+        return "admin/bible/admin-bible-book-form"
     }
 
     // ── BibleBookDescription ──
@@ -97,20 +97,20 @@ class AdminBibleWebController(
         model.addAttribute("bookKey", bookKey)
         model.addAttribute("languageCode", languageCode)
         model.addAttribute("bookKeys", BibleBookKey.entries)
-        return "admin/admin-bible-book-description-list"
+        return "admin/bible/admin-bible-book-description-list"
     }
 
     @GetMapping("/bible/book-descriptions/new")
     fun bookDescriptionNewForm(model: Model): String {
         model.addAttribute("bookKeys", BibleBookKey.entries)
-        return "admin/admin-bible-book-description-form"
+        return "admin/bible/admin-bible-book-description-form"
     }
 
     @GetMapping("/bible/book-descriptions/{id}/edit")
     fun bookDescriptionEditForm(@PathVariable id: Long, model: Model): String {
         model.addAttribute("description", adminBibleBookDescriptionService.findById(id))
         model.addAttribute("bookKeys", BibleBookKey.entries)
-        return "admin/admin-bible-book-description-form"
+        return "admin/bible/admin-bible-book-description-form"
     }
 
     // ── BibleChapter ──
@@ -126,20 +126,20 @@ class AdminBibleWebController(
         model.addAttribute("page", adminBibleChapterService.findByBookId(bookId, pageable))
         model.addAttribute("bookId", bookId)
         model.addAttribute("book", adminBibleBookService.findById(bookId))
-        return "admin/admin-bible-chapter-list"
+        return "admin/bible/admin-bible-chapter-list"
     }
 
     @GetMapping("/bible/books/{bookId}/chapters/new")
     fun chapterNewForm(@PathVariable bookId: Long, model: Model): String {
         model.addAttribute("bookId", bookId)
-        return "admin/admin-bible-chapter-form"
+        return "admin/bible/admin-bible-chapter-form"
     }
 
     @GetMapping("/bible/books/{bookId}/chapters/{id}/edit")
     fun chapterEditForm(@PathVariable bookId: Long, @PathVariable id: Long, model: Model): String {
         model.addAttribute("bookId", bookId)
         model.addAttribute("chapter", adminBibleChapterService.findById(id))
-        return "admin/admin-bible-chapter-form"
+        return "admin/bible/admin-bible-chapter-form"
     }
 
     // ── BibleVerse ──
@@ -155,19 +155,19 @@ class AdminBibleWebController(
         model.addAttribute("page", adminBibleVerseService.findByChapterId(chapterId, pageable))
         model.addAttribute("chapterId", chapterId)
         model.addAttribute("chapter", adminBibleChapterService.findById(chapterId))
-        return "admin/admin-bible-verse-list"
+        return "admin/bible/admin-bible-verse-list"
     }
 
     @GetMapping("/bible/chapters/{chapterId}/verses/new")
     fun verseNewForm(@PathVariable chapterId: Long, model: Model): String {
         model.addAttribute("chapterId", chapterId)
-        return "admin/admin-bible-verse-form"
+        return "admin/bible/admin-bible-verse-form"
     }
 
     @GetMapping("/bible/chapters/{chapterId}/verses/{id}/edit")
     fun verseEditForm(@PathVariable chapterId: Long, @PathVariable id: Long, model: Model): String {
         model.addAttribute("chapterId", chapterId)
         model.addAttribute("verse", adminBibleVerseService.findById(id))
-        return "admin/admin-bible-verse-form"
+        return "admin/bible/admin-bible-verse-form"
     }
 }
