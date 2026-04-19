@@ -61,7 +61,14 @@
                 <p class="quiz-option-note">보기는 최소 2개, 최대 4개까지만 등록할 수 있으며 인덱스는 0부터 3까지 사용할 수 있습니다.</p>
                 <div id="optionList" class="d-flex flex-column gap-2">
                     <div class="quiz-option-row d-flex gap-2 align-items-center" th:each="opt : ${question?.options}">
-                        <input type="number" class="form-control form-control-sm option-index" min="0" max="3" th:value="${opt.optionIndex}" placeholder="인덱스">
+                        <select class="form-control form-control-sm option-index">
+                            <option value="">인덱스</option>
+                            <option th:each="index : ${#numbers.sequence(0, 3)}"
+                                    th:value="${index}"
+                                    th:text="${index}"
+                                    th:selected="${opt.optionIndex} == ${index}">
+                            </option>
+                        </select>
                         <input type="text" class="form-control form-control-sm option-text" th:value="${opt.optionText}" placeholder="보기 내용">
                         <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
                     </div>
@@ -121,17 +128,67 @@
         return getRows().length;
     };
 
+    const createOptionIndexSelect = () => {
+        const select = document.createElement("select");
+        select.className = "form-control form-control-sm option-index";
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "인덱스";
+        select.appendChild(placeholder);
+
+        for (let index = 0; index < MAX_OPTIONS; index += 1) {
+            const option = document.createElement("option");
+            option.value = String(index);
+            option.textContent = `${index}`;
+            select.appendChild(option);
+        }
+
+        return select;
+    };
+
     const createOptionRow = ({ optionIndex = "", optionText = "" } = {}) => {
         const row = document.createElement("div");
         row.className = "quiz-option-row d-flex gap-2 align-items-center";
-        row.innerHTML = `
-            <input type="number" class="form-control form-control-sm option-index" min="0" max="3" placeholder="인덱스">
-            <input type="text" class="form-control form-control-sm option-text" placeholder="보기 내용">
-            <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
-        `;
-        row.querySelector(".option-index").value = optionIndex;
-        row.querySelector(".option-text").value = optionText;
+        const optionIndexSelect = createOptionIndexSelect();
+        optionIndexSelect.value = optionIndex === "" ? "" : String(optionIndex);
+
+        const optionTextInput = document.createElement("input");
+        optionTextInput.type = "text";
+        optionTextInput.className = "form-control form-control-sm option-text";
+        optionTextInput.placeholder = "보기 내용";
+        optionTextInput.value = optionText;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-outline-danger btn-sm option-remove";
+        removeButton.textContent = "삭제";
+
+        row.append(optionIndexSelect, optionTextInput, removeButton);
         return row;
+    };
+
+    const updateOptionIndexSelects = () => {
+        const rows = getRows();
+        const selectedIndexes = rows.map(row => row.querySelector(".option-index").value);
+
+        rows.forEach((row, rowIndex) => {
+            const select = row.querySelector(".option-index");
+            const currentValue = select.value;
+
+            Array.from(select.options).forEach(option => {
+                if (option.value === "") {
+                    option.disabled = false;
+                    return;
+                }
+
+                option.disabled = selectedIndexes.some((selectedValue, selectedIndex) =>
+                    selectedIndex !== rowIndex && selectedValue === option.value
+                );
+            });
+
+            select.value = currentValue;
+        });
     };
 
     const updateAnswerIndexOptions = () => {
@@ -174,6 +231,7 @@
             removeButton.disabled = rows.length <= MIN_OPTIONS;
         });
 
+        updateOptionIndexSelects();
         updateAnswerIndexOptions();
     };
 
@@ -211,6 +269,11 @@
     });
 
     optionList.addEventListener("input", () => {
+        clearFeedback();
+        updateOptionUi();
+    });
+
+    optionList.addEventListener("change", () => {
         clearFeedback();
         updateOptionUi();
     });
