@@ -84,7 +84,7 @@ body.admin-sidebar-open {
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.2rem;
 }
 
 .admin-sidebar-item,
@@ -92,30 +92,77 @@ body.admin-sidebar-open {
     min-width: 0;
 }
 
-.admin-sidebar-group-title {
-    padding: 0.2rem 0.75rem 0.45rem;
+.admin-sidebar-group-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
     color: #8ea2b5;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
-.admin-sidebar-group.is-active .admin-sidebar-group-title {
+.admin-sidebar-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.admin-sidebar-group.is-active .admin-sidebar-group-toggle {
     color: #ecf0f1;
+}
+
+.admin-sidebar-group-chevron {
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(-45deg);
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+}
+
+.admin-sidebar-group.is-open .admin-sidebar-group-chevron {
+    transform: translateY(-1px) rotate(45deg);
+}
+
+.admin-sidebar-group-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.22s ease;
+}
+
+.admin-sidebar-group.is-open .admin-sidebar-group-body {
+    grid-template-rows: 1fr;
+}
+
+.admin-sidebar-group-body > * {
+    overflow: hidden;
+    min-height: 0;
 }
 
 .admin-sidebar-subnav {
     list-style: none;
-    margin: 0;
+    margin: 0.1rem 0 0.3rem 0.85rem;
     padding: 0 0 0 0.85rem;
     border-left: 1px solid rgba(236, 240, 241, 0.14);
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.1rem;
 }
 
 .admin-sidebar-nav a {
+    position: relative;
     display: block;
-    padding: 0.65rem 0.75rem;
+    padding: 0.55rem 0.75rem;
     border-radius: 8px;
     color: #bdc3c7;
     text-decoration: none;
@@ -124,7 +171,8 @@ body.admin-sidebar-open {
 }
 
 .admin-sidebar-subnav a {
-    font-size: 0.88rem;
+    font-size: 0.86rem;
+    padding: 0.45rem 0.75rem;
 }
 
 .admin-sidebar-nav a.active {
@@ -132,11 +180,36 @@ body.admin-sidebar-open {
     color: #fff;
 }
 
+.admin-sidebar-subnav a.active {
+    background: linear-gradient(to right, rgba(52, 152, 219, 0.22), rgba(52, 152, 219, 0.04));
+    color: #fff;
+    box-shadow: inset 3px 0 0 #3498db;
+}
+
 @media (hover: hover) and (pointer: fine) {
     .admin-sidebar-nav a:hover {
-        background: #34495e;
+        background: rgba(255, 255, 255, 0.06);
         color: #fff;
     }
+
+    .admin-sidebar-nav a.active:hover {
+        background: #34495e;
+    }
+
+    .admin-sidebar-subnav a.active:hover {
+        background: linear-gradient(to right, rgba(52, 152, 219, 0.28), rgba(52, 152, 219, 0.06));
+    }
+
+    .admin-sidebar-group-toggle:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #ecf0f1;
+    }
+}
+
+.admin-sidebar-group-toggle:focus-visible,
+.admin-sidebar-nav a:focus-visible {
+    outline: 2px solid #3498db;
+    outline-offset: -2px;
 }
 
 .admin-content {

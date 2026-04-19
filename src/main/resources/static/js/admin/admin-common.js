@@ -35,7 +35,6 @@ export const handleDelete = async (url, displayName, onSuccess) => {
 
 export const initAdminSidebarToggle = () => {
     const toggleButtons = document.querySelectorAll("[data-admin-sidebar-toggle]");
-    if (!toggleButtons.length) return;
     const closeTargets = document.querySelectorAll("[data-admin-sidebar-close]");
     const closeSidebar = () => document.body.classList.remove("admin-sidebar-open");
     const toggleSidebar = () => document.body.classList.toggle("admin-sidebar-open");
@@ -44,5 +43,49 @@ export const initAdminSidebarToggle = () => {
     closeTargets.forEach((target) => target.addEventListener("click", closeSidebar));
     window.addEventListener("resize", () => {
         if (window.innerWidth > 992) closeSidebar();
+    });
+
+    initAdminSidebarGroups();
+};
+
+export const initAdminSidebarGroups = () => {
+    const groups = document.querySelectorAll(".admin-sidebar-group[data-sidebar-group]");
+    if (!groups.length) return;
+    const STORAGE_KEY = "admin-sidebar-groups";
+    const readState = () => {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {};
+        } catch {
+            return {};
+        }
+    };
+    const writeState = (state) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch { /* ignore */ }
+    };
+
+    const stored = readState();
+
+    groups.forEach((group) => {
+        const key = group.dataset.sidebarGroup;
+        const toggle = group.querySelector(".admin-sidebar-group-toggle");
+        if (!toggle) return;
+
+        const isActive = group.classList.contains("is-active");
+        const storedOpen = Object.prototype.hasOwnProperty.call(stored, key) ? stored[key] : null;
+        const shouldOpen = isActive || storedOpen === true;
+
+        group.classList.toggle("is-open", shouldOpen);
+        toggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+
+        toggle.addEventListener("click", () => {
+            const open = !group.classList.contains("is-open");
+            group.classList.toggle("is-open", open);
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            const next = readState();
+            next[key] = open;
+            writeState(next);
+        });
     });
 };
