@@ -72,6 +72,12 @@
                                role="menuitem">
                                 마이페이지
                             </a>
+                            <a id="topNavMyMemoLink"
+                               href="/web/member/my-memo"
+                               class="top-nav-account-item d-none"
+                               role="menuitem">
+                                나의 메모
+                            </a>
                             <div id="topNavAccountDivider"
                                  class="top-nav-account-divider d-none"
                                  role="separator"
@@ -104,10 +110,11 @@
             const loginLink = document.getElementById("topNavLoginLink");
             const logoutLink = document.getElementById("topNavLogoutLink");
             const myPageLink = document.getElementById("topNavMyPageLink");
+            const myMemoLink = document.getElementById("topNavMyMemoLink");
             const accountDivider = document.getElementById("topNavAccountDivider");
             const accountButton = document.getElementById("topNavAccountButton");
             const accountMenu = document.getElementById("topNavAccountMenu");
-            if (!loginLink || !logoutLink || !myPageLink || !accountDivider || !accountButton || !accountMenu) {
+            if (!loginLink || !logoutLink || !myPageLink || !myMemoLink || !accountDivider || !accountButton || !accountMenu) {
                 return;
             }
             const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -120,6 +127,7 @@
                 onAuthenticated: () => {
                     logoutLink.classList.remove("d-none");
                     myPageLink.classList.remove("d-none");
+                    myMemoLink.classList.remove("d-none");
                     accountDivider.classList.remove("d-none");
                     if (notificationButton && notificationButton.dataset.showNotification === "true") {
                         notificationButton.classList.remove("d-none");

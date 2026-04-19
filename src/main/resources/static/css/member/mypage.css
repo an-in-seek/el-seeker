@@ -106,100 +106,6 @@
     border: 1px solid #e2e8f0;
 }
 
-/* ── 탭 네비게이션 ── */
-
-.mypage-tabs-wrapper {
-    position: sticky;
-    top: 50px;
-    z-index: 20;
-    background: #f1f5f9;
-    margin-bottom: 1rem;
-    transition: top 300ms ease;
-}
-
-body.top-nav-hidden .mypage-tabs-wrapper {
-    top: 0;
-}
-
-.mypage-tabs {
-    display: flex;
-    gap: 0.5rem;
-    background: #e8edf3;
-    border-radius: 0.75rem;
-    padding: 0.25rem;
-}
-
-.mypage-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.625rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--mypage-muted);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    min-height: 44px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .mypage-tab:hover:not(.active) {
-        color: var(--mypage-ink);
-        background: rgba(255, 255, 255, 0.5);
-    }
-}
-
-.mypage-tab:focus-visible {
-    outline: 2px solid var(--mypage-accent);
-    outline-offset: -2px;
-}
-
-.mypage-tab.active {
-    color: var(--mypage-accent);
-    background: #ffffff;
-    font-weight: 700;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-.mypage-tab-badge {
-    background: var(--mypage-accent);
-    color: #ffffff;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.1rem 0.4rem;
-    border-radius: 999px;
-    line-height: 1.3;
-    min-width: 1.1rem;
-    text-align: center;
-}
-
-.mypage-tab.active .mypage-tab-badge {
-    background: var(--mypage-accent);
-}
-
-.mypage-tab:not(.active) .mypage-tab-badge {
-    background: #94a3b8;
-}
-
-.mypage-tab-panel {
-    animation: tabFadeIn 0.2s ease-out both;
-}
-
-@keyframes tabFadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
 /* ── 카드 공통 ── */
 
 .mypage-info-card {
@@ -478,126 +384,6 @@ body.top-nav-hidden .mypage-tabs-wrapper {
     margin: 0;
 }
 
-/* ── 내 메모 섹션 ── */
-
-.mypage-memo-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.mypage-badge-count {
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-}
-
-.mypage-memo-filter {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.mypage-memo-filter-select {
-    font-size: 0.875rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    background-color: #f8fafc;
-    color: #334155;
-    max-width: 160px;
-    transition: border-color 0.2s;
-}
-
-.mypage-memo-filter-select:focus {
-    border-color: var(--mypage-accent);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-    outline: none;
-}
-
-.mypage-memo-filter-select:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.mypage-memo-list {
-    display: grid;
-    gap: 0.75rem;
-}
-
-.mypage-memo-loading {
-    font-size: 0.875rem;
-    text-align: center;
-    padding: 1.5rem 0;
-}
-
-.mypage-memo-empty {
-    text-align: center;
-    padding: 2rem 0;
-    color: #64748b;
-    font-size: 0.9rem;
-}
-
-.mypage-memo-card {
-    display: block;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    padding: 1rem 1.1rem;
-    background: #ffffff;
-    text-decoration: none;
-    color: inherit;
-    transition: box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.mypage-memo-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.mypage-memo-card-ref {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--mypage-accent);
-}
-
-.mypage-memo-card-date {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    flex-shrink: 0;
-}
-
-.mypage-memo-card-content {
-    font-size: 0.875rem;
-    color: #475569;
-    line-height: 1.55;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .mypage-memo-card:hover {
-        border-color: var(--mypage-accent);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-    }
-}
-
-/* 더보기 버튼 모바일 터치 시 글씨 사라짐 방지 */
-#mypageMemoMore:active,
-#mypageMemoMore:focus {
-    color: #6c757d;
-    background-color: transparent;
-}
-
 /* ── Skeleton UI ── */
 
 .mypage-skeleton-group {
@@ -614,7 +400,6 @@ body.top-nav-hidden .mypage-tabs-wrapper {
 .skeleton-title { width: 60%; height: 2rem; margin-bottom: 0.5rem; }
 .skeleton-text { width: 40%; height: 1rem; margin-bottom: 1rem; }
 .skeleton-badges { width: 50%; height: 1.5rem; }
-.skeleton-memo-card { width: 100%; height: 5rem; margin-bottom: 0.75rem; }
 
 @keyframes shimmer {
     0% { background-position: 200% 0; }
@@ -668,28 +453,6 @@ body.top-nav-hidden .mypage-tabs-wrapper {
 
     .mypage-oauth-field span {
         font-size: 0.78rem;
-    }
-
-    .mypage-memo-filter {
-        flex-direction: column;
-    }
-
-    .mypage-memo-filter-select {
-        max-width: none;
-        width: 100%;
-    }
-
-    .mypage-memo-card {
-        padding: 0.75rem 0.85rem;
-    }
-
-    .mypage-memo-card-ref {
-        font-size: 0.8rem;
-    }
-
-    .mypage-memo-card-content {
-        font-size: 0.8rem;
-        -webkit-line-clamp: 2;
     }
 
     .mypage-danger-zone-body {

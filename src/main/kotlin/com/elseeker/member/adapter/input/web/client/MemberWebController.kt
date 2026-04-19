@@ -1,9 +1,12 @@
 package com.elseeker.member.adapter.input.web.client
 
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.view.RedirectView
 
 @Controller
 @RequestMapping("/web/member")
@@ -16,9 +19,25 @@ class MemberWebController {
     }
 
     @GetMapping("/mypage")
-    fun showMyPage(authentication: Authentication?): String {
+    fun showMyPage(
+        authentication: Authentication?,
+        @RequestParam(required = false) tab: String?,
+    ): Any {
+        if (tab == "memo") {
+            redirectIfUnauthenticated(authentication, "/web/member/my-memo")?.let { return it }
+            return RedirectView("/web/member/my-memo", true).apply {
+                setStatusCode(HttpStatus.MOVED_PERMANENTLY)
+            }
+        }
+
         redirectIfUnauthenticated(authentication, "/web/member/mypage")?.let { return it }
         return "member/mypage"
+    }
+
+    @GetMapping("/my-memo")
+    fun showMyMemo(authentication: Authentication?): String {
+        redirectIfUnauthenticated(authentication, "/web/member/my-memo")?.let { return it }
+        return "member/my-memo"
     }
 
     @GetMapping("/withdraw/complete")

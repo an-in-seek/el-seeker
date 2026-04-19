@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head
+        th:replace="~{fragments/head :: head('나의 메모 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/my-memo.css?v=1.2')}"
+        th:with="robotsContent='noindex'"></head>
+<body class="has-fixed-nav my-memo-page">
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="container content-wrapper my-memo-shell">
+    <section class="page-hero my-memo-hero" aria-labelledby="myMemoTitle">
+        <div class="page-hero-content my-memo-hero-content">
+            <div class="my-memo-hero-copy">
+                <div class="my-memo-hero-meta">
+                    <p class="my-memo-eyebrow">메모 보관함</p>
+                    <span id="myMemoCountBadge" class="badge my-memo-count-badge d-none"></span>
+                </div>
+                <h1 id="myMemoTitle" class="my-memo-title">나의 메모</h1>
+                <p class="my-memo-description">작성한 성경 메모를 번역본과 성경별로 모아서 확인할 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <article class="card card-panel card-soft my-memo-page-card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div id="myMemoFilter" class="my-memo-filter d-none">
+                <select id="myMemoTranslationFilter" class="form-select my-memo-filter-select">
+                    <option value="">전체 번역본</option>
+                </select>
+                <select id="myMemoBookFilter" class="form-select my-memo-filter-select" disabled>
+                    <option value="">전체 성경</option>
+                </select>
+            </div>
+            <div id="myMemoSkeleton" class="my-memo-skeleton-group">
+                <div class="skeleton skeleton-memo-card"></div>
+                <div class="skeleton skeleton-memo-card"></div>
+            </div>
+            <div id="myMemoList" class="my-memo-list"></div>
+            <div id="myMemoEmpty" class="my-memo-empty d-none">
+                <p class="mb-2">아직 작성한 메모가 없습니다.</p>
+                <a href="/web/bible/translation" class="btn btn-outline-primary btn-sm">성경 읽기에서 메모를 남겨보세요</a>
+            </div>
+            <button id="myMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
+                더보기
+            </button>
+        </div>
+    </article>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script type="module" src="/js/member/my-memo.js?v=1.1"></script>
+</body>
+</html>

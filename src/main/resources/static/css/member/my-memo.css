@@ -1,0 +1,288 @@
+.my-memo-page {
+    --my-memo-ink: #1e293b;
+    --my-memo-muted: #64748b;
+    --my-memo-accent: #3b82f6;
+    --my-memo-deep: #0f172a;
+    font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 28%),
+            linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+    color: var(--my-memo-ink);
+}
+
+.my-memo-shell {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+}
+
+.my-memo-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    border-radius: 1rem;
+    padding: 2.4rem 2.5rem;
+    background:
+            linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(255, 255, 255, 0) 45%),
+            #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    animation: fadeUp 0.45s ease-out both;
+}
+
+.my-memo-hero-content {
+    max-width: none;
+    text-align: center;
+}
+
+.my-memo-hero-copy {
+    max-width: 42rem;
+    margin: 0 auto;
+}
+
+.my-memo-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-bottom: 0.9rem;
+}
+
+.my-memo-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.34rem 0.7rem;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: rgba(239, 246, 255, 0.9);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--my-memo-accent);
+}
+
+.my-memo-title {
+    margin: 0 0 0.7rem;
+    font-size: clamp(2rem, 1.4rem + 1.2vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--my-memo-deep);
+}
+
+.my-memo-count-badge {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.36rem 0.78rem;
+    background: rgba(15, 23, 42, 0.06);
+    color: #1e40af;
+    border: 1px solid rgba(59, 130, 246, 0.18);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.my-memo-description {
+    margin: 0;
+    max-width: 36rem;
+    margin-inline: auto;
+    color: var(--my-memo-muted);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.my-memo-page-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.92);
+    animation: fadeUp 0.45s ease-out both;
+    animation-delay: 0.08s;
+}
+
+.my-memo-filter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.my-memo-filter-select {
+    max-width: 180px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background-color: #f8fafc;
+    color: #334155;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.my-memo-filter-select:focus {
+    border-color: var(--my-memo-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+.my-memo-filter-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.my-memo-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.my-memo-empty {
+    text-align: center;
+    padding: 2.5rem 0;
+    color: var(--my-memo-muted);
+    font-size: 0.9rem;
+}
+
+.my-memo-card {
+    display: block;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.my-memo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.my-memo-card-ref {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--my-memo-accent);
+}
+
+.my-memo-card-date {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.my-memo-card-content {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .my-memo-card:hover {
+        border-color: var(--my-memo-accent);
+        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+        transform: translateY(-1px);
+    }
+}
+
+.my-memo-card:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+#myMemoMore:active,
+#myMemoMore:focus {
+    color: #6c757d;
+    background-color: transparent;
+}
+
+.my-memo-skeleton-group {
+    padding: 0.25rem 0;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+}
+
+.skeleton-memo-card {
+    width: 100%;
+    height: 5rem;
+    margin-bottom: 0.75rem;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .my-memo-hero {
+        padding: 2rem 1.5rem;
+    }
+
+    .my-memo-description {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .my-memo-filter {
+        flex-direction: column;
+    }
+
+    .my-memo-filter-select {
+        max-width: none;
+        width: 100%;
+    }
+
+    .my-memo-card {
+        padding: 0.85rem 0.9rem;
+    }
+
+    .my-memo-card-ref {
+        font-size: 0.8rem;
+    }
+
+    .my-memo-card-content {
+        font-size: 0.84rem;
+        -webkit-line-clamp: 2;
+    }
+
+    .my-memo-hero-meta {
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .my-memo-eyebrow,
+    .my-memo-count-badge {
+        font-size: 0.74rem;
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
