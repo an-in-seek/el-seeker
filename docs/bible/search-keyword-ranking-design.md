@@ -33,6 +33,11 @@
   - 따라서 `BibleService` 에서 발행하면 활성 트랜잭션이 없어 `AFTER_COMMIT` 리스너가 발화하지 않음 (Spring 이 이벤트를 조용히 폐기)
   - 반드시 `BibleReader` 내부 (트랜잭션 경계 내)에서 `ApplicationEventPublisher.publishEvent(...)` 호출
   - read-only 트랜잭션도 `AFTER_COMMIT` 이 정상 발화함
+- 발행 조건: **`page == 0` 인 경우에만** 이벤트 발행
+  - 사용자가 페이지네이션 버튼을 누를 때마다 count 가 부풀려지는 것을 방지
+  - "키워드 입력으로 새 검색을 시작" 을 1회로 집계하는 것이 요구사항의 의도에 부합
+  - 기존 `page == 0` 에서만 `totalCount` 를 계산하는 로직과 자연스럽게 합쳐짐
+- 발행 호출은 `runCatching` 으로 감싸 랭킹 집계 예외가 검색 API 응답 성공 여부에 영향 주지 않도록 방어
 - 리스너: `@TransactionalEventListener(phase = AFTER_COMMIT)` + `@Transactional(propagation = REQUIRES_NEW)` **동기 실행**
   - 프로젝트 기존 컨벤션인 `GameRankingService.kt` 와 동일 패턴
   - UPSERT 1회(~1ms)는 동기로 충분하며, `@Async` 스레드 풀·`DiscardOldestPolicy` 등의 복잡도가 불필요
@@ -284,7 +289,7 @@ CREATE INDEX idx_bible_search_keyword_last_searched_at
 
 - 권한: `permitAll` (기존 `/api/v1/bibles/**` 가 이미 `SecurityConfig.kt` 에서 `permitAll` 처리됨 → 별도 설정 불필요)
 - `keyword` 는 표시용으로 `normalized_keyword` 가 아닌 `keyword`(가장 최근 원본) 를 반환
-- 블랙리스트 처리된 키워드는 응답에서 자동 제외 (§5.4 참조)
+- 블랙리스트 필터링은 **Phase 2 에서 추가** (§5.4 참조). Phase 1 응답은 모든 집계 키워드를 `search_count` 내림차순으로 그대로 노출한다.
 - `limit` 범위를 벗어나면 `ServiceError(ErrorType.INVALID_PARAMETER)` 를 던져 `GlobalExceptionHandler` 가 400 JSON 응답 반환
 
 ### 5.3 관리자 상세 조회 (Phase 2)
