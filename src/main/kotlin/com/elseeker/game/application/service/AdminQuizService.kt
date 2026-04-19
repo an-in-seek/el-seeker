@@ -22,6 +22,11 @@ class AdminQuizService(
     private val questionRepository: QuizQuestionRepository,
     private val optionRepository: QuizQuestionOptionRepository,
 ) {
+    companion object {
+        private const val MIN_OPTIONS = 2
+        private const val MAX_OPTIONS = 4
+    }
+
     fun findStages(pageable: Pageable): Page<QuizStage> = stageRepository.findAll(pageable)
 
     fun findStageById(id: Long): QuizStage =
@@ -136,10 +141,16 @@ class AdminQuizService(
     }
 
     private fun validateOptions(options: List<OptionPayload>, answerIndex: Int) {
-        if (options.size < 2) {
+        if (options.size < MIN_OPTIONS) {
+            throwError(ErrorType.INVALID_PARAMETER, "options.size")
+        }
+        if (options.size > MAX_OPTIONS) {
             throwError(ErrorType.INVALID_PARAMETER, "options.size")
         }
         val optionIndexes = options.map { it.optionIndex }
+        if (optionIndexes.any { it !in 0..<MAX_OPTIONS }) {
+            throwError(ErrorType.INVALID_PARAMETER, "optionIndex")
+        }
         if (optionIndexes.distinct().size != optionIndexes.size) {
             throwError(ErrorType.INVALID_PARAMETER, "optionIndex")
         }

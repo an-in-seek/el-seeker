@@ -6,6 +6,7 @@
     <title>성경 객관식 퀴즈 문제 등록/수정 | ElSeeker</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/admin/admin.css" rel="stylesheet">
+    <link href="/css/admin/admin-quiz-question-form.css?v=1.3" rel="stylesheet">
 </head>
 <body>
 <div class="admin-layout">
@@ -23,14 +24,16 @@
             <span th:text="${question != null} ? '수정' : '등록'">등록</span>
         </div>
         <h2 th:text="${question != null} ? '객관식 문제 수정' : '객관식 문제 등록'">객관식 문제 등록</h2>
-        <div class="admin-form mobile-actions">
+        <div class="admin-form mobile-actions quiz-question-form">
+            <div id="quizFormFeedback" class="alert alert-danger quiz-form-feedback" role="alert"></div>
+
             <div class="form-group">
                 <label>스테이지</label>
-                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + (stage.title != null ? ' - ' + stage.title : '')}" readonly>
+                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + (stage.title != null ? ' - ' + stage.title : '')}" disabled>
             </div>
             <div class="form-group">
                 <label for="questionText">문제</label>
-                <textarea id="questionText" th:text="${question?.questionText}"></textarea>
+                <textarea id="questionText" placeholder="문제 문장을 입력하세요" th:text="${question?.questionText}"></textarea>
             </div>
             <div class="form-group">
                 <label for="difficulty">난이도</label>
@@ -45,19 +48,27 @@
             </div>
             <div class="form-group">
                 <label for="answerIndex">정답 인덱스</label>
-                <input type="number" id="answerIndex" min="1" th:value="${question?.answerIndex}" required>
+                <select id="answerIndex" required th:attr="data-initial-answer-index=${question?.answerIndex}">
+                    <option value="">정답 인덱스 선택</option>
+                </select>
+                <p class="quiz-option-note">현재 등록된 보기 인덱스(0~3) 중 하나를 선택하세요.</p>
             </div>
             <div class="form-group">
-                <label>보기 목록</label>
+                <div class="quiz-option-header">
+                    <label class="mb-0">보기 목록</label>
+                    <span id="optionCountBadge" class="quiz-option-counter">0 / 4</span>
+                </div>
+                <p class="quiz-option-note">보기는 최소 2개, 최대 4개까지만 등록할 수 있으며 인덱스는 0부터 3까지 사용할 수 있습니다.</p>
                 <div id="optionList" class="d-flex flex-column gap-2">
-                    <div class="d-flex gap-2 align-items-center" th:each="opt : ${question?.options}">
-                        <input type="number" class="form-control form-control-sm option-index" style="max-width: 110px;" th:value="${opt.optionIndex}" placeholder="인덱스">
+                    <div class="quiz-option-row d-flex gap-2 align-items-center" th:each="opt : ${question?.options}">
+                        <input type="number" class="form-control form-control-sm option-index" min="0" max="3" th:value="${opt.optionIndex}" placeholder="인덱스">
                         <input type="text" class="form-control form-control-sm option-text" th:value="${opt.optionText}" placeholder="보기 내용">
                         <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
                     </div>
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addOptionBtn">보기 추가</button>
             </div>
+
             <div class="admin-form-actions mobile-actions">
                 <button type="button" class="btn btn-primary btn-sm" id="saveBtn">저장</button>
                 <a th:href="@{/web/admin/quiz/stages/{id}/questions(id=${stage.id})}" class="btn btn-outline-secondary btn-sm">취소</a>
@@ -73,44 +84,186 @@
     import {fetchAdmin, initAdminSidebarToggle} from "/js/admin/admin-common.js";
     initAdminSidebarToggle();
 
+    const MAX_OPTIONS = 4;
+    const MIN_OPTIONS = 2;
     const optionList = document.getElementById("optionList");
     const addOptionBtn = document.getElementById("addOptionBtn");
+    const answerIndexSelect = document.getElementById("answerIndex");
+    const saveBtn = document.getElementById("saveBtn");
+    const optionCountBadge = document.getElementById("optionCountBadge");
+    const quizFormFeedback = document.getElementById("quizFormFeedback");
+    const initialAnswerIndex = answerIndexSelect.dataset.initialAnswerIndex ?? "";
 
-    const bindRemoveButtons = () => {
-        optionList.querySelectorAll(".option-remove").forEach((btn) => {
-            btn.addEventListener("click", () => btn.parentElement.remove());
-        });
+    const showFeedback = message => {
+        quizFormFeedback.textContent = message;
+        quizFormFeedback.classList.add("is-visible");
     };
-    bindRemoveButtons();
 
-    addOptionBtn.addEventListener("click", () => {
+    const clearFeedback = () => {
+        quizFormFeedback.textContent = "";
+        quizFormFeedback.classList.remove("is-visible");
+    };
+
+    const getRows = () => Array.from(optionList.querySelectorAll(".quiz-option-row"));
+
+    const getUsedIndexes = () =>
+        getRows()
+            .map(row => Number(row.querySelector(".option-index").value))
+            .filter(value => Number.isInteger(value) && value >= 0 && value < MAX_OPTIONS);
+
+    const getNextOptionIndex = () => {
+        const used = new Set(getUsedIndexes());
+        for (let index = 0; index < MAX_OPTIONS; index += 1) {
+            if (!used.has(index)) {
+                return index;
+            }
+        }
+        return getRows().length;
+    };
+
+    const createOptionRow = ({ optionIndex = "", optionText = "" } = {}) => {
         const row = document.createElement("div");
-        row.className = "d-flex gap-2 align-items-center";
+        row.className = "quiz-option-row d-flex gap-2 align-items-center";
         row.innerHTML = `
-            <input type="number" class="form-control form-control-sm option-index" style="max-width: 110px;" placeholder="인덱스">
+            <input type="number" class="form-control form-control-sm option-index" min="0" max="3" placeholder="인덱스">
             <input type="text" class="form-control form-control-sm option-text" placeholder="보기 내용">
             <button type="button" class="btn btn-outline-danger btn-sm option-remove">삭제</button>
         `;
-        optionList.appendChild(row);
-        bindRemoveButtons();
+        row.querySelector(".option-index").value = optionIndex;
+        row.querySelector(".option-text").value = optionText;
+        return row;
+    };
+
+    const updateAnswerIndexOptions = () => {
+        const previousValue = answerIndexSelect.value || initialAnswerIndex;
+        const optionIndexes = [...new Set(
+            getRows()
+                .map(row => Number(row.querySelector(".option-index").value))
+                .filter(value => Number.isInteger(value) && value >= 0 && value < MAX_OPTIONS)
+        )].sort((a, b) => a - b);
+
+        answerIndexSelect.innerHTML = "";
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = optionIndexes.length === 0 ? "정답 인덱스 선택" : "정답 인덱스 선택";
+        answerIndexSelect.appendChild(placeholder);
+
+        optionIndexes.forEach(index => {
+            const option = document.createElement("option");
+            option.value = String(index);
+            option.textContent = `${index}`;
+            answerIndexSelect.appendChild(option);
+        });
+
+        if (optionIndexes.includes(Number(previousValue))) {
+            answerIndexSelect.value = String(previousValue);
+        } else {
+            answerIndexSelect.value = "";
+        }
+    };
+
+    const updateOptionUi = () => {
+        const rows = getRows();
+        optionCountBadge.textContent = `${rows.length} / ${MAX_OPTIONS}`;
+        addOptionBtn.disabled = rows.length >= MAX_OPTIONS;
+        addOptionBtn.textContent = "보기 추가";
+
+        rows.forEach((row) => {
+            const removeButton = row.querySelector(".option-remove");
+            removeButton.disabled = rows.length <= MIN_OPTIONS;
+        });
+
+        updateAnswerIndexOptions();
+    };
+
+    const ensureMinimumRows = () => {
+        while (getRows().length < MIN_OPTIONS) {
+            optionList.appendChild(createOptionRow({ optionIndex: getNextOptionIndex() }));
+        }
+        updateOptionUi();
+    };
+
+    ensureMinimumRows();
+
+    addOptionBtn.addEventListener("click", () => {
+        if (getRows().length >= MAX_OPTIONS) {
+            showFeedback(`보기는 최대 ${MAX_OPTIONS}개까지만 등록할 수 있습니다.`);
+            return;
+        }
+        clearFeedback();
+        optionList.appendChild(createOptionRow({ optionIndex: getNextOptionIndex() }));
+        updateOptionUi();
+    });
+
+    optionList.addEventListener("click", event => {
+        const removeButton = event.target.closest(".option-remove");
+        if (!removeButton) {
+            return;
+        }
+        if (getRows().length <= MIN_OPTIONS) {
+            showFeedback(`보기는 최소 ${MIN_OPTIONS}개 이상 필요합니다.`);
+            return;
+        }
+        clearFeedback();
+        removeButton.closest(".quiz-option-row")?.remove();
+        updateOptionUi();
+    });
+
+    optionList.addEventListener("input", () => {
+        clearFeedback();
+        updateOptionUi();
     });
 
     const collectOptions = () => {
-        return Array.from(optionList.querySelectorAll(".d-flex")).map((row) => {
+        return getRows().map((row) => {
             const optionIndex = Number(row.querySelector(".option-index").value);
-            const optionText = row.querySelector(".option-text").value;
+            const optionText = row.querySelector(".option-text").value.trim();
             return {optionIndex, optionText};
         }).filter((opt) => !Number.isNaN(opt.optionIndex) && opt.optionText);
     };
 
-    document.getElementById("saveBtn").addEventListener("click", async () => {
+    const validateForm = (body) => {
+        if (!body.questionText) {
+            return "문제를 입력하세요.";
+        }
+        if (body.options.length < MIN_OPTIONS) {
+            return `보기는 최소 ${MIN_OPTIONS}개 이상 필요합니다.`;
+        }
+        if (body.options.length > MAX_OPTIONS) {
+            return `보기는 최대 ${MAX_OPTIONS}개까지만 등록할 수 있습니다.`;
+        }
+
+        const optionIndexes = body.options.map(option => option.optionIndex);
+        if (optionIndexes.some(index => !Number.isInteger(index) || index < 0 || index >= MAX_OPTIONS)) {
+            return `보기 인덱스는 0부터 ${MAX_OPTIONS - 1} 사이 숫자로 입력하세요.`;
+        }
+        if (new Set(optionIndexes).size !== optionIndexes.length) {
+            return "보기 인덱스는 중복될 수 없습니다.";
+        }
+        if (!Number.isInteger(body.answerIndex) || !optionIndexes.includes(body.answerIndex)) {
+            return "정답 보기 인덱스를 올바르게 선택하세요.";
+        }
+        return null;
+    };
+
+    saveBtn.addEventListener("click", async () => {
         const body = {
-            questionText: document.getElementById("questionText").value,
-            answerIndex: Number(document.getElementById("answerIndex").value),
+            questionText: document.getElementById("questionText").value.trim(),
+            answerIndex: Number(answerIndexSelect.value),
             difficulty: document.getElementById("difficulty").value || null,
             options: collectOptions(),
         };
+
+        const validationMessage = validateForm(body);
+        if (validationMessage) {
+            showFeedback(validationMessage);
+            return;
+        }
+
+        clearFeedback();
         try {
+            saveBtn.disabled = true;
             if (editId) {
                 await fetchAdmin(`/api/v1/admin/quiz/questions/${editId}`, {method: "PUT", body: JSON.stringify(body)});
             } else {
@@ -118,7 +271,9 @@
             }
             location.href = `/web/admin/quiz/stages/${stageId}/questions`;
         } catch (e) {
-            alert(e.message);
+            showFeedback(e.message);
+        } finally {
+            saveBtn.disabled = false;
         }
     });
 </script>
