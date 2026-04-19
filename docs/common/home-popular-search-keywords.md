@@ -67,11 +67,12 @@ GET /api/v1/bibles/search-keywords/ranking?limit=5
 **구현 체크리스트**
 
 1. `BibleSearchKeywordApi` (`/api/v1/bibles/search-keywords`) + `BibleSearchKeywordApiDocument` 신규 작성
-   - ⚠️ 공개 API 이므로 **`@AuthenticationPrincipal JwtPrincipal` 파라미터를 주입하지 말 것**. `permitAll` 경로에서 비로그인 요청 시 null 주입으로 NPE 위험. (Admin API 와 차별점)
+   - ⚠️ 공개 API 이므로 **`@AuthenticationPrincipal JwtPrincipal` 파라미터를 주입하지 말 것**. `permitAll` 경로에서 비로그인 요청은 `AnonymousAuthenticationToken` 의 principal 이 문자열 `"anonymousUser"` 이므로 `JwtPrincipal` 타입으로는 **`null` 이 주입**되고, 컨트롤러에서 null 체크를 빠뜨리면 NPE 가 발생한다. (Admin API 와 차별점)
 2. `BibleSearchKeywordRankingResponse` 신규 DTO 작성
-   - ⚠️ 기존 `AdminSearchKeywordRankingResponse` 를 **재사용하지 말 것**. 관리자 전용 필드가 추후 추가될 수 있으므로 클라이언트 응답은 독립 스키마로 분리한다.
-3. `BibleSearchKeywordService.getRanking` — 변경 없음, 재사용
-4. Swagger 그룹은 기존 bible client API 와 동일 그룹에 편입
+   - ⚠️ 기존 `AdminSearchKeywordRankingResponse` 를 **재사용하지 말 것**. 현재는 동일 스키마이지만 관리자 전용 필드(예: blocked 상태, 원본/정규화 키워드 병기) 가 추후 추가될 수 있으므로 클라이언트 응답은 독립 스키마로 분리한다.
+3. `BibleSearchKeywordService.getRanking` — 변경 없음, 재사용. `@Cacheable(key="#limit")` 이므로 Admin API 가 먼저 호출해 캐시를 채우면 공개 API 도 동일 엔트리를 공유한다.
+4. Swagger 그룹은 기존 bible client API 와 동일 그룹에 편입.
+5. 보안 설정: 별도 조치 불필요. `SecurityConfig.kt:79-87` 에 나열된 `/api/v1/bibles/translations/**/memos|highlights|state|chapter-memo|book-memo` 는 `authenticated()` 로 먼저 매칭되지만, **신규 `/api/v1/bibles/search-keywords/**` 는 해당 목록에 포함되지 않으므로 `/api/v1/bibles/**` permitAll (line 99) 로 정상 매칭된다.** 새 경로를 memo/highlight 목록에 추가하지 말 것.
 
 ### 2.3 공통 응답 규약 (홈 렌더러 기준)
 
@@ -268,8 +269,9 @@ document.addEventListener("DOMContentLoaded", () => {
 [브라우저]
  ├─ index.html 파싱
  ├─ hero/menu 최초 페인트 (home-popular-search 는 hidden)
+ ├─ index.js static import 로 home-popular-search.js 로드
  ├─ DOMContentLoaded
- │    └─ index.js → home-popular-search.js 동적 import
+ │    └─ initHomePopularSearch() 호출 → 카드별 fetch 시작
  ├─ fetch GET /api/v1/bibles/search-keywords/ranking?limit=5        (5초 타임아웃)
  ├─ fetch GET /api/v1/study/dictionaries/search-keywords/ranking?limit=5   (병렬)
  ├─ 각 응답 도착 → items 유무 판정 → 렌더 or hidden 유지
