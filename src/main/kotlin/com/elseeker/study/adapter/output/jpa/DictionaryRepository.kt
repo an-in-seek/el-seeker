@@ -40,6 +40,15 @@ interface DictionaryRepository : JpaRepository<Dictionary, Long> {
 
     @Query(
         """
+        SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END
+        FROM Dictionary d
+        WHERE LOWER(d.term) = LOWER(:term)
+        """
+    )
+    fun existsByExactTermIgnoreCase(@Param("term") term: String): Boolean
+
+    @Query(
+        """
         SELECT d FROM Dictionary d
         LEFT JOIN FETCH d.references
         WHERE d.id IN :ids

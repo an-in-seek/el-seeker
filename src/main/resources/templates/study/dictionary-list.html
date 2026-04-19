@@ -23,6 +23,13 @@
         </form>
         <div id="dictionaryResultCount" class="search-result-meta text-muted small" role="status"
              aria-live="polite"></div>
+        <section id="dictionaryKeywordRankingSection" class="mt-3 d-none" aria-labelledby="dictionaryKeywordRankingTitle">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                <h2 id="dictionaryKeywordRankingTitle" class="h6 mb-0">인기 검색어</h2>
+                <div id="dictionaryKeywordRankingMeta" class="text-muted small"></div>
+            </div>
+            <div id="dictionaryKeywordRankingList" class="d-flex flex-wrap gap-2"></div>
+        </section>
         <div id="dictionaryEmptyState" class="text-muted small">
             <p class="mb-1">검색어를 입력하고 사전 검색을 시작하세요.</p>
             <p class="small mb-0">정확한 용어를 모르더라도 일부만 입력해 보세요.</p>
@@ -39,7 +46,7 @@
 
 <button id="scrollToTopBtn" class="scroll-to-top-btn" type="button" aria-label="맨 위로 이동">↑</button>
 
-<script type="module" src="/js/study/dictionary-list.js?v=2.2"></script>
+<script type="module" src="/js/study/dictionary-list.js?v=2.3"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 

@@ -114,10 +114,10 @@
         <section class="analytics-section">
             <div class="analytics-section-header">
                 <h3>성경 인기 검색어</h3>
-                <form class="analytics-range-form" data-keyword-form>
+                <form class="analytics-range-form" data-keyword-form="bible">
                     <label>
                         <span>개수</span>
-                        <select name="limit" data-keyword-limit class="form-select form-select-sm">
+                        <select name="limit" data-keyword-limit="bible" class="form-select form-select-sm">
                             <option value="10">10</option>
                             <option value="20" selected>20</option>
                             <option value="50">50</option>
@@ -135,12 +135,44 @@
                         <th style="width: 140px">검색 횟수</th>
                     </tr>
                     </thead>
-                    <tbody data-keyword-tbody>
+                    <tbody data-keyword-tbody="bible">
                     <tr><td colspan="3" class="text-center text-muted">로딩 중...</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div class="analytics-meta text-muted small" data-keyword-refreshed></div>
+            <div class="analytics-meta text-muted small" data-keyword-refreshed="bible"></div>
+        </section>
+
+        <section class="analytics-section">
+            <div class="analytics-section-header">
+                <h3>성경 사전 인기 검색어</h3>
+                <form class="analytics-range-form" data-keyword-form="dictionary">
+                    <label>
+                        <span>개수</span>
+                        <select name="limit" data-keyword-limit="dictionary" class="form-select form-select-sm">
+                            <option value="10">10</option>
+                            <option value="20" selected>20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">조회</button>
+                </form>
+            </div>
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px">순위</th>
+                        <th>키워드</th>
+                        <th style="width: 140px">검색 횟수</th>
+                    </tr>
+                    </thead>
+                    <tbody data-keyword-tbody="dictionary">
+                    <tr><td colspan="3" class="text-center text-muted">로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="analytics-meta text-muted small" data-keyword-refreshed="dictionary"></div>
         </section>
 
         <h3 class="mt-4">빠른 이동</h3>
@@ -196,7 +228,7 @@
 <script type="module">
     import {initAdminSidebarToggle} from "/js/admin/admin-common.js";
     import {initAnalyticsVisitors} from "/js/admin/admin-analytics-visitors.js?v=1.2";
-    import {initSearchKeywordRanking} from "/js/admin/admin-search-keyword-ranking.js?v=1.1";
+    import {initSearchKeywordRanking} from "/js/admin/admin-search-keyword-ranking.js?v=1.2";
     initAdminSidebarToggle();
     initAnalyticsVisitors();
     initSearchKeywordRanking();

@@ -21,9 +21,17 @@ class CacheConfig {
                 .maximumSize(16)
                 .build()
         )
+        registerCustomCache(
+            CACHE_DICTIONARY_SEARCH_KEYWORD_RANKING,
+            Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofSeconds(30))
+                .maximumSize(16)
+                .build()
+        )
     }
 
     companion object {
         const val CACHE_BIBLE_SEARCH_KEYWORD_RANKING = "bible-search-keyword-ranking"
+        const val CACHE_DICTIONARY_SEARCH_KEYWORD_RANKING = "dictionary-search-keyword-ranking"
     }
 }

@@ -1,5 +1,6 @@
 const API_CONFIG = {
-    BASE_URL: "/api/v1/study/dictionaries"
+    BASE_URL: "/api/v1/study/dictionaries",
+    RANKING_URL: "/api/v1/study/dictionaries/search-keywords/ranking"
 };
 
 const UI_CLASSES = {
@@ -10,7 +11,8 @@ const UI_CLASSES = {
 const CONFIG = {
     SCROLL_THRESHOLD: 300,
     SCROLL_LOAD_OFFSET: 200,
-    PAGE_SIZE: 50
+    PAGE_SIZE: 50,
+    RANKING_LIMIT: 10
 };
 
 const DomHelper = {
@@ -24,6 +26,9 @@ const DomHelper = {
             searchBtn: get("dictionarySearchBtn"),
             clearBtn: get("dictionaryClearBtn"),
             resultCount: get("dictionaryResultCount"),
+            rankingSection: get("dictionaryKeywordRankingSection"),
+            rankingList: get("dictionaryKeywordRankingList"),
+            rankingMeta: get("dictionaryKeywordRankingMeta"),
             emptyState: get("dictionaryEmptyState"),
             dictionaryLoading: get("dictionaryLoading"),
             listContainer: get("dictionaryList"),
@@ -64,6 +69,16 @@ const ApiService = {
             throw new Error("사전 조회 실패");
         }
         return response.json();
+    },
+
+    fetchKeywordRanking: async limit => {
+        const url = new URL(API_CONFIG.RANKING_URL, window.location.origin);
+        url.searchParams.set("limit", String(limit));
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("인기 검색어 조회 실패");
+        }
+        return response.json();
     }
 };
 
@@ -85,6 +100,7 @@ const App = {
 
         App.initNav();
         App.bindEvents();
+        App.loadKeywordRanking();
 
         const initialKeyword = new URLSearchParams(window.location.search).get("keyword") ?? "";
         if (App.elements.keywordInput) {
@@ -148,6 +164,63 @@ const App = {
         }
 
         window.addEventListener("scroll", App.maybeLoadNextPage, { passive: true });
+    },
+
+    renderKeywordRanking: data => {
+        const { rankingSection, rankingList, rankingMeta, keywordInput } = App.elements;
+        if (!rankingSection || !rankingList) {
+            return;
+        }
+
+        const items = Array.isArray(data?.items) ? data.items : [];
+        rankingList.innerHTML = "";
+
+        if (items.length === 0) {
+            DomHelper.toggleVisibility(rankingSection, false);
+            if (rankingMeta) {
+                rankingMeta.textContent = "";
+            }
+            return;
+        }
+
+        items.forEach(item => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "btn btn-outline-secondary btn-sm";
+            button.textContent = `${item.rank}. ${item.keyword}`;
+            button.setAttribute("aria-label", `${item.keyword} 검색, ${item.searchCount}회`);
+            button.addEventListener("click", async () => {
+                if (keywordInput) {
+                    keywordInput.value = item.keyword ?? "";
+                    keywordInput.focus();
+                }
+                await App.startSearch(item.keyword ?? "");
+            });
+            rankingList.appendChild(button);
+        });
+
+        if (rankingMeta) {
+            const refreshedText = data?.refreshedAt
+                ? `갱신 ${new Date(data.refreshedAt).toLocaleString("ko-KR")}`
+                : "";
+            rankingMeta.textContent = refreshedText;
+        }
+
+        DomHelper.toggleVisibility(rankingSection, true);
+    },
+
+    loadKeywordRanking: async () => {
+        try {
+            const data = await ApiService.fetchKeywordRanking(CONFIG.RANKING_LIMIT);
+            App.renderKeywordRanking(data);
+        } catch (error) {
+            console.error(error);
+            const { rankingSection, rankingMeta } = App.elements;
+            DomHelper.toggleVisibility(rankingSection, false);
+            if (rankingMeta) {
+                rankingMeta.textContent = "";
+            }
+        }
     },
 
     updateScrollToTopVisibility: () => {
