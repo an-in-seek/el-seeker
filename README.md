@@ -541,21 +541,26 @@ legal/
 
 admin/
   admin-dashboard,
-  admin-bible-translation-list, admin-bible-translation-form,
-  admin-bible-book-list, admin-bible-book-form,
-  admin-bible-book-description-list, admin-bible-book-description-form,
-  admin-bible-chapter-list, admin-bible-chapter-form,
-  admin-bible-verse-list, admin-bible-verse-form,
-  admin-dictionary-list, admin-dictionary-form,
-  admin-word-puzzle-list, admin-word-puzzle-form,
-  admin-word-puzzle-entry-list, admin-word-puzzle-entry-form,
-  admin-quiz-stage-list, admin-quiz-stage-form,
-  admin-quiz-question-list, admin-quiz-question-form,
-  admin-ox-stage-list, admin-ox-stage-form,
-  admin-ox-question-list, admin-ox-question-form,
-  admin-member-list, admin-member-form,
-  admin-community-post-list, admin-community-post-form, admin-community-post-detail,
-  admin-community-comment-list, admin-community-report-list
+  bible/
+    admin-bible-translation-list, admin-bible-translation-form,
+    admin-bible-book-list, admin-bible-book-form,
+    admin-bible-book-description-list, admin-bible-book-description-form,
+    admin-bible-chapter-list, admin-bible-chapter-form,
+    admin-bible-verse-list, admin-bible-verse-form,
+  study/
+    admin-dictionary-list, admin-dictionary-form,
+  game/
+    admin-word-puzzle-list, admin-word-puzzle-form,
+    admin-word-puzzle-entry-list, admin-word-puzzle-entry-form,
+    admin-quiz-stage-list, admin-quiz-stage-form,
+    admin-quiz-question-list, admin-quiz-question-form,
+    admin-ox-stage-list, admin-ox-stage-form,
+    admin-ox-question-list, admin-ox-question-form,
+  member/
+    admin-member-list, admin-member-form,
+  community/
+    admin-community-post-list, admin-community-post-form, admin-community-post-detail,
+    admin-community-comment-list, admin-community-report-list
 
 fragments/
   head, header, footer, community-widgets
