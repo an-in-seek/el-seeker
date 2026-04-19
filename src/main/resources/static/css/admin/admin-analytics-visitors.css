@@ -125,6 +125,13 @@
     text-align: right;
 }
 
+@media (max-width: 768px) {
+    .analytics-section .admin-table-wrapper {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
 @media (max-width: 640px) {
     .analytics-section-header {
         flex-direction: column;
