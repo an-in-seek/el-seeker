@@ -38,22 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         backButton.classList.remove("d-none");
         backButton.addEventListener("click", () => history.back());
     }
-
-    let lastScrollY = window.scrollY;
-    const SCROLL_THRESHOLD = 10;
-    window.addEventListener("scroll", () => {
-        const delta = window.scrollY - lastScrollY;
-        if (Math.abs(delta) < SCROLL_THRESHOLD) {
-            return;
-        }
-        if (delta > 0 && window.scrollY > 0) {
-            document.body.classList.add("top-nav-hidden");
-        } else {
-            document.body.classList.remove("top-nav-hidden");
-        }
-        lastScrollY = window.scrollY;
-    }, {passive: true});
-
+    
     const elements = {
         skeleton: document.getElementById("myMemoSkeleton"),
         list: document.getElementById("myMemoList"),
