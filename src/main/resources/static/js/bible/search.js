@@ -21,7 +21,7 @@ const CONFIG = {
     SCROLL_THRESHOLD: 300,
     PAGE_SIZE: 50,
     SCROLL_LOAD_OFFSET: 200,
-    RANKING_LIMIT: 10
+    RANKING_LIMIT: 5
 };
 
 const DomHelper = {
