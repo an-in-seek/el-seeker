@@ -4,7 +4,7 @@ import com.elseeker.analytics.application.service.SiteVisitTrackingService
 import com.elseeker.common.security.jwt.JwtPrincipal
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseCookie
@@ -20,6 +20,8 @@ import java.util.UUID
 class SiteVisitTrackingInterceptor(
     private val siteVisitTrackingService: SiteVisitTrackingService,
 ) : HandlerInterceptor {
+
+    private val logger = KotlinLogging.logger {}
 
     override fun preHandle(
         request: HttpServletRequest,
@@ -54,7 +56,7 @@ class SiteVisitTrackingInterceptor(
                 userAgent = request.getHeader(HttpHeaders.USER_AGENT),
             )
         } catch (e: Exception) {
-            logger.warn("Failed to track site visit: {}", e.message)
+            logger.warn(e) { "Failed to track site visit" }
         }
     }
 
@@ -105,7 +107,6 @@ class SiteVisitTrackingInterceptor(
     }
 
     companion object {
-        private val logger = LoggerFactory.getLogger(SiteVisitTrackingInterceptor::class.java)
         private const val VISITOR_COOKIE_NAME = "es_visitor_id"
         private const val ATTR_VISITOR_ID = "ANALYTICS_VISITOR_ID"
         private const val ATTR_MEMBER_UID = "ANALYTICS_MEMBER_UID"

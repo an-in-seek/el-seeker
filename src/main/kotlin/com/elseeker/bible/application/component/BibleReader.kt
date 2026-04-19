@@ -4,12 +4,15 @@ import com.elseeker.bible.adapter.input.api.client.response.BibleApiResponse
 import com.elseeker.bible.adapter.input.api.client.response.BibleSearchResponse
 import com.elseeker.bible.adapter.input.api.client.response.BibleSearchSliceResponse
 import com.elseeker.bible.adapter.output.jpa.*
+import com.elseeker.bible.domain.event.BibleSearchPerformedEvent
 import com.elseeker.bible.domain.result.BibleResult
 import com.elseeker.bible.domain.vo.BibleTranslationType
 import com.elseeker.bible.domain.vo.DirectionType
 import com.elseeker.common.domain.ErrorType
 import com.elseeker.common.domain.throwError
 import com.neovisionaries.i18n.LanguageCode
+import mu.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -23,8 +26,11 @@ class BibleReader(
     private val bibleBookRepository: BibleBookRepository,
     private val bibleBookDescriptionRepository: BibleBookDescriptionRepository,
     private val bibleChapterRepository: BibleChapterRepository,
-    private val bibleVerseRepository: BibleVerseRepository
+    private val bibleVerseRepository: BibleVerseRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
+
+    private val logger = KotlinLogging.logger {}
 
     fun getTranslations(): List<BibleResult.Translation> =
         bibleTranslationRepository.findAllByTranslationTypeInOrderByTranslationOrder(
@@ -149,6 +155,9 @@ class BibleReader(
         size: Int
     ): BibleSearchSliceResponse {
         if (keyword.isBlank()) throwError(ErrorType.INVALID_PARAMETER, "keyword is blank")
+        if (keyword.length > MAX_SEARCH_KEYWORD_LENGTH) {
+            throwError(ErrorType.INVALID_PARAMETER, "keyword too long: ${keyword.length}")
+        }
         if (page < 0 || size <= 0) throwError(ErrorType.INVALID_PARAMETER, "page=$page, size=$size")
         return try {
             val slice = bibleVerseRepository.searchSliceByTranslationAndText(
@@ -161,6 +170,13 @@ class BibleReader(
                 bibleVerseRepository.countByTranslationAndText(translationId, keyword, bookOrder)
             } else {
                 null
+            }
+            if (page == 0) {
+                runCatching {
+                    applicationEventPublisher.publishEvent(BibleSearchPerformedEvent(keyword))
+                }.onFailure { e ->
+                    logger.warn(e) { "Failed to publish BibleSearchPerformedEvent for keyword='$keyword'" }
+                }
             }
             BibleSearchSliceResponse(
                 content = slice.content,
@@ -213,5 +229,9 @@ class BibleReader(
             verseNumber
         ) ?: throwError(ErrorType.VERSE_NOT_FOUND)
         return verseText
+    }
+
+    companion object {
+        private const val MAX_SEARCH_KEYWORD_LENGTH = 200
     }
 }

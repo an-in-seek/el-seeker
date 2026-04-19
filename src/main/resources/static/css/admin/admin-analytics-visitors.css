@@ -118,6 +118,11 @@
     overflow-x: auto;
 }
 
+.analytics-meta {
+    margin-top: 8px;
+    text-align: right;
+}
+
 .analytics-daily-table th:nth-child(2),
 .analytics-daily-table th:nth-child(3),
 .analytics-daily-table td:nth-child(2),

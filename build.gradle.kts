@@ -35,6 +35,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+
+    // Local cache
+    implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Web UI/UX
     implementation("org.webjars:bootstrap:5.3.0")
