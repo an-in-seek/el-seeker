@@ -3,154 +3,142 @@
     --my-memo-muted: #64748b;
     --my-memo-accent: #3b82f6;
     --my-memo-deep: #0f172a;
+    --my-memo-soft: #f8fafc;
     font-family: "Pretendard", "Noto Sans KR", sans-serif;
-    background:
-            radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 28%),
-            linear-gradient(180deg, #f8fbff 0%, #f1f5f9 100%);
+    background: #f1f5f9;
     color: var(--my-memo-ink);
 }
 
 .my-memo-shell {
     position: relative;
-    display: grid;
-    gap: 1rem;
 }
 
+/* ── Hero (mypage 패턴과 동일) ── */
+
 .my-memo-hero {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     position: relative;
     overflow: hidden;
-    border: 1px solid #dbeafe;
+    z-index: 1;
+    animation: fadeUp 0.5s ease-out both;
     border-radius: 1rem;
-    padding: 2.4rem 2.5rem;
-    background:
-            linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(255, 255, 255, 0) 45%),
-            #ffffff;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    animation: fadeUp 0.45s ease-out both;
+    padding: 2.5rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .my-memo-hero-content {
-    max-width: none;
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
-.my-memo-hero-copy {
+.my-memo-intro {
     max-width: 42rem;
     margin: 0 auto;
 }
 
-.my-memo-hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    margin-bottom: 0.9rem;
-}
-
-.my-memo-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-    padding: 0.34rem 0.7rem;
-    border: 1px solid #bfdbfe;
-    border-radius: 999px;
-    background: rgba(239, 246, 255, 0.9);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--my-memo-accent);
-}
-
 .my-memo-title {
-    margin: 0 0 0.7rem;
-    font-size: clamp(2rem, 1.4rem + 1.2vw, 2.6rem);
+    font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    line-height: 1.1;
+    margin-bottom: 0.5rem;
     color: var(--my-memo-deep);
 }
 
-.my-memo-count-badge {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-    padding: 0.36rem 0.78rem;
-    background: rgba(15, 23, 42, 0.06);
-    color: #1e40af;
-    border: 1px solid rgba(59, 130, 246, 0.18);
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-}
-
 .my-memo-description {
-    margin: 0;
-    max-width: 36rem;
-    margin-inline: auto;
     color: var(--my-memo-muted);
-    line-height: 1.6;
+    margin-bottom: 1.25rem;
     font-size: 1rem;
+    line-height: 1.6;
 }
 
-.my-memo-page-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.92);
-    animation: fadeUp 0.45s ease-out both;
-    animation-delay: 0.08s;
+.my-memo-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
 }
+
+.my-memo-badge {
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.my-memo-badge.count {
+    background: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+}
+
+/* ── Info Card (mypage 패턴과 동일) ── */
+
+.my-memo-info-card {
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.5s ease-out both;
+    animation-delay: 0.1s;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    background: #ffffff;
+}
+
+/* ── Filter ── */
 
 .my-memo-filter {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
-.my-memo-filter-select {
-    max-width: 180px;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    background-color: #f8fafc;
+.my-memo-filter .form-label {
+    font-weight: 500;
     color: #334155;
     font-size: 0.875rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 0.5rem;
 }
 
-.my-memo-filter-select:focus {
+.my-memo-filter .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #334155;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.my-memo-filter .form-select:focus {
     border-color: var(--my-memo-accent);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
     outline: none;
 }
 
-.my-memo-filter-select:disabled {
-    opacity: 0.5;
+.my-memo-filter .form-select:disabled {
+    background-color: var(--my-memo-soft);
+    color: #94a3b8;
     cursor: not-allowed;
 }
+
+/* ── Memo List ── */
 
 .my-memo-list {
     display: grid;
     gap: 0.75rem;
 }
 
-.my-memo-empty {
-    text-align: center;
-    padding: 2.5rem 0;
-    color: var(--my-memo-muted);
-    font-size: 0.9rem;
-}
-
 .my-memo-card {
     display: block;
     border: 1px solid #e2e8f0;
-    border-radius: 0.85rem;
+    border-radius: 0.75rem;
     padding: 1rem 1.1rem;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    background: #ffffff;
     color: inherit;
     text-decoration: none;
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -163,9 +151,9 @@
 }
 
 .my-memo-card-ref {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--my-memo-accent);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--my-memo-deep);
 }
 
 .my-memo-card-date {
@@ -198,13 +186,53 @@
     outline-offset: 2px;
 }
 
+/* ── Empty State ── */
+
+.my-memo-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--my-memo-muted);
+}
+
+.my-memo-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+}
+
+.my-memo-empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--my-memo-deep);
+    margin: 0 0 0.35rem;
+}
+
+.my-memo-empty-desc {
+    font-size: 0.875rem;
+    color: var(--my-memo-muted);
+    margin: 0 0 1.25rem;
+}
+
+/* ── More Button ── */
+
+#myMemoMore {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+}
+
 #myMemoMore:active,
 #myMemoMore:focus {
     color: #6c757d;
     background-color: transparent;
 }
 
+/* ── Skeleton UI (mypage 패턴과 동일) ── */
+
 .my-memo-skeleton-group {
+    display: grid;
+    gap: 0.75rem;
     padding: 0.25rem 0;
 }
 
@@ -218,22 +246,22 @@
 .skeleton-memo-card {
     width: 100%;
     height: 5rem;
-    margin-bottom: 0.75rem;
 }
 
 @keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-
-    100% {
-        background-position: -200% 0;
-    }
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
+
+/* ── 반응형 ── */
 
 @media (max-width: 768px) {
     .my-memo-hero {
         padding: 2rem 1.5rem;
+    }
+
+    .my-memo-title {
+        font-size: 1.65rem;
     }
 
     .my-memo-description {
@@ -242,21 +270,13 @@
 }
 
 @media (max-width: 576px) {
-    .my-memo-filter {
-        flex-direction: column;
-    }
-
-    .my-memo-filter-select {
-        max-width: none;
-        width: 100%;
-    }
-
     .my-memo-card {
-        padding: 0.85rem 0.9rem;
+        padding: 0.85rem 0.95rem;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
     }
 
     .my-memo-card-ref {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .my-memo-card-content {
@@ -264,14 +284,8 @@
         -webkit-line-clamp: 2;
     }
 
-    .my-memo-hero-meta {
-        gap: 0.5rem;
-        margin-bottom: 0.8rem;
-    }
-
-    .my-memo-eyebrow,
-    .my-memo-count-badge {
-        font-size: 0.74rem;
+    .my-memo-empty {
+        padding: 2.25rem 0.5rem;
     }
 }
 
