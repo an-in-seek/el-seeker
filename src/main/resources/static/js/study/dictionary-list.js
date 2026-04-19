@@ -28,7 +28,6 @@ const DomHelper = {
             resultCount: get("dictionaryResultCount"),
             rankingSection: get("dictionaryKeywordRankingSection"),
             rankingList: get("dictionaryKeywordRankingList"),
-            rankingMeta: get("dictionaryKeywordRankingMeta"),
             emptyState: get("dictionaryEmptyState"),
             dictionaryLoading: get("dictionaryLoading"),
             listContainer: get("dictionaryList"),
@@ -167,28 +166,30 @@ const App = {
     },
 
     renderKeywordRanking: data => {
-        const { rankingSection, rankingList, rankingMeta, keywordInput } = App.elements;
+        const { rankingSection, rankingList, keywordInput } = App.elements;
         if (!rankingSection || !rankingList) {
             return;
         }
 
         const items = Array.isArray(data?.items) ? data.items : [];
-        rankingList.innerHTML = "";
+        rankingList.replaceChildren();
 
         if (items.length === 0) {
             DomHelper.toggleVisibility(rankingSection, false);
-            if (rankingMeta) {
-                rankingMeta.textContent = "";
-            }
             return;
         }
 
         items.forEach(item => {
+            const li = document.createElement("li");
+            li.className = "popular-search-item";
+
             const button = document.createElement("button");
             button.type = "button";
-            button.className = "btn btn-outline-secondary btn-sm";
-            button.textContent = `${item.rank}. ${item.keyword}`;
-            button.setAttribute("aria-label", `${item.keyword} 검색, ${item.searchCount}회`);
+            button.className = "popular-search-link";
+            button.setAttribute("aria-label", `순위 ${item.rank}위, ${item.keyword} 사전 검색`);
+            if (item.rank <= 3) {
+                button.classList.add(`top-rank-${item.rank}`);
+            }
             button.addEventListener("click", async () => {
                 if (keywordInput) {
                     keywordInput.value = item.keyword ?? "";
@@ -196,15 +197,19 @@ const App = {
                 }
                 await App.startSearch(item.keyword ?? "");
             });
-            rankingList.appendChild(button);
-        });
 
-        if (rankingMeta) {
-            const refreshedText = data?.refreshedAt
-                ? `갱신 ${new Date(data.refreshedAt).toLocaleString("ko-KR")}`
-                : "";
-            rankingMeta.textContent = refreshedText;
-        }
+            const rank = document.createElement("span");
+            rank.className = "popular-search-rank";
+            rank.textContent = String(item.rank);
+
+            const keyword = document.createElement("span");
+            keyword.className = "popular-search-keyword";
+            keyword.textContent = item.keyword;
+
+            button.append(rank, keyword);
+            li.appendChild(button);
+            rankingList.appendChild(li);
+        });
 
         DomHelper.toggleVisibility(rankingSection, true);
     },
@@ -215,11 +220,8 @@ const App = {
             App.renderKeywordRanking(data);
         } catch (error) {
             console.error(error);
-            const { rankingSection, rankingMeta } = App.elements;
+            const { rankingSection } = App.elements;
             DomHelper.toggleVisibility(rankingSection, false);
-            if (rankingMeta) {
-                rankingMeta.textContent = "";
-            }
         }
     },
 
