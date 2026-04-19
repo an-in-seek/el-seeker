@@ -1,0 +1,127 @@
+.popular-search-card {
+    height: 100%;
+    padding: 1rem 1.1rem 1.1rem;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.popular-search-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.popular-search-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.popular-search-more {
+    font-size: 0.8rem;
+    color: #868e96;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.popular-search-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.popular-search-item {
+    min-width: 0;
+}
+
+.popular-search-link {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0.4rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    text-decoration: none;
+    color: #343a40;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.popular-search-rank {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: #f1f3f5;
+    color: #868e96;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.popular-search-link.top-rank-1 .popular-search-rank {
+    background: #fff3bf;
+    color: #b48a00;
+}
+
+.popular-search-link.top-rank-2 .popular-search-rank {
+    background: #e9ecef;
+    color: #5c636a;
+}
+
+.popular-search-link.top-rank-3 .popular-search-rank {
+    background: #ffe8cc;
+    color: #c9630a;
+}
+
+.popular-search-keyword {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.92rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .popular-search-link:hover {
+        background: #f8f9fa;
+        color: #212529;
+    }
+
+    .popular-search-more:hover {
+        color: #495057;
+        text-decoration: underline;
+    }
+}
+
+.popular-search-link:focus-visible {
+    outline: 2px solid #4dabf7;
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .popular-search-card {
+        padding: 0.9rem 1rem;
+    }
+
+    .popular-search-keyword {
+        font-size: 0.88rem;
+    }
+}

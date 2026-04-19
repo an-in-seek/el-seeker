@@ -7,7 +7,8 @@ const UI_CLASSES = {
 };
 
 const API_CONFIG = {
-    TRANSLATIONS: "/api/v1/bibles/translations"
+    TRANSLATIONS: "/api/v1/bibles/translations",
+    KEYWORD_RANKING: "/api/v1/bibles/search-keywords/ranking"
 };
 
 const ROUTES = {
@@ -18,7 +19,8 @@ const ROUTES = {
 const CONFIG = {
     SCROLL_THRESHOLD: 300,
     PAGE_SIZE: 50,
-    SCROLL_LOAD_OFFSET: 200
+    SCROLL_LOAD_OFFSET: 200,
+    RANKING_LIMIT: 10
 };
 
 const DomHelper = {
@@ -41,7 +43,9 @@ const DomHelper = {
             searchLoading: get("searchLoading"),
             searchLoadingMessage: get("searchLoadingMessage"),
             searchResultList: get("searchResultList"),
-            scrollToTopBtn: get("scrollToTopBtn")
+            scrollToTopBtn: get("scrollToTopBtn"),
+            rankingSection: get("bibleKeywordRankingSection"),
+            rankingList: get("bibleKeywordRankingList")
         };
     }
 };
@@ -73,6 +77,7 @@ const App = {
         }
 
         App.initNav();
+        App.loadKeywordRanking();
 
         const translationInfo = await App.ensureTranslationInfo(App.state.translationId);
         App.state.translationType = translationInfo.type;
@@ -145,8 +150,7 @@ const App = {
             clearBtn.addEventListener("click", () => {
                 keywordInput.value = "";
                 keywordInput.focus();
-                App.clearResults();
-                App.setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+                App.resetToInitialView();
                 App.resetSearchState();
                 App.resetBookFilter();
                 App.updateUrl();
@@ -309,6 +313,15 @@ const App = {
         App.hideLoading();
     },
 
+    resetToInitialView: () => {
+        const {searchResultList} = App.elements;
+        App.clearResults();
+        App.hideEmptyState();
+        if (searchResultList) {
+            searchResultList.classList.add(UI_CLASSES.HIDDEN);
+        }
+    },
+
     appendResults: items => {
         const {searchResultList} = App.elements;
         if (!searchResultList) {
@@ -425,7 +438,7 @@ const App = {
         App.clearResults();
         App.resetSearchState();
         if (!normalizedKeyword) {
-            App.setEmptyState("검색어를 입력하고 검색을 시작하세요.");
+            App.resetToInitialView();
             App.updateUrl();
             return;
         }
@@ -568,6 +581,74 @@ const App = {
 
     redirectToTranslation: () => {
         window.location.href = ROUTES.TRANSLATION_LIST;
+    },
+
+    loadKeywordRanking: async () => {
+        const {rankingSection} = App.elements;
+        try {
+            const url = new URL(API_CONFIG.KEYWORD_RANKING, window.location.origin);
+            url.searchParams.set("limit", String(CONFIG.RANKING_LIMIT));
+            const response = await fetch(url, {credentials: "omit"});
+            if (!response.ok) {
+                throw new Error("인기 검색어 조회 실패");
+            }
+            const data = await response.json();
+            App.renderKeywordRanking(data);
+        } catch (error) {
+            console.error(error);
+            if (rankingSection) {
+                rankingSection.classList.add(UI_CLASSES.HIDDEN);
+            }
+        }
+    },
+
+    renderKeywordRanking: data => {
+        const {rankingSection, rankingList, keywordInput} = App.elements;
+        if (!rankingSection || !rankingList) {
+            return;
+        }
+
+        const items = Array.isArray(data?.items) ? data.items : [];
+        rankingList.replaceChildren();
+
+        if (items.length === 0) {
+            rankingSection.classList.add(UI_CLASSES.HIDDEN);
+            return;
+        }
+
+        items.forEach(item => {
+            const li = document.createElement("li");
+            li.className = "popular-search-item";
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "popular-search-link";
+            button.setAttribute("aria-label", `순위 ${item.rank}위, ${item.keyword} 구절 검색`);
+            if (item.rank <= 3) {
+                button.classList.add(`top-rank-${item.rank}`);
+            }
+            button.addEventListener("click", async () => {
+                if (keywordInput) {
+                    keywordInput.value = item.keyword ?? "";
+                    keywordInput.focus();
+                }
+                await App.startSearch(item.keyword ?? "");
+            });
+
+            const rank = document.createElement("span");
+            rank.className = "popular-search-rank";
+            rank.textContent = String(item.rank);
+
+            const keyword = document.createElement("span");
+            keyword.className = "popular-search-keyword";
+            keyword.textContent = item.keyword;
+
+            button.append(rank, keyword);
+            li.appendChild(button);
+            rankingList.appendChild(li);
+        });
+
+        rankingSection.classList.remove(UI_CLASSES.HIDDEN);
     }
 };
 

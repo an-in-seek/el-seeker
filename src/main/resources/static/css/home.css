@@ -324,3 +324,8 @@
         padding: 5rem 2rem;
     }
 }
+
+/* 인기 검색어 카드 공통 스타일은 /css/popular-search.css 참고 */
+.home-popular-search {
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
