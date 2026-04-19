@@ -153,7 +153,7 @@ universe-section
 
 ### 3.3 JS 플로우
 
-신규 파일: `src/main/resources/static/js/home/popular-search.js`
+신규 파일: `src/main/resources/static/js/popular-search.js`
 
 ```js
 const ENDPOINTS = {
@@ -232,7 +232,7 @@ const paint = (card, items) => {
 
 ```js
 // index.js — 상단 imports 에 추가
-import {initPopularSearch} from "/js/home/popular-search.js?v=1.0";
+import {initPopularSearch} from "/js/popular-search.js?v=1.0";
 
 // 기존 DOMContentLoaded 핸들러 안에서 호출
 document.addEventListener("DOMContentLoaded", () => {
@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
    - `@AuthenticationPrincipal` 미주입 확인, Admin DTO 재사용 금지 확인.
    - `BibleSearchKeywordService.getRanking` 재사용 (Caffeine 캐시 공유).
    - Swagger 에서 `/api/v1/bibles/search-keywords/ranking?limit=5` 호출 성공 확인.
-2. **프런트 JS**: `src/main/resources/static/js/home/popular-search.js` 신규 작성.
+2. **프런트 JS**: `src/main/resources/static/js/popular-search.js` 신규 작성.
 3. **프런트 CSS**: `src/main/resources/static/css/home.css` 에 §3.4 클래스 추가.
 4. **템플릿**:
    - `index.html` 에 §3.2 섹션을 `home-menu-grid` 와 `universe-section` 사이에 삽입.

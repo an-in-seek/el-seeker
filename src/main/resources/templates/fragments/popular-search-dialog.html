@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<dialog th:fragment="popularSearchDialog" id="popularSearchDialog" class="popular-search-dialog"
+        aria-labelledby="popularSearchDialogTitle">
+    <div class="popular-search-dialog-body">
+        <header class="popular-search-dialog-header">
+            <h2 id="popularSearchDialogTitle" class="popular-search-dialog-title"></h2>
+            <button type="button" class="popular-search-dialog-close" data-dialog-close
+                    aria-label="닫기">&times;</button>
+        </header>
+        <ol class="popular-search-list" data-dialog-keyword-list></ol>
+    </div>
+</dialog>
+</body>
+</html>

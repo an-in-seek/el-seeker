@@ -1,3 +1,5 @@
+import {initPopularSearchDialog} from "/js/popular-search.js?v=1.0";
+
 const API_CONFIG = {
     BASE_URL: "/api/v1/study/dictionaries",
     RANKING_URL: "/api/v1/study/dictionaries/search-keywords/ranking"
@@ -100,6 +102,7 @@ const App = {
         App.initNav();
         App.bindEvents();
         App.loadKeywordRanking();
+        App.initRankingDialog();
 
         const initialKeyword = new URLSearchParams(window.location.search).get("keyword") ?? "";
         if (App.elements.keywordInput) {
@@ -223,6 +226,26 @@ const App = {
             const { rankingSection } = App.elements;
             DomHelper.toggleVisibility(rankingSection, false);
         }
+    },
+
+    initRankingDialog: () => {
+        initPopularSearchDialog({
+            triggers: {
+                dictionary: {
+                    title: "성경 사전 인기 검색어",
+                    endpoint: "/api/v1/study/dictionaries/search-keywords/ranking",
+                    ariaTemplate: "순위 {rank}위, {keyword} 사전 검색",
+                    onItemClick: async (item) => {
+                        const { keywordInput } = App.elements;
+                        if (keywordInput) {
+                            keywordInput.value = item.keyword ?? "";
+                            keywordInput.focus();
+                        }
+                        await App.startSearch(item.keyword ?? "");
+                    },
+                },
+            },
+        });
     },
 
     updateScrollToTopVisibility: () => {

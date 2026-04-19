@@ -1,5 +1,6 @@
 import {BookStore, ChapterStore, TranslationStore, VerseStore} from "/js/storage-util.js?v=2.3";
 import {formatNumberWithComma} from "/js/common-util.js?v=2.2";
+import {initPopularSearchDialog} from "/js/popular-search.js?v=1.0";
 
 const UI_CLASSES = {
     HIDDEN: "d-none",
@@ -78,6 +79,7 @@ const App = {
 
         App.initNav();
         App.loadKeywordRanking();
+        App.initRankingDialog();
 
         const translationInfo = await App.ensureTranslationInfo(App.state.translationId);
         App.state.translationType = translationInfo.type;
@@ -581,6 +583,26 @@ const App = {
 
     redirectToTranslation: () => {
         window.location.href = ROUTES.TRANSLATION_LIST;
+    },
+
+    initRankingDialog: () => {
+        initPopularSearchDialog({
+            triggers: {
+                bible: {
+                    title: "성경 구절 인기 검색어",
+                    endpoint: "/api/v1/bibles/search-keywords/ranking",
+                    ariaTemplate: "순위 {rank}위, {keyword} 구절 검색",
+                    onItemClick: async (item) => {
+                        const {keywordInput} = App.elements;
+                        if (keywordInput) {
+                            keywordInput.value = item.keyword ?? "";
+                            keywordInput.focus();
+                        }
+                        await App.startSearch(item.keyword ?? "");
+                    },
+                },
+            },
+        });
     },
 
     loadKeywordRanking: async () => {

@@ -130,16 +130,7 @@
     </section>
 
     <!-- 인기 검색어 더보기 팝업 -->
-    <dialog id="popularSearchDialog" class="popular-search-dialog" aria-labelledby="popularSearchDialogTitle">
-        <div class="popular-search-dialog-body">
-            <header class="popular-search-dialog-header">
-                <h2 id="popularSearchDialogTitle" class="popular-search-dialog-title"></h2>
-                <button type="button" class="popular-search-dialog-close" data-dialog-close
-                        aria-label="닫기">&times;</button>
-            </header>
-            <ol class="popular-search-list" data-dialog-keyword-list></ol>
-        </div>
-    </dialog>
+    <div th:replace="~{fragments/popular-search-dialog :: popularSearchDialog}"></div>
 
     <!-- 3D 우주 배경 섹션 -->
     <section class="universe-section" id="universeSection" aria-label="창세기 1장 1절">
@@ -158,7 +149,7 @@
 <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
 </script>
-<script type="module" src="/js/index.js?v=2.9"></script>
+<script type="module" src="/js/index.js?v=3.0"></script>
 <div th:replace="~{fragments/section-nav :: section-nav}"></div>
 </body>
 
