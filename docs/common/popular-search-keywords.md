@@ -153,7 +153,7 @@ universe-section
 
 ### 3.3 JS 플로우
 
-신규 파일: `src/main/resources/static/js/home/home-popular-search.js`
+신규 파일: `src/main/resources/static/js/home/popular-search.js`
 
 ```js
 const ENDPOINTS = {
@@ -163,7 +163,7 @@ const ENDPOINTS = {
 
 const TIMEOUT_MS = 5000;
 
-export const initHomePopularSearch = () => {
+export const initPopularSearch = () => {
     document.querySelectorAll("[data-keyword-ranking]").forEach(renderCard);
 };
 
@@ -232,13 +232,13 @@ const paint = (card, items) => {
 
 ```js
 // index.js — 상단 imports 에 추가
-import {initHomePopularSearch} from "/js/home/home-popular-search.js?v=1.0";
+import {initPopularSearch} from "/js/home/popular-search.js?v=1.0";
 
 // 기존 DOMContentLoaded 핸들러 안에서 호출
 document.addEventListener("DOMContentLoaded", () => {
     initHeroCarousel();
     initUniverse("universeCanvas", "universeSection");
-    initHomePopularSearch();
+    initPopularSearch();
     // ... 이하 기존 로직
 });
 ```
@@ -269,9 +269,9 @@ document.addEventListener("DOMContentLoaded", () => {
 [브라우저]
  ├─ index.html 파싱
  ├─ hero/menu 최초 페인트 (home-popular-search 는 hidden)
- ├─ index.js static import 로 home-popular-search.js 로드
+ ├─ index.js static import 로 popular-search.js 로드
  ├─ DOMContentLoaded
- │    └─ initHomePopularSearch() 호출 → 카드별 fetch 시작
+ │    └─ initPopularSearch() 호출 → 카드별 fetch 시작
  ├─ fetch GET /api/v1/bibles/search-keywords/ranking?limit=5        (5초 타임아웃)
  ├─ fetch GET /api/v1/study/dictionaries/search-keywords/ranking?limit=5   (병렬)
  ├─ 각 응답 도착 → items 유무 판정 → 렌더 or hidden 유지
@@ -288,15 +288,15 @@ document.addEventListener("DOMContentLoaded", () => {
    - `@AuthenticationPrincipal` 미주입 확인, Admin DTO 재사용 금지 확인.
    - `BibleSearchKeywordService.getRanking` 재사용 (Caffeine 캐시 공유).
    - Swagger 에서 `/api/v1/bibles/search-keywords/ranking?limit=5` 호출 성공 확인.
-2. **프런트 JS**: `src/main/resources/static/js/home/home-popular-search.js` 신규 작성.
+2. **프런트 JS**: `src/main/resources/static/js/home/popular-search.js` 신규 작성.
 3. **프런트 CSS**: `src/main/resources/static/css/home.css` 에 §3.4 클래스 추가.
 4. **템플릿**:
    - `index.html` 에 §3.2 섹션을 `home-menu-grid` 와 `universe-section` 사이에 삽입.
-   - `index.js` 상단에 `home-popular-search.js` static import 추가 후 DOMContentLoaded 핸들러에서 `initHomePopularSearch()` 호출.
+   - `index.js` 상단에 `popular-search.js` static import 추가 후 DOMContentLoaded 핸들러에서 `initPopularSearch()` 호출.
 5. **캐시 버전 버스팅**:
    - `home.css?v=3.7` → `?v=3.8` (index.html `extraCss` 문자열)
    - `index.js?v=2.8` → `?v=2.9`
-   - 신규 `home-popular-search.js?v=1.0`
+   - 신규 `popular-search.js?v=1.0`
 6. **수동 검증**:
    - 비로그인 상태로 홈 진입 시 두 카드가 모두 노출되는지
    - 한쪽 API 를 강제 404/500 으로 바꿔도 나머지 카드는 정상 노출되는지

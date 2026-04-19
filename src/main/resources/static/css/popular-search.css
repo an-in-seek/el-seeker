@@ -29,6 +29,11 @@
     color: #868e96;
     text-decoration: none;
     white-space: nowrap;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
 }
 
 .popular-search-list {
@@ -123,5 +128,84 @@
 
     .popular-search-keyword {
         font-size: 0.88rem;
+    }
+}
+
+/* ── 인기 검색어 더보기 팝업 (native <dialog>) ── */
+.popular-search-dialog {
+    width: min(520px, 92vw);
+    max-width: none;
+    border: 0;
+    border-radius: 16px;
+    padding: 0;
+    background: #fff;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.2);
+}
+
+.popular-search-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.popular-search-dialog-body {
+    padding: 1.2rem 1.3rem 1.3rem;
+    max-height: min(70vh, 640px);
+    overflow-y: auto;
+}
+
+.popular-search-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.popular-search-dialog-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: #212529;
+}
+
+.popular-search-dialog-close {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 0;
+    background: #f1f3f5;
+    color: #495057;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .popular-search-dialog-close:hover {
+        background: #e9ecef;
+    }
+}
+
+.popular-search-dialog-close:focus-visible {
+    outline: 2px solid #4dabf7;
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    .popular-search-dialog {
+        width: min(100vw, 520px);
+        border-radius: 16px 16px 0 0;
+        margin: auto 0 0;
+    }
+
+    .popular-search-dialog-body {
+        max-height: 75vh;
     }
 }

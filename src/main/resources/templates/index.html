@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('온라인 성경 읽기 · 학습 · 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/home.css?v=3.9,/css/popular-search.css?v=1.0')}"
+<head th:replace="~{fragments/head :: head('온라인 성경 읽기 · 학습 · 퀴즈 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/home.css?v=3.9,/css/popular-search.css?v=1.1')}"
       th:with="pageDescription='성경 읽기, 학습, 게임, 커뮤니티를 한 곳에서 이용할 수 있는 ElSeeker 온라인 성경 플랫폼입니다.',
                pageKeywords='온라인 성경,성경 읽기,성경 학습,성경 퀴즈,성경 검색,개역한글,성경 게임,ElSeeker'"></head>
 <body class="has-fixed-nav">
@@ -104,7 +104,9 @@
                          hidden>
                     <header class="popular-search-card-header">
                         <h3 class="popular-search-title">성경 구절 인기 검색어</h3>
-                        <a class="popular-search-more" href="/web/bible/search">더보기</a>
+                        <button type="button" class="popular-search-more"
+                                data-ranking-more="bible"
+                                aria-label="성경 구절 인기 검색어 전체 보기">더보기</button>
                     </header>
                     <ol class="popular-search-list" data-keyword-list></ol>
                 </article>
@@ -117,13 +119,27 @@
                          hidden>
                     <header class="popular-search-card-header">
                         <h3 class="popular-search-title">성경 사전 인기 검색어</h3>
-                        <a class="popular-search-more" href="/web/study/dictionary">더보기</a>
+                        <button type="button" class="popular-search-more"
+                                data-ranking-more="dictionary"
+                                aria-label="성경 사전 인기 검색어 전체 보기">더보기</button>
                     </header>
                     <ol class="popular-search-list" data-keyword-list></ol>
                 </article>
             </div>
         </div>
     </section>
+
+    <!-- 인기 검색어 더보기 팝업 -->
+    <dialog id="popularSearchDialog" class="popular-search-dialog" aria-labelledby="popularSearchDialogTitle">
+        <div class="popular-search-dialog-body">
+            <header class="popular-search-dialog-header">
+                <h2 id="popularSearchDialogTitle" class="popular-search-dialog-title"></h2>
+                <button type="button" class="popular-search-dialog-close" data-dialog-close
+                        aria-label="닫기">&times;</button>
+            </header>
+            <ol class="popular-search-list" data-dialog-keyword-list></ol>
+        </div>
+    </dialog>
 
     <!-- 3D 우주 배경 섹션 -->
     <section class="universe-section" id="universeSection" aria-label="창세기 1장 1절">

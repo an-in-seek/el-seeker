@@ -1,6 +1,6 @@
 import {LastReadStore} from "/js/storage-util.js?v=2.3";
 import {initUniverse} from "/js/home/universe-bg.js?v=1.4";
-import {initHomePopularSearch} from "/js/home/home-popular-search.js?v=1.0";
+import {initPopularSearch} from "/js/home/popular-search.js?v=1.0";
 
 const HERO_INTERVAL_MS = 5000;
 const HERO_SWIPE_THRESHOLD = 50;
@@ -60,7 +60,7 @@ const initHeroCarousel = () => {
 document.addEventListener("DOMContentLoaded", () => {
     initHeroCarousel();
     initUniverse("universeCanvas", "universeSection");
-    initHomePopularSearch();
+    initPopularSearch();
 
     const pageTitleLabel = document.getElementById("pageTitleLabel");
     if (pageTitleLabel) {
