@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>O/X 문제 등록/수정 | ElSeeker</title>
     <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/admin/admin.css" rel="stylesheet">
+    <link href="/css/admin/admin.css?v=1.1" rel="stylesheet">
 </head>
 <body>
 <div class="admin-layout">
@@ -26,7 +26,7 @@
         <div class="admin-form mobile-actions">
             <div class="form-group">
                 <label>스테이지</label>
-                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + ' - ' + stage.bookName}" readonly>
+                <input type="text" th:value="${'스테이지 ' + stage.stageNumber + ' - ' + stage.bookName}" disabled>
             </div>
             <div class="form-group">
                 <label for="questionText">문제</label>

@@ -4,21 +4,100 @@
 <aside th:fragment="sidebar" class="admin-sidebar">
     <div class="admin-sidebar-title">관리자</div>
     <ul class="admin-sidebar-nav">
-        <li><a href="/web/admin">대시보드</a></li>
-        
-        <li><a href="/web/admin/members">회원 관리</a></li>
+        <li class="admin-sidebar-item">
+            <a href="/web/admin"
+               th:classappend="${currentPath == '/web/admin'} ? 'active'">
+                대시보드
+            </a>
+        </li>
 
-        <li><a href="/web/admin/bible/translations">성경 번역본</a></li>
-        <li><a href="/web/admin/bible/book-descriptions">성경책 설명</a></li>
-        <li><a href="/web/admin/dictionaries">성경 사전</a></li>
+        <li class="admin-sidebar-group"
+            th:classappend="${#strings.startsWith(currentPath, '/web/admin/members')} ? 'is-active'">
+            <div class="admin-sidebar-group-title">회원</div>
+            <ul class="admin-sidebar-subnav">
+                <li>
+                    <a href="/web/admin/members"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/members')} ? 'active'">
+                        회원 관리
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-        <li><a href="/web/admin/word-puzzles">성경 Word Puzzle</a></li>
-        <li><a href="/web/admin/ox-quiz/stages">성경 O/X 퀴즈</a></li>
-        <li><a href="/web/admin/quiz/stages">성경 객관식 퀴즈</a></li>
+        <li class="admin-sidebar-group"
+            th:classappend="${#strings.startsWith(currentPath, '/web/admin/bible/') or #strings.startsWith(currentPath, '/web/admin/dictionaries')} ? 'is-active'">
+            <div class="admin-sidebar-group-title">성경 / 학습</div>
+            <ul class="admin-sidebar-subnav">
+                <li>
+                    <a href="/web/admin/bible/translations"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/bible/translations')} ? 'active'">
+                        성경 번역본
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/bible/book-descriptions"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/bible/book-descriptions') or #strings.startsWith(currentPath, '/web/admin/bible/books') or #strings.startsWith(currentPath, '/web/admin/bible/chapters') or #strings.startsWith(currentPath, '/web/admin/bible/verses')} ? 'active'">
+                        성경책 설명
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/dictionaries"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/dictionaries')} ? 'active'">
+                        성경 사전
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-        <li><a href="/web/admin/community/posts">커뮤니티 게시글</a></li>
-        <li><a href="/web/admin/community/comments">커뮤니티 댓글</a></li>
-        <li><a href="/web/admin/community/reports">커뮤니티 신고</a></li>
+        <li class="admin-sidebar-group"
+            th:classappend="${#strings.startsWith(currentPath, '/web/admin/word-puzzles') or #strings.startsWith(currentPath, '/web/admin/ox-quiz/') or #strings.startsWith(currentPath, '/web/admin/quiz/')} ? 'is-active'">
+            <div class="admin-sidebar-group-title">게임</div>
+            <ul class="admin-sidebar-subnav">
+                <li>
+                    <a href="/web/admin/word-puzzles"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/word-puzzles')} ? 'active'">
+                        성경 Word Puzzle
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/ox-quiz/stages"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/ox-quiz/')} ? 'active'">
+                        성경 O/X 퀴즈
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/quiz/stages"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/quiz/')} ? 'active'">
+                        성경 객관식 퀴즈
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="admin-sidebar-group"
+            th:classappend="${#strings.startsWith(currentPath, '/web/admin/community/')} ? 'is-active'">
+            <div class="admin-sidebar-group-title">커뮤니티</div>
+            <ul class="admin-sidebar-subnav">
+                <li>
+                    <a href="/web/admin/community/posts"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/community/posts')} ? 'active'">
+                        커뮤니티 게시글
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/community/comments"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/community/comments')} ? 'active'">
+                        커뮤니티 댓글
+                    </a>
+                </li>
+                <li>
+                    <a href="/web/admin/community/reports"
+                       th:classappend="${#strings.startsWith(currentPath, '/web/admin/community/reports')} ? 'active'">
+                        커뮤니티 신고
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
 </aside>
 </body>
