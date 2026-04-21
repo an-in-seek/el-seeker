@@ -13,69 +13,7 @@
     position: relative;
 }
 
-/* ── Hero (mypage 패턴과 동일) ── */
-
-.my-memo-hero {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    animation: fadeUp 0.5s ease-out both;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.my-memo-hero-content {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-}
-
-.my-memo-intro {
-    max-width: 42rem;
-    margin: 0 auto;
-}
-
-.my-memo-title {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.5rem;
-    color: var(--my-memo-deep);
-}
-
-.my-memo-description {
-    color: var(--my-memo-muted);
-    margin-bottom: 1.25rem;
-    font-size: 1rem;
-    line-height: 1.6;
-}
-
-.my-memo-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-.my-memo-badge {
-    border-radius: 6px;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-}
-
-.my-memo-badge.count {
-    background: #eff6ff;
-    color: #2563eb;
-    border: 1px solid #dbeafe;
-}
-
-/* ── Info Card (mypage 패턴과 동일) ── */
+/* ── Info Card ── */
 
 .my-memo-info-card {
     position: relative;
@@ -88,17 +26,105 @@
     background: #ffffff;
 }
 
-/* ── Filter ── */
+/* ── Tabs (sticky pill bar) ── */
+
+.my-memo-tabs-sentinel {
+    height: 1px;
+    margin-top: -1px;
+    pointer-events: none;
+}
+
+.my-memo-tabs {
+    display: flex;
+    gap: 0.25rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    padding: 0.25rem;
+    margin-bottom: 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    animation: fadeUp 0.5s ease-out both;
+    transition: border-radius 200ms ease, box-shadow 200ms ease, top 300ms ease;
+}
+
+.my-memo-tabs.is-stuck {
+    border-radius: 0;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+}
+
+.has-fixed-nav .my-memo-tabs {
+    top: calc(var(--top-nav-height, 52px));
+    z-index: 1020;
+}
+
+@media (max-width: 599.98px) {
+    .has-fixed-nav.top-nav-hidden .my-memo-tabs {
+        top: 0;
+    }
+}
+
+.my-memo-tab {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 0.75rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.my-memo-tab.active {
+    color: var(--my-memo-deep);
+    background: #eff6ff;
+}
+
+.my-memo-tab:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 2px;
+}
+
+.my-memo-tab-badge {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.4;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.my-memo-tab.active .my-memo-tab-badge {
+    background: #dbeafe;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .my-memo-tab:hover {
+        color: var(--my-memo-deep);
+    }
+}
+
+/* ── Filter (info-card 밖 plain 블록) ── */
 
 .my-memo-filter {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0 0.25rem;
 }
 
 .my-memo-filter .form-label {
     font-weight: 500;
-    color: #334155;
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
+    color: #475569;
+    font-size: 0.8125rem;
+    margin-bottom: 0.35rem;
 }
 
 .my-memo-filter .form-select {
@@ -254,20 +280,6 @@
 }
 
 /* ── 반응형 ── */
-
-@media (max-width: 768px) {
-    .my-memo-hero {
-        padding: 2rem 1.5rem;
-    }
-
-    .my-memo-title {
-        font-size: 1.65rem;
-    }
-
-    .my-memo-description {
-        font-size: 0.95rem;
-    }
-}
 
 @media (max-width: 576px) {
     .my-memo-card {

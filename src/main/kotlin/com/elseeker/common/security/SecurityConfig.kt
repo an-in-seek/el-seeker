@@ -83,7 +83,10 @@ class SecurityConfig(
                         "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/verses/{verseNumber}/highlight",
                         "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/state",
                         "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/chapters/{chapterNumber}/chapter-memo",
-                        "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/book-memo"
+                        "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/book-memo",
+                        "/api/v1/bibles/my-memos/**",
+                        "/api/v1/bibles/my-book-memos/**",
+                        "/api/v1/bibles/my-chapter-memos/**"
                     ).authenticated()
                     .requestMatchers(
                         "/",

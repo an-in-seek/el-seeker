@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 
 <head
-        th:replace="~{fragments/head :: head('나의 메모 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/my-memo.css?v=2.0')}"
+        th:replace="~{fragments/head :: head('나의 메모 | ElSeeker', true, '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/my-memo.css?v=4.2')}"
         th:with="robotsContent='noindex'">
 </head>
 
@@ -10,69 +10,65 @@
 <header th:replace="~{fragments/header :: header}"></header>
 
 <main class="container content-wrapper my-memo-shell">
-    <section class="page-hero my-memo-hero" aria-labelledby="myMemoTitle">
-        <div class="page-hero-content my-memo-hero-content">
-            <div class="my-memo-intro">
-                <p class="my-memo-description">작성한 성경 메모를 번역본과 성경별로 모아서 확인할 수 있습니다.</p>
-                <div class="my-memo-badges">
-                    <span id="myMemoCountBadge" class="badge my-memo-badge count d-none"></span>
-                </div>
+    <div id="myMemoTabsSentinel" class="my-memo-tabs-sentinel" aria-hidden="true"></div>
+    <nav id="myMemoTabs" class="my-memo-tabs" role="tablist" aria-label="메모 종류">
+        <button id="myMemoTabBook" class="my-memo-tab" role="tab" type="button"
+                data-tab="book" aria-selected="false">
+            책 메모<span id="myMemoTabBookBadge" class="my-memo-tab-badge d-none"></span>
+        </button>
+        <button id="myMemoTabChapter" class="my-memo-tab" role="tab" type="button"
+                data-tab="chapter" aria-selected="false">
+            장 메모<span id="myMemoTabChapterBadge" class="my-memo-tab-badge d-none"></span>
+        </button>
+        <button id="myMemoTabVerse" class="my-memo-tab active" role="tab" type="button"
+                data-tab="verse" aria-selected="true">
+            절 메모<span id="myMemoTabVerseBadge" class="my-memo-tab-badge d-none"></span>
+        </button>
+    </nav>
+
+    <div id="myMemoFilter" class="my-memo-filter d-none">
+        <div class="row g-2">
+            <div class="col-12 col-sm-6">
+                <label class="form-label" for="myMemoTranslationFilter">번역본</label>
+                <select id="myMemoTranslationFilter" class="form-select">
+                    <option value="">전체 번역본</option>
+                </select>
             </div>
-        </div>
-    </section>
-
-    <div id="myMemoSettings">
-        <div class="row g-3">
-            <div class="col-12">
-                <article class="card card-panel card-soft my-memo-info-card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h2 class="h6 fw-bold mb-3">메모 보관함</h2>
-
-                        <div id="myMemoFilter" class="my-memo-filter d-none">
-                            <div class="row g-2">
-                                <div class="col-12 col-sm-6">
-                                    <label class="form-label" for="myMemoTranslationFilter">번역본</label>
-                                    <select id="myMemoTranslationFilter" class="form-select">
-                                        <option value="">전체 번역본</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <label class="form-label" for="myMemoBookFilter">성경</label>
-                                    <select id="myMemoBookFilter" class="form-select" disabled>
-                                        <option value="">전체 성경</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="myMemoSkeleton" class="my-memo-skeleton-group">
-                            <div class="skeleton skeleton-memo-card"></div>
-                            <div class="skeleton skeleton-memo-card"></div>
-                            <div class="skeleton skeleton-memo-card"></div>
-                        </div>
-
-                        <div id="myMemoList" class="my-memo-list"></div>
-
-                        <div id="myMemoEmpty" class="my-memo-empty d-none">
-                            <div class="my-memo-empty-icon" aria-hidden="true">📝</div>
-                            <p class="my-memo-empty-title">아직 작성한 메모가 없습니다</p>
-                            <p class="my-memo-empty-desc">성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요.</p>
-                            <a href="/web/bible/translation" class="btn btn-primary">성경 읽으러 가기</a>
-                        </div>
-
-                        <button id="myMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
-                            더보기
-                        </button>
-                    </div>
-                </article>
+            <div class="col-12 col-sm-6">
+                <label class="form-label" for="myMemoBookFilter">성경</label>
+                <select id="myMemoBookFilter" class="form-select" disabled>
+                    <option value="">전체 성경</option>
+                </select>
             </div>
         </div>
     </div>
+
+    <article class="card card-panel card-soft my-memo-info-card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <div id="myMemoSkeleton" class="my-memo-skeleton-group">
+                <div class="skeleton skeleton-memo-card"></div>
+                <div class="skeleton skeleton-memo-card"></div>
+                <div class="skeleton skeleton-memo-card"></div>
+            </div>
+
+            <div id="myMemoList" class="my-memo-list" role="tabpanel"></div>
+
+            <div id="myMemoEmpty" class="my-memo-empty d-none">
+                <div class="my-memo-empty-icon" aria-hidden="true">📝</div>
+                <p id="myMemoEmptyTitle" class="my-memo-empty-title">아직 작성한 메모가 없습니다</p>
+                <p id="myMemoEmptyDesc" class="my-memo-empty-desc">성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요.</p>
+                <a id="myMemoEmptyCta" href="/web/bible/translation" class="btn btn-primary">성경 읽으러 가기</a>
+            </div>
+
+            <button id="myMemoMore" class="btn btn-outline-secondary w-100 mt-3 d-none" type="button">
+                더보기
+            </button>
+        </div>
+    </article>
 </main>
 
-<footer th:replace="~{fragments/footer :: footer}"></footer>
-
-<script type="module" src="/js/member/my-memo.js?v=1.2"></script>
+<script type="module" src="/js/member/my-memo.js?v=2.1"></script>
 </body>
 
 </html>
