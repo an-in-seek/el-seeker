@@ -50,32 +50,39 @@ class BibleBookMemoService(
         }
         val slice = when {
             translationId != null && bookOrder != null ->
-                bibleBookMemoRepository.findAllByMemberUidAndTranslationIdAndBookOrder(memberUid, translationId, bookOrder, sortedPageable)
+                bibleBookMemoRepository.findBookMemoItemsByMemberUidAndTranslationIdAndBookOrder(
+                    memberUid,
+                    translationId,
+                    bookOrder,
+                    sortedPageable
+                )
             translationId != null ->
-                bibleBookMemoRepository.findAllByMemberUidAndTranslationId(memberUid, translationId, sortedPageable)
+                bibleBookMemoRepository.findBookMemoItemsByMemberUidAndTranslationId(memberUid, translationId, sortedPageable)
             else ->
-                bibleBookMemoRepository.findAllByMemberUid(memberUid, sortedPageable)
+                bibleBookMemoRepository.findBookMemoItemsByMemberUid(memberUid, sortedPageable)
         }
 
-        val bookNameMap = resolveBookNames(slice.content)
-
-        val totalCount = if (sortedPageable.pageNumber == 0) {
-            when {
-                translationId != null && bookOrder != null ->
-                    bibleBookMemoRepository.countByMemberUidAndTranslationIdAndBookOrder(memberUid, translationId, bookOrder)
-                translationId != null ->
-                    bibleBookMemoRepository.countByMemberUidAndTranslationId(memberUid, translationId)
-                else ->
-                    bibleBookMemoRepository.countByMemberUid(memberUid)
-            }
-        } else {
-            null
+        val totalCount: Long? = when {
+            sortedPageable.pageNumber != 0 -> null
+            !slice.hasNext() -> slice.content.size.toLong()
+            translationId != null && bookOrder != null ->
+                bibleBookMemoRepository.countByMemberUidAndTranslationIdAndBookOrder(memberUid, translationId, bookOrder)
+            translationId != null ->
+                bibleBookMemoRepository.countByMemberUidAndTranslationId(memberUid, translationId)
+            else ->
+                bibleBookMemoRepository.countByMemberUid(memberUid)
         }
 
         return BibleBookMemoResult.BookMemoSlice(
             content = slice.content.map { memo ->
-                val bookName = bookNameMap[memo.translationId to memo.bookOrder] ?: ""
-                BibleBookMemoResult.BookMemoItem.from(memo, bookName)
+                BibleBookMemoResult.BookMemoItem(
+                    bookMemoId = memo.bookMemoId,
+                    translationId = memo.translationId,
+                    bookOrder = memo.bookOrder,
+                    bookName = memo.bookName,
+                    content = memo.content,
+                    updatedAt = memo.updatedAt
+                )
             },
             hasNext = slice.hasNext(),
             size = slice.size,
@@ -102,18 +109,6 @@ class BibleBookMemoService(
         return books
             .sortedBy { it.bookOrder }
             .map { BibleMemoResult.MemoBookItem(bookOrder = it.bookOrder, bookName = it.name) }
-    }
-
-    private fun resolveBookNames(memos: List<BibleBookMemo>): Map<Pair<Long, Int>, String> {
-        return memos
-            .map { it.translationId to it.bookOrder }
-            .distinct()
-            .groupBy({ it.first }, { it.second })
-            .flatMap { (translationId, bookOrders) ->
-                bibleBookRepository.findByTranslationIdAndBookOrderIn(translationId, bookOrders)
-                    .map { (translationId to it.bookOrder) to it.name }
-            }
-            .toMap()
     }
 
     fun upsertBookMemo(

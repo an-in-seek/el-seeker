@@ -7,7 +7,8 @@ import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.UUID
+import java.time.Instant
+import java.util.*
 
 @Repository
 interface BibleBookMemoRepository : JpaRepository<BibleBookMemo, Long> {
@@ -36,24 +37,84 @@ interface BibleBookMemoRepository : JpaRepository<BibleBookMemo, Long> {
         bookOrder: Int
     ): Long
 
-    fun findAllByMemberUid(memberUid: UUID, pageable: Pageable): Slice<BibleBookMemo>
+    @Query(
+        """
+            SELECT
+                m.id AS bookMemoId,
+                m.translationId AS translationId,
+                m.bookOrder AS bookOrder,
+                b.name AS bookName,
+                m.content AS content,
+                m.updatedAt AS updatedAt
+            FROM BibleBookMemo m
+            JOIN BibleBook b
+                ON b.translationId = m.translationId
+               AND b.bookOrder = m.bookOrder
+            WHERE m.member.uid = :memberUid
+        """
+    )
+    fun findBookMemoItemsByMemberUid(memberUid: UUID, pageable: Pageable): Slice<BibleBookMemoItemProjection>
 
-    fun findAllByMemberUidAndTranslationId(
+    @Query(
+        """
+            SELECT
+                m.id AS bookMemoId,
+                m.translationId AS translationId,
+                m.bookOrder AS bookOrder,
+                b.name AS bookName,
+                m.content AS content,
+                m.updatedAt AS updatedAt
+            FROM BibleBookMemo m
+            JOIN BibleBook b
+                ON b.translationId = m.translationId
+               AND b.bookOrder = m.bookOrder
+            WHERE m.member.uid = :memberUid
+              AND m.translationId = :translationId
+        """
+    )
+    fun findBookMemoItemsByMemberUidAndTranslationId(
         memberUid: UUID,
         translationId: Long,
         pageable: Pageable
-    ): Slice<BibleBookMemo>
+    ): Slice<BibleBookMemoItemProjection>
 
-    fun findAllByMemberUidAndTranslationIdAndBookOrder(
+    @Query(
+        """
+            SELECT
+                m.id AS bookMemoId,
+                m.translationId AS translationId,
+                m.bookOrder AS bookOrder,
+                b.name AS bookName,
+                m.content AS content,
+                m.updatedAt AS updatedAt
+            FROM BibleBookMemo m
+            JOIN BibleBook b
+                ON b.translationId = m.translationId
+               AND b.bookOrder = m.bookOrder
+            WHERE m.member.uid = :memberUid
+              AND m.translationId = :translationId
+              AND m.bookOrder = :bookOrder
+        """
+    )
+    fun findBookMemoItemsByMemberUidAndTranslationIdAndBookOrder(
         memberUid: UUID,
         translationId: Long,
         bookOrder: Int,
         pageable: Pageable
-    ): Slice<BibleBookMemo>
+    ): Slice<BibleBookMemoItemProjection>
 
     @Query("SELECT DISTINCT m.translationId FROM BibleBookMemo m WHERE m.member.uid = :memberUid ORDER BY m.translationId")
     fun findDistinctTranslationIdsByMemberUid(memberUid: UUID): List<Long>
 
     @Query("SELECT DISTINCT m.bookOrder FROM BibleBookMemo m WHERE m.member.uid = :memberUid AND m.translationId = :translationId ORDER BY m.bookOrder")
     fun findDistinctBookOrdersByMemberUidAndTranslationId(memberUid: UUID, translationId: Long): List<Int>
+}
+
+interface BibleBookMemoItemProjection {
+    val bookMemoId: Long
+    val translationId: Long
+    val bookOrder: Int
+    val bookName: String
+    val content: String
+    val updatedAt: Instant
 }
