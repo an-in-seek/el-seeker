@@ -388,17 +388,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const prefetchCount = async (tab) => {
+    const prefetchCounts = async () => {
         try {
             const response = await fetchWithAuthRetry(
-                `${TAB_SPEC[tab].listEndpoint}?page=0&size=1`,
+                "/api/v1/bibles/my-memo-counts",
                 {credentials: "include", headers: {Accept: "application/json"}}
             );
             if (!response.ok) return;
             const data = await response.json().catch(() => null);
-            if (data && data.totalCount != null) {
-                state.counts[tab] = data.totalCount;
-                updateTabBadge(tab);
+            if (!data) return;
+            for (const tab of VALID_TABS) {
+                if (typeof data[tab] === "number") {
+                    state.counts[tab] = data[tab];
+                    updateTabBadge(tab);
+                }
             }
         } catch {
             // 프리페치 실패는 무시
@@ -484,8 +487,8 @@ document.addEventListener("DOMContentLoaded", () => {
             state.activeTab = parseTabFromUrl();
             applyTabActive(state.activeTab);
 
-            // 모든 탭 카운트 프리페치 (필터 무관 총 개수가 배지에 필요)
-            Promise.all(VALID_TABS.map((t) => prefetchCount(t)));
+            // 탭 배지용 카운트 프리페치 (단일 round-trip)
+            prefetchCounts();
 
             await loadTranslations(state.activeTab);
             await loadList(false);

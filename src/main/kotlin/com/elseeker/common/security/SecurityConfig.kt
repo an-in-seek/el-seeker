@@ -86,7 +86,8 @@ class SecurityConfig(
                         "/api/v1/bibles/translations/{translationId}/books/{bookOrder}/book-memo",
                         "/api/v1/bibles/my-memos/**",
                         "/api/v1/bibles/my-book-memos/**",
-                        "/api/v1/bibles/my-chapter-memos/**"
+                        "/api/v1/bibles/my-chapter-memos/**",
+                        "/api/v1/bibles/my-memo-counts"
                     ).authenticated()
                     .requestMatchers(
                         "/",
