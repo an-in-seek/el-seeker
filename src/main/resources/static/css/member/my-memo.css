@@ -258,6 +258,8 @@
     height: 1px;
 }
 
+/* scroll-to-top 버튼 스타일은 search.css 에서 공통 제공 */
+
 /* ── Skeleton UI (mypage 패턴과 동일) ── */
 
 .my-memo-skeleton-group {

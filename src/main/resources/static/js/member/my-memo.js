@@ -449,6 +449,17 @@ document.addEventListener("DOMContentLoaded", () => {
         btn?.addEventListener("click", () => switchTab(tab));
     }
 
+    // Scroll-to-top 버튼
+    const scrollTopBtn = document.getElementById("scrollToTopBtn");
+    if (scrollTopBtn) {
+        window.addEventListener("scroll", () => {
+            scrollTopBtn.classList.toggle("is-visible", window.scrollY > 300);
+        });
+        scrollTopBtn.addEventListener("click", () => {
+            window.scrollTo({top: 0, behavior: "smooth"});
+        });
+    }
+
     // Sticky 탭 감지 — sentinel 이 fixed nav 아래 관찰 영역에서 벗어나면 is-stuck 토글
     const tabSentinel = document.getElementById("myMemoTabsSentinel");
     const tabsEl = document.getElementById("myMemoTabs");
