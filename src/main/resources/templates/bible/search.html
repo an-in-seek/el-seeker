@@ -14,8 +14,13 @@
     <div class="search-controls">
         <form id="searchForm" role="search" class="mb-2">
             <div class="input-group">
-                <input type="search" id="keywordInput" class="form-control" placeholder="검색할 단어를 입력하세요"
-                       th:value="${keyword}" autocomplete="off" inputmode="search">
+                <input type="search"
+                       id="keywordInput"
+                       class="form-control"
+                       placeholder="검색할 단어를 입력하세요"
+                       th:value="${keyword}"
+                       autocomplete="on"
+                       inputmode="search">
                 <button id="clearBtn" type="button" class="btn btn-outline-secondary">지우기</button>
                 <button id="searchBtn" type="submit" class="btn btn-outline-primary">🔍</button>
             </div>

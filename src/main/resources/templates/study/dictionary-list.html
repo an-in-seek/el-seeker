@@ -14,8 +14,14 @@
         <form id="dictionarySearchForm" class="mb-2" method="get" th:action="@{/web/study/dictionary}"
               role="search">
             <div class="input-group">
-                <input type="search" id="dictionaryKeywordInput" class="form-control" name="keyword"
-                       placeholder="찾고 싶은 성경 용어를 입력하세요" th:value="${keyword}" autocomplete="off" inputmode="search"
+                <input type="search"
+                       id="dictionaryKeywordInput"
+                       class="form-control"
+                       name="keyword"
+                       placeholder="찾고 싶은 성경 용어를 입력하세요"
+                       th:value="${keyword}"
+                       autocomplete="on"
+                       inputmode="search"
                        aria-label="성경 용어 검색">
                 <button id="dictionaryClearBtn" class="btn btn-outline-secondary" type="button">지우기</button>
                 <button id="dictionarySearchBtn" class="btn btn-outline-primary" type="submit">🔍</button>
