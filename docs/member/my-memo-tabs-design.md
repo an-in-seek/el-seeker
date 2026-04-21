@@ -1,4 +1,4 @@
-# 나의 메모 — 책 / 장 / 절 탭 분리 설계
+# 나의 성경 메모 — 책 / 장 / 절 탭 분리 설계
 
 ## 구현 상태
 
@@ -20,11 +20,11 @@
 
 이미 백엔드에는 **책 메모 / 장 메모** 도메인이 존재한다:
 
-| 엔티티 | 키 | 용도 화면 |
-|---|---|---|
-| `BibleBookMemo` | `(member, translation, book)` | `chapter-list.html` 책 단위 메모 |
-| `BibleChapterMemo` | `(member, translation, book, chapter)` | `verse-list.html` 장 단위 메모 |
-| `BibleVerseMemo` | `(member, translation, book, chapter, verse)` | `verse-list.html` 구절 단위 메모 |
+| 엔티티                | 키                                             | 용도 화면                       |
+|--------------------|-----------------------------------------------|-----------------------------|
+| `BibleBookMemo`    | `(member, translation, book)`                 | `chapter-list.html` 책 단위 메모 |
+| `BibleChapterMemo` | `(member, translation, book, chapter)`        | `verse-list.html` 장 단위 메모   |
+| `BibleVerseMemo`   | `(member, translation, book, chapter, verse)` | `verse-list.html` 구절 단위 메모  |
 
 그러나 **책/장 메모의 회원-범위 목록 조회 API 와 화면은 미구현** 상태다. 회원이 작성한 책 메모·장 메모를 한곳에서 확인할 동선이 없다.
 
@@ -43,27 +43,27 @@
 
 ### 2.1 백엔드 — 신규/수정
 
-| 파일 | 종류 | 변경 |
-|---|---|---|
-| `BibleBookMemoRepository.kt` | 수정 | 회원 범위 페치/카운트/distinct 쿼리 추가 |
-| `BibleChapterMemoRepository.kt` | 수정 | 동일 패턴 |
-| `BibleBookMemoService.kt` | 수정 | `getMyBookMemos`, `getMemoTranslations`, `getMemoBookList` 추가 |
-| `BibleChapterMemoService.kt` | 수정 | 동일 패턴 |
-| `BibleMyBookMemoApi.kt` | **신규** | `GET /api/v1/bibles/my-book-memos` 외 2개 |
-| `BibleMyChapterMemoApi.kt` | **신규** | `GET /api/v1/bibles/my-chapter-memos` 외 2개 |
-| `BibleBookMemoResult.kt` | **신규** | `BookMemoSlice`, `BookMemoItem`, 공통 필터 DTO |
-| `BibleChapterMemoResult.kt` | **신규** | `ChapterMemoSlice`, `ChapterMemoItem` |
-| `SecurityConfig.kt` | 수정 | 신규 my-* 경로 `.authenticated()` 등록 |
+| 파일                              | 종류     | 변경                                                            |
+|---------------------------------|--------|---------------------------------------------------------------|
+| `BibleBookMemoRepository.kt`    | 수정     | 회원 범위 페치/카운트/distinct 쿼리 추가                                   |
+| `BibleChapterMemoRepository.kt` | 수정     | 동일 패턴                                                         |
+| `BibleBookMemoService.kt`       | 수정     | `getMyBookMemos`, `getMemoTranslations`, `getMemoBookList` 추가 |
+| `BibleChapterMemoService.kt`    | 수정     | 동일 패턴                                                         |
+| `BibleMyBookMemoApi.kt`         | **신규** | `GET /api/v1/bibles/my-book-memos` 외 2개                       |
+| `BibleMyChapterMemoApi.kt`      | **신규** | `GET /api/v1/bibles/my-chapter-memos` 외 2개                    |
+| `BibleBookMemoResult.kt`        | **신규** | `BookMemoSlice`, `BookMemoItem`, 공통 필터 DTO                    |
+| `BibleChapterMemoResult.kt`     | **신규** | `ChapterMemoSlice`, `ChapterMemoItem`                         |
+| `SecurityConfig.kt`             | 수정     | 신규 my-* 경로 `.authenticated()` 등록                              |
 
 > `BibleMyMemoApi` (절 메모) 는 변경 없음. 단 일관성을 위해 향후 `/api/v1/bibles/my-verse-memos` 별칭을 두는 것은 Phase 3 대안으로 검토 (현재 `/my-memos` 도 그대로 유지).
 
 ### 2.2 프론트엔드 — 수정 (3 파일)
 
-| 파일 | 변경 |
-|---|---|
-| `templates/member/my-memo.html` | 탭 네비게이션 추가, 단일 컨테이너 유지(필터+리스트+빈상태+더보기 공유) |
-| `static/js/member/my-memo.js` | `TAB_SPEC` 도입, 탭별 fetch URL · 카드 빌더 · 빈 메시지 분기, URL 쿼리 동기화 |
-| `static/css/member/my-memo.css` | 탭 스타일 추가 (mypage 탭 톤 재사용), 카드 변형 스타일 |
+| 파일                              | 변경                                                         |
+|---------------------------------|------------------------------------------------------------|
+| `templates/member/my-memo.html` | 탭 네비게이션 추가, 단일 컨테이너 유지(필터+리스트+빈상태+더보기 공유)                  |
+| `static/js/member/my-memo.js`   | `TAB_SPEC` 도입, 탭별 fetch URL · 카드 빌더 · 빈 메시지 분기, URL 쿼리 동기화 |
+| `static/css/member/my-memo.css` | 탭 스타일 추가 (mypage 탭 톤 재사용), 카드 변형 스타일                       |
 
 ### 2.3 변경 없는 파일
 
@@ -79,7 +79,7 @@
 
 ```
 ┌─ 히어로 ────────────────────────────────────────┐
-│   "나의 메모"                                   │
+│   "나의 성경 메모"                                   │
 │   설명문                                        │
 │   (히어로 합계 배지는 제거 — 탭별 카운트로 이관)│
 └─────────────────────────────────────────────────┘
@@ -98,21 +98,21 @@
 
 ### 3.2 탭 동작 규칙
 
-| 항목 | 규칙 |
-|---|---|
-| 활성 탭 | URL `?tab` 우선 → 없으면 `verse` (기본값, 기존 동선 보존) |
-| 탭 전환 | `pushState` 로 `?tab=` 갱신, 필터 상태도 같이 초기화 (탭 간 컨텍스트는 공유하지 않음) |
-| 카운트 배지 | 탭 라벨 옆 작은 숫자, 최초 진입 시 각 탭의 totalCount 를 **병렬로 1회 프리페치** |
-| 빈 상태 | 탭별 메시지 + CTA (§6 참고) |
-| 더보기 | 탭별 독립 페이지네이션 (state 가 탭별로 분리) |
+| 항목     | 규칙                                                          |
+|--------|-------------------------------------------------------------|
+| 활성 탭   | URL `?tab` 우선 → 없으면 `verse` (기본값, 기존 동선 보존)                 |
+| 탭 전환   | `pushState` 로 `?tab=` 갱신, 필터 상태도 같이 초기화 (탭 간 컨텍스트는 공유하지 않음) |
+| 카운트 배지 | 탭 라벨 옆 작은 숫자, 최초 진입 시 각 탭의 totalCount 를 **병렬로 1회 프리페치**     |
+| 빈 상태   | 탭별 메시지 + CTA (§6 참고)                                        |
+| 더보기    | 탭별 독립 페이지네이션 (state 가 탭별로 분리)                               |
 
 ### 3.3 카드 → 원본 화면 매핑
 
-| 탭 | 클릭 시 이동 URL | 비고 |
-|---|---|---|
-| 책 메모 | `/web/bible/chapter?translationId=&bookOrder=&from=my-memo` | 책의 장 목록(`chapter-list.html`) — 책 메모 패널이 그곳에 있음 |
-| 장 메모 | `/web/bible/verse?translationId=&bookOrder=&chapterNumber=&from=my-memo` | 장 진입 → 장 메모 버튼이 그곳에 있음 |
-| 절 메모 | `/web/bible/verse?translationId=&bookOrder=&chapterNumber=&verseNumber=&from=my-memo` | 기존 동일, `from` 값만 `mypage` → `my-memo` 로 정정 |
+| 탭    | 클릭 시 이동 URL                                                                           | 비고                                             |
+|------|---------------------------------------------------------------------------------------|------------------------------------------------|
+| 책 메모 | `/web/bible/chapter?translationId=&bookOrder=&from=my-memo`                           | 책의 장 목록(`chapter-list.html`) — 책 메모 패널이 그곳에 있음 |
+| 장 메모 | `/web/bible/verse?translationId=&bookOrder=&chapterNumber=&from=my-memo`              | 장 진입 → 장 메모 버튼이 그곳에 있음                         |
+| 절 메모 | `/web/bible/verse?translationId=&bookOrder=&chapterNumber=&verseNumber=&from=my-memo` | 기존 동일, `from` 값만 `mypage` → `my-memo` 로 정정     |
 
 > `from=my-memo` 쿼리는 현재 어떤 분기 로직도 갖지 않는 **마커**다 (grep 결과 `verse-list.js` 등 어디에서도 `from` 파라미터를 해석하지 않음). Phase 3 에서 "뒤로 가기 → `/web/member/my-memo?tab=…`" 복귀 동작을 추가할 자리표시자.
 >
@@ -143,13 +143,17 @@ fun findAllByMemberUidAndTranslationIdAndBookOrder(
     memberUid: UUID, translationId: Long, bookOrder: Int, pageable: Pageable
 ): Slice<BibleBookMemo>
 
-@Query("SELECT DISTINCT m.translationId FROM BibleBookMemo m " +
-       "WHERE m.member.uid = :memberUid ORDER BY m.translationId")
+@Query(
+    "SELECT DISTINCT m.translationId FROM BibleBookMemo m " +
+            "WHERE m.member.uid = :memberUid ORDER BY m.translationId"
+)
 fun findDistinctTranslationIdsByMemberUid(memberUid: UUID): List<Long>
 
-@Query("SELECT DISTINCT m.bookOrder FROM BibleBookMemo m " +
-       "WHERE m.member.uid = :memberUid AND m.translationId = :translationId " +
-       "ORDER BY m.bookOrder")
+@Query(
+    "SELECT DISTINCT m.bookOrder FROM BibleBookMemo m " +
+            "WHERE m.member.uid = :memberUid AND m.translationId = :translationId " +
+            "ORDER BY m.bookOrder"
+)
 fun findDistinctBookOrdersByMemberUidAndTranslationId(
     memberUid: UUID, translationId: Long
 ): List<Int>
@@ -241,7 +245,7 @@ class BibleMyBookMemoApi(
 ) {
     @GetMapping("/translations")
     fun translations(@AuthenticationPrincipal principal: JwtPrincipal):
-        ResponseEntity<List<BibleMemoResult.MemoTranslationItem>> = ...
+            ResponseEntity<List<BibleMemoResult.MemoTranslationItem>> = ...
 
     @GetMapping("/books")
     fun books(
@@ -264,14 +268,14 @@ class BibleMyBookMemoApi(
 
 #### 응답 스펙 (3 탭 비교)
 
-| 필드 | book | chapter | verse |
-|---|---|---|---|
-| `*MemoId` | bookMemoId | chapterMemoId | memoId |
-| `translationId` | ✓ | ✓ | ✓ |
-| `bookOrder` / `bookName` | ✓ | ✓ | ✓ |
-| `chapterNumber` | — | ✓ | ✓ |
-| `verseNumber` | — | — | ✓ |
-| `content`, `updatedAt` | ✓ | ✓ | ✓ |
+| 필드                       | book       | chapter       | verse  |
+|--------------------------|------------|---------------|--------|
+| `*MemoId`                | bookMemoId | chapterMemoId | memoId |
+| `translationId`          | ✓          | ✓             | ✓      |
+| `bookOrder` / `bookName` | ✓          | ✓             | ✓      |
+| `chapterNumber`          | —          | ✓             | ✓      |
+| `verseNumber`            | —          | —             | ✓      |
+| `content`, `updatedAt`   | ✓          | ✓             | ✓      |
 
 `MemoSlice` 는 모두 `{ content, hasNext, size, number, totalCount? }` 동일 형태.
 
@@ -281,8 +285,8 @@ class BibleMyBookMemoApi(
 
 - `/api/v1/bibles/**` 가 `permitAll()` 블록에 존재 (line 99)
 - 위쪽 `.authenticated()` 블록에 **명시적으로 등록된** 경로만 실제 보호:
-  - `/chapter-memo`, `/book-memo`, `/state`, `/highlights` 등 단건 CRUD 경로는 이미 등록됨 ✅
-  - `/api/v1/bibles/my-memos/**` 는 **등록되지 않음** — 현재 `permitAll` 아래에 있으나, JWT 필터가 principal 을 채워주는 덕에 정상 브라우저 세션에서는 우연히 동작
+    - `/chapter-memo`, `/book-memo`, `/state`, `/highlights` 등 단건 CRUD 경로는 이미 등록됨 ✅
+    - `/api/v1/bibles/my-memos/**` 는 **등록되지 않음** — 현재 `permitAll` 아래에 있으나, JWT 필터가 principal 을 채워주는 덕에 정상 브라우저 세션에서는 우연히 동작
 - 토큰이 없는 직접 호출 시 `@AuthenticationPrincipal JwtPrincipal` 이 `null` → `NullPointerException`
 
 **변경**: 기존 leakage 를 함께 교정하여 신규 2종과 함께 `.authenticated()` 블록에 추가:
@@ -311,29 +315,30 @@ class BibleMyBookMemoApi(
 
 #### 현재 → 변경 차이
 
-| 영역 | 현재 | 변경 |
-|---|---|---|
-| 히어로 배지 `#myMemoCountBadge` | 합계 카운트 1개 | **삭제** (탭 라벨 배지로 이전) |
-| 탭 네비게이션 | 없음 | `#myMemoTabBook/Chapter/Verse` **신규** |
-| 빈 상태 텍스트 | 정적 (`성경 본문에서…`) | `id` 부여 후 JS 가 탭별 메시지 주입 |
-| 빈 상태 CTA `<a>` | 정적 href | `id="myMemoEmptyCta"` + JS 갱신 |
-| 필터/스켈레톤/리스트/더보기 | 단일 인스턴스 | **그대로 단일 인스턴스 공유** (탭 전환 시 내용만 갈아끼움) |
+| 영역                         | 현재              | 변경                                    |
+|----------------------------|-----------------|---------------------------------------|
+| 히어로 배지 `#myMemoCountBadge` | 합계 카운트 1개       | **삭제** (탭 라벨 배지로 이전)                  |
+| 탭 네비게이션                    | 없음              | `#myMemoTabBook/Chapter/Verse` **신규** |
+| 빈 상태 텍스트                   | 정적 (`성경 본문에서…`) | `id` 부여 후 JS 가 탭별 메시지 주입              |
+| 빈 상태 CTA `<a>`             | 정적 href         | `id="myMemoEmptyCta"` + JS 갱신         |
+| 필터/스켈레톤/리스트/더보기            | 단일 인스턴스         | **그대로 단일 인스턴스 공유** (탭 전환 시 내용만 갈아끼움)  |
 
 #### 카드 내부 마크업
 
 ```html
+
 <article class="card card-panel card-soft my-memo-info-card border-0 shadow-sm">
     <div class="card-body p-4">
 
         <!-- 탭 네비게이션 -->
         <nav class="my-memo-tabs" role="tablist" aria-label="메모 종류">
-            <button id="myMemoTabBook"    class="my-memo-tab" role="tab" data-tab="book">
+            <button id="myMemoTabBook" class="my-memo-tab" role="tab" data-tab="book">
                 책 메모 <span class="my-memo-tab-badge d-none" id="myMemoTabBookBadge"></span>
             </button>
             <button id="myMemoTabChapter" class="my-memo-tab" role="tab" data-tab="chapter">
                 장 메모 <span class="my-memo-tab-badge d-none" id="myMemoTabChapterBadge"></span>
             </button>
-            <button id="myMemoTabVerse"   class="my-memo-tab active" role="tab"
+            <button id="myMemoTabVerse" class="my-memo-tab active" role="tab"
                     data-tab="verse" aria-selected="true">
                 절 메모 <span class="my-memo-tab-badge d-none" id="myMemoTabVerseBadge"></span>
             </button>
@@ -350,7 +355,7 @@ class BibleMyBookMemoApi(
         <div id="myMemoEmpty" class="my-memo-empty d-none">
             <div class="my-memo-empty-icon" aria-hidden="true">📝</div>
             <p class="my-memo-empty-title" id="myMemoEmptyTitle"></p>
-            <p class="my-memo-empty-desc"  id="myMemoEmptyDesc"></p>
+            <p class="my-memo-empty-desc" id="myMemoEmptyDesc"></p>
             <a id="myMemoEmptyCta" class="btn btn-primary"></a>
         </div>
 
@@ -372,9 +377,9 @@ class BibleMyBookMemoApi(
 ```js
 const TAB_SPEC = {
     book: {
-        listEndpoint:        "/api/v1/bibles/my-book-memos",
-        translationsEndpoint:"/api/v1/bibles/my-book-memos/translations",
-        booksEndpoint:       "/api/v1/bibles/my-book-memos/books",
+        listEndpoint: "/api/v1/bibles/my-book-memos",
+        translationsEndpoint: "/api/v1/bibles/my-book-memos/translations",
+        booksEndpoint: "/api/v1/bibles/my-book-memos/books",
         idField: "bookMemoId",
         cardRef: (m) => m.bookName,                                 // "창세기"
         cardHref: (m) =>
@@ -382,15 +387,15 @@ const TAB_SPEC = {
             `&bookOrder=${m.bookOrder}&from=my-memo`,
         empty: {
             title: "아직 작성한 책 메모가 없습니다",
-            desc:  "성경 책 페이지에서 책 전체에 대한 메모를 남겨보세요.",
+            desc: "성경 책 페이지에서 책 전체에 대한 메모를 남겨보세요.",
             ctaText: "성경 책 목록으로 가기",
             ctaHref: "/web/bible/translation",
         },
     },
     chapter: {
-        listEndpoint:        "/api/v1/bibles/my-chapter-memos",
-        translationsEndpoint:"/api/v1/bibles/my-chapter-memos/translations",
-        booksEndpoint:       "/api/v1/bibles/my-chapter-memos/books",
+        listEndpoint: "/api/v1/bibles/my-chapter-memos",
+        translationsEndpoint: "/api/v1/bibles/my-chapter-memos/translations",
+        booksEndpoint: "/api/v1/bibles/my-chapter-memos/books",
         idField: "chapterMemoId",
         cardRef: (m) => `${m.bookName} ${m.chapterNumber}장`,        // "창세기 1장"
         cardHref: (m) =>
@@ -398,15 +403,15 @@ const TAB_SPEC = {
             `&bookOrder=${m.bookOrder}&chapterNumber=${m.chapterNumber}&from=my-memo`,
         empty: {
             title: "아직 작성한 장 메모가 없습니다",
-            desc:  "성경 장 화면에서 그 장에 대한 묵상을 남겨보세요.",
+            desc: "성경 장 화면에서 그 장에 대한 묵상을 남겨보세요.",
             ctaText: "성경 읽으러 가기",
             ctaHref: "/web/bible/translation",
         },
     },
     verse: {
-        listEndpoint:        "/api/v1/bibles/my-memos",
-        translationsEndpoint:"/api/v1/bibles/my-memos/translations",
-        booksEndpoint:       "/api/v1/bibles/my-memos/books",
+        listEndpoint: "/api/v1/bibles/my-memos",
+        translationsEndpoint: "/api/v1/bibles/my-memos/translations",
+        booksEndpoint: "/api/v1/bibles/my-memos/books",
         idField: "memoId",
         cardRef: (m) => `${m.bookName} ${m.chapterNumber}:${m.verseNumber}`,
         cardHref: (m) =>
@@ -415,7 +420,7 @@ const TAB_SPEC = {
             `&verseNumber=${m.verseNumber}&from=my-memo`,
         empty: {
             title: "아직 작성한 메모가 없습니다",
-            desc:  "성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요.",
+            desc: "성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요.",
             ctaText: "성경 읽으러 가기",
             ctaHref: "/web/bible/translation",
         },
@@ -435,8 +440,8 @@ const createTabState = () => ({
 });
 const state = {
     activeTab: "verse",               // URL 쿼리로 덮어씀
-    byTab: { book: createTabState(), chapter: createTabState(), verse: createTabState() },
-    counts: { book: null, chapter: null, verse: null },
+    byTab: {book: createTabState(), chapter: createTabState(), verse: createTabState()},
+    counts: {book: null, chapter: null, verse: null},
 };
 const cur = () => state.byTab[state.activeTab];
 const spec = () => TAB_SPEC[state.activeTab];
@@ -478,26 +483,40 @@ function applyTabActive(tab) {
 
 ```js
 async function loadList(append = false) {
-    const t = cur(); const s = spec();
+    const t = cur();
+    const s = spec();
     if (t.loading) return;
     const requestedTab = state.activeTab;          // race-guard 용 스냅샷
     t.loading = true;
 
     let url = `${s.listEndpoint}?page=${t.page}&size=${PAGE_SIZE}`;
     if (t.translationFilter != null) url += `&translationId=${t.translationFilter}`;
-    if (t.bookFilter != null)        url += `&bookOrder=${t.bookFilter}`;
+    if (t.bookFilter != null) url += `&bookOrder=${t.bookFilter}`;
 
     const response = await fetchWithAuthRetry(url, {
         credentials: "include",
-        headers: { Accept: "application/json" },
+        headers: {Accept: "application/json"},
     });
     // Race guard: 응답 대기 중 탭이 바뀌었으면 결과를 버림 (다른 탭 DOM 을 덮어쓰지 않음)
-    if (state.activeTab !== requestedTab) { t.loading = false; return; }
-    if (response.status === 401) { redirectToLogin(); return; }
-    if (!response.ok) { renderError(); t.loading = false; return; }
+    if (state.activeTab !== requestedTab) {
+        t.loading = false;
+        return;
+    }
+    if (response.status === 401) {
+        redirectToLogin();
+        return;
+    }
+    if (!response.ok) {
+        renderError();
+        t.loading = false;
+        return;
+    }
 
     const data = await response.json();
-    if (state.activeTab !== requestedTab) { t.loading = false; return; }
+    if (state.activeTab !== requestedTab) {
+        t.loading = false;
+        return;
+    }
 
     renderMemos(data.content, append);             // createCard 반복 호출, append 플래그 처리
     t.hasNext = data.hasNext === true;
@@ -546,6 +565,7 @@ function createCard(memo) {
     border-bottom: 1px solid #e2e8f0;
     margin-bottom: 1rem;
 }
+
 .my-memo-tab {
     flex: 1;
     background: transparent;
@@ -558,10 +578,12 @@ function createCard(memo) {
     transition: color .15s, border-color .15s;
     cursor: pointer;
 }
+
 .my-memo-tab.active {
     color: var(--my-memo-deep);
     border-bottom-color: var(--my-memo-accent);
 }
+
 .my-memo-tab-badge {
     display: inline-block;
     margin-left: 0.25rem;
@@ -573,8 +595,11 @@ function createCard(memo) {
     color: #2563eb;
     min-width: 1.5rem;
 }
+
 @media (hover: hover) and (pointer: fine) {
-    .my-memo-tab:hover { color: var(--my-memo-deep); }
+    .my-memo-tab:hover {
+        color: var(--my-memo-deep);
+    }
 }
 ```
 
@@ -595,11 +620,11 @@ my-memo.js?v=1.2   →  ?v=2.0
 
 ## 6. 빈 상태 메시지 정책
 
-| 탭 | 제목 | 설명 | CTA 라벨 | CTA 링크 |
-|---|---|---|---|---|
+| 탭 | 제목                | 설명                             | CTA 라벨       | CTA 링크                   |
+|---|-------------------|--------------------------------|--------------|--------------------------|
 | 책 | 아직 작성한 책 메모가 없습니다 | 성경 책 페이지에서 책 전체에 대한 메모를 남겨보세요. | 성경 책 목록으로 가기 | `/web/bible/translation` |
-| 장 | 아직 작성한 장 메모가 없습니다 | 성경 장 화면에서 그 장에 대한 묵상을 남겨보세요. | 성경 읽으러 가기 | `/web/bible/translation` |
-| 절 | 아직 작성한 메모가 없습니다 | 성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요. | 성경 읽으러 가기 | `/web/bible/translation` |
+| 장 | 아직 작성한 장 메모가 없습니다 | 성경 장 화면에서 그 장에 대한 묵상을 남겨보세요.   | 성경 읽으러 가기    | `/web/bible/translation` |
+| 절 | 아직 작성한 메모가 없습니다   | 성경 본문에서 마음에 와닿은 구절에 메모를 남겨보세요. | 성경 읽으러 가기    | `/web/bible/translation` |
 
 > CTA 링크는 모두 번역본 선택 화면 — 책/장 메모를 만들려면 결국 번역본 → 책 → 장 진입이 필요하므로 동일 시작점 사용. 이후 단계 디테일은 향후 책별 딥링크 라우팅으로 보강.
 
@@ -664,14 +689,14 @@ my-memo.js?v=1.2   →  ?v=2.0
 
 ## 9. 결정 근거 (Decision Log)
 
-| 결정 | 대안 | 채택 사유 |
-|---|---|---|
-| 탭 분리 (단일 페이지 내) | 페이지 3개 분리 (`/my-book-memos` 등) | 동일한 필터/페이지네이션 UX 를 공유, 사용자가 한 화면에서 전환 가능 → 작업량 ↓ + 이해비용 ↓ |
-| 단일 컨테이너 + 탭별 데이터 갈아끼움 | 탭마다 DOM 패널 분리 | DOM 단순화, 카드/빈상태/더보기 1세트만 유지 — 보수 비용 절감 |
-| 탭별 상태 분리(`state.byTab`) | 탭 전환 시 모든 상태 리셋 | 사용자가 탭을 왔다갔다 할 때 페이지·필터를 잃지 않음 — 대량 메모 유저의 UX |
-| 카운트 프리페치 = `size=1` 첫 페이지 | 카운트 전용 API 신설 | 기존 슬라이스 응답의 `totalCount` 재사용, 신규 엔드포인트 없음 |
-| 책/장 메모 list API 신설 | 단일 통합 `/my-memos?type=` 엔드포인트 | 응답 스키마가 종류별로 다름(verseNumber, chapterNumber 유무) — 타입 안정성과 Swagger 명료성 우선 |
-| 카드 빈 상태 CTA 모두 `/web/bible/translation` | 종류별 다른 진입점 | 책/장 메모는 결국 번역본 → 책/장 경로 진입이 필요 — 시작점 통일이 단순 |
+| 결정                                      | 대안                             | 채택 사유                                                                   |
+|-----------------------------------------|--------------------------------|-------------------------------------------------------------------------|
+| 탭 분리 (단일 페이지 내)                         | 페이지 3개 분리 (`/my-book-memos` 등) | 동일한 필터/페이지네이션 UX 를 공유, 사용자가 한 화면에서 전환 가능 → 작업량 ↓ + 이해비용 ↓               |
+| 단일 컨테이너 + 탭별 데이터 갈아끼움                   | 탭마다 DOM 패널 분리                  | DOM 단순화, 카드/빈상태/더보기 1세트만 유지 — 보수 비용 절감                                  |
+| 탭별 상태 분리(`state.byTab`)                 | 탭 전환 시 모든 상태 리셋                | 사용자가 탭을 왔다갔다 할 때 페이지·필터를 잃지 않음 — 대량 메모 유저의 UX                           |
+| 카운트 프리페치 = `size=1` 첫 페이지               | 카운트 전용 API 신설                  | 기존 슬라이스 응답의 `totalCount` 재사용, 신규 엔드포인트 없음                               |
+| 책/장 메모 list API 신설                      | 단일 통합 `/my-memos?type=` 엔드포인트  | 응답 스키마가 종류별로 다름(verseNumber, chapterNumber 유무) — 타입 안정성과 Swagger 명료성 우선 |
+| 카드 빈 상태 CTA 모두 `/web/bible/translation` | 종류별 다른 진입점                     | 책/장 메모는 결국 번역본 → 책/장 경로 진입이 필요 — 시작점 통일이 단순                             |
 
 ---
 

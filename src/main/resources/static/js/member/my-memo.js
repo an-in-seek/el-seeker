@@ -94,7 +94,7 @@ const parseTabFromUrl = () => {
 document.addEventListener("DOMContentLoaded", () => {
     const pageTitleLabel = document.getElementById("pageTitleLabel");
     if (pageTitleLabel) {
-        pageTitleLabel.textContent = "나의 메모";
+        pageTitleLabel.textContent = "나의 성경 메모";
         pageTitleLabel.classList.remove("d-none");
     }
 

@@ -1,4 +1,4 @@
-# 나의 메모 전용 화면 분리 설계 문서
+# 나의 성경 메모 전용 화면 분리 설계 문서
 
 ## 구현 상태
 
@@ -9,16 +9,18 @@
 ## 1. 요구사항 해석
 
 ### R1. 내 메모 탭을 별도 페이지로 분리
+
 현재 `mypage.html` 의 `[계정 설정 | 내 메모]` 2탭 구조에서 **내 메모 탭을 제거**하고, `/web/member/my-memo` 신규 전용 페이지로 이관한다.
 
 - 마이페이지는 "계정 설정" 전용 페이지가 된다 (탭 네비게이션 자체 제거).
 - 메모 조회/필터/페이지네이션/빈 상태/스켈레톤 로직은 전용 페이지로 이동.
 
-### R2. 계정 버튼(👤) 드롭다운에 "나의 메모" 메뉴 추가
+### R2. 계정 버튼(👤) 드롭다운에 "나의 성경 메모" 메뉴 추가
+
 `fragments/header.html` 의 `#topNavAccountMenu` 에 신규 메뉴 아이템 추가. 클릭 시 `/web/member/my-memo` 로 이동.
 
 - 인증된 사용자에게만 노출 (마이페이지와 동일 패턴).
-- 메뉴 순서: **로그인** / **마이페이지** → **나의 메모** (신규) → divider → **로그아웃**
+- 메뉴 순서: **로그인** / **마이페이지** → **나의 성경 메모** (신규) → divider → **로그아웃**
 
 ### 비기능 요구사항
 
@@ -32,21 +34,21 @@
 
 ### 신규 파일 — 3개
 
-| 파일 | 역할 |
-|------|------|
-| `templates/member/my-memo.html` | 전용 페이지 Thymeleaf 템플릿 |
-| `static/js/member/my-memo.js` | 메모 목록/필터/페이지네이션 JS (기존 `mypage.js` 의 memo 섹션 분리) |
+| 파일                              | 역할                                                          |
+|---------------------------------|-------------------------------------------------------------|
+| `templates/member/my-memo.html` | 전용 페이지 Thymeleaf 템플릿                                        |
+| `static/js/member/my-memo.js`   | 메모 목록/필터/페이지네이션 JS (기존 `mypage.js` 의 memo 섹션 분리)            |
 | `static/css/member/my-memo.css` | 메모 전용 CSS (기존 `mypage.css` 의 `.mypage-memo-*` 블록 이관 + 리네이밍) |
 
 ### 수정 파일 — 5개
 
-| 파일 | 변경 내용 |
-|------|----------|
+| 파일                                  | 변경 내용                                                                    |
+|-------------------------------------|--------------------------------------------------------------------------|
 | `kotlin/.../MemberWebController.kt` | `@GetMapping("/my-memo")` 핸들러 추가 + `/mypage?tab=memo` → `/my-memo` 리다이렉트 |
-| `templates/member/mypage.html` | 탭 네비게이션 · `#mypageTabMemo` 패널 제거, 계정 설정만 유지 |
-| `templates/fragments/header.html` | 드롭다운에 "나의 메모" 메뉴 추가 (`#topNavMyMemoLink`) + 인증 시 `d-none` 해제 로직 |
-| `static/js/member/mypage.js` | 메모 관련 로직(약 200+ 줄) 제거 — `loadMyMemos`, 필터 초기화, 탭 전환 등 |
-| `static/css/member/mypage.css` | `.mypage-memo-*` 블록 `my-memo.css` 로 이관 후 삭제 |
+| `templates/member/mypage.html`      | 탭 네비게이션 · `#mypageTabMemo` 패널 제거, 계정 설정만 유지                              |
+| `templates/fragments/header.html`   | 드롭다운에 "나의 성경 메모" 메뉴 추가 (`#topNavMyMemoLink`) + 인증 시 `d-none` 해제 로직       |
+| `static/js/member/mypage.js`        | 메모 관련 로직(약 200+ 줄) 제거 — `loadMyMemos`, 필터 초기화, 탭 전환 등                    |
+| `static/css/member/mypage.css`      | `.mypage-memo-*` 블록 `my-memo.css` 로 이관 후 삭제                              |
 
 ### 변경 없는 파일
 
@@ -105,7 +107,7 @@ fun showMyPage(
 
 <!-- 신규 -->
 <a id="topNavMyMemoLink" href="/web/member/my-memo"
-   class="top-nav-account-item d-none" role="menuitem">나의 메모</a>
+   class="top-nav-account-item d-none" role="menuitem">나의 성경 메모</a>
 
 <div id="topNavAccountDivider" class="top-nav-account-divider d-none" role="separator"></div>
 
@@ -155,7 +157,7 @@ checkAuthStatus({
 ```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('나의 메모 | ElSeeker', true,
+<head th:replace="~{fragments/head :: head('나의 성경 메모 | ElSeeker', true,
        '/css/hero.css?v=2.2,/css/card.css?v=2.3,/css/member/my-memo.css?v=1.0')}"
       th:with="robotsContent='noindex'"></head>
 <body class="has-fixed-nav my-memo-page">
@@ -164,7 +166,7 @@ checkAuthStatus({
 <main class="container content-wrapper my-memo-shell">
     <section class="page-hero my-memo-hero">
         <div class="page-hero-content">
-            <h1 class="my-memo-title">나의 메모</h1>
+            <h1 class="my-memo-title">나의 성경 메모</h1>
             <span id="myMemoCountBadge" class="badge my-memo-count-badge d-none"></span>
         </div>
     </section>
@@ -206,17 +208,17 @@ checkAuthStatus({
 
 ### 5.3 ID / 클래스 네이밍 정책
 
-| 기존 (mypage 내부) | 신규 (my-memo 전용) |
-|---|---|
-| `#mypageMemoList` | `#myMemoList` |
-| `#mypageMemoEmpty` | `#myMemoEmpty` |
-| `#mypageMemoMore` | `#myMemoMore` |
-| `#mypageMemoFilter` | `#myMemoFilter` |
+| 기존 (mypage 내부)                 | 신규 (my-memo 전용)            |
+|--------------------------------|----------------------------|
+| `#mypageMemoList`              | `#myMemoList`              |
+| `#mypageMemoEmpty`             | `#myMemoEmpty`             |
+| `#mypageMemoMore`              | `#myMemoMore`              |
+| `#mypageMemoFilter`            | `#myMemoFilter`            |
 | `#mypageMemoTranslationFilter` | `#myMemoTranslationFilter` |
-| `#mypageMemoBookFilter` | `#myMemoBookFilter` |
-| `#mypageMemoCountBadge` | `#myMemoCountBadge` |
-| `#mypageMemoSkeleton` | `#myMemoSkeleton` |
-| `.mypage-memo-*` | `.my-memo-*` |
+| `#mypageMemoBookFilter`        | `#myMemoBookFilter`        |
+| `#mypageMemoCountBadge`        | `#myMemoCountBadge`        |
+| `#mypageMemoSkeleton`          | `#myMemoSkeleton`          |
+| `.mypage-memo-*`               | `.my-memo-*`               |
 
 **이유**: `mypage-` 접두사는 "마이페이지 내부 위젯" 을 시사. 별도 페이지로 이동하므로 `my-memo-` 로 리네이밍하여 소속 변경을 명시.
 
@@ -229,6 +231,7 @@ checkAuthStatus({
 ### 6.1 임포트 & 상태
 
 현재 `mypage.js` 의 memo 관련 코드는 **여러 지점에 분산**되어 있다 (961줄 중):
+
 - 71행: `memoSkeleton` DOM 참조
 - 83–87행: 상태 변수 (`memoPage`, `memoHasNext`, `memoLoading`, `memoTranslationFilter`, `memoBookFilter`)
 - 89–94행: memo DOM 참조 (list, empty, moreBtn, filter selects)
@@ -325,11 +328,11 @@ card.href = `/web/bible/verse?translationId=${...}&bookOrder=${...}&chapterNumbe
 
 ## 8. API (변경 없음, 재사용 확인)
 
-| 엔드포인트 | 메서드 | 용도 |
-|---|---|---|
+| 엔드포인트                                                       | 메서드 | 용도                    |
+|-------------------------------------------------------------|-----|-----------------------|
 | `/api/v1/bibles/my-memos?page&size&translationId&bookOrder` | GET | 내 메모 목록 (페이지네이션 + 필터) |
-| `/api/v1/bibles/my-memos/translations` | GET | 필터 드롭다운용 번역본 목록 |
-| `/api/v1/bibles/my-memos/books?translationId` | GET | 번역본별 성경 목록 |
+| `/api/v1/bibles/my-memos/translations`                      | GET | 필터 드롭다운용 번역본 목록       |
+| `/api/v1/bibles/my-memos/books?translationId`               | GET | 번역본별 성경 목록            |
 
 모두 `@AuthenticationPrincipal JwtPrincipal` 주입된 인증 엔드포인트. 기존 `BibleMyMemoApi.kt` 그대로 사용.
 
@@ -380,9 +383,9 @@ card.href = `/web/bible/verse?translationId=${...}&bookOrder=${...}&chapterNumbe
 5. **헤더**: `fragments/header.html` 에 `#topNavMyMemoLink` 추가 + `checkAuthStatus` 에 표시 로직 추가
 6. **정리**: `mypage.html` 에서 탭/메모 영역 제거, `mypage.js` 에서 memo 로직 제거, `mypage.css` 에서 이관된 블록 제거
 7. **캐시 버전**:
-   - `mypage.css?v=4.1` → `?v=4.2`
-   - `mypage.js?v=4.0` → `?v=4.1`
-   - 신규: `my-memo.css?v=1.0`, `my-memo.js?v=1.0`
+    - `mypage.css?v=4.1` → `?v=4.2`
+    - `mypage.js?v=4.0` → `?v=4.1`
+    - 신규: `my-memo.css?v=1.0`, `my-memo.js?v=1.0`
 
 ### Phase 2 — 회귀 방지 / UX 보강
 
@@ -402,13 +405,14 @@ card.href = `/web/bible/verse?translationId=${...}&bookOrder=${...}&chapterNumbe
        // ...
    }
    ```
-3. 마이페이지 히어로에 "나의 메모" 바로가기 카드/링크 추가 (선택)
+3. 마이페이지 히어로에 "나의 성경 메모" 바로가기 카드/링크 추가 (선택)
 
 ### 수동 검증 체크리스트
 
 **기능 검증**
+
 - [ ] 로그인 후 `/web/member/mypage` → 계정 설정만 표시 (탭 없음)
-- [ ] 드롭다운 `👤` → 로그인 전: 로그인 / 로그인 후: 마이페이지 + 나의 메모 + 로그아웃
+- [ ] 드롭다운 `👤` → 로그인 전: 로그인 / 로그인 후: 마이페이지 + 나의 성경 메모 + 로그아웃
 - [ ] `/web/member/my-memo` 직접 진입 시 메모 목록 + 필터 정상 동작
 - [ ] 미인증 사용자 진입 시 `/web/auth/login?returnUrl=...` 로 리다이렉트
 - [ ] `/web/member/mypage?tab=memo` → `/web/member/my-memo` 로 자동 이동
@@ -418,10 +422,11 @@ card.href = `/web/bible/verse?translationId=${...}&bookOrder=${...}&chapterNumbe
 - [ ] 세션 만료 시 401 → 로그인 페이지로 리다이렉트 (returnUrl 보존)
 
 **정리 검증 (잔존물 0 확인)**
+
 - [ ] `mypage.html` 에 `mypage-tab*` 클래스/ID 잔존 없음 (grep 확인)
 - [ ] `mypage.js` 에 `memo`, `switchTab`, `tabButtons`, `tabPanels`, `tabScrollPositions` 잔존 없음 (grep 확인)
 - [ ] `mypage.css` 에 `.mypage-tab*`, `.mypage-memo-*`, `.mypage-badge-count` 잔존 없음 (grep 확인)
-- [ ] 브라우저 DevTools Console 에러 0건 (마이페이지 · 나의 메모 양쪽)
+- [ ] 브라우저 DevTools Console 에러 0건 (마이페이지 · 나의 성경 메모 양쪽)
 
 ---
 
@@ -436,4 +441,4 @@ card.href = `/web/bible/verse?translationId=${...}&bookOrder=${...}&chapterNumbe
 ### 주의점
 
 - 기존 `/web/member/mypage?tab=memo` 북마크/링크 → 리다이렉트로 커버
-- 마이페이지 내에서 메모로 빠르게 전환하던 동선이 사라짐 → 마이페이지 히어로에 "나의 메모" 바로가기 링크 추가 권장 (Phase 2)
+- 마이페이지 내에서 메모로 빠르게 전환하던 동선이 사라짐 → 마이페이지 히어로에 "나의 성경 메모" 바로가기 링크 추가 권장 (Phase 2)
