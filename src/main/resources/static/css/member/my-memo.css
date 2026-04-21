@@ -239,19 +239,23 @@
     margin: 0 0 1.25rem;
 }
 
-/* ── More Button ── */
+/* ── Infinite scroll (loader + sentinel) ── */
 
-#myMemoMore {
-    border-radius: 0.5rem;
-    font-weight: 500;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.95rem;
+.my-memo-loader {
+    padding: 1.25rem 0 0.5rem;
+    text-align: center;
 }
 
-#myMemoMore:active,
-#myMemoMore:focus {
-    color: #6c757d;
-    background-color: transparent;
+.my-memo-loader .loader-text {
+    line-height: 1.4;
+    font-size: 0.9rem;
+    color: var(--my-memo-muted);
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+.my-memo-sentinel {
+    height: 1px;
 }
 
 /* ── Skeleton UI (mypage 패턴과 동일) ── */

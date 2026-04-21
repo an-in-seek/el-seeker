@@ -4,6 +4,7 @@ import {fetchWithAuthRetry} from "/js/common-util.js?v=2.2";
 const PAGE_SIZE = 20;
 const VALID_TABS = ["book", "chapter", "verse"];
 const DEFAULT_TAB = "verse";
+const SCROLL_ROOT_MARGIN = "200px";
 
 const TAB_SPEC = {
     book: {
@@ -110,7 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
         emptyTitle: document.getElementById("myMemoEmptyTitle"),
         emptyDesc: document.getElementById("myMemoEmptyDesc"),
         emptyCta: document.getElementById("myMemoEmptyCta"),
-        more: document.getElementById("myMemoMore"),
+        loader: document.getElementById("myMemoLoader"),
+        sentinel: document.getElementById("myMemoSentinel"),
         filter: document.getElementById("myMemoFilter"),
         translationSelect: document.getElementById("myMemoTranslationFilter"),
         bookSelect: document.getElementById("myMemoBookFilter"),
@@ -144,11 +146,29 @@ document.addEventListener("DOMContentLoaded", () => {
         badge.textContent = count >= 100 ? "99+" : String(count);
     };
 
-    const updateMoreButton = () => {
-        if (!elements.more) return;
+    const setLoaderVisible = (visible) => {
+        if (!elements.loader) return;
+        if (visible) elements.loader.removeAttribute("hidden");
+        else elements.loader.setAttribute("hidden", "");
+    };
+
+    let scrollObserver = null;
+    const initInfiniteScroll = () => {
+        if (!elements.sentinel || scrollObserver) return;
+        scrollObserver = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((e) => e.isIntersecting)) loadNextPage();
+            },
+            {root: null, rootMargin: SCROLL_ROOT_MARGIN, threshold: 0}
+        );
+        scrollObserver.observe(elements.sentinel);
+    };
+
+    const loadNextPage = () => {
         const t = cur();
-        elements.more.disabled = t.loading;
-        elements.more.classList.toggle("d-none", !t.hasNext);
+        if (t.loading || !t.hasNext) return;
+        t.page += 1;
+        loadList(true);
     };
 
     const applyTabActive = (tab) => {
@@ -313,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const requestedTab = state.activeTab;
         t.loading = true;
-        updateMoreButton();
+        if (append) setLoaderVisible(true);
         if (!append) elements.skeleton?.classList.remove("d-none");
 
         try {
@@ -363,8 +383,8 @@ document.addEventListener("DOMContentLoaded", () => {
             renderErrorState();
         } finally {
             elements.skeleton?.classList.add("d-none");
+            setLoaderVisible(false);
             t.loading = false;
-            updateMoreButton();
         }
     };
 
@@ -423,13 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
         await loadList(false);
     });
 
-    elements.more?.addEventListener("click", async () => {
-        const t = cur();
-        if (!t.hasNext || t.loading) return;
-        t.page += 1;
-        await loadList(true);
-    });
-
     // 탭 클릭
     for (const tab of VALID_TABS) {
         const btn = elements.tabButtons[tab];
@@ -437,16 +450,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Sticky 탭 감지 — sentinel 이 fixed nav 아래 관찰 영역에서 벗어나면 is-stuck 토글
-    const sentinel = document.getElementById("myMemoTabsSentinel");
+    const tabSentinel = document.getElementById("myMemoTabsSentinel");
     const tabsEl = document.getElementById("myMemoTabs");
-    if (sentinel && tabsEl && "IntersectionObserver" in window) {
+    if (tabSentinel && tabsEl && "IntersectionObserver" in window) {
         const rootStyles = getComputedStyle(document.documentElement);
         const navHeight = parseInt(rootStyles.getPropertyValue("--top-nav-height"), 10) || 52;
-        const observer = new IntersectionObserver(
+        const stickyObserver = new IntersectionObserver(
             ([entry]) => tabsEl.classList.toggle("is-stuck", !entry.isIntersecting),
             {threshold: 0, rootMargin: `-${navHeight + 1}px 0px 0px 0px`}
         );
-        observer.observe(sentinel);
+        stickyObserver.observe(tabSentinel);
     }
 
     // 뒤로 가기
@@ -465,6 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             await loadTranslations(state.activeTab);
             await loadList(false);
+            initInfiniteScroll();
         },
         onUnauthenticated: redirectToLogin,
         onError: renderErrorState,
