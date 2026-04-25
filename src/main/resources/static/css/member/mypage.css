@@ -1,16 +1,90 @@
 .mypage-page {
-    --mypage-ink: #1e293b;
-    --mypage-muted: #64748b;
-    --mypage-accent: #3b82f6;
-    /* Modern Blue */
-    --mypage-deep: #0f172a;
-    --mypage-soft: #f8fafc;
+    --mypage-ink: var(--color-text-primary);
+    --mypage-muted: var(--color-text-secondary);
+    --mypage-accent: var(--color-accent);
+    --mypage-deep: var(--color-text-primary);
+    --mypage-soft: var(--color-bg-elevated);
     --mypage-glow: rgba(59, 130, 246, 0.15);
+    --mypage-page-bg: #f1f5f9;
+    --mypage-surface: #ffffff;
+    --mypage-surface-soft: #f8fafc;
+    --mypage-border: #e2e8f0;
+    --mypage-control-border: #cbd5e1;
+    --mypage-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --mypage-shadow-md: 0 6px 14px rgba(15, 23, 42, 0.06);
+    --mypage-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.2);
+    --mypage-focus-soft: rgba(59, 130, 246, 0.15);
+    --mypage-danger-bg: #fef2f2;
+    --mypage-danger-border: #fecaca;
+    --mypage-danger-title: #991b1b;
+    --mypage-danger-text: #b91c1c;
+    --mypage-warning-text: #b45309;
+    --mypage-date: #94a3b8;
+    --mypage-text-soft: #475569;
+    --mypage-badge-role-bg: #eff6ff;
+    --mypage-badge-role-text: #2563eb;
+    --mypage-badge-role-border: #dbeafe;
+    --mypage-badge-provider-bg: #f0f9ff;
+    --mypage-badge-provider-text: #0284c7;
+    --mypage-badge-provider-border: #e0f2fe;
+    --mypage-badge-join-bg: #f8fafc;
+    --mypage-badge-join-text: #64748b;
+    --mypage-badge-join-border: #e2e8f0;
+    --mypage-status-linked-bg: #f0fdf4;
+    --mypage-status-linked-text: #166534;
+    --mypage-status-linked-border: #dcfce7;
+    --mypage-status-unlinked-bg: #f8fafc;
+    --mypage-status-unlinked-text: #94a3b8;
+    --mypage-status-unlinked-border: #e2e8f0;
+    --mypage-disabled-bg: #f1f5f9;
+    --mypage-disabled-border: #cbd5e1;
+    --mypage-disabled-text: #64748b;
+    --mypage-backdrop: rgba(15, 23, 42, 0.45);
+    --mypage-skeleton-a: #e2e8f0;
+    --mypage-skeleton-b: #f1f5f9;
     font-family: "Pretendard", "Noto Sans KR", sans-serif;
-    /* Modern Sans-serif */
-    background: #f1f5f9;
-    /* Clean light gray background */
+    background: var(--mypage-page-bg);
     color: var(--mypage-ink);
+}
+
+html[data-theme="dark"] .mypage-page {
+    --mypage-page-bg: var(--color-bg-base);
+    --mypage-surface: var(--color-bg-elevated);
+    --mypage-surface-soft: rgba(255, 255, 255, 0.04);
+    --mypage-border: var(--color-border);
+    --mypage-control-border: var(--color-border-control);
+    --mypage-shadow-sm: 0 1px 3px var(--color-shadow);
+    --mypage-shadow-md: 0 8px 18px var(--color-shadow);
+    --mypage-shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.45);
+    --mypage-focus-soft: rgba(77, 171, 247, 0.18);
+    --mypage-date: var(--color-text-muted);
+    --mypage-text-soft: #c7d0d9;
+    --mypage-badge-role-bg: rgba(77, 171, 247, 0.16);
+    --mypage-badge-role-text: #9bd2ff;
+    --mypage-badge-role-border: rgba(77, 171, 247, 0.28);
+    --mypage-badge-provider-bg: rgba(56, 189, 248, 0.14);
+    --mypage-badge-provider-text: #8fe4ff;
+    --mypage-badge-provider-border: rgba(56, 189, 248, 0.24);
+    --mypage-badge-join-bg: rgba(255, 255, 255, 0.04);
+    --mypage-badge-join-text: var(--color-text-secondary);
+    --mypage-badge-join-border: var(--color-border);
+    --mypage-status-linked-bg: rgba(117, 183, 152, 0.12);
+    --mypage-status-linked-text: #9fdfbb;
+    --mypage-status-linked-border: rgba(117, 183, 152, 0.24);
+    --mypage-status-unlinked-bg: rgba(255, 255, 255, 0.04);
+    --mypage-status-unlinked-text: var(--color-text-muted);
+    --mypage-status-unlinked-border: var(--color-border);
+    --mypage-disabled-bg: rgba(255, 255, 255, 0.04);
+    --mypage-disabled-border: var(--color-border-control);
+    --mypage-disabled-text: var(--color-text-secondary);
+    --mypage-backdrop: rgba(0, 0, 0, 0.6);
+    --mypage-danger-bg: rgba(220, 53, 69, 0.12);
+    --mypage-danger-border: rgba(220, 53, 69, 0.28);
+    --mypage-danger-title: #ffb3bd;
+    --mypage-danger-text: #ff9aa8;
+    --mypage-warning-text: #ffd27d;
+    --mypage-skeleton-a: #2a3038;
+    --mypage-skeleton-b: #181c22;
 }
 
 .mypage-shell {
@@ -18,8 +92,8 @@
 }
 
 .mypage-hero {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--mypage-surface);
+    border: 1px solid var(--mypage-border);
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -27,7 +101,7 @@
     border-radius: 1rem;
     padding: 2.5rem;
     margin-bottom: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--mypage-shadow-sm);
 }
 
 .mypage-hero-content {
@@ -44,8 +118,8 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
+    border: 1px solid var(--mypage-border);
+    background: var(--mypage-surface-soft);
     overflow: hidden;
     transition: transform 0.2s ease;
 }
@@ -89,21 +163,21 @@
 }
 
 .mypage-badge.role {
-    background: #eff6ff;
-    color: #2563eb;
-    border: 1px solid #dbeafe;
+    background: var(--mypage-badge-role-bg);
+    color: var(--mypage-badge-role-text);
+    border: 1px solid var(--mypage-badge-role-border);
 }
 
 .mypage-badge.provider {
-    background: #f0f9ff;
-    color: #0284c7;
-    border: 1px solid #e0f2fe;
+    background: var(--mypage-badge-provider-bg);
+    color: var(--mypage-badge-provider-text);
+    border: 1px solid var(--mypage-badge-provider-border);
 }
 
 .mypage-badge.join-date {
-    background: #f8fafc;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
+    background: var(--mypage-badge-join-bg);
+    color: var(--mypage-badge-join-text);
+    border: 1px solid var(--mypage-badge-join-border);
 }
 
 /* ── 카드 공통 ── */
@@ -113,10 +187,10 @@
     z-index: 1;
     animation: fadeUp 0.5s ease-out both;
     animation-delay: 0.1s;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--mypage-border) !important;
+    box-shadow: var(--mypage-shadow-sm) !important;
     border-radius: 1rem;
-    background: #ffffff;
+    background: var(--mypage-surface);
 }
 
 /* ── OAuth 연동 ── */
@@ -127,16 +201,16 @@
 }
 
 .mypage-oauth-card {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--mypage-border);
     border-radius: 0.75rem;
     padding: 1rem 1.1rem;
-    background: #ffffff;
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+    background: var(--mypage-surface);
+    box-shadow: var(--mypage-shadow-md);
 }
 
 .mypage-oauth-header {
     font-weight: 600;
-    color: #0f172a;
+    color: var(--mypage-deep);
     margin-bottom: 0.6rem;
     display: flex;
     align-items: center;
@@ -148,8 +222,8 @@
     height: 28px;
     border-radius: 8px;
     display: inline-block;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--mypage-surface);
+    border: 1px solid var(--mypage-border);
     padding: 3px;
     box-sizing: border-box;
     object-fit: contain;
@@ -162,7 +236,7 @@
 
 .mypage-oauth-status {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--mypage-muted);
     margin-left: auto;
     flex-shrink: 0;
 }
@@ -178,15 +252,15 @@
 }
 
 .mypage-oauth-status-badge.is-linked {
-    background: #f0fdf4;
-    color: #166534;
-    border: 1px solid #dcfce7;
+    background: var(--mypage-status-linked-bg);
+    color: var(--mypage-status-linked-text);
+    border: 1px solid var(--mypage-status-linked-border);
 }
 
 .mypage-oauth-status-badge.is-unlinked {
-    background: #f8fafc;
-    color: #94a3b8;
-    border: 1px solid #e2e8f0;
+    background: var(--mypage-status-unlinked-bg);
+    color: var(--mypage-status-unlinked-text);
+    border: 1px solid var(--mypage-status-unlinked-border);
 }
 
 .mypage-oauth-details {
@@ -200,16 +274,16 @@
     grid-template-columns: minmax(60px, 80px) 1fr;
     gap: 0.75rem;
     font-size: 0.85rem;
-    color: #475569;
+    color: var(--mypage-text-soft);
 }
 
 .mypage-oauth-field span {
-    color: #64748b;
+    color: var(--mypage-muted);
 }
 
 .mypage-oauth-field strong {
     font-weight: 600;
-    color: #0f172a;
+    color: var(--mypage-deep);
 }
 
 /* 미연동 카드: compact */
@@ -239,7 +313,7 @@
 .mypage-oauth-notice {
     margin: 0;
     font-size: 0.8rem;
-    color: #b45309;
+    color: var(--mypage-warning-text);
 }
 
 .mypage-oauth-action.btn-outline-danger.disabled,
@@ -250,9 +324,9 @@
 }
 
 .mypage-oauth-action.mypage-oauth-action-disabled {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #64748b;
+    background: var(--mypage-disabled-bg);
+    border-color: var(--mypage-disabled-border);
+    color: var(--mypage-disabled-text);
 }
 
 /* ── 모달 ── */
@@ -269,29 +343,29 @@
 .mypage-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
+    background: var(--mypage-backdrop);
 }
 
 .mypage-modal-dialog {
     position: relative;
     z-index: 1;
     width: min(420px, 90vw);
-    background: #ffffff;
+    background: var(--mypage-surface);
     border-radius: 1rem;
     padding: 1.25rem;
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    box-shadow: var(--mypage-shadow-lg);
 }
 
 .mypage-modal-title {
     font-size: 1.1rem;
     font-weight: 700;
     margin: 0;
-    color: #0f172a;
+    color: var(--mypage-deep);
 }
 
 .mypage-modal-body {
     margin-top: 0.75rem;
-    color: #475569;
+    color: var(--mypage-text-soft);
     font-size: 0.95rem;
 }
 
@@ -306,15 +380,16 @@
 
 .mypage-edit-form .form-label {
     font-weight: 500;
-    color: #334155;
+    color: var(--mypage-text-soft);
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
 }
 
 .mypage-edit-form .form-control {
     border-radius: 0.5rem;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
+    border: 1px solid var(--mypage-control-border);
+    background: var(--mypage-surface);
+    color: var(--mypage-ink);
     padding: 0.625rem 0.875rem;
     font-size: 0.95rem;
     transition: all 0.2s ease;
@@ -322,7 +397,7 @@
 
 .mypage-edit-form .form-control:focus {
     border-color: var(--mypage-accent);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 2px var(--mypage-focus-soft);
     outline: none;
 }
 
@@ -350,7 +425,7 @@
 .mypage-nickname-counter {
     text-align: right;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--mypage-date);
     margin-top: 0.35rem;
 }
 
@@ -358,9 +433,9 @@
 
 .mypage-danger-zone {
     margin-top: 2rem;
-    border: 1px solid #fecaca;
+    border: 1px solid var(--mypage-danger-border);
     border-radius: 0.75rem;
-    background: #fef2f2;
+    background: var(--mypage-danger-bg);
 }
 
 .mypage-danger-zone-body {
@@ -374,13 +449,13 @@
 .mypage-danger-zone-title {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #991b1b;
+    color: var(--mypage-danger-title);
     margin: 0 0 0.25rem;
 }
 
 .mypage-danger-zone-desc {
     font-size: 0.8rem;
-    color: #b91c1c;
+    color: var(--mypage-danger-text);
     margin: 0;
 }
 
@@ -391,7 +466,7 @@
 }
 
 .skeleton {
-    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background: linear-gradient(90deg, var(--mypage-skeleton-a) 25%, var(--mypage-skeleton-b) 50%, var(--mypage-skeleton-a) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 0.5rem;
@@ -438,7 +513,7 @@
 
     .mypage-oauth-card {
         padding: 0.75rem 0.85rem;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+        box-shadow: var(--mypage-shadow-md);
     }
 
     .mypage-oauth-details {
