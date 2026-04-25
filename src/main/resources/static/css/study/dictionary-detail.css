@@ -1,14 +1,51 @@
 /* Dictionary Detail Premium Styles */
 
 :root {
-    --dict-primary: #0d6efd;
-    --dict-bg: #f8f9fa;
-    --dict-card-bg: #ffffff;
-    --dict-text-main: #2c3e50;
-    --dict-text-muted: #6c757d;
-    --dict-section-bg: #fcfcfc;
+    --dict-primary: var(--color-accent);
+    --dict-bg: var(--color-bg-base);
+    --dict-card-bg: var(--color-bg-elevated);
+    --dict-card-border: var(--color-border);
+    --dict-card-shadow: 0 10px 30px var(--color-shadow);
+    --dict-text-main: var(--color-text-primary);
+    --dict-text-strong: #1a202c;
+    --dict-text-body: #4a5568;
+    --dict-text-muted: var(--color-text-secondary);
+    --dict-header-bg: linear-gradient(135deg, #eef2f8 0%, #ffffff 100%);
+    --dict-header-border: #f0f0f0;
+    --dict-label-bg: rgba(13, 110, 253, 0.1);
+    --dict-section-line: #eeeeee;
     --dict-verse-bg: #fdfdfe;
     --dict-verse-border: #e9ecef;
+    --dict-verse-text: #2d3748;
+    --dict-tag-bg: #f1f5f9;
+    --dict-tag-border: #e2e8f0;
+    --dict-tag-text: #4a5568;
+    --dict-tag-hover-bg: #e0e7ff;
+    --dict-tag-hover-border: #818cf8;
+    --dict-tag-hover-text: #4338ca;
+    --dict-quote: rgba(0, 0, 0, 0.03);
+}
+
+html[data-theme="dark"] {
+    --dict-card-bg: var(--color-bg-elevated);
+    --dict-card-border: var(--color-border);
+    --dict-card-shadow: 0 12px 32px var(--color-shadow);
+    --dict-text-strong: #f3f5f7;
+    --dict-text-body: #c7d0d9;
+    --dict-header-bg: linear-gradient(135deg, #20262e 0%, #181c22 100%);
+    --dict-header-border: var(--color-border);
+    --dict-label-bg: rgba(77, 171, 247, 0.18);
+    --dict-section-line: rgba(255, 255, 255, 0.08);
+    --dict-verse-bg: rgba(255, 255, 255, 0.03);
+    --dict-verse-border: var(--color-border);
+    --dict-verse-text: #dce3ea;
+    --dict-tag-bg: rgba(255, 255, 255, 0.05);
+    --dict-tag-border: var(--color-border-control);
+    --dict-tag-text: #d0d7de;
+    --dict-tag-hover-bg: rgba(77, 171, 247, 0.16);
+    --dict-tag-hover-border: rgba(77, 171, 247, 0.38);
+    --dict-tag-hover-text: #9bd2ff;
+    --dict-quote: rgba(255, 255, 255, 0.04);
 }
 
 body {
@@ -20,11 +57,12 @@ body {
 .dictionary-card {
     border: none;
     border-radius: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--dict-card-shadow);
     /* Soft, premium shadow */
     overflow: hidden;
     /* For header image/gradient */
     background-color: var(--dict-card-bg);
+    border: 1px solid var(--dict-card-border);
     margin-top: 2rem;
     margin-bottom: 3rem;
     transition: transform 0.3s ease;
@@ -32,9 +70,9 @@ body {
 
 /* Hero / Term Header */
 .dictionary-header {
-    background: linear-gradient(135deg, #eef2f8 0%, #ffffff 100%);
+    background: var(--dict-header-bg);
     padding: 3rem 2rem 2rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--dict-header-border);
     text-align: center;
     position: relative;
 }
@@ -56,7 +94,7 @@ body {
     font-size: 2.25rem;
     font-weight: 800;
     letter-spacing: -0.5px;
-    color: #1a202c;
+    color: var(--dict-text-strong);
     margin-bottom: 0.5rem;
     font-family: 'Merriweather', 'Noto Serif KR', serif;
     /* Biblical feel */
@@ -69,7 +107,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--dict-primary);
-    background-color: rgba(13, 110, 253, 0.1);
+    background-color: var(--dict-label-bg);
     padding: 0.35em 0.8em;
     border-radius: 20px;
     margin-bottom: 1rem;
@@ -114,7 +152,7 @@ body {
     content: '';
     flex: 1;
     height: 1px;
-    background-color: #eee;
+    background-color: var(--dict-section-line);
 }
 
 .section-icon {
@@ -126,7 +164,7 @@ body {
 .dictionary-definition {
     font-size: 1.05rem;
     line-height: 1.8;
-    color: #4a5568;
+    color: var(--dict-text-body);
     white-space: pre-line;
     text-align: left;
     word-break: keep-all;
@@ -153,7 +191,7 @@ body {
     font-family: 'Noto Serif KR', serif;
     font-size: 1rem;
     line-height: 1.8;
-    color: #2d3748;
+    color: var(--dict-verse-text);
     position: relative;
     z-index: 1;
 }
@@ -169,9 +207,9 @@ body {
     align-items: center;
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    color: #4a5568;
+    background: var(--dict-tag-bg);
+    border: 1px solid var(--dict-tag-border);
+    color: var(--dict-tag-text);
     font-size: 0.85rem;
     font-weight: 600;
     line-height: 1.2;
@@ -186,9 +224,9 @@ body {
 
 @media (hover: hover) and (pointer: fine) {
     .related-verse-link:hover {
-        background: #e0e7ff;
-        border-color: #818cf8;
-        color: #4338ca;
+        background: var(--dict-tag-hover-bg);
+        border-color: var(--dict-tag-hover-border);
+        color: var(--dict-tag-hover-text);
     }
 }
 
@@ -200,7 +238,7 @@ body {
     right: 20px;
     font-size: 5rem;
     line-height: 1;
-    color: rgba(0, 0, 0, 0.03);
+    color: var(--dict-quote);
     font-family: serif;
     pointer-events: none;
 }
