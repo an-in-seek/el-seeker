@@ -5,8 +5,9 @@
 }
 
 .book-tile {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
     padding: 16px 0;
     text-align: center;
     border-radius: 6px;
@@ -18,7 +19,7 @@
 
 @media (hover: hover) and (pointer: fine) {
     .book-tile:hover {
-        background-color: #e2e6ea;
+        background-color: var(--color-border);
     }
 }
 
@@ -29,11 +30,11 @@
 }
 
 .book-section {
-    background-color: #ffffff;
-    border: 1px solid #e9ecef;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1rem 1rem 1.25rem;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 24px var(--color-shadow);
 }
 
 .book-section-header {
@@ -54,7 +55,7 @@
 
 @media (hover: hover) and (pointer: fine) {
     .book-section-header:hover .book-section-title {
-        color: #495057;
+        color: var(--color-accent);
     }
 }
 
@@ -71,7 +72,7 @@
 .book-section-chevron {
     width: 1.25rem;
     height: 1.25rem;
-    color: #868e96;
+    color: var(--color-text-secondary);
     transition: transform 0.25s ease;
     flex-shrink: 0;
 }
@@ -84,15 +85,17 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
+    color: var(--color-text-primary);
     transition: color 0.2s;
 }
 
 .book-section-count {
     font-size: 0.9rem;
-    color: #6c757d;
-    background-color: #f1f3f5;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-base);
     padding: 0.2rem 0.65rem;
     border-radius: 999px;
+    border: 1px solid var(--color-border);
 }
 
 .book-section-body {
