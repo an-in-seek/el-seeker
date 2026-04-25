@@ -15,11 +15,12 @@
 
 /* 메모 박스 */
 .memo-container {
-    background-color: #fff;
-    border: 1px solid #dee2e6;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
     border-radius: 0.375rem;
     padding: 1rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    color: var(--color-text-primary);
+    box-shadow: 0 0.125rem 0.25rem var(--color-shadow);
 }
 
 .memo-container textarea {
@@ -73,6 +74,21 @@
     background-color: #ffe0b2;
     border-radius: 4px;
     padding: 2px 4px;
+}
+
+html[data-theme="dark"] .verse-text.verse-highlight-yellow,
+html[data-theme="dark"] .verse-text.verse-highlight-green,
+html[data-theme="dark"] .verse-text.verse-highlight-pink,
+html[data-theme="dark"] .verse-text.verse-highlight-blue,
+html[data-theme="dark"] .verse-text.verse-highlight-purple,
+html[data-theme="dark"] .verse-text.verse-highlight-orange,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-yellow,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-green,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-pink,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-blue,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-purple,
+html[data-theme="dark"] .verse-text.text-body.verse-highlight-orange {
+    color: #1f2933 !important;
 }
 
 /* CSS-only Memo Icon */
