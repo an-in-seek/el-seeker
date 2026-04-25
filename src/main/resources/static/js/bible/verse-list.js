@@ -38,7 +38,8 @@ const state = {
     verseNumber: null,
     fromSearch: false,
     fromHome: false,
-    fromMypage: false
+    fromMypage: false,
+    fromMyMemo: false
 };
 
 const selection = {
@@ -152,6 +153,7 @@ function resolveInitialState() {
     state.fromHome = fromValue === "home";
     state.fromMypage = fromValue === "mypage";
     state.fromDictionary = fromValue === "dictionary";
+    state.fromMyMemo = fromValue === "my-memo";
 }
 
 async function init() {
@@ -217,7 +219,7 @@ function setupBackButton(button) {
     }
     button.classList.remove(UI_CLASSES.HIDDEN);
     button.addEventListener("click", () => {
-        if (state.fromSearch || state.fromMypage || state.fromDictionary) {
+        if (state.fromSearch || state.fromMypage || state.fromDictionary || state.fromMyMemo) {
             history.back();
             return;
         }
