@@ -5,6 +5,9 @@
 :root {
     --color-bg-base: #ffffff;
     --color-bg-elevated: #f8f9fa;
+    --color-bg-elevated-bright: #ffffff;
+    --color-bg-elevated-strong: #eef1f5;
+    --color-bg-elevated-strong-hover: #e2e8ee;
     --color-bg-nav: #e9ecef;
     --color-bg-overlay: rgba(255, 255, 255, 0.92);
     --color-text-primary: #212529;
@@ -23,6 +26,9 @@
 html[data-theme="dark"] {
     --color-bg-base: #0f1216;
     --color-bg-elevated: #181c22;
+    --color-bg-elevated-bright: #212832;
+    --color-bg-elevated-strong: #232a33;
+    --color-bg-elevated-strong-hover: #2b333d;
     --color-bg-nav: #1d2229;
     --color-bg-overlay: rgba(15, 18, 22, 0.92);
     --color-text-primary: #e6e8eb;
@@ -82,6 +88,9 @@ body {
     html[data-theme="dark"] {
         --color-bg-base: #ffffff;
         --color-bg-elevated: #f8f9fa;
+        --color-bg-elevated-bright: #fafcff;
+        --color-bg-elevated-strong: #eef1f5;
+        --color-bg-elevated-strong-hover: #e2e8ee;
         --color-bg-nav: #e9ecef;
         --color-bg-overlay: rgba(255, 255, 255, 0.92);
         --color-text-primary: #212529;

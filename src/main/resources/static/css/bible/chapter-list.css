@@ -45,6 +45,7 @@
 .book-action-buttons {
     display: flex;
     gap: 0;
+    border-top: 1px solid var(--color-border-control);
 }
 
 .book-action-btn {
@@ -54,14 +55,14 @@
     justify-content: center;
     gap: 6px;
     padding: 10px 8px;
-    background-color: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-elevated-strong);
+    border: 1px solid var(--color-border-control);
     border-top: none;
     font-size: 0.88rem;
     font-weight: 500;
     color: var(--color-text-primary);
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s;
     cursor: pointer;
 }
 
@@ -73,6 +74,10 @@
 .book-action-btn:not(:first-child):not(:last-child) {
     border-radius: 0;
     border-right: none;
+}
+
+.book-action-btn:not(:last-child) {
+    box-shadow: inset -1px 0 0 var(--color-border-control);
 }
 
 .book-action-btn:last-child {
@@ -148,7 +153,7 @@ html[data-theme="dark"] .book-action-btn-active {
 
 @media (hover: hover) and (pointer: fine) {
     .book-action-btn:hover {
-        background-color: var(--color-border);
+        background-color: var(--color-bg-elevated-strong-hover);
         text-decoration: none;
     }
 }
