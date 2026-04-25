@@ -5,12 +5,78 @@
 }
 
 /* 읽음 완료 버튼 */
+.chapter-memo-btn {
+    --bs-btn-color: var(--color-text-primary);
+    --bs-btn-border-color: var(--color-border-control);
+    --bs-btn-hover-color: var(--color-text-primary);
+    --bs-btn-hover-bg: var(--color-bg-elevated);
+    --bs-btn-hover-border-color: var(--color-border-control);
+    --bs-btn-active-color: var(--color-text-primary);
+    --bs-btn-active-bg: var(--color-bg-elevated);
+    --bs-btn-active-border-color: var(--color-border-control);
+}
+
+.chapter-memo-btn.btn-secondary {
+    --bs-btn-color: var(--color-text-primary);
+    --bs-btn-bg: var(--color-bg-elevated-strong);
+    --bs-btn-border-color: var(--color-border-control);
+    --bs-btn-hover-color: var(--color-text-primary);
+    --bs-btn-hover-bg: var(--color-bg-elevated-strong-hover);
+    --bs-btn-hover-border-color: var(--color-border-control);
+    --bs-btn-active-color: var(--color-text-primary);
+    --bs-btn-active-bg: var(--color-bg-elevated-strong-hover);
+    --bs-btn-active-border-color: var(--color-border-control);
+}
+
 .mark-read-btn {
+    --bs-btn-color: #157347;
+    --bs-btn-border-color: rgba(25, 135, 84, 0.45);
+    --bs-btn-hover-color: #0f5132;
+    --bs-btn-hover-bg: rgba(25, 135, 84, 0.12);
+    --bs-btn-hover-border-color: rgba(25, 135, 84, 0.55);
+    --bs-btn-active-color: #0f5132;
+    --bs-btn-active-bg: rgba(25, 135, 84, 0.18);
+    --bs-btn-active-border-color: rgba(25, 135, 84, 0.65);
+}
+
+html[data-theme="dark"] .mark-read-btn {
+    --bs-btn-color: #8fd8b2;
+    --bs-btn-border-color: rgba(117, 183, 152, 0.5);
+    --bs-btn-hover-color: #d7f5e3;
+    --bs-btn-hover-bg: rgba(117, 183, 152, 0.14);
+    --bs-btn-hover-border-color: rgba(117, 183, 152, 0.65);
+    --bs-btn-active-color: #d7f5e3;
+    --bs-btn-active-bg: rgba(117, 183, 152, 0.2);
+    --bs-btn-active-border-color: rgba(117, 183, 152, 0.72);
+}
+
+.mark-read-btn.btn-success {
+    --bs-btn-color: #ffffff;
+    --bs-btn-bg: #198754;
+    --bs-btn-border-color: #198754;
+    --bs-btn-hover-color: #ffffff;
+    --bs-btn-hover-bg: #157347;
+    --bs-btn-hover-border-color: #146c43;
+    --bs-btn-active-color: #ffffff;
+    --bs-btn-active-bg: #146c43;
+    --bs-btn-active-border-color: #146c43;
+}
+
+html[data-theme="dark"] .mark-read-btn.btn-success {
+    --bs-btn-color: #0f1216;
+    --bs-btn-bg: #75b798;
+    --bs-btn-border-color: #75b798;
+    --bs-btn-hover-color: #0f1216;
+    --bs-btn-hover-bg: #8fd8b2;
+    --bs-btn-hover-border-color: #8fd8b2;
+    --bs-btn-active-color: #0f1216;
+    --bs-btn-active-bg: #8fd8b2;
+    --bs-btn-active-border-color: #8fd8b2;
 }
 
 .mark-read-btn.read-done {
     pointer-events: none;
-    opacity: 0.8;
+    opacity: 1;
 }
 
 /* 메모 박스 */
