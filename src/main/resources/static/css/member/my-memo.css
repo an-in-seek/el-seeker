@@ -1,12 +1,55 @@
 .my-memo-page {
-    --my-memo-ink: #1e293b;
-    --my-memo-muted: #64748b;
-    --my-memo-accent: #3b82f6;
-    --my-memo-deep: #0f172a;
-    --my-memo-soft: #f8fafc;
+    --my-memo-ink: var(--color-text-primary);
+    --my-memo-muted: var(--color-text-secondary);
+    --my-memo-accent: var(--color-accent);
+    --my-memo-deep: var(--color-text-primary);
+    --my-memo-soft: var(--color-bg-elevated);
+    --my-memo-page-bg: #f1f5f9;
+    --my-memo-surface: #ffffff;
+    --my-memo-surface-active: #eff6ff;
+    --my-memo-surface-active-strong: #dbeafe;
+    --my-memo-surface-hover: rgba(248, 250, 252, 0.9);
+    --my-memo-border: #e2e8f0;
+    --my-memo-divider: #cbd5e1;
+    --my-memo-control-border: #cbd5e1;
+    --my-memo-date: #94a3b8;
+    --my-memo-text-soft: #475569;
+    --my-memo-input-bg: #ffffff;
+    --my-memo-disabled-bg: #f8fafc;
+    --my-memo-disabled-text: #94a3b8;
+    --my-memo-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --my-memo-shadow-md: 0 6px 14px rgba(15, 23, 42, 0.06);
+    --my-memo-shadow-hover: 0 10px 24px rgba(59, 130, 246, 0.12);
+    --my-memo-focus: rgba(59, 130, 246, 0.45);
+    --my-memo-focus-soft: rgba(59, 130, 246, 0.15);
+    --my-memo-skeleton-a: #e2e8f0;
+    --my-memo-skeleton-b: #f1f5f9;
     font-family: "Pretendard", "Noto Sans KR", sans-serif;
-    background: #f1f5f9;
+    background: var(--my-memo-page-bg);
     color: var(--my-memo-ink);
+}
+
+html[data-theme="dark"] .my-memo-page {
+    --my-memo-page-bg: var(--color-bg-base);
+    --my-memo-surface: var(--color-bg-elevated);
+    --my-memo-surface-active: rgba(77, 171, 247, 0.16);
+    --my-memo-surface-active-strong: rgba(77, 171, 247, 0.24);
+    --my-memo-surface-hover: rgba(255, 255, 255, 0.04);
+    --my-memo-border: var(--color-border);
+    --my-memo-divider: var(--color-border-control);
+    --my-memo-control-border: var(--color-border-control);
+    --my-memo-date: var(--color-text-muted);
+    --my-memo-text-soft: #c7d0d9;
+    --my-memo-input-bg: var(--color-bg-base);
+    --my-memo-disabled-bg: rgba(255, 255, 255, 0.04);
+    --my-memo-disabled-text: var(--color-text-muted);
+    --my-memo-shadow-sm: 0 1px 3px var(--color-shadow);
+    --my-memo-shadow-md: 0 8px 18px var(--color-shadow);
+    --my-memo-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.34);
+    --my-memo-focus: rgba(77, 171, 247, 0.4);
+    --my-memo-focus-soft: rgba(77, 171, 247, 0.18);
+    --my-memo-skeleton-a: #2a3038;
+    --my-memo-skeleton-b: #181c22;
 }
 
 .my-memo-shell {
@@ -20,10 +63,10 @@
     z-index: 1;
     animation: fadeUp 0.5s ease-out both;
     animation-delay: 0.1s;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--my-memo-border) !important;
+    box-shadow: var(--my-memo-shadow-sm) !important;
     border-radius: 1rem;
-    background: #ffffff;
+    background: var(--my-memo-surface);
 }
 
 /* ── Tabs (sticky pill bar) ── */
@@ -37,9 +80,9 @@
 .my-memo-tabs {
     display: flex;
     gap: 0;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: var(--my-memo-surface);
+    border: 1px solid var(--my-memo-border);
+    box-shadow: var(--my-memo-shadow-sm);
     border-radius: 1rem;
     padding: 0.25rem;
     margin-bottom: 0.75rem;
@@ -56,7 +99,7 @@
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     border-radius: 0;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+    box-shadow: 0 2px 6px var(--color-shadow);
 }
 
 .has-fixed-nav .my-memo-tabs {
@@ -78,7 +121,7 @@
     padding: 0.6rem 0.5rem;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--my-memo-muted);
     border-radius: 0.75rem;
     transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
@@ -91,25 +134,25 @@
     top: 0.7rem;
     bottom: 0.7rem;
     width: 1px;
-    background: #cbd5e1;
+    background: var(--my-memo-divider);
 }
 
 .my-memo-tab.active {
     color: var(--my-memo-deep);
-    background: #eff6ff;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    background: var(--my-memo-surface-active);
+    box-shadow: 0 1px 2px var(--color-shadow);
     z-index: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
     .my-memo-tab:not(.active):hover {
         color: var(--my-memo-deep);
-        background: rgba(248, 250, 252, 0.9);
+        background: var(--my-memo-surface-hover);
     }
 }
 
 .my-memo-tab:focus-visible {
-    outline: 2px solid rgba(59, 130, 246, 0.45);
+    outline: 2px solid var(--my-memo-focus);
     outline-offset: 2px;
 }
 
@@ -121,14 +164,14 @@
     font-weight: 700;
     line-height: 1.4;
     border-radius: 999px;
-    background: #eff6ff;
-    color: #2563eb;
+    background: var(--my-memo-surface-active);
+    color: var(--my-memo-accent);
     min-width: 1.5rem;
     text-align: center;
 }
 
 .my-memo-tab.active .my-memo-tab-badge {
-    background: #dbeafe;
+    background: var(--my-memo-surface-active-strong);
 }
 
 /* ── Filter (info-card 밖 plain 블록) ── */
@@ -140,16 +183,16 @@
 
 .my-memo-filter .form-label {
     font-weight: 500;
-    color: #475569;
+    color: var(--my-memo-text-soft);
     font-size: 0.8125rem;
     margin-bottom: 0.35rem;
 }
 
 .my-memo-filter .form-select {
     border-radius: 0.5rem;
-    border: 1px solid #cbd5e1;
-    background-color: #ffffff;
-    color: #334155;
+    border: 1px solid var(--my-memo-control-border);
+    background-color: var(--my-memo-input-bg);
+    color: var(--my-memo-ink);
     padding: 0.625rem 0.875rem;
     font-size: 0.95rem;
     transition: all 0.2s ease;
@@ -157,13 +200,13 @@
 
 .my-memo-filter .form-select:focus {
     border-color: var(--my-memo-accent);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 2px var(--my-memo-focus-soft);
     outline: none;
 }
 
 .my-memo-filter .form-select:disabled {
     background-color: var(--my-memo-soft);
-    color: #94a3b8;
+    color: var(--my-memo-disabled-text);
     cursor: not-allowed;
 }
 
@@ -176,13 +219,13 @@
 
 .my-memo-card {
     display: block;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--my-memo-border);
     border-radius: 0.75rem;
     padding: 1rem 1.1rem;
-    background: #ffffff;
+    background: var(--my-memo-surface);
     color: inherit;
     text-decoration: none;
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+    box-shadow: var(--my-memo-shadow-md);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
@@ -203,12 +246,12 @@
 .my-memo-card-date {
     flex-shrink: 0;
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--my-memo-date);
 }
 
 .my-memo-card-content {
     font-size: 0.9rem;
-    color: #475569;
+    color: var(--my-memo-text-soft);
     line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -220,13 +263,13 @@
 @media (hover: hover) and (pointer: fine) {
     .my-memo-card:hover {
         border-color: var(--my-memo-accent);
-        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+        box-shadow: var(--my-memo-shadow-hover);
         transform: translateY(-1px);
     }
 }
 
 .my-memo-card:focus-visible {
-    outline: 2px solid rgba(59, 130, 246, 0.45);
+    outline: 2px solid var(--my-memo-focus);
     outline-offset: 2px;
 }
 
@@ -287,7 +330,7 @@
 }
 
 .skeleton {
-    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background: linear-gradient(90deg, var(--my-memo-skeleton-a) 25%, var(--my-memo-skeleton-b) 50%, var(--my-memo-skeleton-a) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 0.5rem;
@@ -308,7 +351,7 @@
 @media (max-width: 576px) {
     .my-memo-card {
         padding: 0.85rem 0.95rem;
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+        box-shadow: var(--my-memo-shadow-md);
     }
 
     .my-memo-card-ref {
