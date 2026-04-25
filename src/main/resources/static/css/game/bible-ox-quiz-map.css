@@ -208,7 +208,7 @@
     }
 }
 
-/* Spotlight overlay */
+/* Spotlight overlay (상/하단 nav 보다 낮은 z-index) */
 .ox-quiz-spotlight-overlay {
     position: fixed;
     top: 0;
@@ -216,7 +216,7 @@
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.55);
-    z-index: 1040;
+    z-index: 998;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
@@ -231,7 +231,7 @@
 /* Spotlight target card */
 .ox-stage-card.is-spotlight-target {
     position: relative;
-    z-index: 1041;
+    z-index: 999;
     background: #fff;
     border-radius: 14px;
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 1),
