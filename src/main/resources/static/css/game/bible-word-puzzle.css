@@ -1,3 +1,66 @@
+/* Theme tokens */
+:root {
+    --wp-card-hover-shadow: rgba(0, 0, 0, 0.08);
+    --wp-title-text: var(--color-text-primary);
+    --wp-timer-text: var(--color-text-secondary);
+    --wp-board-grid: var(--color-border-control);
+    --wp-board-frame: #1f2937;
+    --wp-cell-bg: #ffffff;
+    --wp-cell-text: #24324a;
+    --wp-cell-black-bg: #1f2937;
+    --wp-cell-selected-bg: #dbeafe;
+    --wp-cell-selected-line: #2563eb;
+    --wp-cell-word-highlight-bg: #e8f4fd;
+    --wp-cell-revealed-text: var(--color-accent);
+    --wp-cell-wrong-bg: #fecaca;
+    --wp-cell-correct-flash-from: #bbf7d0;
+    --wp-cell-correct-flash-to: #ffffff;
+    --wp-cell-number-text: #6b7280;
+    --wp-clue-bg: var(--color-bg-elevated-strong);
+    --wp-clue-number-text: var(--color-accent);
+    --wp-clue-text: var(--color-text-primary);
+    --wp-score-label-text: var(--color-text-secondary);
+    --wp-result-stat-label-text: var(--color-text-secondary);
+    --wp-result-stat-value-text: var(--color-text-primary);
+    --wp-word-item-bg: var(--color-bg-elevated);
+    --wp-word-header-text: var(--color-text-primary);
+    --wp-word-original-text: var(--color-text-secondary);
+    --wp-word-definition-text: var(--color-text-primary);
+    --wp-word-ref-bg: var(--color-bg-elevated-strong);
+    --wp-toast-bg: rgba(0, 0, 0, 0.8);
+}
+
+html[data-theme="dark"] {
+    --wp-card-hover-shadow: rgba(0, 0, 0, 0.32);
+    --wp-title-text: #eef2f6;
+    --wp-timer-text: #c4ccd4;
+    --wp-board-grid: var(--color-border-control);
+    --wp-board-frame: #5b6673;
+    --wp-cell-bg: #f3f6fa;
+    --wp-cell-text: #1f2937;
+    --wp-cell-black-bg: #11161d;
+    --wp-cell-selected-bg: #bfdbfe;
+    --wp-cell-selected-line: #1d4ed8;
+    --wp-cell-word-highlight-bg: #dbeafe;
+    --wp-cell-revealed-text: #2563eb;
+    --wp-cell-wrong-bg: #fca5a5;
+    --wp-cell-correct-flash-from: #86efac;
+    --wp-cell-correct-flash-to: #f3f6fa;
+    --wp-cell-number-text: #64748b;
+    --wp-clue-bg: var(--color-bg-elevated-bright);
+    --wp-clue-number-text: #8ecbff;
+    --wp-clue-text: #e6ebf0;
+    --wp-score-label-text: #c2cbd3;
+    --wp-result-stat-label-text: #aeb8c1;
+    --wp-result-stat-value-text: #eef2f6;
+    --wp-word-item-bg: var(--color-bg-elevated);
+    --wp-word-header-text: #eef2f6;
+    --wp-word-original-text: #bcc5ce;
+    --wp-word-definition-text: #dde4eb;
+    --wp-word-ref-bg: var(--color-bg-elevated-strong);
+    --wp-toast-bg: rgba(15, 18, 22, 0.92);
+}
+
 /* ── Filter Bar ── */
 .wp-filter-bar {
     display: flex;
@@ -17,7 +80,7 @@
 @media (hover: hover) and (pointer: fine) {
     .wp-puzzle-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px var(--wp-card-hover-shadow);
     }
 }
 .wp-puzzle-card-title {
@@ -57,6 +120,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
+    color: var(--wp-title-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -65,7 +129,7 @@
     font-family: 'Courier New', monospace;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--bs-secondary);
+    color: var(--wp-timer-text);
     min-width: 4rem;
     text-align: right;
 }
@@ -80,8 +144,8 @@
 .wp-board {
     display: inline-grid;
     gap: 1px;
-    background-color: var(--bs-border-color);
-    border: 2px solid var(--bs-dark);
+    background-color: var(--wp-board-grid);
+    border: 2px solid var(--wp-board-frame);
     border-radius: 4px;
     margin: 0 auto;
 }
@@ -89,7 +153,8 @@
     position: relative;
     width: 44px;
     height: 44px;
-    background-color: #fff;
+    background-color: var(--wp-cell-bg);
+    color: var(--wp-cell-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -100,11 +165,11 @@
     -webkit-user-select: none;
 }
 .wp-cell-black {
-    background-color: var(--bs-dark);
+    background-color: var(--wp-cell-black-bg);
     cursor: default;
 }
 .wp-cell-selected {
-    background-color: #bde0fe;
+    background-color: var(--wp-cell-selected-bg);
 }
 .wp-cell-selected::after {
     content: '';
@@ -114,7 +179,7 @@
     transform: translateX(-50%);
     width: 55%;
     height: 2px;
-    background-color: #2563eb;
+    background-color: var(--wp-cell-selected-line);
     animation: wp-cursor-blink 1s step-end infinite;
     z-index: 2;
 }
@@ -123,15 +188,15 @@
     50% { opacity: 0; }
 }
 .wp-cell-word-highlight {
-    background-color: #e8f4fd;
+    background-color: var(--wp-cell-word-highlight-bg);
 }
 .wp-cell-revealed {
-    color: var(--bs-primary);
+    color: var(--wp-cell-revealed-text);
     font-style: italic;
 }
 .wp-cell-wrong {
     animation: wp-cell-shake 0.4s ease;
-    background-color: #fecaca;
+    background-color: var(--wp-cell-wrong-bg);
 }
 @keyframes wp-cell-shake {
     0%, 100% { transform: translateX(0); }
@@ -142,8 +207,8 @@
     animation: wp-cell-correct 0.5s ease;
 }
 @keyframes wp-cell-correct {
-    0% { background-color: #bbf7d0; }
-    100% { background-color: #fff; }
+    0% { background-color: var(--wp-cell-correct-flash-from); }
+    100% { background-color: var(--wp-cell-correct-flash-to); }
 }
 .wp-cell-number {
     position: absolute;
@@ -151,7 +216,7 @@
     left: 3px;
     font-size: 0.6rem;
     font-weight: 700;
-    color: var(--bs-secondary);
+    color: var(--wp-cell-number-text);
     line-height: 1;
     z-index: 2;
 }
@@ -193,7 +258,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 0.75rem;
-    background-color: var(--bs-light);
+    background-color: var(--wp-clue-bg);
     border-radius: 0.5rem;
     margin-bottom: 0.75rem;
     margin-top: -0.25rem;
@@ -202,12 +267,12 @@
 .wp-clue-number {
     font-weight: 700;
     font-size: 0.85rem;
-    color: var(--bs-primary);
+    color: var(--wp-clue-number-text);
     white-space: nowrap;
 }
 .wp-clue-text {
     font-size: 0.85rem;
-    color: var(--bs-body-color);
+    color: var(--wp-clue-text);
 }
 
 /* ── Action Bar ── */
@@ -248,7 +313,7 @@
 }
 .wp-score-label {
     font-size: 1rem;
-    color: var(--bs-secondary);
+    color: var(--wp-score-label-text);
     margin-left: 0.25rem;
 }
 .wp-result-stats {
@@ -264,11 +329,12 @@
 }
 .wp-result-stat-label {
     font-size: 0.75rem;
-    color: var(--bs-secondary);
+    color: var(--wp-result-stat-label-text);
 }
 .wp-result-stat-value {
     font-size: 1.1rem;
     font-weight: 600;
+    color: var(--wp-result-stat-value-text);
 }
 
 /* ── Word Study ── */
@@ -280,6 +346,7 @@
     border: 1px solid var(--bs-border-color);
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
+    background-color: var(--wp-word-item-bg);
 }
 .wp-word-header {
     display: flex;
@@ -291,6 +358,7 @@
     border: none;
     width: 100%;
     text-align: left;
+    color: var(--wp-word-header-text);
 }
 .wp-word-header:focus {
     outline: 2px solid var(--bs-primary);
@@ -302,7 +370,7 @@
 }
 .wp-word-original {
     font-size: 0.8rem;
-    color: var(--bs-secondary);
+    color: var(--wp-word-original-text);
 }
 .wp-word-body {
     padding: 0 1rem 0.75rem;
@@ -310,10 +378,10 @@
 }
 .wp-word-definition {
     margin-bottom: 0.5rem;
-    color: var(--bs-body-color);
+    color: var(--wp-word-definition-text);
 }
 .wp-word-ref {
-    background-color: var(--bs-light);
+    background-color: var(--wp-word-ref-bg);
     border-radius: 0.375rem;
     padding: 0.5rem 0.75rem;
     margin-bottom: 0.25rem;
@@ -330,7 +398,7 @@
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--wp-toast-bg);
     color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
