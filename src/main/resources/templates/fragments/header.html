@@ -47,7 +47,7 @@
                         🔔
                         <span id="topNavNotificationBadge" class="top-nav-notification-badge d-none"></span>
                     </button>
-                    <div class="top-nav-account">
+                    <div class="top-nav-account" th:if="${hideTopNavAccount != true}">
                         <button id="topNavAccountButton"
                                 type="button"
                                 class="top-nav-account-button top-nav-btn btn btn-outline-secondary"

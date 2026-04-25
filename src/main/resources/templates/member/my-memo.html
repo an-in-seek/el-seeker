@@ -7,7 +7,7 @@
 </head>
 
 <body class="has-fixed-nav my-memo-page">
-<header th:replace="~{fragments/header :: header}"></header>
+<header th:replace="~{fragments/header :: header(hideTopNavAccount=true)}"></header>
 
 <main class="container content-wrapper my-memo-shell">
     <div id="myMemoTabsSentinel" class="my-memo-tabs-sentinel" aria-hidden="true"></div>
