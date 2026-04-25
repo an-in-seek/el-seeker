@@ -60,7 +60,8 @@ const App = {
     isAuthenticated: false,
     state: {
         translationId: null,
-        bookOrder: null
+        bookOrder: null,
+        fromMyMemo: false
     },
 
     init: async () => {
@@ -175,6 +176,7 @@ const App = {
         App.state.bookOrder = Number.isNaN(parsedBookOrder)
             ? (canUseStoredBookOrder ? storedBookOrder : null)
             : parsedBookOrder;
+        App.state.fromMyMemo = urlParams.get("from") === "my-memo";
     },
 
     initNav: () => {
@@ -207,6 +209,10 @@ const App = {
         }
         button.classList.remove(UI_CLASSES.HIDDEN);
         button.addEventListener("click", () => {
+            if (App.state.fromMyMemo) {
+                history.back();
+                return;
+            }
             window.location.href = App.state.translationId
                 ? `${ROUTES.BOOK_LIST}?translationId=${App.state.translationId}`
                 : ROUTES.TRANSLATION_LIST;
