@@ -408,15 +408,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const switchTab = async (target, {pushHistory = true} = {}) => {
+    const switchTab = async (target) => {
         if (!VALID_TABS.includes(target) || target === state.activeTab) return;
         state.activeTab = target;
         applyTabActive(target);
 
-        if (pushHistory) {
-            const url = `${window.location.pathname}?tab=${target}`;
-            history.pushState({tab: target}, "", url);
-        }
+        const url = `${window.location.pathname}?tab=${target}`;
+        history.replaceState({tab: target}, "", url);
 
         elements.list?.replaceChildren();
         elements.empty?.classList.add("d-none");
@@ -475,12 +473,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         stickyObserver.observe(tabSentinel);
     }
-
-    // 뒤로 가기
-    window.addEventListener("popstate", () => {
-        const target = parseTabFromUrl();
-        if (target !== state.activeTab) switchTab(target, {pushHistory: false});
-    });
 
     checkAuthStatus({
         onAuthenticated: async () => {
