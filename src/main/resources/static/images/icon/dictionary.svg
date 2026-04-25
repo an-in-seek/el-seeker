@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <!-- Book body -->
-  <rect x="3" y="1" width="13" height="20" rx="2"/>
+  <rect x="3" y="1.5" width="13" height="19" rx="2.2" fill="#EAF3FF" stroke="#365F8B" stroke-width="1.8"/>
   <!-- Book spine bottom -->
-  <path d="M3 17h13"/>
+  <path d="M3 16.8h13" stroke="#365F8B" stroke-width="1.8"/>
   <!-- Bookmark -->
-  <path d="M7 17v4l1.5-1.2L10 21v-4"/>
+  <path d="M7 16.8v3.7l1.5-1.15L10 20.5v-3.7" stroke="#365F8B" stroke-width="1.8"/>
   <!-- Magnifier circle -->
-  <circle cx="16.5" cy="7.5" r="4" fill="#fff"/>
+  <circle cx="16.5" cy="7.5" r="4" fill="#FFFDF7" stroke="#365F8B" stroke-width="1.8"/>
   <!-- Magnifier lines inside -->
-  <line x1="14.8" y1="6.5" x2="18.2" y2="6.5"/>
-  <line x1="14.8" y1="8.5" x2="18.2" y2="8.5"/>
+  <line x1="14.8" y1="6.5" x2="18.2" y2="6.5" stroke="#365F8B" stroke-width="1.6"/>
+  <line x1="14.8" y1="8.5" x2="18.2" y2="8.5" stroke="#365F8B" stroke-width="1.6"/>
   <!-- Magnifier handle -->
-  <line x1="19.3" y1="10.3" x2="21.5" y2="12.5" stroke-width="2"/>
+  <line x1="19.3" y1="10.3" x2="21.5" y2="12.5" stroke="#254665" stroke-width="2.2"/>
 </svg>

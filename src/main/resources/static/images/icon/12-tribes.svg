@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
   <!-- Flagpole -->
-  <rect x="4" y="2" width="2" height="20" rx="1"/>
+  <rect x="4" y="2" width="2" height="20" rx="1" fill="#365F8B"/>
   <!-- Banner -->
-  <path d="M6 3h14c.5 0 .8.5.5.9L17 9l3.5 5.1c.3.4 0 .9-.5.9H6V3z" opacity="0.85"/>
+  <path d="M6 3h14c.5 0 .8.5.5.9L17 9l3.5 5.1c.3.4 0 .9-.5.9H6V3z" fill="#F2B94B" stroke="#365F8B" stroke-width="1.6" stroke-linejoin="round"/>
 </svg>
