@@ -60,6 +60,55 @@
                              class="top-nav-account-menu d-none"
                              role="menu"
                              aria-label="계정 메뉴">
+                            <button id="topNavThemeMenuToggle"
+                                    type="button"
+                                    class="top-nav-account-item top-nav-theme-menu-toggle"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    aria-controls="topNavThemeSubmenu">
+                                <span class="top-nav-theme-menu-label">테마</span>
+                                <span class="top-nav-theme-menu-current" aria-hidden="true">☀️</span>
+                                <span class="top-nav-theme-menu-chevron" aria-hidden="true">▾</span>
+                            </button>
+                            <div id="topNavThemeSubmenu"
+                                 class="top-nav-theme-submenu"
+                                 role="group"
+                                 aria-label="테마 선택">
+                                <button type="button"
+                                        class="top-nav-account-item top-nav-theme-item"
+                                        role="menuitemradio"
+                                        data-theme-value="light"
+                                        aria-checked="false"
+                                        aria-label="라이트 모드">
+                                    <span class="top-nav-theme-icon" aria-hidden="true">☀️</span>
+                                    <span class="top-nav-theme-label">라이트</span>
+                                    <span class="top-nav-theme-check" aria-hidden="true">✓</span>
+                                </button>
+                                <button type="button"
+                                        class="top-nav-account-item top-nav-theme-item"
+                                        role="menuitemradio"
+                                        data-theme-value="dark"
+                                        aria-checked="false"
+                                        aria-label="다크 모드">
+                                    <span class="top-nav-theme-icon" aria-hidden="true">🌙</span>
+                                    <span class="top-nav-theme-label">다크</span>
+                                    <span class="top-nav-theme-check" aria-hidden="true">✓</span>
+                                </button>
+                                <button type="button"
+                                        class="top-nav-account-item top-nav-theme-item"
+                                        role="menuitemradio"
+                                        data-theme-value="system"
+                                        aria-checked="false"
+                                        aria-label="시스템 따름">
+                                    <span class="top-nav-theme-icon" aria-hidden="true">🖥️</span>
+                                    <span class="top-nav-theme-label">시스템</span>
+                                    <span class="top-nav-theme-system-current" aria-hidden="true"></span>
+                                    <span class="top-nav-theme-check" aria-hidden="true">✓</span>
+                                </button>
+                            </div>
+                            <div class="top-nav-account-divider"
+                                 role="separator"
+                                 aria-orientation="horizontal"></div>
                             <a id="topNavLoginLink"
                                href="/web/auth/login"
                                class="top-nav-account-item d-none"

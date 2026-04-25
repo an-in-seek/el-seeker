@@ -18,11 +18,11 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-elevated);
     /* 약간 밝은 배경으로 콘텐츠와 구분 */
-    border-top: 1px solid #dee2e6;
+    border-top: 1px solid var(--color-border);
     /* 상단 경계 라인 */
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -2px 8px var(--color-shadow);
     /* 위쪽 음영 */
     z-index: 1000;
 
@@ -163,7 +163,7 @@
     height: 48px;
     border: 3px solid rgba(13, 110, 253, 0.1);
     border-radius: 50%;
-    border-top-color: #0d6efd;
+    border-top-color: var(--color-accent);
     animation: spin 0.8s ease-in-out infinite;
     margin-bottom: 0.75rem;
 }

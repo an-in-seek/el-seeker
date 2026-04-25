@@ -11,7 +11,8 @@ export const STORAGE_KEYS = Object.freeze({
     CHAPTER_NUMBER: "chapterNumber",
     VERSE_ID: "verseId",
     VERSE_NUMBER: "verseNumber",
-    LAST_READ_LOCATION: "lastReadLocation"
+    LAST_READ_LOCATION: "lastReadLocation",
+    THEME_PREFERENCE: "themePreference"
 });
 
 // === Local Storage Utility ===
@@ -145,6 +146,34 @@ export const VerseStore = {
     },
     consumeVerseNumber() {
         return SessionStore.consume(STORAGE_KEYS.VERSE_NUMBER);
+    }
+};
+
+// 테마 선호도 관련 — 'light' | 'dark' | null(=시스템 따름)
+export const ThemeStore = {
+    get() {
+        try {
+            return localStorage.getItem(STORAGE_KEYS.THEME_PREFERENCE);
+        } catch (e) {
+            return null;
+        }
+    },
+    set(value) {
+        if (value !== "light" && value !== "dark") {
+            return;
+        }
+        try {
+            localStorage.setItem(STORAGE_KEYS.THEME_PREFERENCE, value);
+        } catch (e) {
+            // localStorage 차단 환경 — 영속화 실패해도 기능은 동작
+        }
+    },
+    clear() {
+        try {
+            localStorage.removeItem(STORAGE_KEYS.THEME_PREFERENCE);
+        } catch (e) {
+            // ignore
+        }
     }
 };
 

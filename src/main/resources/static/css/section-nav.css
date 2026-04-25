@@ -1,15 +1,21 @@
 /* ===== Section Navigation (Bottom Tab Bar + Navigation Rail) ===== */
 
-/* --- CSS Variables --- */
+/* --- CSS Variables ---
+   사이즈 변수는 그대로 유지, 색상은 시맨틱 토큰 참조 (다크 테마 자동 분기)
+   theme.css 의 토큰을 var() 로 참조 */
 :root {
     --top-nav-height: 52px;
     --bottom-tab-height: calc(56px + env(safe-area-inset-bottom, 0px));
     --nav-rail-width: 80px;
-    --section-nav-bg: #ffffff;
-    --section-nav-active: #0d6efd;
-    --section-nav-inactive: #9E9E9E;
+    --section-nav-bg: var(--color-bg-base);
+    --section-nav-active: var(--color-accent);
+    --section-nav-inactive: var(--color-text-muted);
     --section-nav-indicator: rgba(13, 110, 253, 0.12);
-    --section-nav-border: #e0e0e0;
+    --section-nav-border: var(--color-border);
+}
+
+html[data-theme="dark"] {
+    --section-nav-indicator: rgba(77, 171, 247, 0.18);
 }
 
 /* --- Base Styles --- */

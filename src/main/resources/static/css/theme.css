@@ -1,0 +1,87 @@
+/* ===== Dark Theme — 시맨틱 토큰 정의 ===== */
+/* 설계 문서: docs/common/dark-theme.md */
+
+/* 라이트 (기본) */
+:root {
+    --color-bg-base: #ffffff;
+    --color-bg-elevated: #f8f9fa;
+    --color-bg-nav: #e9ecef;
+    --color-bg-overlay: rgba(255, 255, 255, 0.92);
+    --color-text-primary: #212529;
+    --color-text-secondary: #6c757d;
+    --color-text-muted: #adb5bd;
+    --color-border: #dee2e6;
+    --color-border-control: #ced4da;
+    --color-accent: #0d6efd;
+    --color-accent-fg: #ffffff;
+    --color-shadow: rgba(0, 0, 0, 0.08);
+    --hero-overlay-from: rgba(0, 0, 0, 0.35);
+    --hero-overlay-to: rgba(0, 0, 0, 0.55);
+}
+
+/* 다크 — specificity 한 단계 올려 로드 순서 의존성 제거 */
+html[data-theme="dark"] {
+    --color-bg-base: #0f1216;
+    --color-bg-elevated: #181c22;
+    --color-bg-nav: #1d2229;
+    --color-bg-overlay: rgba(15, 18, 22, 0.92);
+    --color-text-primary: #e6e8eb;
+    --color-text-secondary: #adb5bd;
+    --color-text-muted: #868e96;
+    --color-border: #2a3038;
+    --color-border-control: #495057;
+    --color-accent: #4dabf7;
+    --color-accent-fg: #0f1216;
+    --color-shadow: rgba(0, 0, 0, 0.5);
+    --hero-overlay-from: rgba(0, 0, 0, 0.55);
+    --hero-overlay-to: rgba(0, 0, 0, 0.75);
+
+    /* Bootstrap 5.3 변수 매핑 — utility 클래스 자동 분기 일관화 */
+    --bs-body-bg: var(--color-bg-base);
+    --bs-body-color: var(--color-text-primary);
+    --bs-border-color: var(--color-border);
+    --bs-secondary-color: var(--color-text-secondary);
+    --bs-tertiary-bg: var(--color-bg-elevated);
+    --bs-link-color: var(--color-accent);
+    --bs-link-hover-color: var(--color-accent);
+}
+
+/* 첫 paint 트랜지션 차단 */
+html.theme-transitions-disabled,
+html.theme-transitions-disabled *,
+html.theme-transitions-disabled *::before,
+html.theme-transitions-disabled *::after {
+    transition: none !important;
+}
+
+/* 모드 전환 트랜지션 — body 전반 */
+body {
+    transition: background-color 200ms ease, color 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body {
+        transition: none;
+    }
+}
+
+/* 인쇄 시 라이트 강제 — :root 와 html[data-theme="dark"] 양쪽 override */
+@media print {
+    :root,
+    html[data-theme="dark"] {
+        --color-bg-base: #ffffff;
+        --color-bg-elevated: #f8f9fa;
+        --color-bg-nav: #e9ecef;
+        --color-bg-overlay: rgba(255, 255, 255, 0.92);
+        --color-text-primary: #212529;
+        --color-text-secondary: #6c757d;
+        --color-text-muted: #adb5bd;
+        --color-border: #dee2e6;
+        --color-border-control: #ced4da;
+        --color-accent: #0d6efd;
+        --color-accent-fg: #ffffff;
+        --color-shadow: rgba(0, 0, 0, 0.08);
+        --hero-overlay-from: rgba(0, 0, 0, 0.35);
+        --hero-overlay-to: rgba(0, 0, 0, 0.55);
+    }
+}

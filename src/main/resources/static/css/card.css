@@ -4,8 +4,8 @@
 
 .card-panel {
     height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px var(--color-shadow), 0 0 1px var(--color-shadow);
 }
 
 .card-clickable {
@@ -28,9 +28,9 @@
     .card-lift:focus-visible .card,
     .card-lift.card:hover,
     .card-lift.card:focus-visible {
-        background-color: #f8f9fa;
-        border-color: rgba(0, 0, 0, 0.12);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06);
+        background-color: var(--color-bg-elevated);
+        border-color: var(--color-border);
+        box-shadow: 0 8px 24px var(--color-shadow), 0 2px 6px var(--color-shadow);
         transform: translateY(-4px);
     }
 
@@ -38,7 +38,7 @@
     .card-lift:focus-visible .text-muted,
     .card-lift.card:hover .text-muted,
     .card-lift.card:focus-visible .text-muted {
-        color: #495057;
+        color: var(--color-text-secondary);
     }
 }
 
