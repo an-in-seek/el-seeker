@@ -27,6 +27,12 @@
     overflow: hidden;
 }
 
+html[data-theme="dark"] .quiz-map-hero {
+    background: var(--color-bg-elevated-bright);
+    border-color: var(--color-border);
+    box-shadow: 0 2px 12px var(--color-shadow);
+}
+
 .quiz-map-hero::before {
     content: '';
     position: absolute;
@@ -49,6 +55,14 @@
     font-size: 0.85rem;
     color: #64748b;
     margin: 0 0 1.25rem;
+}
+
+html[data-theme="dark"] .quiz-map-hero-title {
+    color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .quiz-map-hero-sub {
+    color: var(--color-text-secondary);
 }
 
 /* Progress Ring */
@@ -79,12 +93,20 @@
     stroke-width: 6;
 }
 
+html[data-theme="dark"] .quiz-map-ring-bg {
+    stroke: var(--color-border);
+}
+
 .quiz-map-ring-fill {
     fill: none;
     stroke: #2563eb;
     stroke-width: 6;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-theme="dark"] .quiz-map-ring-fill {
+    stroke: var(--color-accent);
 }
 
 .quiz-map-ring-text {
@@ -96,6 +118,10 @@
     font-size: 1.1rem;
     font-weight: 800;
     color: #1e293b;
+}
+
+html[data-theme="dark"] .quiz-map-ring-text {
+    color: var(--color-text-primary);
 }
 
 .quiz-map-stats {
@@ -114,6 +140,14 @@
 .quiz-map-stat-line strong {
     font-weight: 700;
     color: #1e293b;
+}
+
+html[data-theme="dark"] .quiz-map-stat-line {
+    color: var(--color-text-secondary);
+}
+
+html[data-theme="dark"] .quiz-map-stat-line strong {
+    color: var(--color-text-primary);
 }
 
 /* Hero Action Buttons (shared base) */
@@ -160,7 +194,7 @@
 /* --- 3. Note --- */
 .quiz-map-note {
     text-align: center;
-    color: #94a3b8;
+    color: var(--color-text-muted);
     font-size: 0.8rem;
     margin-bottom: 1.5rem;
     font-weight: 500;
@@ -178,9 +212,9 @@
 /* --- 5. Stage Card --- */
 .stage-card {
     position: relative;
-    background: #fff;
-    border: 1.5px solid #e2e8f0;
-    border-left: 4px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1.5px solid var(--color-border);
+    border-left: 4px solid var(--color-border);
     border-radius: 14px;
     padding: 1rem 1.25rem;
     margin-bottom: 0.5rem;
@@ -218,21 +252,37 @@
     }
 }
 
-/* --- 6. State: COMPLETE --- */
+/* --- 6. State: COMPLETE — 의미 색(그린) 라이트 톤 유지, 다크는 어두운 그린 --- */
 .stage-card.is-complete {
     background: #fafff7;
     border-color: #d1e7c4;
     border-left-color: #16a34a;
+    color: #1e293b;
 }
 
-/* --- 7. State: CURRENT --- */
+html[data-theme="dark"] .stage-card.is-complete {
+    background: rgba(25, 135, 84, 0.12);
+    border-color: rgba(25, 135, 84, 0.35);
+    border-left-color: #75b798;
+    color: var(--color-text-primary);
+}
+
+/* --- 7. State: CURRENT — 의미 색(블루) 라이트 톤 유지, 다크는 어두운 블루 --- */
 .stage-card.is-current {
     background: #f8faff;
     border-color: #bfdbfe;
     border-left-color: #2563eb;
+    color: #1e293b;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08),
     0 4px 16px rgba(37, 99, 235, 0.1);
     z-index: 2;
+}
+
+html[data-theme="dark"] .stage-card.is-current {
+    background: rgba(77, 171, 247, 0.12);
+    border-color: rgba(77, 171, 247, 0.35);
+    border-left-color: #4dabf7;
+    color: var(--color-text-primary);
 }
 
 @keyframes currentPulse {
@@ -252,12 +302,26 @@
     opacity: 0.55;
 }
 
+html[data-theme="dark"] .stage-card.is-locked {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-border);
+    border-left-color: var(--color-border-control);
+}
+
 .stage-card.is-locked .stage-title {
     color: #94a3b8;
 }
 
 .stage-card.is-locked .stage-number {
     color: #cbd5e1;
+}
+
+html[data-theme="dark"] .stage-card.is-locked .stage-title {
+    color: var(--color-text-muted);
+}
+
+html[data-theme="dark"] .stage-card.is-locked .stage-number {
+    color: var(--color-text-muted);
 }
 
 /* --- 9. Card Inner Content --- */
@@ -271,7 +335,7 @@
 .stage-number {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #64748b;
+    color: var(--color-text-secondary);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -285,10 +349,18 @@
     color: #2563eb;
 }
 
+html[data-theme="dark"] .stage-card.is-complete .stage-number {
+    color: #75b798;
+}
+
+html[data-theme="dark"] .stage-card.is-current .stage-number {
+    color: #4dabf7;
+}
+
 .stage-title {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--color-text-primary);
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -331,10 +403,28 @@
     border: 1px solid #e2e8f0;
 }
 
+html[data-theme="dark"] .stage-status.is-complete {
+    background: rgba(25, 135, 84, 0.18);
+    color: #75b798;
+    border-color: rgba(25, 135, 84, 0.45);
+}
+
+html[data-theme="dark"] .stage-status.is-current {
+    background: rgba(77, 171, 247, 0.18);
+    color: #4dabf7;
+    border-color: rgba(77, 171, 247, 0.45);
+}
+
+html[data-theme="dark"] .stage-status.is-locked {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+}
+
 /* Meta row */
 .stage-meta-row {
     font-size: 0.78rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -365,6 +455,16 @@
     z-index: 0;
 }
 
+html[data-theme="dark"] .stage-grid::before {
+    background: linear-gradient(
+            to bottom,
+            #75b798 0%,
+            #4dabf7 var(--path-progress, 0%),
+            var(--color-border) var(--path-progress, 0%),
+            var(--color-border) 100%
+    );
+}
+
 /* Node dots on the path */
 .stage-card .stage-node {
     position: absolute;
@@ -374,8 +474,8 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #fff;
-    border: 3px solid #cbd5e1;
+    background: var(--color-bg-base);
+    border: 3px solid var(--color-border-control);
     z-index: 1;
     transition: all 0.3s ease;
     box-sizing: border-box;
@@ -385,6 +485,12 @@
     background: #16a34a;
     border-color: #16a34a;
     box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+html[data-theme="dark"] .stage-card.is-complete .stage-node {
+    background: #75b798;
+    border-color: #75b798;
+    box-shadow: 0 0 0 3px rgba(117, 183, 152, 0.2);
 }
 
 .stage-card.is-complete .stage-node::after {
@@ -409,6 +515,12 @@
     animation: nodePulse 2s ease-in-out infinite;
 }
 
+html[data-theme="dark"] .stage-card.is-current .stage-node {
+    background: #4dabf7;
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.25);
+}
+
 @keyframes nodePulse {
     0%, 100% {
         box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
@@ -419,8 +531,8 @@
 }
 
 .stage-card.is-locked .stage-node {
-    background: #f1f5f9;
-    border-color: #e2e8f0;
+    background: var(--color-bg-elevated);
+    border-color: var(--color-border);
 }
 
 /* Adjust card padding for node space on mobile — use px to match timeline axis */
