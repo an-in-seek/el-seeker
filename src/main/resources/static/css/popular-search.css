@@ -95,6 +95,21 @@
     color: #c9630a;
 }
 
+html[data-theme="dark"] .popular-search-link.top-rank-1 .popular-search-rank {
+    background: rgba(245, 158, 11, 0.22);
+    color: #facc15;
+}
+
+html[data-theme="dark"] .popular-search-link.top-rank-2 .popular-search-rank {
+    background: rgba(148, 163, 184, 0.22);
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .popular-search-link.top-rank-3 .popular-search-rank {
+    background: rgba(249, 115, 22, 0.22);
+    color: #fdba74;
+}
+
 .popular-search-keyword {
     flex: 1 1 auto;
     min-width: 0;
@@ -138,7 +153,8 @@
     border: 0;
     border-radius: 16px;
     padding: 0;
-    background: #fff;
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
     box-shadow: 0 16px 44px rgba(0, 0, 0, 0.2);
 }
 
@@ -160,14 +176,14 @@
     gap: 0.75rem;
     margin-bottom: 0.9rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .popular-search-dialog-title {
     font-size: 1.05rem;
     font-weight: 700;
     margin: 0;
-    color: #212529;
+    color: var(--color-text-primary);
 }
 
 .popular-search-dialog-close {
@@ -176,8 +192,8 @@
     height: 2rem;
     border-radius: 50%;
     border: 0;
-    background: #f1f3f5;
-    color: #495057;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
     font-size: 1.25rem;
     line-height: 1;
     cursor: pointer;
@@ -189,12 +205,12 @@
 
 @media (hover: hover) and (pointer: fine) {
     .popular-search-dialog-close:hover {
-        background: #e9ecef;
+        background: var(--color-border);
     }
 }
 
 .popular-search-dialog-close:focus-visible {
-    outline: 2px solid #4dabf7;
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
 }
 
