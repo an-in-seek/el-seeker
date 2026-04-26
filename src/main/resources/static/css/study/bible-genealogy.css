@@ -15,9 +15,9 @@
     padding: 0.5rem 1.25rem;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #64748b;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -25,15 +25,15 @@
 
 @media (hover: hover) and (pointer: fine) {
     .genealogy-tab:hover {
-        background: #e2e8f0;
-        color: #1e293b;
+        background: var(--color-border);
+        color: var(--color-text-primary);
     }
 }
 
 .genealogy-tab.is-active {
-    background: #1e40af;
-    color: #ffffff;
-    border-color: #1e40af;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
 }
 
 /* Section */
@@ -45,19 +45,19 @@
 .genealogy-section-header {
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--color-border);
 }
 
 .genealogy-section-title {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--color-text-primary);
     margin-bottom: 0.2rem;
 }
 
 .genealogy-section-subtitle {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
 }
 
 /* Timeline */
@@ -71,7 +71,7 @@
 .genealogy-connector {
     width: 2px;
     height: 28px;
-    background: #cbd5e1;
+    background: var(--color-border-control);
 }
 
 /* Node */
@@ -79,8 +79,8 @@
     width: 100%;
     max-width: 360px;
     padding: 0.75rem 1rem;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     text-align: center;
     transition: box-shadow 0.15s ease;
@@ -88,7 +88,7 @@
 
 @media (hover: hover) and (pointer: fine) {
     .genealogy-node:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 2px 8px var(--color-shadow);
     }
 }
 
@@ -102,17 +102,17 @@
 .genealogy-node-name {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--color-text-primary);
 }
 
 .genealogy-node-note {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     margin: 0;
     line-height: 1.4;
 }
 
-/* Highlight */
+/* Highlight — 의미 색(파랑) 라이트 톤 유지, 다크에서도 동일 그라데이션 위 어두운 텍스트로 가독성 보장 */
 .genealogy-node.is-highlight {
     border-color: #93c5fd;
     background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
@@ -123,7 +123,11 @@
     font-weight: 700;
 }
 
-/* Origin (하나님) */
+html[data-theme="dark"] .genealogy-node.is-highlight .genealogy-node-note {
+    color: #475569;
+}
+
+/* Origin (하나님) — 의미 색(보라) */
 .genealogy-node.is-origin {
     border-color: #c4b5fd;
     background: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%);
@@ -134,7 +138,11 @@
     font-size: 1.05rem;
 }
 
-/* Final (예수 그리스도) */
+html[data-theme="dark"] .genealogy-node.is-origin .genealogy-node-note {
+    color: #475569;
+}
+
+/* Final (예수 그리스도) — 의미 색(빨강) */
 .genealogy-node.is-final {
     border-color: #fca5a5;
     background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
@@ -147,6 +155,10 @@
     font-weight: 800;
 }
 
+html[data-theme="dark"] .genealogy-node.is-final .genealogy-node-note {
+    color: #475569;
+}
+
 /* Toggle */
 .genealogy-toggle {
     display: inline-flex;
@@ -156,9 +168,9 @@
     padding: 0.35rem 0.85rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #475569;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -166,8 +178,8 @@
 
 @media (hover: hover) and (pointer: fine) {
     .genealogy-toggle:hover {
-        background: #e2e8f0;
-        color: #1e293b;
+        background: var(--color-border);
+        color: var(--color-text-primary);
     }
 }
 
