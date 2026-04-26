@@ -550,12 +550,12 @@ async function handleVerseClick(event) {
     }
     const verseNum = verseEl.getAttribute("data-verse");
     const isSelected = toggleVerseSelection(verseNum);
-    if (verseEl.classList.contains("verse-has-memo")) {
-        if (isSelected) {
-            showMemo(verseNum);
-        } else {
-            hideMemo(verseNum);
-        }
+    if (!isSelected) {
+        // 선택 해제 시 — 메모 컨테이너 닫기 (FAB 메모 액션으로 열린 일반 verse 포함)
+        hideMemo(verseNum);
+    } else if (verseEl.classList.contains("verse-has-memo")) {
+        // 메모 있는 verse 는 선택 시 자동 표시
+        showMemo(verseNum);
     }
 }
 
