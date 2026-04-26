@@ -221,6 +221,20 @@ html[data-theme="dark"] {
     }
 }
 
+html[data-theme="dark"] .ox-quiz-option-o {
+    border-color: rgba(25, 135, 84, 0.45);
+    background: linear-gradient(145deg, rgba(25, 135, 84, 0.08) 0%, rgba(25, 135, 84, 0.18) 100%);
+}
+
+html[data-theme="dark"] .ox-quiz-option-o .ox-quiz-option-icon {
+    color: #75b798;
+}
+
+html[data-theme="dark"] .ox-quiz-option-o:hover:not(:disabled) {
+    border-color: rgba(25, 135, 84, 0.65);
+    background: linear-gradient(145deg, rgba(25, 135, 84, 0.18) 0%, rgba(25, 135, 84, 0.28) 100%);
+}
+
 .ox-quiz-option-x {
     border-color: #fecaca;
     background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
@@ -237,6 +251,20 @@ html[data-theme="dark"] {
     }
 }
 
+html[data-theme="dark"] .ox-quiz-option-x {
+    border-color: rgba(220, 53, 69, 0.45);
+    background: linear-gradient(145deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.18) 100%);
+}
+
+html[data-theme="dark"] .ox-quiz-option-x .ox-quiz-option-icon {
+    color: #f08080;
+}
+
+html[data-theme="dark"] .ox-quiz-option-x:hover:not(:disabled) {
+    border-color: rgba(220, 53, 69, 0.65);
+    background: linear-gradient(145deg, rgba(220, 53, 69, 0.18) 0%, rgba(220, 53, 69, 0.28) 100%);
+}
+
 .ox-quiz-option.is-selected {
     transform: scale(0.98);
 }
@@ -251,6 +279,18 @@ html[data-theme="dark"] {
     border-color: #ef4444;
     background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+}
+
+html[data-theme="dark"] .ox-quiz-option.is-correct {
+    border-color: #75b798;
+    background: linear-gradient(145deg, rgba(25, 135, 84, 0.22) 0%, rgba(25, 135, 84, 0.38) 100%);
+    box-shadow: 0 0 0 3px rgba(117, 183, 152, 0.35);
+}
+
+html[data-theme="dark"] .ox-quiz-option.is-wrong {
+    border-color: #f08080;
+    background: linear-gradient(145deg, rgba(220, 53, 69, 0.22) 0%, rgba(220, 53, 69, 0.38) 100%);
+    box-shadow: 0 0 0 3px rgba(240, 128, 128, 0.35);
 }
 
 .ox-quiz-option:disabled {
@@ -279,6 +319,14 @@ html[data-theme="dark"] {
 
 .ox-quiz-feedback.is-wrong {
     color: #b91c1c;
+}
+
+html[data-theme="dark"] .ox-quiz-feedback.is-correct {
+    color: #8fd8b2;
+}
+
+html[data-theme="dark"] .ox-quiz-feedback.is-wrong {
+    color: #f5a8a8;
 }
 
 /* Next Button */
