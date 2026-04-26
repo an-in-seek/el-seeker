@@ -2,8 +2,8 @@
 
 .typing-page {
     font-family: "Manrope", "Noto Sans KR", sans-serif;
-    color: #1e293b;
-    background: #f8fafc;
+    color: var(--color-text-primary);
+    background: var(--color-bg-base);
 }
 
 /* Typography */
@@ -17,56 +17,60 @@
     margin-bottom: 0.5rem;
 }
 
+html[data-theme="dark"] .typing-kicker {
+    color: #5eead4;
+}
+
 .typing-hero-title {
     font-family: "Fraunces", "Noto Serif KR", serif;
     font-weight: 700;
     font-size: clamp(1.8rem, 2.5vw, 2.2rem);
-    color: #0f172a;
+    color: var(--color-text-primary);
     letter-spacing: -0.02em;
 }
 
 /* Selection Bar */
 .typing-selection-bar {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 2px var(--color-shadow);
 }
 
 .typing-selection-bar .form-select {
-    border-color: #e2e8f0;
+    border-color: var(--color-border-control);
     font-size: 0.875rem;
-    color: #334155;
-    background-color: #f8fafc;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-elevated);
 }
 
 .typing-selection-bar .form-select:focus {
     border-color: #0f766e;
-    box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.1);
-    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
+    background-color: var(--color-bg-base);
 }
 
 .typing-selection-bar .form-select:disabled {
-    background-color: #e2e8f0;
-    border-color: #cbd5e1;
-    color: #64748b;
+    background-color: var(--color-bg-elevated);
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
     cursor: not-allowed;
 }
 
 /* Status Bar */
 .typing-status-bar {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     padding: 1rem 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px var(--color-shadow);
 }
 
 /* Action Buttons */
 .typing-action-bar {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     display: flex;
@@ -74,7 +78,7 @@
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 2px var(--color-shadow);
 }
 
 /* Action Buttons (shared base — pill shape) */
@@ -129,6 +133,37 @@
     }
 }
 
+html[data-theme="dark"] .typing-btn-ranking {
+    color: #a5b4fc;
+    border-color: #a5b4fc;
+}
+
+html[data-theme="dark"] .typing-btn-ranking:hover {
+    background: #a5b4fc;
+    color: #1e1b4b;
+}
+
+html[data-theme="dark"] .typing-btn-start {
+    color: #0f1216;
+    background: #e6e8eb;
+    border-color: #e6e8eb;
+}
+
+html[data-theme="dark"] .typing-btn-start:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+
+html[data-theme="dark"] .typing-btn-reset {
+    color: #f5a8a8;
+    border-color: #f5a8a8;
+}
+
+html[data-theme="dark"] .typing-btn-reset:hover {
+    background: #f5a8a8;
+    color: #1f1010;
+}
+
 /* Sticky HUD Stack */
 .typing-sticky-stack {
     position: sticky;
@@ -136,12 +171,12 @@
     /* Below fixed header (52px nav + 4px buffer) */
     transition: top 300ms ease;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--color-bg-overlay);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    border: 1px solid var(--color-border);
     border-radius: 1rem;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    box-shadow: 0 10px 25px -5px var(--color-shadow), 0 8px 10px -6px var(--color-shadow);
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -165,7 +200,7 @@
 .typing-sticky-stack .typing-card-head {
     padding: 1rem 1.5rem;
     background: transparent;
-    border-bottom: 1px solid #f1f5f9 !important;
+    border-bottom: 1px solid var(--color-border) !important;
     /* Added separator */
     margin-bottom: 0 !important;
 }
@@ -181,7 +216,7 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #64748b;
+    color: var(--color-text-secondary);
     font-weight: 600;
     margin-bottom: 0.1rem;
 }
@@ -189,7 +224,7 @@
 .status-value {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-text-primary);
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
     /* Monospaced numbers */
@@ -201,11 +236,11 @@
 
 /* Verse Card */
 .typing-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 1rem;
     padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px var(--color-shadow);
 }
 
 .typing-verse-list {
@@ -217,10 +252,10 @@
 
 /* Verse Row */
 .typing-verse-row {
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--color-border);
     border-radius: 0.75rem;
     padding: 1.25rem;
-    background: #ffffff;
+    background: var(--color-bg-elevated-bright);
     display: grid;
     gap: 0.75rem;
     transition: all 0.2s ease;
@@ -234,8 +269,14 @@
     background: #f0fdfa;
 }
 
+html[data-theme="dark"] .typing-verse-row.is-active {
+    border-color: #5eead4;
+    background: rgba(94, 234, 212, 0.08);
+    box-shadow: 0 4px 12px rgba(94, 234, 212, 0.12);
+}
+
 .typing-verse-row.is-complete {
-    background: #f8fafc;
+    background: var(--color-bg-elevated);
     opacity: 0.7;
     border-color: transparent;
 }
@@ -246,7 +287,7 @@
     align-items: flex-start;
     font-size: 1.05rem;
     line-height: 1.6;
-    color: #334155;
+    color: var(--color-text-primary);
 }
 
 .typing-verse-number {
@@ -257,11 +298,16 @@
     margin-top: 0.15rem;
 }
 
+html[data-theme="dark"] .typing-verse-number {
+    color: #5eead4;
+}
+
 .typing-verse-input {
     resize: none;
     border-radius: 0.5rem;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
+    border: 1px solid var(--color-border-control);
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
     font-size: 1rem;
     line-height: 1.6;
     padding: 0.75rem;
@@ -270,14 +316,19 @@
 
 .typing-verse-input:focus {
     border-color: #0f766e;
-    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
     outline: none;
 }
 
+html[data-theme="dark"] .typing-verse-input:focus {
+    border-color: #5eead4;
+    box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.2);
+}
+
 .typing-verse-input:disabled {
-    background: #f8fafc;
-    color: #94a3b8;
-    border-color: #e2e8f0;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
 }
 
 /* Tokens */
@@ -299,6 +350,20 @@
 .typing-token.is-incorrect {
     color: #dc2626;
     background: #fee2e2;
+}
+
+html[data-theme="dark"] .typing-token.is-correct {
+    color: #5eead4;
+}
+
+html[data-theme="dark"] .typing-token.is-current {
+    background: rgba(245, 158, 11, 0.22);
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .typing-token.is-incorrect {
+    color: #f5a8a8;
+    background: rgba(220, 53, 69, 0.18);
 }
 
 @media (max-width: 768px) {

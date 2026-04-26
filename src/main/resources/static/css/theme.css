@@ -63,6 +63,17 @@ html[data-theme="dark"] {
     --bs-list-group-action-active-color: var(--color-text-primary);
 }
 
+/* Bootstrap text utility — 다크 모드에서 알파 적용 흐릿함 제거 */
+html[data-theme="dark"] .text-secondary {
+    color: var(--color-text-secondary) !important;
+    --bs-text-opacity: 1;
+}
+
+html[data-theme="dark"] .text-muted {
+    color: var(--color-text-muted) !important;
+    --bs-text-opacity: 1;
+}
+
 /* Bootstrap btn-outline-secondary — 다크 모드에서 텍스트/보더 가독성 보강 */
 html[data-theme="dark"] .btn-outline-secondary {
     --bs-btn-color: var(--color-text-primary);
