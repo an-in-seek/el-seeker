@@ -3,7 +3,7 @@
     margin: 0 auto;
 }
 
-/* Hero */
+/* Hero — 라이트 그라데이션은 의도된 시각 강조, 다크에서는 차분한 카드 톤 */
 .ox-quiz-hero {
     text-align: center;
     margin-bottom: 1.75rem;
@@ -16,6 +16,12 @@
     overflow: hidden;
 }
 
+html[data-theme="dark"] .ox-quiz-hero {
+    background: var(--color-bg-elevated-bright);
+    border-color: var(--color-border);
+    box-shadow: 0 2px 12px var(--color-shadow);
+}
+
 .ox-quiz-hero::before {
     content: '';
     position: absolute;
@@ -26,6 +32,7 @@
     background: linear-gradient(90deg, #2563eb 0%, #60a5fa 50%, #f59e0b 100%);
 }
 
+/* 라이트 그라데이션 배경 위 어두운 텍스트 (라이트 모드 의도) */
 .ox-quiz-hero-title {
     font-size: 1.35rem;
     font-weight: 700;
@@ -38,6 +45,15 @@
     font-size: 0.85rem;
     color: #64748b;
     margin: 0 0 1.25rem;
+}
+
+/* 다크 모드: hero 배경이 토큰으로 변경되었으므로 텍스트도 토큰 사용 */
+html[data-theme="dark"] .ox-quiz-hero-title {
+    color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .ox-quiz-hero-sub {
+    color: var(--color-text-secondary);
 }
 
 .ox-quiz-ranking {
@@ -60,6 +76,17 @@
     }
 }
 
+html[data-theme="dark"] .ox-quiz-ranking {
+    background: #4dabf7;
+    border-color: #4dabf7;
+    color: #0f1216;
+}
+
+html[data-theme="dark"] .ox-quiz-ranking:hover {
+    background: #74c0fc;
+    border-color: #74c0fc;
+}
+
 /* Stage Grid */
 .ox-stage-grid {
     display: grid;
@@ -74,9 +101,9 @@
     align-items: center;
     justify-content: center;
     padding: 1.25rem 1rem;
-    background: #fff;
-    border: 1.5px solid #e2e8f0;
-    border-left: 4px solid #e2e8f0;
+    background: var(--color-bg-elevated-bright);
+    border: 1.5px solid var(--color-border);
+    border-left: 4px solid var(--color-border);
     border-radius: 14px;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -87,7 +114,7 @@
 @media (hover: hover) and (pointer: fine) {
     .ox-stage-card:hover:not(.is-spotlight-target) {
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 8px 24px var(--color-shadow);
     }
 }
 
@@ -96,11 +123,12 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* State: Complete */
+/* State: Complete — 의미 색(그린) 라이트 톤 유지, 다크는 어두운 그린 */
 .ox-stage-card.is-completed {
     background: #fafff7;
     border-color: #d1e7c4;
     border-left-color: #16a34a;
+    color: #1e293b;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -109,11 +137,23 @@
     }
 }
 
-/* State: In Progress */
+html[data-theme="dark"] .ox-stage-card.is-completed {
+    background: rgba(25, 135, 84, 0.12);
+    border-color: rgba(25, 135, 84, 0.35);
+    border-left-color: #75b798;
+    color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .ox-stage-card.is-completed:hover:not(.is-spotlight-target) {
+    border-color: rgba(25, 135, 84, 0.55);
+}
+
+/* State: In Progress — 의미 색(블루) 라이트 톤 유지, 다크는 어두운 블루 */
 .ox-stage-card.has-progress {
     background: #f8faff;
     border-color: #bfdbfe;
     border-left-color: #2563eb;
+    color: #1e293b;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08),
     0 4px 16px rgba(37, 99, 235, 0.1);
 }
@@ -124,11 +164,22 @@
     }
 }
 
+html[data-theme="dark"] .ox-stage-card.has-progress {
+    background: rgba(77, 171, 247, 0.12);
+    border-color: rgba(77, 171, 247, 0.35);
+    border-left-color: #4dabf7;
+    color: var(--color-text-primary);
+}
+
+html[data-theme="dark"] .ox-stage-card.has-progress:hover:not(.is-spotlight-target) {
+    border-color: rgba(77, 171, 247, 0.55);
+}
+
 /* Inner Content */
 .ox-stage-number {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #64748b;
+    color: var(--color-text-secondary);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-bottom: 0.25rem;
@@ -142,10 +193,18 @@
     color: #2563eb;
 }
 
+html[data-theme="dark"] .ox-stage-card.is-completed .ox-stage-number {
+    color: #75b798;
+}
+
+html[data-theme="dark"] .ox-stage-card.has-progress .ox-stage-number {
+    color: #4dabf7;
+}
+
 .ox-stage-book {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--color-text-primary);
     line-height: 1.35;
     margin-bottom: 0.5rem;
 }
@@ -180,9 +239,21 @@
     border: 1px solid #bfdbfe;
 }
 
+html[data-theme="dark"] .ox-stage-badge.completed {
+    background: rgba(25, 135, 84, 0.18);
+    color: #75b798;
+    border-color: rgba(25, 135, 84, 0.45);
+}
+
+html[data-theme="dark"] .ox-stage-badge.in-progress {
+    background: rgba(77, 171, 247, 0.18);
+    color: #4dabf7;
+    border-color: rgba(77, 171, 247, 0.45);
+}
+
 .ox-stage-score {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--color-text-secondary);
     font-weight: 500;
 }
 
@@ -228,7 +299,7 @@
     cursor: pointer;
 }
 
-/* Spotlight target card */
+/* Spotlight target card — 다크 모드에서도 흰 배경 강조 + 가독성 위해 텍스트 다크색 강제 */
 .ox-stage-card.is-spotlight-target {
     position: relative;
     z-index: 999;
@@ -237,4 +308,9 @@
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 1),
                 0 4px 24px rgba(0, 0, 0, 0.25);
     transition: box-shadow 0.4s ease, background 0.4s ease;
+}
+
+html[data-theme="dark"] .ox-stage-card.is-spotlight-target,
+html[data-theme="dark"] .ox-stage-card.is-spotlight-target .ox-stage-book {
+    color: #1f2933;
 }
