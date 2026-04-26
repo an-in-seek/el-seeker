@@ -63,6 +63,21 @@ html[data-theme="dark"] {
     --bs-list-group-action-active-color: var(--color-text-primary);
 }
 
+/* Bootstrap btn-outline-secondary — 다크 모드에서 텍스트/보더 가독성 보강 */
+html[data-theme="dark"] .btn-outline-secondary {
+    --bs-btn-color: var(--color-text-primary);
+    --bs-btn-border-color: var(--color-border-control);
+    --bs-btn-hover-color: var(--color-text-primary);
+    --bs-btn-hover-bg: var(--color-bg-elevated);
+    --bs-btn-hover-border-color: var(--color-border-control);
+    --bs-btn-focus-shadow-rgb: 173, 181, 189;
+    --bs-btn-active-color: var(--color-text-primary);
+    --bs-btn-active-bg: var(--color-bg-elevated);
+    --bs-btn-active-border-color: var(--color-border-control);
+    --bs-btn-disabled-color: var(--color-text-muted);
+    --bs-btn-disabled-border-color: var(--color-border);
+}
+
 /* 첫 paint 트랜지션 차단 */
 html.theme-transitions-disabled,
 html.theme-transitions-disabled *,
