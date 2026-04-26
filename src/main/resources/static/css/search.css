@@ -8,7 +8,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--bs-body-bg, #fff);
+    background-color: var(--color-bg-base);
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 }
@@ -17,7 +17,7 @@
     top: calc(var(--top-nav-height, 52px));
     z-index: 1020;
     transition: top 300ms ease;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid var(--color-border);
 }
 
 @media (max-width: 599.98px) {
@@ -34,12 +34,13 @@
 .book-filter-select {
     width: 100%;
     border-radius: 8px;
-    border-color: #dee2e6;
-    color: #495057;
+    border-color: var(--color-border-control);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-base);
 }
 
 .book-filter-select:focus {
-    border-color: #0d6efd;
+    border-color: var(--color-accent);
     box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
 }
 
@@ -56,27 +57,27 @@
 }
 
 .search-result-item {
-    background-color: #fff;
-    border: 1px solid #eef1f4;
+    background-color: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     padding: 1rem 1.25rem;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 4px var(--color-shadow);
 }
 
 @media (hover: hover) and (pointer: fine) {
     .search-result-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
-        background-color: #fff;
-        border-color: #dee2e6;
+        box-shadow: 0 8px 16px var(--color-shadow);
+        background-color: var(--color-bg-elevated-bright);
+        border-color: var(--color-border-control);
     }
 }
 
 .search-result-item:active {
     transform: translateY(0);
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-elevated);
 }
 
 
@@ -89,15 +90,15 @@
 }
 
 .search-result-item {
-    background-color: #fff;
-    border: 1px solid #eef1f4;
+    background-color: var(--color-bg-elevated-bright);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     /* Slightly reduced border radius */
     padding: 0.75rem 1rem;
     /* Reduced padding from 1rem 1.25rem */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 2px var(--color-shadow);
     /* More subtle shadow */
 }
 
@@ -105,16 +106,16 @@
     .search-result-item:hover {
         transform: translateY(-1px);
         /* reduced elevation */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px var(--color-shadow);
         /* reduced shadow */
-        background-color: #fff;
-        border-color: #dee2e6;
+        background-color: var(--color-bg-elevated-bright);
+        border-color: var(--color-border-control);
     }
 }
 
 .search-result-item:active {
     transform: translateY(0);
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-elevated);
 }
 
 .search-result-meta {
@@ -122,15 +123,15 @@
     /* Reduced margin from 0.4rem */
     font-size: 0.85rem;
     font-weight: 600;
-    color: #0d6efd;
+    color: var(--color-accent);
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 .search-result-badge {
-    background-color: #f0f7ff;
-    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+    color: var(--color-accent);
     padding: 0.15rem 0.5rem;
     /* Slightly reduced padding */
     border-radius: 6px;
@@ -139,8 +140,12 @@
     letter-spacing: -0.01em;
 }
 
+html[data-theme="dark"] .search-result-badge {
+    background-color: rgba(77, 171, 247, 0.16);
+}
+
 .search-result-text {
-    color: #333;
+    color: var(--color-text-primary);
     line-height: 1.6;
     font-size: 1rem;
     word-break: keep-all;
@@ -167,6 +172,8 @@
 .highlight-keyword {
     background-color: #fff59d;
     /* 연한 형광 노랑 */
+    color: #1f2933;
+    /* 다크 배경에서도 노랑 위 텍스트 가독성 보장 */
     font-weight: bold;
     border-radius: 2px;
     padding: 0 2px;
@@ -181,8 +188,8 @@
     height: 48px;
     border: none;
     border-radius: 999px;
-    background-color: #0d6efd;
-    color: #ffffff;
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
     font-size: 20px;
     line-height: 1;
     opacity: 0;
