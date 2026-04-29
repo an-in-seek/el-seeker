@@ -1,16 +1,22 @@
-/* Community Write Styles v1.0 */
+/* Community Write Styles v1.1 */
 
 :root {
     --write-primary: #4f46e5;
     --write-primary-hover: #4338ca;
-    --write-bg-page: #f8fafc;
-    --write-bg-card: #ffffff;
-    --write-text-main: #1e293b;
-    --write-text-sub: #64748b;
-    --write-border: #e2e8f0;
+    --write-bg-page: var(--color-bg-base);
+    --write-bg-card: var(--color-bg-elevated-bright);
+    --write-text-main: var(--color-text-primary);
+    --write-text-sub: var(--color-text-secondary);
+    --write-border: var(--color-border);
     --write-radius-lg: 16px;
     --write-radius-md: 12px;
     --write-error: #ef4444;
+}
+
+html[data-theme="dark"] {
+    --write-primary: #a5b4fc;
+    --write-primary-hover: #c7d2fe;
+    --write-error: #f5a8a8;
 }
 
 body {
@@ -29,7 +35,7 @@ body {
     border-radius: var(--write-radius-lg);
     padding: 2rem;
     border: 1px solid var(--write-border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow);
 }
 
 /* Form Groups */
@@ -56,7 +62,7 @@ body {
     font-size: 0.95rem;
     color: var(--write-text-main);
     background: var(--write-bg-card);
-    border: 1px solid var(--write-border);
+    border: 1px solid var(--color-border-control);
     border-radius: var(--write-radius-md);
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
@@ -68,6 +74,12 @@ body {
     outline: none;
     border-color: var(--write-primary);
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+html[data-theme="dark"] .form-select:focus,
+html[data-theme="dark"] .form-input:focus,
+html[data-theme="dark"] .form-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.2);
 }
 
 .form-select.is-invalid,
@@ -113,25 +125,25 @@ body {
 }
 
 .btn-cancel {
-    background: #f1f5f9;
+    background: var(--color-bg-elevated);
     color: var(--write-text-sub);
 }
 
 @media (hover: hover) and (pointer: fine) {
     .btn-cancel:hover {
-        background: #e2e8f0;
+        background: var(--color-bg-elevated-strong);
     }
 }
 
 .btn-submit {
     background: var(--write-text-main);
-    color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: var(--color-bg-base);
+    box-shadow: 0 4px 6px -1px var(--color-shadow);
 }
 
 @media (hover: hover) and (pointer: fine) {
     .btn-submit:hover {
-        background: #0f172a;
+        background: var(--color-text-secondary);
         transform: translateY(-1px);
     }
 }
@@ -158,9 +170,9 @@ body {
         z-index: 100;
         margin: 0;
         padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-        background: #ffffff;
+        background: var(--write-bg-card);
         border-top: 1px solid var(--write-border);
-        box-shadow: 0 -8px 16px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 -8px 16px var(--color-shadow);
         flex-direction: row;
     }
 
