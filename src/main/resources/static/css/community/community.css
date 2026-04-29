@@ -3,15 +3,20 @@
 :root {
     --comm-primary: #4f46e5;
     --comm-primary-hover: #4338ca;
-    --comm-bg-page: #f8fafc;
-    --comm-bg-card: #ffffff;
-    --comm-text-main: #1e293b;
-    --comm-text-sub: #64748b;
-    --comm-border: #e2e8f0;
-    --comm-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    --comm-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    --comm-bg-page: var(--color-bg-base);
+    --comm-bg-card: var(--color-bg-elevated-bright);
+    --comm-text-main: var(--color-text-primary);
+    --comm-text-sub: var(--color-text-secondary);
+    --comm-border: var(--color-border);
+    --comm-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow);
+    --comm-shadow-hover: 0 10px 15px -3px var(--color-shadow), 0 4px 6px -2px var(--color-shadow);
     --comm-radius-lg: 16px;
     --comm-radius-md: 12px;
+}
+
+html[data-theme="dark"] {
+    --comm-primary: #a5b4fc;
+    --comm-primary-hover: #c7d2fe;
 }
 
 body {
@@ -220,6 +225,10 @@ body {
     line-height: 1;
 }
 
+html[data-theme="dark"] .feed-category-badge {
+    background: rgba(165, 180, 252, 0.18);
+}
+
 .feed-title {
     font-size: 1.1rem;
     font-weight: 700;
@@ -244,7 +253,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--comm-border);
     padding-top: 1rem;
     margin-top: auto;
     /* Push to bottom if flex column */
@@ -331,15 +340,14 @@ body {
 
 /* Write Widget */
 .write-widget {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, var(--color-bg-elevated-bright) 0%, var(--color-bg-elevated) 100%);
     text-align: center;
 }
 
 .btn-write-full {
     width: 100%;
-    background: var(--comm-text-main);
-    /* Dark theme button */
-    color: white;
+    background: var(--color-text-primary);
+    color: var(--color-bg-base);
     border: none;
     padding: 0.8rem;
     border-radius: var(--comm-radius-md);
@@ -351,14 +359,14 @@ body {
     font-weight: 600;
     font-size: 1rem;
     transition: transform 0.2s, background 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px var(--color-shadow);
 }
 
 @media (hover: hover) and (pointer: fine) {
     .btn-write-full:hover {
         transform: translateY(-2px);
-        background: #0f172a;
-        box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+        background: var(--color-text-secondary);
+        box-shadow: 0 8px 12px -1px var(--color-shadow);
     }
 }
 
@@ -399,6 +407,16 @@ body {
     .pinned-notice-item:hover {
         background: #fef3c7;
     }
+}
+
+html[data-theme="dark"] .pinned-notice-item {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fcd34d;
+}
+
+html[data-theme="dark"] .pinned-notice-item:hover {
+    background: rgba(245, 158, 11, 0.2);
 }
 
 .pinned-title {
@@ -563,13 +581,13 @@ body {
         right: 2rem;
         width: 56px;
         height: 56px;
-        background: var(--comm-text-main);
-        color: white;
+        background: var(--color-text-primary);
+        color: var(--color-bg-base);
         border-radius: 50%;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 12px var(--color-shadow);
         /* Match ScrollTop shadow intensity */
         z-index: 100;
         border: none;
@@ -584,7 +602,7 @@ body {
 .top3-card-mobile,
 .top3-card-desktop {
     padding: 1rem;
-    background: #ffffff;
+    background: var(--comm-bg-card);
     border: 1px solid var(--comm-border);
 }
 
@@ -633,8 +651,8 @@ body {
     height: 48px;
     border: none;
     border-radius: 999px;
-    background-color: #0d6efd;
-    color: #ffffff;
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
     font-size: 20px;
     line-height: 1;
     opacity: 0;
